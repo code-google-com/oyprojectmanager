@@ -151,6 +151,7 @@ Version History :
 -----------------
 v0.1.3
 - added external settings file for the database
+- the script is moved to its own directory to make it clean
 
 v0.1.2
 - switched to QMainWindow from QDialog
