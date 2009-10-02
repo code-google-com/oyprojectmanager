@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.1.3
+v0.1.4
 
 Description :
 -------------
@@ -149,6 +149,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.1.4
+- finished converting the single script to a python package
+- converted the window style to Plastique
+
 v0.1.3
 - added external settings file for the database
 - scripts are moved to their own directory to make the system clean
@@ -288,7 +292,7 @@ TODO List :
 
 
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 
 

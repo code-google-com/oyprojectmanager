@@ -1,6 +1,411 @@
 import os
+from xml.dom import minidom
 import oyAuxiliaryFunctions as oyAux
-import asset, assetType, structure, tools.cache
+from oyProjectManager.tools import cache
+import assetModel, userModel
+
+
+
+########################################################################
+class Database(object):
+    """Database class gives informations about the projects.
+    """
+    
+    
+    
+    #----------------------------------------------------------------------
+    def __init__(self):
+        # for now use strings for settings
+        
+        self._settingsFileName = 'oyProjectManager_settings.xml'
+        
+        self._serverPath = "/home/ozgur/Documents/Works" + os.path.sep
+        #self._serverPaths =  [] * 0
+        
+        self._projectsFolderName = "JOBs2"
+        self._projectManagerFolderName = "PROJECT_CREATOR"
+        
+        self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
+        self._projectManagerFullPath = os.path.join( self._serverPath, self._projectManagerFolderName )
+        
+        self._defaultSettingsFileName = "defaultProjectSettings.xml"
+        self._defaultSettingsFullPath = os.path.join( self._projectManagerFullPath, self._defaultSettingsFileName )
+        
+        self._lastUserFileName = ".lastUser"
+        self._lastUserFilePath = self.getHomePath()
+        self._lastUserFileFullPath = os.path.join( self._lastUserFilePath, self._lastUserFileName )
+        
+        self._nullOptionString = '---'
+        self._maxNotesCount = 30
+        
+        # users
+        self._usersFileName = 'users.xml'
+        self._usersFileFullPath = os.path.join( self._projectManagerFullPath, self._usersFileName )
+        self._users = [] * 0
+        self._readUsers()
+        
+        
+        self._projects = [] * 0
+        self.updateProjectList()
+        
+        self._defaultFilesList = [] * 0
+        self._defaultFilesList.append('workspace.mel')
+    
+    
+    
+    #----------------------------------------------------------------------
+    def updatePathVariables(self):
+        """updates path variables
+        """
+        self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
+        self._projectManagerFullPath = os.path.join( self._serverPath, self._projectManagerFolderName )
+        self._defaultSettingsFullPath = os.path.join( self._projectManagerFullPath, self._defaultSettingsFileName )
+        self._usersFileFullPath = os.path.join( self._projectManagerFullPath, self._usersFileName )
+        
+        self._users = [] * 0
+        self._readUsers()
+        
+        self._projects = [] * 0
+        self.updateProjectList()
+    
+    
+    
+    #----------------------------------------------------------------------
+    @cache.CachedMethod
+    def getProjects(self):
+        """returns projects names as a list
+        """
+        self.updateProjectList()
+        return self._projects
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getUsers(self):
+        """returns users as a list of User objects
+        """
+        return self._users
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getUserNames(self):
+        """returns the user names
+        """
+        names = [] * 0
+        for user in self._users:
+            names.append( user.getName() )
+        
+        return names
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getUserInitials(self):
+        """returns the user intials
+        """
+        initials = [] * 0
+        for user in self._users:
+            #assert(isinstance(user,User))
+            initials.append( user.getInitials() )
+        
+        return initials
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _readUsers(self):
+        """parses the usersFile
+        """
+        
+        # check if the usersFile exists
+        if not os.path.exists( self._usersFileFullPath ):
+            return
+        
+        usersXML = minidom.parse( self._usersFileFullPath )
+        
+        rootNode = usersXML.childNodes[0]
+        
+        # -----------------------------------------------------
+        # get the users node
+        userNodes = rootNode.getElementsByTagName('user')
+        
+        self._users = [] * 0
+        
+        for node in userNodes:
+            name = node.getAttribute('name')
+            initials = node.getAttribute('initials')
+            self._users.append( userModel.User(name, initials) )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def updateProjectList(self):
+        """updates the project list variable
+        """
+        
+        if os.path.exists( self._projectsFolderFullPath ):
+            self._projects = os.listdir( self._projectsFolderFullPath )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getServerPath(self):
+        """gets the server path
+        """
+        return self._serverPath
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setServerPath(self, serverPath):
+        """sets the server path
+        """
+        self._serverPath = serverPath + os.path.sep
+        
+        self.updatePathVariables()
+    
+    
+    
+    #----------------------------------------------------------------------
+    #def createStructureDataFromPath(self, structurePath ):
+        #"""creates structure data of a given path
+        #can be used to create new structure definitions for new projects
+        #"""
+        #structureData = [] * 0
+        
+        #for dirPath, dirNames, fileNames in os.walk(defaultProjectPath):
+            #structureData.append( dirPath[len(defaultProjectPath)+1:len(dirPath)] )
+        
+        #structureData.sort()
+        
+        #return structureData
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getHomePath(self):
+        """returns the homePath environment variable
+        it is :
+        /home/userName/ for linux
+        C:/Documents and Settings/userName for Windows
+        """
+        
+        homePath = ''
+        
+        if os.name == 'posix':
+            homePath = os.environ.get('HOME')
+        elif os.name == 'nt':
+            homePath = os.environ.get('HOMEPATH')
+        
+        return homePath
+    
+    
+    
+    #----------------------------------------------------------------------
+    @cache.CachedMethod
+    def getLastUser(self):
+        """returns the last user initials if the lastUserFile file exists
+        otherwise returns None
+        """
+        
+        lastUserInitials = None
+        
+        try:
+            lastUserFile = open( self._lastUserFileFullPath )
+        except IOError:
+            pass
+        else:
+            lastUserInitials = lastUserFile.readline().strip()
+            lastUserFile.close()
+        
+        return lastUserInitials
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setLastUser(self, userInitials):
+        """saves the last user initials to the lastUserFile
+        """
+        
+        try:
+            lastUserFile = open( self._lastUserFileFullPath, 'w' )
+        except IOError:
+            pass
+        else:
+            lastUserFile.write( userInitials )
+            lastUserFile.close()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getProjectAndSequenceNameFromFilePath(self, filePath):
+        """returns the project name and sequence name from the path or fullPath
+        """
+        #assert(isinstance(filePath, str))
+        
+        if not filePath.startswith( self._projectsFolderFullPath ):
+            return None,None
+        
+        residual = filePath[ len(self._projectsFolderFullPath)+1 : len(filePath) ]
+        
+        parts = residual.split(os.path.sep)
+        
+        return parts[0], parts[1]
+
+
+
+
+
+
+########################################################################
+class Project(object):
+    """Project object to help manage project data
+    """
+    
+    
+    
+    #----------------------------------------------------------------------
+    def __init__(self, projectName, databaseObj = None):
+        
+        if databaseObj == None:
+            self._database = Database()
+        else:
+            self._database = databaseObj
+        
+        self._name = oyAux.file_name_conditioner( projectName )
+        self._path = ''
+        self._fullPath = ''
+        
+        self._initPathVariables()
+        
+        self._sequenceList = []
+        
+        self._exists = self.exists()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _initPathVariables(self):
+        self._path = self._database._projectsFolderFullPath
+        self._fullPath = os.path.join( self._path, self._name)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def create(self):
+        """creates the project
+        """
+        # check if the folder allready exists
+        oyAux.createFolder( self._fullPath )
+        self._exists = self.exists()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def createSequence(self, sequenceName, shots ):
+        """creates a sequence and returns the sequence object
+        """
+        newSequence = Sequence( self, sequenceName )
+        newSequence.addShots( shots )
+        newSequence.create()
+        
+        return newSequence
+    
+    
+    
+    #----------------------------------------------------------------------
+    @cache.CachedMethod
+    def getSequenceNames(self):
+        """returns the sequence names of that project
+        """
+        self.updateSequenceList()
+        return self._sequenceList
+    
+    
+    
+    #----------------------------------------------------------------------
+    @cache.CachedMethod
+    def getSequences(self):
+        """returns the sequences as sequence objects
+        
+        don't use it offen, because it causes the system to parse all the sequence settings
+        for all the sequences under that project
+        
+        it is now using the caching mechanism use it freely
+        """
+        
+        self.updateSequenceList()
+        sequences = [] * 0
+        
+        for sequenceName in self._sequenceList:
+            sequences.append( Sequence( self, sequenceName) )
+        
+        return sequences
+    
+    
+    
+    #----------------------------------------------------------------------
+    def updateSequenceList(self):
+        """updates the sequenceList variable
+        """
+        self._sequenceList = os.listdir( self._fullPath )
+        self._sequenceList.sort()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getFullPath(self):
+        return self._fullPath
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getDatabase(self):
+        """returns the current project database object
+        """
+        return self._database
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setDatabase(self, database ):
+        """sets the project database object
+        """
+        
+        self._database = database
+        
+        # reset the path variables
+        self._initPathVariables
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getName(self):
+        """ returns the name of the project
+        """
+        return self._name
+    
+    
+    
+    #----------------------------------------------------------------------
+    def exists(self):
+        """returns True if the project folder exists
+        """
+        
+        return os.path.exists( self._fullPath )
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def setProject(self, projectName):
+        #"""renews the object to a new project
+        #"""
+        
+        #self = Project( projectName )
+
+
+
 
 
 
@@ -16,6 +421,7 @@ class Sequence(object):
     #----------------------------------------------------------------------
     def __init__(self, project, sequenceName):
         # create the parent project with projectName
+        
         self._parentProject = project
         self._database = self._parentProject.getDatabase()
         
@@ -27,8 +433,8 @@ class Sequence(object):
         self._settingsFilePath = self._fullPath
         self._settingsFileFullPath = os.path.join( self._settingsFilePath, self._settingsFile )
         
-        self._structure = structure.Structure()
-        self._assetTypes = [ assetType.AssetType() ] * 0
+        self._structure = Structure()
+        self._assetTypes = [ assetModel.AssetType() ] * 0
         self._shotList = [] * 0 # should be a string
         
         self._shotPrefix = 'SH'
@@ -145,7 +551,7 @@ class Sequence(object):
             shotDependency = bool( int( node.getAttribute('shotDependent') ) )
             playblastFolder = node.getAttribute('playblastFolder')
             
-            self._assetTypes.append( AssetType( name, path, shotDependency, playblastFolder) )
+            self._assetTypes.append( assetModel.AssetType( name, path, shotDependency, playblastFolder) )
     
     
     
@@ -204,13 +610,13 @@ class Sequence(object):
         shotListNodeText.data = '\n'.join( self._shotList )
         
         # create asset types
-        for assetType in self._assetTypes:
-            assert( isinstance( assetType, AssetType ) )
+        for aType in self._assetTypes:
+            assert( isinstance( aType, assetModel.AssetType ) )
             typeNode = minidom.Element('type')
-            typeNode.setAttribute( 'name', assetType.getName() )
-            typeNode.setAttribute( 'path', assetType.getPath() )
-            typeNode.setAttribute( 'shotDependent', str( int( assetType.isShotDependent() ) ) )
-            typeNode.setAttribute( 'playblastFolder', assetType.getPlayblastFolder() )
+            typeNode.setAttribute( 'name', aType.getName() )
+            typeNode.setAttribute( 'path', aType.getPath() )
+            typeNode.setAttribute( 'shotDependent', str( int( aType.isShotDependent() ) ) )
+            typeNode.setAttribute( 'playblastFolder', aType.getPlayblastFolder() )
             
             assetTypesNode.appendChild( typeNode )
         
@@ -542,7 +948,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    @tools.cache.CachedMethod
+    @cache.CachedMethod
     def getAssetFolders(self):
         """returns all asset folders
         """
@@ -559,7 +965,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    @tools.cache.CachedMethod
+    @cache.CachedMethod
     def getAllAssets(self):
         """returns Asset objects for all the assets of the sequence
         beware that this method uses a very simple caching algorithm, so it
@@ -596,7 +1002,7 @@ class Sequence(object):
                 for childFile in childFiles:
                     childFileFullPath = os.path.join( childFolderFullPath, childFile)
                     if childFile.startswith( childFolder ) and os.path.isfile( childFileFullPath ):
-                        asset = Asset( self.getProjectName(), self.getName(), childFile ) 
+                        asset = assetModel.Asset( self.getProject(), self, childFile ) 
                         
                         if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
                             assets.append( asset )
@@ -637,7 +1043,8 @@ class Sequence(object):
         
         # recreate assets and return
         # TODO: return without recreating the assets
-        return [ Asset(self._parentProject._name, self._name, x['fileName']) for x in filteredAssetInfos ]
+        #return [ assetModel.Asset(self._parentProject._name, self._name, x['fileName']) for x in filteredAssetInfos ]
+        return [ assetModel.Asset(self._parentProject, self, x['fileName']) for x in filteredAssetInfos ]
     
     
     
@@ -688,3 +1095,53 @@ class Sequence(object):
         """adds new extension to ignore list
         """
         self._extensionsToIgnore.append( extension )
+
+
+
+
+
+
+########################################################################
+class Structure(object):
+    _shotDependentFolders = [] * 0
+    _shotIndependentFolders = [] * 0
+    
+    
+    
+    
+    #----------------------------------------------------------------------
+    def __init__(self, shotDependentFolders=None, shotIndependentFolders=None):
+        self._shotDependentFolders = shotDependentFolders
+        self._shotIndependentFolders = shotIndependentFolders
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setShotDependentFolders(self, folders):
+        """sets shot dependent folders
+        """
+        self._shotDependentFolders = folders
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setShotIndependentFolders(self, folders):
+        """sets shot independent folders
+        """
+        self._shotIndependentFolders = folders
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getShotDependentFolders(self):
+        """returns shot dependent folders as list
+        """
+        return self._shotDependentFolders
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getShotIndependentFolders(self):
+        """returns shot independent folders as list
+        """
+        return self._shotIndependentFolders

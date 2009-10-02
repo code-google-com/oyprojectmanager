@@ -1,6 +1,10 @@
+import sys
+import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
 import mainWindowUI
 
+from oyProjectManager.dataModels import assetModel, projectModel
+from oyProjectManager import __version__
 
 
 #----------------------------------------------------------------------
@@ -12,6 +16,7 @@ def UI(environment=None, fileName=None, path=None ):
     app = QtGui.QApplication(sys.argv)
     mainWindow = MainWindow(environment, fileName, path)
     mainWindow.show()
+    app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
 
@@ -84,7 +89,7 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         QtCore.QMetaObject.connectSlotsByName(self)
         
         # create a database
-        self._db = Database()
+        self._db = projectModel.Database()
         
         # fill them later
         self._project = None
@@ -142,6 +147,9 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         # get the project and sequence names
         projectName, sequenceName = self._db.getProjectAndSequenceNameFromFilePath( self.path )
         
+        currentProject = projectName
+        currentSequence = sequenceName
+        
         # set the project and sequence
         self.setProjectName(projectName)
         self.setSequenceName(sequenceName)
@@ -153,16 +161,17 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         # fill the fields with those info
         # create an asset with the file name and get the information from that asset object
         
-        asset = Asset( projectName, sequenceName, self.fileName )
+        #assetObj = assetModel.Asset( projectName, sequenceName, self.fileName )
+        assetObj = assetModel.Asset( currentProject, currentSequence, self.fileName )
         
-        assetType = asset.getTypeName()
-        shotNumber = asset.getShotNumber()
-        baseName = asset.getBaseName()
-        subName = asset.getSubName()
-        revNumber = asset.getRevisionNumber()
-        verNumber = asset.getVersionNumber()
-        userInitials = asset.getUserInitials()
-        notes = asset.getNotes()
+        assetType = assetObj.getTypeName()
+        shotNumber = assetObj.getShotNumber()
+        baseName = assetObj.getBaseName()
+        subName = assetObj.getSubName()
+        revNumber = assetObj.getRevisionNumber()
+        verNumber = assetObj.getVersionNumber()
+        userInitials = assetObj.getUserInitials()
+        notes = assetObj.getNotes()
         
         # fill the fields
         # assetType
@@ -176,7 +185,7 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         else:
             self.baseName_comboBox1.setCurrentIndex( self.baseName_comboBox1.findText(baseName) )
         
-        sequenceObject = Sequence( projectName, sequenceName )
+        sequenceObject = projectModel.Sequence( projectName, sequenceName )
         
         if not sequenceObject._noSubNameField: # remove this block when the support for old version becomes obsolute
             # sub Name
@@ -582,7 +591,8 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         assetInfo['typeName'] = typeName
         
         # construct the asset with base info
-        asset = Asset( currentProject.getName(), currentSequence.getName())
+        #asset = assetModel.Asset( currentProject.getName(), currentSequence.getName())
+        asset = assetModel.Asset( currentProject, currentSequence)
         asset.setInfoVariables( **assetInfo )
         
         # get all versions list
@@ -809,7 +819,8 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         """returns the asset object from the fields
         """
         
-        assetObj = Asset( self._project.getName(), self._sequence.getName() )
+        #assetObj = Asset( self._project.getName(), self._sequence.getName() )
+        assetObj = assetModel.Asset( self._project, self._sequence )
         
         # gather information
         typeName = self.getCurrentAssetTypeInSave()
@@ -906,7 +917,7 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         #assert(isinstance(self._project,Project))
         
         if self._project == None or (self._project.getName() != currentProjectName and (currentProjectName != "" or currentProjectName != None ) ):
-            self._project = Project( currentProjectName )
+            self._project = projectModel.Project( currentProjectName )
     
     
     
@@ -921,6 +932,7 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         
         if self._sequence == None or (self._sequence.getName() != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) ):
             self._updateProjectObject()
-            newSeq = Sequence( self._project.getName(), currentSequenceName )
+            #newSeq = sequence.Sequence( self._project.getName(), currentSequenceName )
+            newSeq = projectModel.Sequence( self._project, currentSequenceName )
             if newSeq._exists:
                 self._sequence = newSeq
