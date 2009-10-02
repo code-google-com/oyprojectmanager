@@ -1,4 +1,4 @@
-import sys
+import os, sys
 import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
 import mainWindowUI
@@ -15,7 +15,7 @@ def UI(environment=None, fileName=None, path=None ):
     global mainWindow
     app = QtGui.QApplication(sys.argv)
     mainWindow = MainWindow(environment, fileName, path)
-    mainWindow.show()
+    returnValue = mainWindow.show()
     app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
@@ -42,7 +42,7 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         
         # connect SIGNALs
         # close button
-        QtCore.QObject.connect(self.save_button, QtCore.SIGNAL("clicked()"), self.saveButton_action )
+        QtCore.QObject.connect(self.save_button, QtCore.SIGNAL("clicked()"), self.saveAsset )
         QtCore.QObject.connect(self.cancel_button1, QtCore.SIGNAL("clicked()"), self.close )
         QtCore.QObject.connect(self.cancel_button2, QtCore.SIGNAL("clicked()"), self.close )
         
@@ -92,15 +92,23 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         self._db = projectModel.Database()
         
         # fill them later
+        self._asset = None
         self._project = None
         self._sequence = None
         
         self.environment = environment
         self.fileName = fileName
         self.path = path
+        self.fullPath = ''
+        
+        if (self.fileName != None and self.fileName != '') and \
+           (self.path != None and self.path != '' ):
+            self.fullPath = os.path.join(self.path, self.fileName)
         
         self.setDefaults()
         self.updateProjectList()
+        
+        self.getSettingsFromEnvironment()
         
         self.fillFieldsFromFileInfo()
     
@@ -124,14 +132,15 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         # update the user with the last selected user
         lastUser = self._db.getLastUser()
         
-        userIndex = 0
+        #userIndex = 0
         
-        # get the user index
-        for i in range(0, len(userInits)):
-            if userInits[i] == lastUser:
-                userIndex = i 
+        ## get the user index
+        #for i in range(0, len(userInits)):
+            #if userInits[i] == lastUser:
+                #userIndex = i 
         
-        self.user_comboBox1.setCurrentIndex( userIndex )
+        #self.user_comboBox1.setCurrentIndex( userIndex )
+        self.user_comboBox1.setCurrentIndex( self.user_comboBox1.findText(lastUser) )
     
     
     
@@ -147,12 +156,12 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         # get the project and sequence names
         projectName, sequenceName = self._db.getProjectAndSequenceNameFromFilePath( self.path )
         
-        currentProject = projectName
-        currentSequence = sequenceName
+        currentProject = projectModel.Project( projectName )
+        currentSequence = projectModel.Sequence( currentProject, sequenceName )
         
         # set the project and sequence
-        self.setProjectName(projectName)
-        self.setSequenceName(sequenceName)
+        self.setProjectName( projectName )
+        self.setSequenceName( sequenceName )
         
         # no file name no use of the rest
         if self.fileName == None:
@@ -161,7 +170,6 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         # fill the fields with those info
         # create an asset with the file name and get the information from that asset object
         
-        #assetObj = assetModel.Asset( projectName, sequenceName, self.fileName )
         assetObj = assetModel.Asset( currentProject, currentSequence, self.fileName )
         
         assetType = assetObj.getTypeName()
@@ -179,15 +187,15 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         element.setCurrentIndex( element.findText( assetType ) )
         
         # shotNumber and baseName
-        if asset.isShotDependent():
+        if assetObj.isShotDependent():
             element = self.shot_comboBox1
             element.setCurrentIndex( element.findText( shotNumber) )
         else:
             self.baseName_comboBox1.setCurrentIndex( self.baseName_comboBox1.findText(baseName) )
         
-        sequenceObject = projectModel.Sequence( projectName, sequenceName )
+        #sequenceObject = projectModel.Sequence( projectName, sequenceName )
         
-        if not sequenceObject._noSubNameField: # remove this block when the support for old version becomes obsolute
+        if not currentSequence._noSubNameField: # remove this block when the support for old version becomes obsolute
             # sub Name
             self.subName_comboBox1.setCurrentIndex( self.subName_comboBox1.findText(subName) )
         
@@ -195,11 +203,14 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         self.revision_spinBox.setValue( revNumber )
         
         # version : set the version and increase it by one
-        self.version_spinBox.setValue( verNumber + 1 )
+        self.version_spinBox.setValue( verNumber )
+        self.updateVersionToLatest()
         
-        # user
-        element = self.user_comboBox1
-        element.setCurrentIndex( element.findText( userInitials ) )
+        
+        # leave the user initials as it is update from the databse
+        ## user
+        #element = self.user_comboBox1
+        #element.setCurrentIndex( element.findText( userInitials ) )
         
         # notes
         self.note_lineEdit1.setText( notes )
@@ -753,7 +764,8 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
             maxRevNumber = 0
             
         # update the field
-        self.revision_spinBox.setValue( maxRevNumber )
+        #self.revision_spinBox.setValue( maxRevNumber )
+        self.setRevisionNumberField( maxRevNumber )
     
     
     
@@ -774,7 +786,8 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
             maxVerNumber = 0
         
         # update the field
-        self.version_spinBox.setValue( maxVerNumber + 1 )
+        #self.version_spinBox.setValue( maxVerNumber + 1 )
+        self.setVersionNumberField( maxVerNumber + 1 )
     
     
     
@@ -852,6 +865,9 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         infoVars['userInitials'] = userInitials
         infoVars['notes'] = notes
         
+        #for keys in infoVars.keys():
+            #print str(keys).ljust(25),' : ', infoVars[keys]
+        
         assetObj.setInfoVariables( **infoVars )
         
         return assetObj
@@ -868,6 +884,24 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
     
     
     
+    #----------------------------------------------------------------------
+    def setRevisionNumberField(self, revNumber):
+        """sets the revision number field in the interface
+        """
+        
+        self.revision_spinBox.setValue( revNumber )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setVersionNumberField(self, verNumber):
+        """sets the version number field in the interface
+        """
+        
+        self.version_spinBox.setValue( verNumber )
+        
+    
+    
     ##----------------------------------------------------------------------
     #def validateFieldInput(self, UIElement):
         #"""validates the fields input
@@ -878,16 +912,6 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
             ##assert(isinstance(UIElement, QtGui.QComboBox))
             
             ##UIElement.a oyAux.file_name_conditioner( UIElement.currentText() )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def saveButton_action(self):
-        """returns the asset file name from the fields and closes the interface
-        """
-        
-        self.close()
-        return self.getFileNameFromSaveFields()
     
     
     
@@ -936,3 +960,141 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
             newSeq = projectModel.Sequence( self._project, currentSequenceName )
             if newSeq._exists:
                 self._sequence = newSeq
+    
+    
+    
+    #----------------------------------------------------------------------
+    # ENVIRONMENT PREPARATION
+    #----------------------------------------------------------------------
+    def getSettingsFromEnvironment(self):
+        """gets the data from environment
+        """
+        if (self.environment == 'MAYA'):
+            self.getPathVariablesFromMaya()
+            
+            # update the interface
+            self.fillFieldsFromFileInfo()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getPathVariablesFromMaya(self):
+        """gets the file name from maya environment
+        """
+        
+        import pymel as pm
+        self.fullPath = pm.env.sceneName()
+        
+        if self.fullPath == '':
+            return
+        
+        self.fileName = os.path.basename( self.fullPath )
+        self.path = os.path.dirname( self.fullPath )
+        
+    
+    
+    
+    #----------------------------------------------------------------------
+    # SAVE & OPEN ACTIONS FOR ENVIRONMENTS
+    #----------------------------------------------------------------------
+    def saveAsset(self):
+        """prepares the data and sends the asset object to the function
+        specially written for the host environment
+        """
+        
+        envStatus = False
+        verStatus = False
+        revStatus = False
+        overwriteStatus = False
+        
+        # get the asset object
+        assetObject = self.getAssetObjectFromSaveFields()
+        
+        # check the file conditions
+        
+        # check for latest version
+        if not assetObject.isLatestVersion():
+            
+            # ask permission to update the fields automatically
+            answer = QtGui.QMessageBox.question(self, 'Version Error', 'it is not the latest version\nshould I increase the version number?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            
+            if answer == QtGui.QMessageBox.Yes:
+                assetObject.setVersionToNextAvailable()
+                
+                self.setVersionNumberField( assetObject.getVersionNumber() )
+                
+                verStatus = True
+        else:
+            verStatus = True
+        
+        
+        # check for latest revision
+        if not assetObject.isLatestRevision():
+            # ask permission to update the fields automatically
+            answer = QtGui.QMessageBox.question(self, 'Revision Error', 'it is not the latest revision\nshould I increase the revision number?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            
+            if answer == QtGui.QMessageBox.Yes:
+                assetObject.setRevisionToNextAvailable()
+                
+                self.setRevisionNumberField( assetObject.getRevisionNumber() )
+                
+                revStatus = True
+        else:
+            revStatus = True
+        
+        
+        
+        # check for overwrites
+        if self.isOverwriting():
+            print "is overwriting!"
+            #self.close()
+            return
+        else:
+            overwriteStatus = True
+        
+        
+        
+        if verStatus and revStatus and overwriteStatus:
+            # everything is ok now save in the host application
+            if self.environment == 'MAYA':
+                envStatus = self.MayaSave( assetObject )
+            
+            
+            # if everything worked fine close the interface
+            if envStatus:
+                # set the last user variable
+                self._db.setLastUser( assetObject.getUserInitials() )
+                
+                self.close()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def MayaSave(self, assetObject ):
+        """the save action for maya environment
+        
+        uses PyMel to save the file (not necessary but comfortable )
+        """
+        
+        # set the extension to ma
+        assetObject.setExtension( 'ma' )
+        
+        import pymel as pm
+        pm.saveAs( assetObject.getFullPath() )
+        
+        return True
+    
+    
+    
+    #----------------------------------------------------------------------
+    def isOverwriting(self):
+        """checks if the file name exists in the server
+        """
+        
+        assetObject = self.getAssetObjectFromSaveFields()
+        
+        if assetObject.exists():
+            return True
+        
+        return False
+    

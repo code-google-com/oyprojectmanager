@@ -116,14 +116,18 @@ class Asset(object):
             self._extension = keys['extension']
         
         if not self._parentSequence._noSubNameField:
-            if self._baseName != None and self._subName != None and self._type != None:
+            if self._baseName != None and self._subName != None and self._type != None and \
+               self._baseName != '' and self._subName != '' and self._type != '':
                 self._hasBaseInfo = True
-                if self._rev != None and self._ver != None and self._userInitials != None:
+                if self._rev != None and self._ver != None and self._userInitials != None and \
+                   self._rev != '' and self._ver != '' and self._userInitials != '':
                     self._hasFullInfo = True
         else:  # remove this block when the support for old version becomes obsolute
-            if self._baseName != None and self._type != None:
+            if self._baseName != None and self._type != None and \
+               self._baseName != '' and self._type != '':
                 self._hasBaseInfo = True
-                if self._rev != None and self._ver != None and self._userInitials != None:
+                if self._rev != None and self._ver != None and self._userInitials != None and \
+                   self._rev != '' and self._ver != '' and self._userInitials != '':
                     self._hasFullInfo = True
         
         # get path variables
@@ -219,9 +223,24 @@ class Asset(object):
             if self._hasFullInfo:
                 
                 self._fileName = self.getFileName()
-                self._fullPath = os.path.join( self._path, self._fileName )
+                self._fullPath = os.path.join( self._path, self._fileName ) + os.path.extsep + self._extension
                 
                 self.updateExistancy()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setExtension(self, extension):
+        """sets the extension of the asset object
+        """
+        
+        assert(isinstance(extension,str))
+        
+        # remove any extension separetors at from the input extension
+        finalExtension = extension.split( os.path.extsep )[-1]
+        
+        self._extension = finalExtension
+        self.setPathVariables()
     
     
     
@@ -312,7 +331,7 @@ class Asset(object):
     
     #----------------------------------------------------------------------
     def _getCritiqueName(self):
-        """ returns the critique part of the asset name, which is:
+        """returns the critique part of the asset name, which is:
         BaseName_SubName_TypeName
         """
         
@@ -389,11 +408,72 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
+    def isLatestVersion(self):
+        """checks if the asset is the latest version in its series
+        """
+        
+        # return True if there is no such asset initialized yet
+        if not self._baseExists:
+            return True
+        
+        latestAssetObject, latestVersionNumber = self.getLatestVersion()
+        
+        if self.getVersionNumber() <= latestVersionNumber:
+            return False
+        
+        return True
+    
+    
+    
+    #----------------------------------------------------------------------
+    def isLatestRevision(self):
+        """checks if the asset is the latest revision in its series
+        """
+        
+        # return True if there is no such asset initialized yet
+        if not self._baseExists:
+            return True
+        
+        latestAssetObject, latestRevisionNumber = self.getLatestRevision()
+        
+        if self.getRevisionNumber() < latestRevisionNumber:
+            return False
+        
+        return True
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setVersionToNextAvailable(self):
+        """sets the version number to the latest number + 1
+        """
+        
+        latestAsset, latestVersionNumber = self.getLatestVersion()
+        self._ver = latestVersionNumber + 1
+        self._verString = self._parentSequence.convertToVerString( self._ver )
+        self.setPathVariables()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setRevisionToNextAvailable(self):
+        """sets the revision number to the latest number
+        """
+        
+        latestAsset, latestRevisionNumber = self.getLatestRevision()
+        self._rev = latestRevisionNumber
+        self._revString = self._parentSequence.convertToRevString( self._rev )
+        self.setPathVariables()
+    
+    
+    
+    #----------------------------------------------------------------------
     def increaseVersion(self):
         """increases the version by 1
         """
         self._ver += 1
         self._verString = self._parentSequence.convertToVerString( self._ver )
+        self.setPathVariables()
     
     
     
@@ -403,6 +483,7 @@ class Asset(object):
         """
         self._rev += 1
         self._revString = self._parentSequence.convertToRevString( self._rev )
+        self.setPathVariables()
     
     
     

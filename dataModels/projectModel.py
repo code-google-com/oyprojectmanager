@@ -1,4 +1,4 @@
-import os
+import os, re
 from xml.dom import minidom
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.tools import cache

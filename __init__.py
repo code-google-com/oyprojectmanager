@@ -149,6 +149,9 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.1.5
+- added the ability to save under MAYA environment
+
 v0.1.4
 - finished converting the single script to a python package
 - converted the window style to Plastique
