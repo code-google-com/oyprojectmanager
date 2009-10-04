@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.1.4
+v0.2.0
 
 Description :
 -------------
@@ -141,7 +141,7 @@ Command Line Options :
 -p, --path           the path of the current asset, it helps getting some of
                      the information
 
--u, --userInterface  displays the user interface ( needs PyQt4 installed )
+-u, --userInterface  displays the user interface ( needs PyQt4 to be installed )
 
 -v, --version        displays version information
 
@@ -149,6 +149,20 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.2.0
+- now the Database object reads the settings from the databaseSettings.xml
+  in the project root
+- added half support for multiple servers (full support will be in near future)
+- fixed the creation of a sequence from a project object
+- removed the project management functionalities to another interface
+- renamed the current mainWindow to assetIO_mainWindow
+- added the environment variable to the AssetType object
+- added the output attribute to the Structure node, and updated the
+  defaultSettings.xml. The output attribute will hold the output folder
+  poperties for types like render and comp.
+- created environment module, that holds a environment specific scripts for
+  actions like save, open, import
+
 v0.1.5
 - added the ability to save under MAYA environment
 
@@ -157,9 +171,8 @@ v0.1.4
 - converted the window style to Plastique
 
 v0.1.3
-- added external settings file for the database
 - scripts are moved to their own directory to make the system clean
-- converted the single script to a python package
+- started to convert the single script to a python package
 
 v0.1.2
 - switched to QMainWindow from QDialog
@@ -279,83 +292,25 @@ TODO List :
   the projects, sequences and assets
 + add an interface with PyQt4
 - add program names attribute to the assetType objects, so they can be
-  listed for specific programs only (e.g. MAYA, NUKE, PHOTOSHOP etc.)
-+ use external settings file in XML format for the database, instead of
+  listed for specific programs only (e.g. MAYA, NUKE, PHOTOSHOP, HOUDINI etc.)
+- use external settings file in XML format for the database, instead of
   burrying the data to the class
-- to get benefit from the caching system in the MainDialog class, add a project
++ to get benefit from the caching system in the MainDialog class, add a project
   and sequence attribute and fill them whenever the project and sequence is
   changed to something else
 - try to add another type of caching system, which is input dependent, so for
   same input it should return the same value without evaluating anything
 - the objects needs a more robust caching method
 - reduce the code duplication in MainDialog
+- separate the project management to another ui
+- create a publishing system for assets
+- save all xml in pretty xml format
 
 -------------------------------------------------------------------------------
 """
 
 
 
-__version__ = "0.1.4"
-
-
-
-import sys, getopt
-from ui import mainWindow
-
-
-
-#----------------------------------------------------------------------
-def main(argv=None):
-    """The main procedure
-    """
-    if argv is None:
-        argv = sys.argv
-    
-    # parse command line options
-    try:
-        shortopts = "h,f:,p:,u,v,e:"
-        longopts = ["help","fileName=","path=","userInterface","version","environment="]
-        opts, args = getopt.getopt(sys.argv[1:], shortopts, longopts)
-    except getopt.error, msg:
-        print msg
-        print "for help use --help"
-        sys.exit(2)
-    
-    environment = None
-    userInterface = False
-    fileName = None
-    path = None
-   
-    # process options
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            print __doc__
-            sys.exit(0)
-        
-        if o in ("-e", "--environment"):
-            environment = a
-            
-        if o in ("-u", "--userInterface"):
-            userInterface = True
-        
-        if o in ("-v", "--version"):
-            print __version__
-            sys.exit(0)
-        
-        if o in ("-f", "--fileName"):
-            fileName = a
-        
-        if o in ("-p", "--path"):
-            path = a
-    
-    if userInterface:
-        return mainWindow.UI(environment, fileName, path)
-
-
-
-
-
-if __name__ == "__main__":
-    main()
+__version__ = "0.2.0"
 
 

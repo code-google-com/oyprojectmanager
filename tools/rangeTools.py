@@ -1,3 +1,6 @@
+import oyAuxiliaryFunctions as oyAux
+
+
 ########################################################################
 class RangeConverter(object):
     """a class for manipulating shot lists

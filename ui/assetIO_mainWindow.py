@@ -1,9 +1,10 @@
 import os, sys
 import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
-import mainWindowUI
+import assetIO_mainWindowUI
 
 from oyProjectManager.dataModels import assetModel, projectModel
+from oyProjectManager.environments import maya, nuke, photoshop, houdini
 from oyProjectManager import __version__
 
 
@@ -26,19 +27,22 @@ def UI(environment=None, fileName=None, path=None ):
 
 
 ########################################################################
-class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
+class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     """the main dialog of the system
     """
     
     
     
     #----------------------------------------------------------------------
-    def __init__(self, environment, fileName, path):
+    def __init__(self, environment=None, fileName=None, path=None):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
         
         # change the window title
         self.setWindowTitle( self.windowTitle() + ' v' + __version__ )
+        
+        # center to the window
+        self._centerWindow()
         
         # connect SIGNALs
         # close button
@@ -115,6 +119,17 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
+    def _centerWindow(self):
+        """centers the window to the screen
+        """
+        
+        screen = QtGui.QDesktopWidget().screenGeometry()
+        size =  self.geometry()
+        self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2)
+    
+    
+    
+    #----------------------------------------------------------------------
     def setDefaults(self):
         """sets the default values
         """
@@ -132,14 +147,6 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         # update the user with the last selected user
         lastUser = self._db.getLastUser()
         
-        #userIndex = 0
-        
-        ## get the user index
-        #for i in range(0, len(userInits)):
-            #if userInits[i] == lastUser:
-                #userIndex = i 
-        
-        #self.user_comboBox1.setCurrentIndex( userIndex )
         self.user_comboBox1.setCurrentIndex( self.user_comboBox1.findText(lastUser) )
     
     
@@ -262,7 +269,7 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         currentSequence = self._sequence
         
         # get asset types
-        assetTypes = currentSequence.getAssetTypes()
+        assetTypes = currentSequence.getAssetTypes( self.environment )
         
         assetTypeNames = [ assetType.getName() for assetType in assetTypes ]
         
@@ -969,28 +976,12 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
     def getSettingsFromEnvironment(self):
         """gets the data from environment
         """
-        if (self.environment == 'MAYA'):
-            self.getPathVariablesFromMaya()
-            
+        if self.environment == 'MAYA':
+            self.fileName, self.path = maya.getPathVariables()
+        
+        if self.environment != None:
             # update the interface
             self.fillFieldsFromFileInfo()
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getPathVariablesFromMaya(self):
-        """gets the file name from maya environment
-        """
-        
-        import pymel as pm
-        self.fullPath = pm.env.sceneName()
-        
-        if self.fullPath == '':
-            return
-        
-        self.fileName = os.path.basename( self.fullPath )
-        self.path = os.path.dirname( self.fullPath )
-        
     
     
     
@@ -1057,7 +1048,7 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
         if verStatus and revStatus and overwriteStatus:
             # everything is ok now save in the host application
             if self.environment == 'MAYA':
-                envStatus = self.MayaSave( assetObject )
+                envStatus = maya.save( assetObject )
             
             
             # if everything worked fine close the interface
@@ -1066,23 +1057,6 @@ class MainWindow(QtGui.QMainWindow, mainWindowUI.Ui_MainWindow):
                 self._db.setLastUser( assetObject.getUserInitials() )
                 
                 self.close()
-    
-    
-    
-    #----------------------------------------------------------------------
-    def MayaSave(self, assetObject ):
-        """the save action for maya environment
-        
-        uses PyMel to save the file (not necessary but comfortable )
-        """
-        
-        # set the extension to ma
-        assetObject.setExtension( 'ma' )
-        
-        import pymel as pm
-        pm.saveAs( assetObject.getFullPath() )
-        
-        return True
     
     
     

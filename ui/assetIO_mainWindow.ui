@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>oyProjectManager</string>
+   <string>asset IO</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -720,11 +720,6 @@
            </widget>
           </item>
          </layout>
-        </widget>
-        <widget class="QWidget" name="projectManagement_tab">
-         <attribute name="title">
-          <string>Project Management</string>
-         </attribute>
         </widget>
        </widget>
       </item>

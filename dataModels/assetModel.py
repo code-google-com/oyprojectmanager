@@ -14,12 +14,7 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    #def __init__(self, projectName, sequenceName, fileName=None):
     def __init__(self, prj, seq, fileName=None):
-        
-        #self._parentProject = project.Project( projectName )
-        #self._parentSequence = sequence.Sequence( projectName, sequenceName )
-        
         
         self._parentProject = prj
         self._parentSequence = seq
@@ -253,6 +248,14 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
+    def getParentSequence(self):
+        """returns the parent sequence
+        """
+        return self._parentSequence
+    
+    
+    
+    #----------------------------------------------------------------------
     def getPath(self):
         """retrurns the path of the asset
         """
@@ -346,6 +349,28 @@ class Asset(object):
                 return None
             
             return self._dataSeparator.join( [self._baseName, self._typeName ] )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getSequenceFullPath(self):
+        """returns the parent sequence full path
+        """
+        #from oyProjectManager.dataModels import projectModel
+        #assert(isinstance(self._parentSequence, projectModel.Sequence))
+        return self._parentSequence.getFullPath()
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def getProjectPath(self):
+        #"""returns the parent project path
+        
+        #beware that it is the project path not the sequence path
+        #"""
+        #from oyProjectManager.dataModels import projectModel
+        #assert(isinstance(self._parentProject, projectModel.Project))
+        #return self._parentProject.getFullPath()
     
     
     
@@ -589,6 +614,14 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
+    def getType(self):
+        """returns the asset type as an assetType object
+        """
+        return self._type
+    
+    
+    
+    #----------------------------------------------------------------------
     def getTypeName(self):
         """returns asset type
         """
@@ -656,6 +689,23 @@ class Asset(object):
         else:
             self._exists = False
             self._baseExists = False
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def publishAsset(self):
+        #"""publishes the asset by adding its name to the _publishInfo.xml
+        #"""
+        #pass
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def isPublished(self):
+        #"""checks if the current asset is a published asset
+        #"""
+        #pass
+    
 
 
 
@@ -668,16 +718,18 @@ class AssetType(object):
     - the asset type name
     - relative path of that type
     - the shot dependency of that AssetType
+    - the environments (list) that the asset is available to
     """
     
     
     
     #----------------------------------------------------------------------
-    def __init__(self, name='', path='', shotDependent=False, playblastFolder=''):
+    def __init__(self, name='', path='', shotDependent=False, playblastFolder='', environments=None):
         self._name = name
         self._path = path
         self._shotDependency = shotDependent
         self._playblastFolder = playblastFolder
+        self._environments = environments
     
     
     
@@ -714,6 +766,14 @@ class AssetType(object):
     
     
     #----------------------------------------------------------------------
+    def getEnvironments(self):
+        """returns the environments that this type is available to as a list of string
+        """
+        return self._environments
+    
+    
+    
+    #----------------------------------------------------------------------
     def setName(self, name):
         """sets asset type name
         """
@@ -734,4 +794,11 @@ class AssetType(object):
         """sets shot dependency of that asset type
         """
         self._shotDependency = shotDependency
-
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setEnvironment(self, environments):
+        """sets the environment that this asset type is available to
+        """
+        self._environments = environments

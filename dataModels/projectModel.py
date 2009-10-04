@@ -1,7 +1,7 @@
-import os, re
+import os, re, shutil
 from xml.dom import minidom
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.tools import cache
+from oyProjectManager.tools import cache, rangeTools
 import assetModel, userModel
 
 
@@ -15,58 +15,106 @@ class Database(object):
     
     #----------------------------------------------------------------------
     def __init__(self):
-        # for now use strings for settings
         
-        self._settingsFileName = 'oyProjectManager_settings.xml'
+        # initialize default variables
+        self._databaseSettingsFileName = 'databaseSettings.xml'
         
-        self._serverPath = "/home/ozgur/Documents/Works" + os.path.sep
-        #self._serverPaths =  [] * 0
         
-        self._projectsFolderName = "JOBs2"
-        self._projectManagerFolderName = "PROJECT_CREATOR"
+        self._serverPath = ''
+        self._projectsFolderName = ''
         
-        self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
-        self._projectManagerFullPath = os.path.join( self._serverPath, self._projectManagerFolderName )
-        
+        self._projectManagerFolderName = ''
+        self._projectManagerFolderPath = ''
+        self._projectManagerFolderFullPath = ''
+
+        self._projectsFolderFullPath = ''
         self._defaultSettingsFileName = "defaultProjectSettings.xml"
-        self._defaultSettingsFullPath = os.path.join( self._projectManagerFullPath, self._defaultSettingsFileName )
+        self._defaultSettingsFullPath = ''
         
         self._lastUserFileName = ".lastUser"
         self._lastUserFilePath = self.getHomePath()
         self._lastUserFileFullPath = os.path.join( self._lastUserFilePath, self._lastUserFileName )
         
-        self._nullOptionString = '---'
-        self._maxNotesCount = 30
-        
         # users
         self._usersFileName = 'users.xml'
-        self._usersFileFullPath = os.path.join( self._projectManagerFullPath, self._usersFileName )
+        self._usersFileFullPath = ''
         self._users = [] * 0
-        self._readUsers()
-        
         
         self._projects = [] * 0
-        self.updateProjectList()
-        
         self._defaultFilesList = [] * 0
-        self._defaultFilesList.append('workspace.mel')
+        
+        self._readSettings()
+        self._updatePathVariables()
     
     
     
     #----------------------------------------------------------------------
-    def updatePathVariables(self):
+    def _readSettings(self):
+        """reads the settings from the xml file at the project root
+        """
+        
+        # get the module root path
+        import oyProjectManager
+        settingsFilePath = oyProjectManager.__path__[0]
+        
+        # then the database settings full path
+        settingsFileFullPath = os.path.join( settingsFilePath, self._databaseSettingsFileName )
+        
+        # open the file
+        xmlFile = minidom.parse( settingsFileFullPath )
+        
+        rootNode = xmlFile.childNodes[0]
+        
+        # -----------------------------------------------------
+        # get the nodes
+        settingsNode = rootNode.getElementsByTagName('settings')[0]
+        serverNodes = settingsNode.getElementsByTagName('server')
+        defaultFilesNode = rootNode.getElementsByTagName('defaultFiles')[0]
+        
+        #assert(isinstance(settingsNode, minidom.Element))
+        #assert(isinstance(defaultFilesNode, minidom.Element))
+        
+        
+        # -----------------------------------------------------
+        # read the server settings
+        # for now just assume one server
+        self._serverPath = serverNodes[0].getAttribute('serverPath')
+        self._projectsFolderName = serverNodes[0].getAttribute('projectsFolderName')
+        
+        
+        # read the project manager folder path
+        self._projectManagerFolderPath = settingsNode.getAttribute('projectManagerFolderPath')
+        self._projectManagerFolderName = settingsNode.getAttribute('projectManagerFolderName')
+        self._projectManagerFolderFullPath = os.path.join( self._projectManagerFolderPath, self._projectManagerFolderName )
+        
+        defaultFilesFolderFullPath = os.path.join( self._projectManagerFolderFullPath, "_defaultFiles_" )
+        # read and create the default files list
+        for fileNode in defaultFilesNode.getElementsByTagName('file'):
+            #assert(isinstance(fileNode, minidom.Element))
+            #                                    fileName                          projectRelativePath                       sourcePath
+            self._defaultFilesList.append( (fileNode.getAttribute('name'), fileNode.getAttribute('projectRelativePath') , defaultFilesFolderFullPath) )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _updatePathVariables(self):
         """updates path variables
         """
         self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
-        self._projectManagerFullPath = os.path.join( self._serverPath, self._projectManagerFolderName )
-        self._defaultSettingsFullPath = os.path.join( self._projectManagerFullPath, self._defaultSettingsFileName )
-        self._usersFileFullPath = os.path.join( self._projectManagerFullPath, self._usersFileName )
+        self._projectManagerFolderFullPath = os.path.join( self._projectManagerFolderPath, self._projectManagerFolderName )
+        self._defaultSettingsFullPath = os.path.join( self._projectManagerFolderFullPath, self._defaultSettingsFileName )
+        self._usersFileFullPath = os.path.join( self._projectManagerFolderFullPath, self._usersFileName )
         
         self._users = [] * 0
         self._readUsers()
         
         self._projects = [] * 0
         self.updateProjectList()
+        
+        # udpate the default files lists third element : the source path
+        defaultFilesFolderFullPath = os.path.join( self._projectManagerFolderFullPath, "_defaultFiles_" )
+        for fileNode in self._defaultFilesList:
+            fileNode = ( fileNode[0], fileNode[1], defaultFilesFolderFullPath )
     
     
     
@@ -150,6 +198,17 @@ class Database(object):
     
     
     #----------------------------------------------------------------------
+    def getProjectsFullPath(self):
+        """returns the projects folder full path
+        
+        ex : M:/JOBs
+        """
+        
+        return self._projectsFolderFullPath
+    
+    
+    
+    #----------------------------------------------------------------------
     def getServerPath(self):
         """gets the server path
         """
@@ -163,7 +222,7 @@ class Database(object):
         """
         self._serverPath = serverPath + os.path.sep
         
-        self.updatePathVariables()
+        self._updatePathVariables()
     
     
     
@@ -180,6 +239,19 @@ class Database(object):
         #structureData.sort()
         
         #return structureData
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getDefaultFiles(self):
+        """returns the default files list as list of tuples, the first element contains
+        the file name, the second the project relative path, the third the source path
+        
+        this is the list that contains files those
+        need to be copied to every project like workspace.mel for Maya
+        """
+        
+        return self._defaultFilesList
     
     
     
@@ -422,6 +494,8 @@ class Sequence(object):
     def __init__(self, project, sequenceName):
         # create the parent project with projectName
         
+        assert(isinstance(project, Project) )
+        
         self._parentProject = project
         self._database = self._parentProject.getDatabase()
         
@@ -447,6 +521,8 @@ class Sequence(object):
         self._extensionsToIgnore = [] * 0
         self._noSubNameField = False # to support the old types of projects
         
+        self._environment = None # the working environment
+        
         self._exists = False
         
         self._readSettings()
@@ -460,6 +536,9 @@ class Sequence(object):
         
         # check if there is a settings file
         if not os.path.exists( self._settingsFileFullPath ):
+            print "ERROR: no settings file in the sequence..."
+            # TODO: assume that it is an old project and try to get
+            # the data (just shot list) from the folders
             return
         else:
             self._exists = True
@@ -525,12 +604,23 @@ class Sequence(object):
         shotIndependentFoldersList = shotIndependentFoldersNode.childNodes[0].wholeText.split('\n')
         
         # strip the elements and remove empty elements
-        shotDependentFoldersList = [ folder.strip() for i, folder in enumerate(shotDependentFoldersList) if folder.strip() != ""  ]
-        shotIndependentFoldersList = [ folder.strip() for i, folder in enumerate(shotIndependentFoldersList) if folder.strip() != ""  ]
+        #shotDependentFoldersList = [ folder.strip() for i, folder in enumerate(shotDependentFoldersList) if folder.strip() != ""  ]
+        #shotIndependentFoldersList = [ folder.strip() for i, folder in enumerate(shotIndependentFoldersList) if folder.strip() != ""  ]
+        shotDependentFoldersList = [ folder.strip() for folder in shotDependentFoldersList if folder.strip() != ""  ]
+        shotIndependentFoldersList = [ folder.strip() for folder in shotIndependentFoldersList if folder.strip() != ""  ]
         
         # set the structure
         self._structure.setShotDependentFolders( shotDependentFoldersList )
         self._structure.setShotIndependentFolders( shotIndependentFoldersList )
+        
+        # read the output folders node
+        outputFoldersNode = structureNode.getElementsByTagName('outputFolders')[0]
+        outputNodes = outputFoldersNode.getElementsByTagName('output')
+        for outputNode in outputNodes:
+            #assert(isinstance(outpuNode, minidom.Element))
+            name = outputNode.getAttribute('name')
+            path = outputNode.getAttribute('path')
+            self._structure.addOutputFolder( name, path )
     
     
     
@@ -545,13 +635,15 @@ class Sequence(object):
         # read asset types
         self._assetTypes = [] * 0
         for node in assetTypesNode.getElementsByTagName('type'):
+            assert( isinstance( node, minidom.Element) )
             
             name = node.getAttribute('name')
             path = node.getAttribute('path')
             shotDependency = bool( int( node.getAttribute('shotDependent') ) )
             playblastFolder = node.getAttribute('playblastFolder')
+            environments = node.getAttribute('environments').split(",")
             
-            self._assetTypes.append( assetModel.AssetType( name, path, shotDependency, playblastFolder) )
+            self._assetTypes.append( assetModel.AssetType( name, path, shotDependency, playblastFolder, environments) )
     
     
     
@@ -566,7 +658,8 @@ class Sequence(object):
         # get shot list only if the current shot list is empty
         if len(self._shotList) == 0:
             if len(shotListNode.childNodes):
-                self._shotList  = [ shot.strip() for i, shot in enumerate( shotListNode.childNodes[0].wholeText.split('\n') ) if shot.strip() != "" ]
+                #self._shotList  = [ shot.strip() for i, shot in enumerate( shotListNode.childNodes[0].wholeText.split('\n') ) if shot.strip() != "" ]
+                self._shotList  = [ shot.strip() for shot in shotListNode.childNodes[0].wholeText.split('\n') if shot.strip() != "" ]
     
     
     
@@ -617,8 +710,20 @@ class Sequence(object):
             typeNode.setAttribute( 'path', aType.getPath() )
             typeNode.setAttribute( 'shotDependent', str( int( aType.isShotDependent() ) ) )
             typeNode.setAttribute( 'playblastFolder', aType.getPlayblastFolder() )
+            typeNode.setAttribute( 'environments', ",".join( aType.getEnvironments() ) )
             
             assetTypesNode.appendChild( typeNode )
+        
+        # create output folders node
+        
+        outputFoldersNode = minidom.Element('outputFolders')
+        for fTuple in self._structure.getOutputFolders():
+            
+            outputNode = minidom.Element('output')
+            outputNode.setAttribute( 'name', fTuple[0] )
+            outputNode.setAttribute( 'path', fTuple[1] )
+            
+            outputFoldersNode.appendChild( outputNode )
         
         # append childs
         rootNode.appendChild( databaseDataNode )
@@ -630,6 +735,7 @@ class Sequence(object):
         
         structureNode.appendChild( shotDependentNode )
         structureNode.appendChild( shotIndependentNode )
+        structureNode.appendChild( outputFoldersNode )
         
         shotDependentNode.appendChild( shotDependentNodeText )
         shotIndependentNode.appendChild( shotIndependentNodeText )
@@ -645,7 +751,7 @@ class Sequence(object):
         except IOError:
             print "couldn't open the settings file"
         finally:
-            settingsXML.writexml( settingsFile )
+            settingsXML.writexml( settingsFile, "\t", "\t", "\n" )
             settingsFile.close()
     
     
@@ -654,10 +760,13 @@ class Sequence(object):
     def create(self):
         """creates the sequence
         """
-        # create a folder with sequenceName
-        exists = oyAux.createFolder( self._fullPath )
         
-        if not exists:
+        # if the sequence doesn't exist create the folder
+        
+        if not self._exists:
+            # create a folder with sequenceName
+            exists = oyAux.createFolder( self._fullPath )
+            
             # copy the settings file to the root of the sequence
             shutil.copy( self._database._defaultSettingsFullPath, self._settingsFileFullPath )
         
@@ -671,9 +780,12 @@ class Sequence(object):
         self.createShots()
         
         # copy any file to the sequence
-        # (like workspace.mel, find a reasonable way)
-        for _file in self._database._defaultFilesList:
-            shutil.copy( os.path.join( self._database._projectManagerFullPath, _file), self._fullPath )
+        # (like workspace.mel)
+        for _fileInfo in self._database.getDefaultFiles():
+            sourcePath = os.path.join( _fileInfo[2], _fileInfo[0] )
+            targetPath = os.path.join( self._fullPath, _fileInfo[1], _fileInfo[0] )
+            
+            shutil.copy( sourcePath, targetPath )
     
     
     
@@ -694,8 +806,7 @@ class Sequence(object):
         # for now consider the shots as a string of range
         # do the hard work later
         
-        #rConv = RangeConverter()
-        newShotsList = RangeConverter.convertRangeToList( shots )
+        newShotsList = rangeTools.RangeConverter.convertRangeToList( shots )
         
         # convert the list to strings
         newShotsList = map(str, newShotsList)
@@ -748,6 +859,14 @@ class Sequence(object):
         """returns the shot list object
         """
         return self._shotList
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getStructure(self):
+        """returns the structure object
+        """
+        return self._structure
     
     
     
@@ -886,10 +1005,25 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def getAssetTypes(self):
+    def getAssetTypes(self, environment=None):
         """returns a list of AssetType objects that this project has
+        
+        if the environment is set something other then None only the assetTypes
+        for that environment is returned
         """
-        return self._assetTypes
+        
+        
+        if environment==None:
+            return self._assetTypes
+        else:
+            rList = [] * 0
+            
+            for aType in self._assetTypes:
+                assert(isinstance(aType, assetModel.AssetType) )
+                if environment in aType.getEnvironments():
+                    rList.append( aType )
+            
+            return rList
     
     
     
@@ -1039,17 +1173,16 @@ class Sequence(object):
         # get all the info variables of the assets
         assetInfos = [ asset.getInfoVariables() for asset in assetList ]
         
-        filteredAssetInfos = self.assetFilter( assetInfos, **kwargs)
+        filteredAssetInfos = self.aFilter( assetInfos, **kwargs)
         
         # recreate assets and return
         # TODO: return without recreating the assets
-        #return [ assetModel.Asset(self._parentProject._name, self._name, x['fileName']) for x in filteredAssetInfos ]
         return [ assetModel.Asset(self._parentProject, self, x['fileName']) for x in filteredAssetInfos ]
     
     
     
     #----------------------------------------------------------------------
-    def assetFilter(self, dicts, **kwargs):
+    def aFilter(self, dicts, **kwargs):
         """filters assets for criteria
         """
         return [ d for d in dicts if all(d.get(k) == kwargs[k] for k in kwargs)]
@@ -1103,16 +1236,21 @@ class Sequence(object):
 
 ########################################################################
 class Structure(object):
+    """The class that helps to hold data about structures in a sequence
+    
+    outputFolders should be a list of tuples showing the name and path of the outputFolder
+    """
+    
     _shotDependentFolders = [] * 0
     _shotIndependentFolders = [] * 0
     
     
     
-    
     #----------------------------------------------------------------------
-    def __init__(self, shotDependentFolders=None, shotIndependentFolders=None):
+    def __init__(self, shotDependentFolders=None, shotIndependentFolders=None, outputFolders=None):
         self._shotDependentFolders = shotDependentFolders
         self._shotIndependentFolders = shotIndependentFolders
+        self._outputFolders = outputFolders # should be a list of tuples
     
     
     
@@ -1133,6 +1271,25 @@ class Structure(object):
     
     
     #----------------------------------------------------------------------
+    def setOutputFolders(self, folders):
+        """sets the output folders from a dictionary
+        folders should be a list of tuples, the first element of the tuple
+        should contain the name and the second should contain the path of that
+        output folder
+        """
+        self._outputFolders = folders
+    
+    
+    
+    #----------------------------------------------------------------------
+    def addOutputFolder(self, name, path):
+        """
+        """
+        self._outputFolders.append( (name, path) )
+    
+    
+    
+    #----------------------------------------------------------------------
     def getShotDependentFolders(self):
         """returns shot dependent folders as list
         """
@@ -1145,3 +1302,23 @@ class Structure(object):
         """returns shot independent folders as list
         """
         return self._shotIndependentFolders
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getOutputFolders(self):
+        """returns the output folders as a dictionary
+        """
+        return self._outputFolders
+    
+    
+    #----------------------------------------------------------------------
+    def getOutputFolderPathOf(self, name):
+        """returns the output folder path with the name
+        returns none if name is not in the list
+        """
+        for oFolderT in self._outputFolders:
+            if oFolderT[0] == name:
+                return oFolderT[1]
+        
+        return None

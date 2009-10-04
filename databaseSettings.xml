@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<root>
+	<settings 
+		projectManagerFolderPath = "/home/ozgur/Documents/Works"
+		projectManagerFolderName = "PROJECT_CREATOR">
+		<server
+			serverPath = "/home/ozgur/Documents/Works"
+			projectsFolderName = "JOBs2"
+		/>
+	</settings>
+	<defaultFiles>
+		<file name="workspace.mel" projectRelativePath="."/>
+	</defaultFiles>
+</root>

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/mainWindow.ui'
+# Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetIO_mainWindow.ui'
 #
-# Created: Fri Oct  2 15:14:46 2009
+# Created: Sat Oct  3 11:49:53 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -411,9 +411,6 @@ class Ui_MainWindow(object):
         self.openAsset_verticalLayout.addWidget(self.openButtons_horizontalWidget)
         self.horizontalLayout_2.addWidget(self.openAsset_verticalWidget)
         self.main_tabWidget.addTab(self.openAsset_tab, "")
-        self.projectManagement_tab = QtGui.QWidget()
-        self.projectManagement_tab.setObjectName("projectManagement_tab")
-        self.main_tabWidget.addTab(self.projectManagement_tab, "")
         self.main_verticalLayout.addWidget(self.main_tabWidget)
         self.verticalLayout.addLayout(self.main_verticalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -466,7 +463,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "oyProjectManager", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "asset IO", None, QtGui.QApplication.UnicodeUTF8))
         self.server_label.setText(QtGui.QApplication.translate("MainWindow", "Server", None, QtGui.QApplication.UnicodeUTF8))
         self.server_comboBox.setStatusTip(QtGui.QApplication.translate("MainWindow", "Select a Server", None, QtGui.QApplication.UnicodeUTF8))
         self.project_label.setText(QtGui.QApplication.translate("MainWindow", "Project", None, QtGui.QApplication.UnicodeUTF8))
@@ -517,7 +514,6 @@ class Ui_MainWindow(object):
         self.cancel_button2.setStatusTip(QtGui.QApplication.translate("MainWindow", "Quit without doing anything", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_button2.setText(QtGui.QApplication.translate("MainWindow", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.main_tabWidget.setTabText(self.main_tabWidget.indexOf(self.openAsset_tab), QtGui.QApplication.translate("MainWindow", "Open Asset", None, QtGui.QApplication.UnicodeUTF8))
-        self.main_tabWidget.setTabText(self.main_tabWidget.indexOf(self.projectManagement_tab), QtGui.QApplication.translate("MainWindow", "Project Management", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_Settings.setText(QtGui.QApplication.translate("MainWindow", "Open Asset", None, QtGui.QApplication.UnicodeUTF8))
