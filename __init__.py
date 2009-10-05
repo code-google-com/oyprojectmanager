@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.2.0
+v0.3.0
 
 Description :
 -------------
@@ -149,6 +149,21 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.3.0
+- added check for the asset path while saving, it was giving errors for
+  non-existing asset paths
+- added open functionalities
+- fixed wrong fileName creation in Asset objects
+- for sequences that doesn't support subName fields, int the Asset object,
+  asset file name was not including the notes part of the file name, it is now
+  fixed
+- asset interface now ask the user permission to overwrite a file, instead of
+  canceling the saving process ( it is not allowed though to save over a file )
+- updated the render file name in MAYA environment to hold the subName field in
+  case the sequence supports it
+- added interface for project management (ie. creaeting projects, adding shots
+  etc. )
+
 v0.2.0
 - now the Database object reads the settings from the databaseSettings.xml
   in the project root
@@ -311,6 +326,6 @@ TODO List :
 
 
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 

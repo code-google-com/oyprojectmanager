@@ -1,5 +1,6 @@
 import os
 import pymel as pm
+import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.dataModels import assetModel, projectModel
 
 
@@ -10,6 +11,8 @@ def save( assetObject ):
     
     uses PyMel to save the file (not necessary but comfortable )
     """
+    
+    assert(isinstance(assetObject, assetModel.Asset ) )
     
     # set the extension to ma by default
     #assert(isinstance(assetObject, assetModel.Asset))
@@ -24,6 +27,9 @@ def save( assetObject ):
     # set the playblast file name
     setPlayblastFileName( assetObject )
     
+    # create the folder if it doesn't exists
+    oyAux.createFolder( assetObject.getPath() )
+    
     # save the file
     pm.saveAs( assetObject.getFullPath(), type='mayaAscii' )
     
@@ -32,26 +38,45 @@ def save( assetObject ):
 
 
 #----------------------------------------------------------------------
-def open_():
+def open_( assetObject ):
     """the open action for maya environment
     """
-    pass
+    assert(isinstance(assetObject, assetModel.Asset ) )
+    
+    pm.openFile( assetObject.getFullPath() )
+    
+    # set the project
+    pm.workspace.open( assetObject.getSequenceFullPath() )
+    
+    # set the playblast folder
+    setPlayblastFileName( assetObject )
+    
+    return True
 
 
 
 #----------------------------------------------------------------------
-def import_():
+def import_( assetObject ):
     """the import action for maya environment
     """
-    pass
+    assert( isinstance(assetObject, assetModel.Asset ) )
+    
+    pm.importFile( assetObject.getFullPath() )
+    
+    return True
 
 
 
 #----------------------------------------------------------------------
-def reference():
+def reference( assetObject ):
     """the reference action for maya environment
     """
-    pass
+    
+    assert( isinstance(assetObject, assetModel.Asset ) )
+    
+    pm.createReference( assetObject.getFullPath() )
+    
+    return True
 
 
 
@@ -90,7 +115,13 @@ def setRenderFileName( assetObject ):
     shotFolder = renderOutputFolder[ len(imageFolderFromWS):] # SHOTS
     
     assetBaseName = assetObject.getBaseName()
-    renderFileName = shotFolder + "/" + assetBaseName + "/<Layer>/" + assetBaseName + "_<Layer>_<RenderPass>_<Version>"
+    
+    renderFileName = ''
+    if parentSeq.noSubNameField():
+        renderFileName = shotFolder + "/" + assetBaseName + "/<Layer>/" + assetBaseName + "_<Layer>_<RenderPass>_<Version>"
+    else: # remove later when the support for old project is over
+        assetSubName = assetObject.getSubName()
+        renderFileName = shotFolder + "/" + assetBaseName + "/<Layer>/" + assetBaseName + "_" + assetSubName + "_<Layer>_<RenderPass>_<Version>"
     
     # defaultRenderGlobals
     dRG = pm.PyNode('defaultRenderGlobals')

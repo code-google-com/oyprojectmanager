@@ -1,5 +1,5 @@
 import oyAuxiliaryFunctions as oyAux
-
+import re
 
 ########################################################################
 class RangeConverter(object):
@@ -49,3 +49,23 @@ class RangeConverter(object):
         shotList = oyAux.concatenateLists( shotList )
         
         return shotList
+    
+    
+    
+    #----------------------------------------------------------------------
+    @staticmethod
+    def matchRange(_range):
+        """validates the range string
+        """
+        
+        assert( isinstance( _range, (str, unicode) ) )
+        
+        pattern = re.compile('[0-9\-,]+')
+        matchObj = re.match( pattern, _range )
+        
+        if matchObj:
+            _range = matchObj.group()
+        else:
+            _range = ''
+        
+        return _range

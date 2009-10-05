@@ -8,7 +8,7 @@ import assetModel, userModel
 
 ########################################################################
 class Database(object):
-    """Database class gives informations about the projects.
+    """Database class gives informations about the servers, projects, users etc.
     """
     
     
@@ -536,7 +536,7 @@ class Sequence(object):
         
         # check if there is a settings file
         if not os.path.exists( self._settingsFileFullPath ):
-            print "ERROR: no settings file in the sequence..."
+            #print "ERROR: no settings file in the sequence..."
             # TODO: assume that it is an old project and try to get
             # the data (just shot list) from the folders
             return
@@ -749,7 +749,8 @@ class Sequence(object):
         try:
             settingsFile = open( self._settingsFileFullPath, 'w' )
         except IOError:
-            print "couldn't open the settings file"
+            #print "couldn't open the settings file"
+            pass
         finally:
             settingsXML.writexml( settingsFile, "\t", "\t", "\n" )
             settingsFile.close()
@@ -816,6 +817,23 @@ class Sequence(object):
         
         # sort the shotList
         self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def addAlternativeShot(self, shotNumber):
+        #"""adds an alternative to the given shot
+        #"""
+        
+        #shotNumberAsStr = str( shotNumber )
+        
+        ## check if the shotNumber is in the shotList
+        #if shotNumber in self._shotList:
+            ## get the alternate letter
+    
+    
+    
+    
     
     
     
@@ -1136,6 +1154,7 @@ class Sequence(object):
                 for childFile in childFiles:
                     childFileFullPath = os.path.join( childFolderFullPath, childFile)
                     if childFile.startswith( childFolder ) and os.path.isfile( childFileFullPath ):
+                        
                         asset = assetModel.Asset( self.getProject(), self, childFile ) 
                         
                         if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
@@ -1228,6 +1247,14 @@ class Sequence(object):
         """adds new extension to ignore list
         """
         self._extensionsToIgnore.append( extension )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def noSubNameField(self):
+        """returns True if the sequence doesn't support subName fields (old-style)
+        """
+        return self._noSubNameField
 
 
 
@@ -1285,6 +1312,9 @@ class Structure(object):
     def addOutputFolder(self, name, path):
         """
         """
+        if self._outputFolders == None:
+            self._outputFolders = [] * 0
+        
         self._outputFolders.append( (name, path) )
     
     

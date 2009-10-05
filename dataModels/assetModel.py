@@ -46,8 +46,8 @@ class Asset(object):
         self._dataSeparator = '_'
         
         if fileName != None:
-            self._fileName = str( os.path.splitext(fileName)[0] ) # remove the extension
-            self._extension = str( os.path.splitext(fileName)[1] ).split( os.path.extsep )[-1] # remove the . in extension
+            self._fileName  = str( os.path.splitext(str(fileName))[0] ) # remove the extension
+            self._extension = str( os.path.splitext(str(fileName))[1] ).split( os.path.extsep )[-1] # remove the . in extension
             self.guessInfoVariablesFromFileName()
         
         self._exists = False
@@ -184,9 +184,9 @@ class Asset(object):
             self._revString    = parts[2]
             self._verString    = parts[3]
             self._userInitials = parts[4]
-        
+            
             if len(parts) > 5: # there should be a notes part
-                self._notes = self._dataSeparator.join( parts[6:len(parts)] )
+                self._notes = self._dataSeparator.join( parts[5:len(parts)] )
             else:
                 self._notes = ""
         
@@ -218,7 +218,7 @@ class Asset(object):
             if self._hasFullInfo:
                 
                 self._fileName = self.getFileName()
-                self._fullPath = os.path.join( self._path, self._fileName ) + os.path.extsep + self._extension
+                self._fullPath = os.path.join( self._path, self._fileName )
                 
                 self.updateExistancy()
     
@@ -251,6 +251,8 @@ class Asset(object):
     def getParentSequence(self):
         """returns the parent sequence
         """
+        from oyProjectManager.dataModels import projectModel
+        assert(isinstance(self._parentSequence, projectModel.Sequence ) )
         return self._parentSequence
     
     
@@ -297,7 +299,7 @@ class Asset(object):
         fileName = self._dataSeparator.join(parts)
         
         if self._extension != None and self._extension != '':
-            fileName = fileName + os.path.extsep + self._extension
+            fileName = fileName + os.extsep + self._extension
         
         return fileName
     

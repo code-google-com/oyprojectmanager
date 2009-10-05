@@ -8,6 +8,7 @@ from oyProjectManager.environments import maya, nuke, photoshop, houdini
 from oyProjectManager import __version__
 
 
+
 #----------------------------------------------------------------------
 def UI(environment=None, fileName=None, path=None ):
     """the UI
@@ -45,8 +46,14 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         self._centerWindow()
         
         # connect SIGNALs
-        # close button
+        # SAVE Asset
         QtCore.QObject.connect(self.save_button, QtCore.SIGNAL("clicked()"), self.saveAsset )
+        QtCore.QObject.connect(self.open_button, QtCore.SIGNAL("clicked()"), self.openAsset )
+        QtCore.QObject.connect(self.reference_button, QtCore.SIGNAL("clicked()"), self.referenceAsset )
+        QtCore.QObject.connect(self.import_button, QtCore.SIGNAL("clicked()"), self.importAsset )
+        
+        
+        # close button
         QtCore.QObject.connect(self.cancel_button1, QtCore.SIGNAL("clicked()"), self.close )
         QtCore.QObject.connect(self.cancel_button2, QtCore.SIGNAL("clicked()"), self.close )
         
@@ -872,12 +879,22 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         infoVars['userInitials'] = userInitials
         infoVars['notes'] = notes
         
-        #for keys in infoVars.keys():
-            #print str(keys).ljust(25),' : ', infoVars[keys]
-        
         assetObj.setInfoVariables( **infoVars )
         
         return assetObj
+    
+    
+    #----------------------------------------------------------------------
+    def getAssetObjectFromOpenFields(self):
+        """retriewes the file name from the open asset fields
+        """
+        
+        assetFileName = self.assets_listWidget2.currentItem().text()
+        
+        assetObject = assetModel.Asset( self._project, self._sequence, assetFileName )
+        
+        return assetObject
+    
     
     
     #----------------------------------------------------------------------
@@ -986,11 +1003,11 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    # SAVE & OPEN ACTIONS FOR ENVIRONMENTS
+    # SAVE & OPEN & IMPORT & REFERENCE ACTIONS FOR ENVIRONMENTS
     #----------------------------------------------------------------------
     def saveAsset(self):
         """prepares the data and sends the asset object to the function
-        specially written for the host environment
+        specially written for the host environment to save the asset file
         """
         
         envStatus = False
@@ -1037,9 +1054,10 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         # check for overwrites
         if self.isOverwriting():
-            print "is overwriting!"
+            answer = QtGui.QMessageBox.question(self, 'File Error', 'owerwrite?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
             #self.close()
-            return
+            if answer == QtGui.QMessageBox.Yes:
+                overwriteStatus = True
         else:
             overwriteStatus = True
         
@@ -1057,6 +1075,86 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
                 self._db.setLastUser( assetObject.getUserInitials() )
                 
                 self.close()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def openAsset(self):
+        """prepares the data and sends the asset object to the function
+        specially written for the host environment to open the asset file
+        """
+        
+        # get the asset object
+        assetObject = self.getAssetObjectFromOpenFields()
+        
+        # check the file existancy
+        exists = os.path.exists( assetObject.getFullPath() )
+        
+        # open the asset in the environment
+        if exists:
+            if self.environment == 'MAYA':
+                envStatus = maya.open_( assetObject )
+            
+            if envStatus:
+                self.close()
+        
+        else:
+            # warn the user for non existing asset files
+            answer = QtGui.QMessageBox.question(self, 'File Error', assetObject.getFullPath() + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def importAsset(self):
+        """prepares the data and sends the asset object to the function
+        specially written for the host environment to import the asset file
+        """
+        
+        # get the asset object
+        assetObject = self.getAssetObjectFromOpenFields()
+        
+        # check the file existancy
+        exists = os.path.exists( assetObject.getFullPath() )
+        
+        # open the asset in the environment
+        if exists:
+            if self.environment == 'MAYA':
+                envStatus = maya.import_( assetObject )
+            
+            if envStatus:
+                self.close()
+        
+        else:
+            # warn the user for non existing asset files
+            answer = QtGui.QMessageBox.question(self, 'File Error', assetObject.getFullPath() + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def referenceAsset(self):
+        """prepares the data and sends the asset object to the function
+        specially written for the host environment to reference the asset file
+        
+        beware that not all environments supports this action
+        """
+        
+        # get the asset object
+        assetObject = self.getAssetObjectFromOpenFields()
+        
+        # check the file existancy
+        exists = os.path.exists( assetObject.getFullPath() )
+        
+        # open the asset in the environment
+        if exists:
+            if self.environment == 'MAYA':
+                envStatus = maya.reference( assetObject )
+            
+            if envStatus:
+                self.close()
+        
+        else:
+            # warn the user for non existing asset files
+            answer = QtGui.QMessageBox.question(self, 'File Error', assetObject.getFullPath() + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
     
     
     
