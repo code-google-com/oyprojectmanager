@@ -1096,7 +1096,13 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # open the asset in the environment
         if exists:
             if self.environment == 'MAYA':
-                envStatus = maya.open_( assetObject )
+                try:
+                    envStatus = maya.open_( assetObject )
+                except RuntimeError:
+                    answer = QtGui.QMessageBox.question(self, 'File Error', "unsaved changes\nforce open ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
+                    
+                    if answer== QtGui.QMessageBox.Yes:
+                        envStatus = maya.open_( assetObject, True )
             
             if envStatus:
                 self.close()

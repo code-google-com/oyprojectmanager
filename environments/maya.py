@@ -38,12 +38,13 @@ def save( assetObject ):
 
 
 #----------------------------------------------------------------------
-def open_( assetObject ):
+def open_( assetObject, force=False):
     """the open action for maya environment
     """
     assert(isinstance(assetObject, assetModel.Asset ) )
     
-    pm.openFile( assetObject.getFullPath() )
+    # check for unsaved changes
+    pm.openFile( assetObject.getFullPath(), f=force )
     
     # set the project
     pm.workspace.open( assetObject.getSequenceFullPath() )
@@ -94,16 +95,8 @@ def getPathVariables():
         path = os.path.dirname( fullPath )
     else: # no file is open
         #try to get at least the project and sequence names
-        
-        # for nt replace / with \\ characters 
-        path = pm.workspace.name
-        
-        if os.name == 'nt':
-            print "replacing characters"
-            myDict = dict()
-            myDict['/'] = '\\'
-            path = oyAux.multiple_replace( path, myDict)
-        
+        path = getWorkspacePath()
+    
     return fileName, path
 
 
@@ -159,3 +152,20 @@ def setProject( projectName, sequenceName ):
     mayaProjectPath = os.path.join( db.getProjectsFullPath(), projectName, sequenceName )
     
     pm.workspace.open(mayaProjectPath)
+
+
+
+#----------------------------------------------------------------------
+def getWorkspacePath():
+    """returns the workspace path
+    tries to fix the path separator for windows
+    """
+    
+    path = pm.workspace.name
+    
+    if os.name == 'nt':
+        myDict = dict()
+        myDict['/'] = '\\'
+        path = oyAux.multiple_replace( path, myDict)
+    
+    return path

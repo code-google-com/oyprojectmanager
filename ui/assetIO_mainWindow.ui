@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>398</width>
-    <height>594</height>
+    <height>604</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -124,7 +124,7 @@
           <string>select a tab to save or open an asset or to manage a project</string>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="saveAsset_tab">
           <property name="enabled">
@@ -499,10 +499,7 @@
                <verstretch>1</verstretch>
               </sizepolicy>
              </property>
-             <layout class="QVBoxLayout" name="openAsset_verticalLayout" stretch="0,0,0">
-              <property name="sizeConstraint">
-               <enum>QLayout::SetDefaultConstraint</enum>
-              </property>
+             <layout class="QVBoxLayout" name="openAsset_verticalLayout">
               <property name="margin">
                <number>6</number>
               </property>

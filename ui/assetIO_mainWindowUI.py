@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetIO_mainWindow.ui'
 #
-# Created: Mon Oct  5 15:47:53 2009
+# Created: Mon Oct  5 18:10:36 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,7 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowModality(QtCore.Qt.WindowModal)
-        MainWindow.resize(398, 594)
+        MainWindow.resize(398, 604)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -294,7 +294,6 @@ class Ui_MainWindow(object):
         self.openAsset_verticalWidget.setSizePolicy(sizePolicy)
         self.openAsset_verticalWidget.setObjectName("openAsset_verticalWidget")
         self.openAsset_verticalLayout = QtGui.QVBoxLayout(self.openAsset_verticalWidget)
-        self.openAsset_verticalLayout.setSizeConstraint(QtGui.QLayout.SetDefaultConstraint)
         self.openAsset_verticalLayout.setMargin(6)
         self.openAsset_verticalLayout.setObjectName("openAsset_verticalLayout")
         self.openAsset_gridWidget = QtGui.QWidget(self.openAsset_verticalWidget)
@@ -468,7 +467,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.main_tabWidget.setCurrentIndex(1)
+        self.main_tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.3.0
+v0.3.1
 
 Description :
 -------------
@@ -149,6 +149,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.3.1
+- added check for unsaved changes in current scene while oppening an asset
+- the environment script maya, now tries to fix the path seperator for windows
+
 v0.3.0
 - added check for the asset path while saving, it was giving errors for
   non-existing asset paths
@@ -326,6 +330,6 @@ TODO List :
 
 
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 
