@@ -1,0 +1,7 @@
+# Ignore file for oy-maya-scripts
+
+# use glob syntax
+syntax: glob
+
+# Ignore _skip_userSetup_ file
+databaseSettings.xml

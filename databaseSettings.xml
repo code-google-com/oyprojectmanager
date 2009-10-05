@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <root>
 	<settings 
-		projectManagerFolderPath = "/home/ozgur/Documents/Works"
+		projectManagerFolderPath = "M:\\"
 		projectManagerFolderName = "PROJECT_CREATOR">
 		<server
-			serverPath = "/home/ozgur/Documents/Works"
-			projectsFolderName = "JOBs2"
+			serverPath = "M:\\"
+			projectsFolderName = "JOBs"
 		/>
 	</settings>
 	<defaultFiles>

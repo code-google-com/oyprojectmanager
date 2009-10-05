@@ -164,11 +164,14 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """
         
         # no use without the path
-        if self.path == None:
+        if self.path == None or self.path == '':
             return
         
         # get the project and sequence names
         projectName, sequenceName = self._db.getProjectAndSequenceNameFromFilePath( self.path )
+                
+        if projectName == None or projectName == '' or sequenceName == None or sequenceName == '':
+            return
         
         currentProject = projectModel.Project( projectName )
         currentSequence = projectModel.Sequence( currentProject, sequenceName )

@@ -94,8 +94,16 @@ def getPathVariables():
         path = os.path.dirname( fullPath )
     else: # no file is open
         #try to get at least the project and sequence names
+        
+        # for nt replace / with \\ characters 
         path = pm.workspace.name
-    
+        
+        if os.name == 'nt':
+            print "replacing characters"
+            myDict = dict()
+            myDict['/'] = '\\'
+            path = oyAux.multiple_replace( path, myDict)
+        
     return fileName, path
 
 

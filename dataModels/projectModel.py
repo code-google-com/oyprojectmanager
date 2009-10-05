@@ -314,12 +314,14 @@ class Database(object):
     def getProjectAndSequenceNameFromFilePath(self, filePath):
         """returns the project name and sequence name from the path or fullPath
         """
-        #assert(isinstance(filePath, str))
+        
+        assert(isinstance(filePath, (str, unicode)))
         
         if not filePath.startswith( self._projectsFolderFullPath ):
             return None,None
         
-        residual = filePath[ len(self._projectsFolderFullPath)+1 : len(filePath) ]
+        residual = filePath[ len(self._projectsFolderFullPath)+1 : ]
+        
         
         parts = residual.split(os.path.sep)
         
