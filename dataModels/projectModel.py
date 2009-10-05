@@ -17,27 +17,27 @@ class Database(object):
     def __init__(self):
         
         # initialize default variables
-        self._databaseSettingsFileName = 'databaseSettings.xml'
+        self._databaseSettingsFileName = u'databaseSettings.xml'
         
         
-        self._serverPath = ''
-        self._projectsFolderName = ''
+        self._serverPath = u''
+        self._projectsFolderName = u''
         
-        self._projectManagerFolderName = ''
-        self._projectManagerFolderPath = ''
-        self._projectManagerFolderFullPath = ''
+        self._projectManagerFolderName = u''
+        self._projectManagerFolderPath = u''
+        self._projectManagerFolderFullPath = u''
 
-        self._projectsFolderFullPath = ''
-        self._defaultSettingsFileName = "defaultProjectSettings.xml"
-        self._defaultSettingsFullPath = ''
+        self._projectsFolderFullPath = u''
+        self._defaultSettingsFileName = u"defaultProjectSettings.xml"
+        self._defaultSettingsFullPath = u''
         
-        self._lastUserFileName = ".lastUser"
+        self._lastUserFileName = u".lastUser"
         self._lastUserFilePath = self.getHomePath()
         self._lastUserFileFullPath = os.path.join( self._lastUserFilePath, self._lastUserFileName )
         
         # users
-        self._usersFileName = 'users.xml'
-        self._usersFileFullPath = ''
+        self._usersFileName = u'users.xml'
+        self._usersFileFullPath = u''
         self._users = [] * 0
         
         self._projects = [] * 0
@@ -321,7 +321,6 @@ class Database(object):
             return None,None
         
         residual = filePath[ len(self._projectsFolderFullPath)+1 : ]
-        
         
         parts = residual.split(os.path.sep)
         
@@ -687,15 +686,15 @@ class Sequence(object):
         
         # set database node attributes
         databaseDataNode.setAttribute('shotPrefix', self._shotPrefix)
-        databaseDataNode.setAttribute('shotPadding', str( self._shotPadding ) )
+        databaseDataNode.setAttribute('shotPadding', unicode( self._shotPadding ) )
         databaseDataNode.setAttribute('revPrefix', self._revPrefix)
-        databaseDataNode.setAttribute('revPadding', str( self._revPadding ) )
+        databaseDataNode.setAttribute('revPadding', unicode( self._revPadding ) )
         databaseDataNode.setAttribute('verPrefix', self._verPrefix)
-        databaseDataNode.setAttribute('verPadding', str( self._verPadding ) )
-        databaseDataNode.setAttribute('extensionsToIgnore', str( ','.join(self._extensionsToIgnore)) )
+        databaseDataNode.setAttribute('verPadding', unicode( self._verPadding ) )
+        databaseDataNode.setAttribute('extensionsToIgnore', unicode( ','.join(self._extensionsToIgnore)) )
         
         if self._noSubNameField:
-            databaseDataNode.setAttribute('noSubNameField', str( self._noSubNameField ) )
+            databaseDataNode.setAttribute('noSubNameField', unicode( self._noSubNameField ) )
         
         # create shot dependent/independent folders
         shotDependentNodeText.data = '\n'.join( self._structure.getShotDependentFolders() )
@@ -710,7 +709,7 @@ class Sequence(object):
             typeNode = minidom.Element('type')
             typeNode.setAttribute( 'name', aType.getName() )
             typeNode.setAttribute( 'path', aType.getPath() )
-            typeNode.setAttribute( 'shotDependent', str( int( aType.isShotDependent() ) ) )
+            typeNode.setAttribute( 'shotDependent', unicode( int( aType.isShotDependent() ) ) )
             typeNode.setAttribute( 'playblastFolder', aType.getPlayblastFolder() )
             typeNode.setAttribute( 'environments', ",".join( aType.getEnvironments() ) )
             
@@ -827,7 +826,7 @@ class Sequence(object):
         #"""adds an alternative to the given shot
         #"""
         
-        #shotNumberAsStr = str( shotNumber )
+        #shotNumberAsStr = unicode( shotNumber )
         
         ## check if the shotNumber is in the shotList
         #if shotNumber in self._shotList:
@@ -932,7 +931,7 @@ class Sequence(object):
         abc23defg --> SH023defg
         """
         
-        pieces = oyAux.embedded_numbers( str(shotNumber) )
+        pieces = oyAux.embedded_numbers( unicode(shotNumber) )
         
         if len(pieces) <= 1:
             return None
@@ -996,7 +995,7 @@ class Sequence(object):
             alternateLetter = remainder[len(numberAsStr):len(remainder)]
         
         # convert the numberAsStr to a number then to a string then add the alternate letter
-        return str(int(numberAsStr)) + alternateLetter
+        return unicode(int(numberAsStr)) + alternateLetter
     
     
     

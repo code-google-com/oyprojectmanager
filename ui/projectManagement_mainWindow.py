@@ -94,7 +94,7 @@ class MainWindow(QtGui.QMainWindow, projectManagement_mainWindowUI.Ui_MainWindow
     def checkProjectName(self):
         """checks the project lineEdit1
         """
-        text = str( self.project_lineEdit1.text() )
+        text = unicode( self.project_lineEdit1.text() )
         text = oyAux.file_name_conditioner( text )
         self.project_lineEdit1.setText( text )
     
@@ -104,7 +104,7 @@ class MainWindow(QtGui.QMainWindow, projectManagement_mainWindowUI.Ui_MainWindow
     def checkSequenceName(self):
         """checks the sequence lineEdit2
         """
-        text = str( self.sequence_lineEdit2.text() )
+        text = unicode( self.sequence_lineEdit2.text() )
         text = oyAux.file_name_conditioner( text )
         self.sequence_lineEdit2.setText( text )
     
@@ -114,8 +114,8 @@ class MainWindow(QtGui.QMainWindow, projectManagement_mainWindowUI.Ui_MainWindow
     def checkShotRange(self):
         """checks both shotRange lineEdits
         """
-        self.shotRange_lineEdit2.setText( rangeTools.RangeConverter.matchRange( str( self.shotRange_lineEdit2.text() ) ) )
-        self.shotRange_lineEdit3.setText( rangeTools.RangeConverter.matchRange( str( self.shotRange_lineEdit3.text() ) ) )
+        self.shotRange_lineEdit2.setText( rangeTools.RangeConverter.matchRange( unicode( self.shotRange_lineEdit2.text() ) ) )
+        self.shotRange_lineEdit3.setText( rangeTools.RangeConverter.matchRange( unicode( self.shotRange_lineEdit3.text() ) ) )
     
     
     
@@ -124,7 +124,7 @@ class MainWindow(QtGui.QMainWindow, projectManagement_mainWindowUI.Ui_MainWindow
         """creates the project
         """
         # get the project name from the project_lineEdit1
-        projectName = str( self.project_lineEdit1.text() )
+        projectName = unicode( self.project_lineEdit1.text() )
         
         # condition it
         projectName = oyAux.file_name_conditioner( projectName )
@@ -143,16 +143,16 @@ class MainWindow(QtGui.QMainWindow, projectManagement_mainWindowUI.Ui_MainWindow
         """creates the sequence
         """
         # get the project name from the project_comboBox2
-        projectName = str( self.project_comboBox2.currentText() )
+        projectName = unicode( self.project_comboBox2.currentText() )
         
         # get the sequence name
-        sequenceName = str( self.sequence_lineEdit2.text() )
+        sequenceName = unicode( self.sequence_lineEdit2.text() )
         
         # condition them
         sequenceName = oyAux.file_name_conditioner( sequenceName )
         
         # get the shot range
-        shotRange = str( self.shotRange_lineEdit2.text() )
+        shotRange = unicode( self.shotRange_lineEdit2.text() )
         
         # create the sequence object
         newSeq = projectModel.Sequence( projectModel.Project( projectName ) , sequenceName )
@@ -170,11 +170,11 @@ class MainWindow(QtGui.QMainWindow, projectManagement_mainWindowUI.Ui_MainWindow
         """
         
         # create the sequence object
-        projectName = str( self.project_comboBox3.currentText() )
-        sequenceName = str( self.sequence_comboBox3.currentText() )
+        projectName = unicode( self.project_comboBox3.currentText() )
+        sequenceName = unicode( self.sequence_comboBox3.currentText() )
         seq = projectModel.Sequence( projectModel.Project(projectName), sequenceName )
         
-        shotRange = str( self.shotRange_lineEdit3.text() )
+        shotRange = unicode( self.shotRange_lineEdit3.text() )
         
         seq.addShots( shotRange )
         seq.createShots()
@@ -210,12 +210,12 @@ class MainWindow(QtGui.QMainWindow, projectManagement_mainWindowUI.Ui_MainWindow
         """updates the sequence comboBoxes
         """
         # sequence_comboBox3
-        project = projectModel.Project( str( self.project_comboBox3.currentText() ) )
+        project = projectModel.Project( unicode( self.project_comboBox3.currentText() ) )
         self.sequence_comboBox3.clear()
         self.sequence_comboBox3.addItems( sorted(project.getSequenceNames()) )
         
         # sequence_comboBox4
-        project = projectModel.Project( str( self.project_comboBox4.currentText() ) )
+        project = projectModel.Project( unicode( self.project_comboBox4.currentText() ) )
         self.sequence_comboBox4.clear()
         self.sequence_comboBox4.addItems( sorted(project.getSequenceNames()) )
     
@@ -227,10 +227,10 @@ class MainWindow(QtGui.QMainWindow, projectManagement_mainWindowUI.Ui_MainWindow
         """
         
         # get the projectName
-        projectName = str( self.project_comboBox4.currentText() )
+        projectName = unicode( self.project_comboBox4.currentText() )
         
         # get the sequenceName
-        sequenceName = str( self.sequence_comboBox4.currentText() )
+        sequenceName = unicode( self.sequence_comboBox4.currentText() )
         
         project = projectModel.Project( projectName )
         sequence = projectModel.Sequence( project, sequenceName )

@@ -33,7 +33,7 @@ class Asset(object):
         self._verString = None
         self._userInitials = None
         self._notes = None
-        self._extension = ''
+        self._extension = u''
         
         # path variables
         self._fileName = None #os.path.splitext(fileName)[0] # remove the extension
@@ -43,11 +43,11 @@ class Asset(object):
         self._hasFullInfo = False
         self._hasBaseInfo = False
         
-        self._dataSeparator = '_'
+        self._dataSeparator = u'_'
         
         if fileName != None:
-            self._fileName  = str( os.path.splitext(str(fileName))[0] ) # remove the extension
-            self._extension = str( os.path.splitext(str(fileName))[1] ).split( os.path.extsep )[-1] # remove the . in extension
+            self._fileName  = unicode( os.path.splitext(unicode(fileName))[0] ) # remove the extension
+            self._extension = unicode( os.path.splitext(unicode(fileName))[1] ).split( os.path.extsep )[-1] # remove the . in extension
             self.guessInfoVariablesFromFileName()
         
         self._exists = False

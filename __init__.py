@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.3.1
+v0.3.2
 
 Description :
 -------------
@@ -149,6 +149,9 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.3.2
+- all str's are converted to unicode
+
 v0.3.1
 - added check for unsaved changes in current scene while oppening an asset
 - the environment script maya, now tries to fix the path seperator for windows
@@ -330,6 +333,6 @@ TODO List :
 
 
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 

@@ -638,14 +638,14 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentProjectName(self):
         """returns the current project name
         """
-        return str( self.project_comboBox.currentText() )
+        return unicode( self.project_comboBox.currentText() )
     
     
     
     def getCurrentSequenceName(self):
         """returns the current sequence name
         """
-        return str( self.sequence_comboBox.currentText() )
+        return unicode( self.sequence_comboBox.currentText() )
     
     
     
@@ -654,7 +654,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         #"""returns the current assetType from the UI
         #"""
         
-        #return str( self.assetType_comboBox1.currentText() ), str( self.assetType_comboBox2.currentText() )
+        #return unicode( self.assetType_comboBox1.currentText() ), unicode( self.assetType_comboBox2.currentText() )
     
     
     
@@ -662,7 +662,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentAssetTypeInSave(self):
         """returns the current assetType from the UI
         """
-        return str( self.assetType_comboBox1.currentText() )
+        return unicode( self.assetType_comboBox1.currentText() )
     
     
     
@@ -670,7 +670,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentAssetTypeInOpen(self):
         """returns the current assetType from the UI
         """
-        return str( self.assetType_comboBox2.currentText() )
+        return unicode( self.assetType_comboBox2.currentText() )
     
     
     
@@ -679,7 +679,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the current shot string from the UI
         """
         
-        return str( self.shot_comboBox1.currentText() )
+        return unicode( self.shot_comboBox1.currentText() )
     
     
     
@@ -688,7 +688,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the current shot string from the UI
         """
         
-        return str( self.shot_comboBox2.currentText() )
+        return unicode( self.shot_comboBox2.currentText() )
     
     
     
@@ -697,7 +697,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the current baseName from the UI
         """
         
-        return str( self.baseName_comboBox1.currentText() )
+        return unicode( self.baseName_comboBox1.currentText() )
     
     
     
@@ -706,7 +706,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the current baseName from the UI
         """
         
-        return str( self.baseName_comboBox2.currentText() )
+        return unicode( self.baseName_comboBox2.currentText() )
     
     
     
@@ -715,7 +715,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the current subName from the UI
         """
         
-        return str( self.subName_comboBox1.currentText() )
+        return unicode( self.subName_comboBox1.currentText() )
     
     
     
@@ -724,7 +724,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the current subName from the UI
         """
         
-        return str( self.subName_comboBox2.currentText() )
+        return unicode( self.subName_comboBox2.currentText() )
     
     
     
@@ -733,7 +733,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the current revision number from the UI
         """
         
-        return str( self.revision_spinBox.value() )
+        return unicode( self.revision_spinBox.value() )
     
     
     
@@ -742,7 +742,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the current version number from the UI
         """
         
-        return str( self.version_spinBox.value() )
+        return unicode( self.version_spinBox.value() )
     
     
     
@@ -751,7 +751,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the current user initials from the UI
         """
         
-        return str( self.user_comboBox1.currentText() )
+        return unicode( self.user_comboBox1.currentText() )
     
     
     
@@ -760,7 +760,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the current note from the UI
         """
         
-        return str( self.note_lineEdit1.text() )
+        return unicode( self.note_lineEdit1.text() )
     
     
     
