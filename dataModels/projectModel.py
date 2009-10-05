@@ -1140,6 +1140,17 @@ class Sequence(object):
         # for each folder search child folders
         for folder in assetFolders:
             fullPath = os.path.join( self._fullPath, folder)
+            
+            # 
+            # skip if the folder doesn't exists
+            # 
+            # it is a big problem in terms of management but some old type projects
+            # has missing folder, because the folders will be created whenever somebody
+            # uses that folder while saving an asset, we don't care about its non existancy
+            #
+            if not os.path.exists( fullPath ):
+                continue
+            
             childFolders = os.listdir( fullPath )
             
             # -- experience --
