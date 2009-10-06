@@ -152,6 +152,7 @@ Version History :
 v0.3.3
 - introduced some Pythonic optimizations to the code
 - added getAllAssetsForType method to the Sequence object
+- removed valid asset checks in the getAllAssetsForType method
 
 v0.3.2
 - all str's are converted to unicode

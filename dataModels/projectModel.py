@@ -1245,8 +1245,9 @@ class Sequence(object):
                     
                     asset = assetModelAsset( selfProject, self, childFile )
                     
-                    if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
-                        assets.append( asset )
+                    #if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
+                        #assets.append( asset )
+                    assets.append( asset )
         
         return assets
         
