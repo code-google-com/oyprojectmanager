@@ -142,13 +142,13 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QGridLayout" name="saveAsset_gridLayout" columnstretch="0,1">
+                <layout class="QGridLayout" name="saveAsset_gridLayout" columnstretch="0,0">
                  <item row="0" column="1">
                   <widget class="QComboBox" name="assetType_comboBox1">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="toolTip">
@@ -163,8 +163,8 @@
                   <widget class="QLineEdit" name="note_lineEdit1">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="toolTip">
@@ -177,12 +177,6 @@
                  </item>
                  <item row="0" column="0">
                   <widget class="QLabel" name="assetType_label1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>Asset Type</string>
                    </property>
@@ -193,12 +187,6 @@
                  </item>
                  <item row="2" column="0">
                   <widget class="QLabel" name="baseName_label1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>Base Name</string>
                    </property>
@@ -214,8 +202,8 @@
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="toolTip">
@@ -236,8 +224,8 @@
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="toolTip">
@@ -252,8 +240,8 @@
                   <widget class="QComboBox" name="user_comboBox1">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="toolTip">
@@ -266,12 +254,6 @@
                  </item>
                  <item row="6" column="0">
                   <widget class="QLabel" name="user_label1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>User</string>
                    </property>
@@ -282,12 +264,6 @@
                  </item>
                  <item row="3" column="0">
                   <widget class="QLabel" name="subName_label1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>Sub Name</string>
                    </property>
@@ -303,8 +279,8 @@
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="toolTip">
@@ -320,12 +296,6 @@
                  </item>
                  <item row="5" column="0">
                   <widget class="QLabel" name="version_label1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>Version</string>
                    </property>
@@ -336,12 +306,6 @@
                  </item>
                  <item row="1" column="0">
                   <widget class="QLabel" name="shot_label1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>Shot</string>
                    </property>
@@ -352,12 +316,6 @@
                  </item>
                  <item row="7" column="0">
                   <widget class="QLabel" name="note_label1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>Note</string>
                    </property>
@@ -368,12 +326,6 @@
                  </item>
                  <item row="4" column="0">
                   <widget class="QLabel" name="revision_label1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>Revision</string>
                    </property>
@@ -382,92 +334,102 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="1">
-                  <layout class="QHBoxLayout" name="revision_horizontalLayout" stretch="1,1">
-                   <item>
-                    <widget class="QSpinBox" name="revision_spinBox">
-                     <property name="minimumSize">
-                      <size>
-                       <width>20</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>increase it when the asset needs a revision</string>
-                     </property>
-                     <property name="statusTip">
-                      <string>increase it when the asset needs a revision</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="revision_pushButton">
-                     <property name="minimumSize">
-                      <size>
-                       <width>150</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>gets the latest revision number</string>
-                     </property>
-                     <property name="statusTip">
-                      <string>gets the latest revision number</string>
-                     </property>
-                     <property name="text">
-                      <string>Get Lastest Revision</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
                  <item row="5" column="1">
-                  <layout class="QHBoxLayout" name="version_horizontalLayout" stretch="1,1">
-                   <item>
-                    <widget class="QSpinBox" name="version_spinBox">
-                     <property name="minimumSize">
-                      <size>
-                       <width>20</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>it is automatically increased by 1</string>
-                     </property>
-                     <property name="statusTip">
-                      <string>it is automatically increased by 1</string>
-                     </property>
-                     <property name="prefix">
-                      <string/>
-                     </property>
-                     <property name="minimum">
-                      <number>1</number>
-                     </property>
-                     <property name="maximum">
-                      <number>99999999</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="version_pushButton">
-                     <property name="minimumSize">
-                      <size>
-                       <width>150</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>gets the latest version number</string>
-                     </property>
-                     <property name="statusTip">
-                      <string>gets the latest version number</string>
-                     </property>
-                     <property name="text">
-                      <string>Get Latest Version</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
+                  <widget class="QWidget" name="version_horizontalWidget" native="true">
+                   <layout class="QHBoxLayout" name="version_horizontalLayout">
+                    <property name="margin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QSpinBox" name="version_spinBox">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>it is automatically increased by 1</string>
+                      </property>
+                      <property name="statusTip">
+                       <string>it is automatically increased by 1</string>
+                      </property>
+                      <property name="prefix">
+                       <string/>
+                      </property>
+                      <property name="minimum">
+                       <number>1</number>
+                      </property>
+                      <property name="maximum">
+                       <number>99999999</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="version_pushButton">
+                      <property name="minimumSize">
+                       <size>
+                        <width>150</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>gets the latest version number</string>
+                      </property>
+                      <property name="statusTip">
+                       <string>gets the latest version number</string>
+                      </property>
+                      <property name="text">
+                       <string>Get Latest Version</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QWidget" name="revision_horizontalWidget" native="true">
+                   <layout class="QHBoxLayout" name="revision_horizontalLayout">
+                    <property name="margin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QSpinBox" name="revision_spinBox">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>increase it when the asset needs a revision</string>
+                      </property>
+                      <property name="statusTip">
+                       <string>increase it when the asset needs a revision</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="revision_pushButton">
+                      <property name="minimumSize">
+                       <size>
+                        <width>150</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>gets the latest revision number</string>
+                      </property>
+                      <property name="statusTip">
+                       <string>gets the latest revision number</string>
+                      </property>
+                      <property name="text">
+                       <string>Get Lastest Revision</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -572,15 +534,9 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QGridLayout" name="openAsset_gridLayout" columnstretch="0,1">
+                <layout class="QGridLayout" name="openAsset_gridLayout" columnstretch="0,1" columnminimumwidth="100,0">
                  <item row="0" column="0">
                   <widget class="QLabel" name="assetType_label2">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>Asset Type</string>
                    </property>
@@ -593,8 +549,8 @@
                   <widget class="QComboBox" name="assetType_comboBox2">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="minimumSize">
@@ -613,12 +569,6 @@
                  </item>
                  <item row="1" column="0">
                   <widget class="QLabel" name="shot_label2">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>Shot</string>
                    </property>
@@ -631,8 +581,8 @@
                   <widget class="QComboBox" name="shot_comboBox2">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="toolTip">
@@ -645,12 +595,6 @@
                  </item>
                  <item row="2" column="0">
                   <widget class="QLabel" name="baseName_label2">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="text">
                     <string>Base Name</string>
                    </property>
@@ -659,14 +603,24 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="0">
-                  <widget class="QLabel" name="subName_label2">
+                 <item row="2" column="1">
+                  <widget class="QComboBox" name="baseName_comboBox2">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>for shot independent types select a baseName</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>for shot independent types select a baseName</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="subName_label2">
                    <property name="text">
                     <string>Sub Name</string>
                    </property>
@@ -679,8 +633,8 @@
                   <widget class="QComboBox" name="subName_comboBox2">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="toolTip">
@@ -688,22 +642,6 @@
                    </property>
                    <property name="statusTip">
                     <string>if the project supports SubName field, you can select a subName</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QComboBox" name="baseName_comboBox2">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>1</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>for shot independent types select a baseName</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>for shot independent types select a baseName</string>
                    </property>
                   </widget>
                  </item>
@@ -886,7 +824,6 @@
   <tabstop>shot_comboBox1</tabstop>
   <tabstop>baseName_comboBox1</tabstop>
   <tabstop>subName_comboBox1</tabstop>
-  <tabstop>revision_spinBox</tabstop>
   <tabstop>revision_pushButton</tabstop>
   <tabstop>version_spinBox</tabstop>
   <tabstop>version_pushButton</tabstop>
@@ -896,10 +833,6 @@
   <tabstop>save_button</tabstop>
   <tabstop>export_button</tabstop>
   <tabstop>cancel_button1</tabstop>
-  <tabstop>assetType_comboBox2</tabstop>
-  <tabstop>shot_comboBox2</tabstop>
-  <tabstop>baseName_comboBox2</tabstop>
-  <tabstop>subName_comboBox2</tabstop>
   <tabstop>assets_listWidget2</tabstop>
   <tabstop>open_button</tabstop>
   <tabstop>reference_button</tabstop>

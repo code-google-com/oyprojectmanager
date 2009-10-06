@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.4.0
+v0.4.1
 
 Description :
 -------------
@@ -149,6 +149,9 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.4.1
+- fixed the wrong widget sizes assetIO UI
+
 v0.4.0
 - range tools now works properly with unicode inputs
 - maya now always gets the path from the workspace
@@ -363,6 +366,6 @@ TODO List :
 
 
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 
