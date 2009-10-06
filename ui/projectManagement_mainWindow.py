@@ -1,10 +1,10 @@
 import os, sys, re
 import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
-import projectManagement_mainWindowUI
+from oyProjectManager.ui import projectManagement_mainWindowUI
 from oyProjectManager.dataModels import projectModel
-from oyProjectManager import __version__
 from oyProjectManager.tools import rangeTools
+from oyProjectManager import __version__
 
 
 

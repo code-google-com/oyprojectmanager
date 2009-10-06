@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManagement_mainWindow.ui'
 #
-# Created: Mon Oct  5 18:10:36 2009
+# Created: Tue Oct  6 12:44:27 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -391,7 +391,7 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.shotNumber_comboBox4, self.addAlternativeShot_pushButton)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Project Manager", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Project Management", None, QtGui.QApplication.UnicodeUTF8))
         self.servers_label.setText(QtGui.QApplication.translate("MainWindow", "server", None, QtGui.QApplication.UnicodeUTF8))
         self.project_label1.setText(QtGui.QApplication.translate("MainWindow", "Project", None, QtGui.QApplication.UnicodeUTF8))
         self.createProject_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Create Project", None, QtGui.QApplication.UnicodeUTF8))

@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Project Manager</string>
+   <string>Project Management</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
