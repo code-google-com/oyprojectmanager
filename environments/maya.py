@@ -12,7 +12,7 @@ def save( assetObject ):
     uses PyMel to save the file (not necessary but comfortable )
     """
     
-    assert(isinstance(assetObject, assetModel.Asset ) )
+    #assert(isinstance(assetObject, assetModel.Asset ) )
     
     # set the extension to ma by default
     #assert(isinstance(assetObject, assetModel.Asset))
@@ -41,7 +41,7 @@ def save( assetObject ):
 def open_( assetObject, force=False):
     """the open action for maya environment
     """
-    assert(isinstance(assetObject, assetModel.Asset ) )
+    #assert(isinstance(assetObject, assetModel.Asset ) )
     
     # check for unsaved changes
     pm.openFile( assetObject.getFullPath(), f=force )
@@ -60,7 +60,7 @@ def open_( assetObject, force=False):
 def import_( assetObject ):
     """the import action for maya environment
     """
-    assert( isinstance(assetObject, assetModel.Asset ) )
+    #assert( isinstance(assetObject, assetModel.Asset ) )
     
     pm.importFile( assetObject.getFullPath() )
     
@@ -73,7 +73,7 @@ def reference( assetObject ):
     """the reference action for maya environment
     """
     
-    assert( isinstance(assetObject, assetModel.Asset ) )
+    #assert( isinstance(assetObject, assetModel.Asset ) )
     
     pm.createReference( assetObject.getFullPath() )
     
@@ -105,7 +105,7 @@ def getPathVariables():
 def setRenderFileName( assetObject ):
     """sets the render file name
     """
-    assert(isinstance(assetObject,assetModel.Asset))
+    #assert(isinstance(assetObject,assetModel.Asset))
     parentSeq = assetObject.getParentSequence()
     
     renderOutputFolder = parentSeq.getStructure().getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS

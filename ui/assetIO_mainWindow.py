@@ -337,8 +337,9 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         # if the current selected type is not shot dependent
         # get all the assets of that type and get their baseNames
-        
+        self._updateProjectObject()
         self._updateSequenceObject()
+        currentProject = self._project
         currentSequence = self._sequence
         
         currentTypeName = self.getCurrentAssetTypeInSave()
@@ -356,13 +357,27 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         # get the assets of that type
         #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName = currentTypeName )
-        allAssets = currentSequence.getAllAssetsForType( currentTypeName )
+        #allAssets = currentSequence.getAllAssetsForType( currentTypeName )
         #allAssets = currentSequence.getAllAssetsForTypeAndBaseName( currentTypeName )
         
-        # get the base names
-        baseNamesList = [] * 0
-        for asset in allAssets:
-            baseNamesList.append( asset.getBaseName() )
+        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
+        # filter for base name
+        currSGFIV = currentSequence.generateFakeInfoVariables
+        baseNamesList = [ currSGFIV(assetFileName)['baseName'] for assetFileName in allAssetFileNames ]
+        
+        
+        ## try to quickly generate the asset files
+        #count = len(allAssetFileNames)
+        #projList = [ currentProject ] * count
+        #seqList = [ currentSequence ] * count
+        #allAssets = map( assetModel.Asset, projList, seqList, allAssetFileNames )
+        
+        ## get the base names
+        #baseNamesList = [] * 0
+        #for asset in allAssets:
+            #baseNamesList.append( asset.getBaseName() )
+        
+        #basenameList = [ asset.getBaseName() for asset in allAssets ]
         
         # remove duplicates
         baseNamesList = oyAux.unique( baseNamesList )
@@ -386,7 +401,9 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         # if the current selected type is not shot dependent
         # get all the assets of that type and get their baseNames
+        self._updateProjectObject()
         self._updateSequenceObject()
+        currentProject = self._project
         currentSequence = self._sequence
         
         currentTypeName = self.getCurrentAssetTypeInOpen()
@@ -403,12 +420,31 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         ## get the assets of that type
         #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName = currentTypeName )
-        allAssets = currentSequence.getAllAssetsForType( currentTypeName )
+        #allAssets = currentSequence.getAllAssetsForType( currentTypeName )
+        #allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
+        
+        ## get the base names
+        #baseNamesList = [] * 0
+        #for asset in allAssets:
+            #baseNamesList.append( asset.getBaseName() )
+                # try to quickly generate the asset files
+        
+        #count = len(allAssetFileNames)
+        #projList = [ currentProject ] * count
+        #seqList = [ currentSequence ] * count
+        #allAssets = map( assetModel.Asset, projList, seqList, allAssetFileNames )
+        
+        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
+        # filter for base name
+        currSGFIV = currentSequence.generateFakeInfoVariables
+        baseNamesList = [ currSGFIV(assetFileName)['baseName'] for assetFileName in allAssetFileNames ]
         
         # get the base names
-        baseNamesList = [] * 0
-        for asset in allAssets:
-            baseNamesList.append( asset.getBaseName() )
+        #baseNamesList = [] * 0
+        #for asset in allAssets:
+            #baseNamesList.append( asset.getBaseName() )
+        
+        #basenameList = [ asset.getBaseName() for asset in allAssets ]
         
         # remove duplicates
         baseNamesList = oyAux.unique( baseNamesList )
@@ -500,12 +536,24 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # get the assets of that type
         #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName=currentTypeName, baseName=currentBaseName )
         #allAssets = currentSequence.filterAssets( currentSequence.getAllAssetsForType( currentTypeName ), baseName=currentBaseName )
-        allAssets = currentSequence.getAllAssetsForType( currentTypeName , currentBaseName )
+        #allAssets = currentSequence.getAllAssetsForType( currentTypeName )
         
-        # get the subNames
-        subNamesList = [] * 0
-        for asset in allAssets:
-            subNamesList.append( asset.getSubName() )
+        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
+        # filter for base name
+        #currSGFIV = currentSequence.generateFakeInfoVariables
+        #baseNamesList = [ currSGFIV(assetFileName)['baseName'] for assetFileName in allAssetFileNames ]
+        #assert(isinstance(currentSequence,projectModel.Sequence))
+        
+        allAssetFileNamesFiltered = currentSequence.filterAssetNames( allAssetFileNames, baseName=currentBaseName, typeName=currentTypeName ) 
+        
+        
+        ## get the subNames
+        #subNamesList = [] * 0
+        #for asset in allAssets:
+            #subNamesList.append( asset.getSubName() )
+        
+        curSGFIV = currentSequence.generateFakeInfoVariables
+        subNamesList = [ curSGFIV(assetFileName)['subName'] for assetFileName in allAssetFileNamesFiltered ]
         
         # add MAIN as default
         subNamesList.append('MAIN')

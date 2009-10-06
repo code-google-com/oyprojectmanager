@@ -74,7 +74,7 @@ class Asset(object):
         notes (optional)
         extension (optional for most of the methods)
         """
-        assert(isinstance(keys,dict))
+        #assert(isinstance(keys,dict))
         
         if keys.has_key('baseName'):
             self._baseName = keys['baseName']
@@ -229,7 +229,7 @@ class Asset(object):
         """sets the extension of the asset object
         """
         
-        assert(isinstance(extension,str))
+        #assert(isinstance(extension,str))
         
         # remove any extension separetors at from the input extension
         finalExtension = extension.split( os.path.extsep )[-1]
@@ -251,8 +251,8 @@ class Asset(object):
     def getParentSequence(self):
         """returns the parent sequence
         """
-        from oyProjectManager.dataModels import projectModel
-        assert(isinstance(self._parentSequence, projectModel.Sequence ) )
+        #from oyProjectManager.dataModels import projectModel
+        #assert(isinstance(self._parentSequence, projectModel.Sequence ) )
         return self._parentSequence
     
     

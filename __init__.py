@@ -153,6 +153,10 @@ v0.3.3
 - introduced some Pythonic optimizations to the code
 - added getAllAssetsForType method to the Sequence object
 - removed valid asset checks in the getAllAssetsForType method
+- added getAllAssetFileNamesForType method to the Sequence object to quickly
+  get the asset fils
+- to retrieve asset file names very quickly, now all the filtering done over
+  string variables, not in Asset objects
 
 v0.3.2
 - all str's are converted to unicode

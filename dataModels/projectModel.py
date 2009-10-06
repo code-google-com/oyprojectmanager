@@ -315,7 +315,7 @@ class Database(object):
         """returns the project name and sequence name from the path or fullPath
         """
         
-        assert(isinstance(filePath, (str, unicode)))
+        #assert(isinstance(filePath, (str, unicode)))
         
         if not filePath.startswith( self._projectsFolderFullPath ):
             return None,None
@@ -572,7 +572,7 @@ class Sequence(object):
         """parses databaseData node
         """
         
-        assert( isinstance( databaseDataNode, minidom.Element) )
+        #assert( isinstance( databaseDataNode, minidom.Element) )
         
         self._shotPrefix = databaseDataNode.getAttribute('shotPrefix')
         self._shotPadding = int( databaseDataNode.getAttribute('shotPadding') )
@@ -594,7 +594,7 @@ class Sequence(object):
         """parses structure node from the XML file
         """
         
-        assert( isinstance( structureNode, minidom.Element ) )
+        #assert( isinstance( structureNode, minidom.Element ) )
         
         # -----------------------------------------------------
         # get shot dependent/independent folders
@@ -630,13 +630,13 @@ class Sequence(object):
         """parses assetTypes node from the XML file
         """
         
-        assert( isinstance( assetTypesNode, minidom.Element) )
+        #assert( isinstance( assetTypesNode, minidom.Element) )
         
         # -----------------------------------------------------
         # read asset types
         self._assetTypes = [] * 0
         for node in assetTypesNode.getElementsByTagName('type'):
-            assert( isinstance( node, minidom.Element) )
+            #assert( isinstance( node, minidom.Element) )
             
             name = node.getAttribute('name')
             path = node.getAttribute('path')
@@ -653,7 +653,7 @@ class Sequence(object):
         """parses shotList node from the XML file
         """
         
-        assert( isinstance( shotListNode, minidom.Element) )
+        #assert( isinstance( shotListNode, minidom.Element) )
         
         # -----------------------------------------------------
         # get shot list only if the current shot list is empty
@@ -705,7 +705,7 @@ class Sequence(object):
         
         # create asset types
         for aType in self._assetTypes:
-            assert( isinstance( aType, assetModel.AssetType ) )
+            #assert( isinstance( aType, assetModel.AssetType ) )
             typeNode = minidom.Element('type')
             typeNode.setAttribute( 'name', aType.getName() )
             typeNode.setAttribute( 'path', aType.getPath() )
@@ -1038,7 +1038,7 @@ class Sequence(object):
             rList = [] * 0
             
             for aType in self._assetTypes:
-                assert(isinstance(aType, assetModel.AssetType) )
+                #assert(isinstance(aType, assetModel.AssetType) )
                 if environment in aType.getEnvironments():
                     rList.append( aType )
             
@@ -1254,7 +1254,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def getAllAssetsFileNamesForType(self, typeName):
+    def getAllAssetFileNamesForType(self, typeName):
         """returns Asset objects for just the given type of the sequence
         """
         
@@ -1320,6 +1320,9 @@ class Sequence(object):
                     assetFiles.append( childFile )
         
         return assetFiles
+    
+    
+    
     
     
     
@@ -1434,21 +1437,55 @@ class Sequence(object):
                 newKwargs[k] = kwargs[k]
         
         # get all the info variables of the assets
-        #assetInfos = [ asset.getInfoVariables() for asset in assetList ]
-        
         assetInfos = map( assetModel.Asset.getInfoVariables, assetList )
-        #keyArray = ['assetObject'] * len(assetInfos)
-        #assetInfos = map( dict.__setitem__, keyArray, assetList )
         
         filteredAssetInfos = self.aFilter( assetInfos, **kwargs)
-        #filteredAssetInfos = self.aFilter( assetInfosWithAsset, **kwargs)
         
         # recreate assets and return
         # TODO: return without recreating the assets
         return [ assetModel.Asset(self._parentProject, self, x['fileName']) for x in filteredAssetInfos ]
-        #return [ assetInfo['assetObject'] for assetInfo in assetInfos ]
-        #return [ x[1] for x in assetInfosWithAsset ]
     
+    
+    
+    #----------------------------------------------------------------------
+    def filterAssetNames(self, assetFileNames, **kwargs):
+        """a fake filter for quick retrieval of infos
+        """
+        
+        # generate dictionaries
+        assetInfos = map( self.generateFakeInfoVariables, assetFileNames )
+        
+        filteredAssetFileNames = self.aFilter( assetInfos, **kwargs )
+        
+        return [ info['fileName'] for info in filteredAssetFileNames ]
+    
+    
+    
+    #----------------------------------------------------------------------
+    def generateFakeInfoVariables(self, assetFileName):
+        """generates fake info variables from assetFileNames
+        """
+        #assert(isinstance(assetFileName, str))
+        splits = assetFileName.split('_') # replace it with data seperator
+        
+        infoVars = dict()
+        
+        infoVars['fileName'] = assetFileName
+        infoVars['baseName'] = ''
+        infoVars['subName'] = ''
+        infoVars['typeName'] = ''
+        
+        if len(splits) > 1:
+            if not self.noSubNameField:
+                infoVars['baseName'] = splits[0]
+                infoVars['subName'] = splits[1]
+                infoVars['typeName'] = splits[2]
+            else:
+                infoVars['baseName'] = splits[0]
+                infoVars['subName'] = ''
+                infoVars['typeName'] = splits[1]
+        
+        return infoVars
     
     
     #----------------------------------------------------------------------
