@@ -23,7 +23,7 @@ class RangeConverter(object):
         shotList = [] * 0
         number = 0
         
-        assert(isinstance(_range, str))
+        assert(isinstance(_range, (str, unicode) ) )
         
         # first split for ","
         groups = _range.split(",")

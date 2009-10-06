@@ -154,6 +154,9 @@
                      <verstretch>1</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>Select an asset type</string>
+                   </property>
                    <property name="statusTip">
                     <string>Select an asset type</string>
                    </property>
@@ -167,40 +170,13 @@
                      <verstretch>1</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>it is a limited field, try to keep it brief</string>
+                   </property>
                    <property name="statusTip">
                     <string>it is a limited field, try to keep it brief</string>
                    </property>
                   </widget>
-                 </item>
-                 <item row="5" column="1">
-                  <layout class="QHBoxLayout" name="version_horizontalLayout">
-                   <item>
-                    <widget class="QSpinBox" name="version_spinBox">
-                     <property name="statusTip">
-                      <string>it is automatically increased by 1</string>
-                     </property>
-                     <property name="prefix">
-                      <string/>
-                     </property>
-                     <property name="minimum">
-                      <number>1</number>
-                     </property>
-                     <property name="maximum">
-                      <number>99999999</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="version_pushButton">
-                     <property name="statusTip">
-                      <string>gets the latest version number</string>
-                     </property>
-                     <property name="text">
-                      <string>Get Latest Version</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
                  </item>
                  <item row="0" column="0">
                   <widget class="QLabel" name="assetType_label1">
@@ -245,6 +221,9 @@
                      <verstretch>1</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>if the project supports SubName field, you can enter or select a subName</string>
+                   </property>
                    <property name="statusTip">
                     <string>if the project supports SubName field, you can enter or select a subName</string>
                    </property>
@@ -264,6 +243,9 @@
                      <verstretch>1</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>if the type is a shot dependent type this will be activated</string>
+                   </property>
                    <property name="statusTip">
                     <string>if the type is a shot dependent type this will be activated</string>
                    </property>
@@ -276,6 +258,9 @@
                      <horstretch>0</horstretch>
                      <verstretch>1</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="toolTip">
+                    <string>select your user initials</string>
                    </property>
                    <property name="statusTip">
                     <string>select your user initials</string>
@@ -324,6 +309,9 @@
                      <horstretch>0</horstretch>
                      <verstretch>1</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="toolTip">
+                    <string>for shot independent types enter or select a baseName</string>
                    </property>
                    <property name="statusTip">
                     <string>for shot independent types enter or select a baseName</string>
@@ -398,9 +386,18 @@
                   </widget>
                  </item>
                  <item row="4" column="1">
-                  <layout class="QHBoxLayout" name="revision_horizontalLayout">
+                  <layout class="QHBoxLayout" name="revision_horizontalLayout" stretch="1,1">
                    <item>
                     <widget class="QSpinBox" name="revision_spinBox">
+                     <property name="minimumSize">
+                      <size>
+                       <width>20</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>increase it when the asset needs a revision</string>
+                     </property>
                      <property name="statusTip">
                       <string>increase it when the asset needs a revision</string>
                      </property>
@@ -408,11 +405,68 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="revision_pushButton">
+                     <property name="minimumSize">
+                      <size>
+                       <width>150</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>gets the latest revision number</string>
+                     </property>
                      <property name="statusTip">
                       <string>gets the latest revision number</string>
                      </property>
                      <property name="text">
                       <string>Get Lastest Revision</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="5" column="1">
+                  <layout class="QHBoxLayout" name="version_horizontalLayout" stretch="1,1">
+                   <item>
+                    <widget class="QSpinBox" name="version_spinBox">
+                     <property name="minimumSize">
+                      <size>
+                       <width>20</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>it is automatically increased by 1</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>it is automatically increased by 1</string>
+                     </property>
+                     <property name="prefix">
+                      <string/>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>99999999</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="version_pushButton">
+                     <property name="minimumSize">
+                      <size>
+                       <width>150</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>gets the latest version number</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>gets the latest version number</string>
+                     </property>
+                     <property name="text">
+                      <string>Get Latest Version</string>
                      </property>
                     </widget>
                    </item>
@@ -429,6 +483,12 @@
                   <verstretch>1</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="toolTip">
+                 <string>Lists the all versions of current asset</string>
+                </property>
+                <property name="statusTip">
+                 <string>Lists the all versions of current asset</string>
+                </property>
                </widget>
               </item>
               <item>
@@ -439,7 +499,7 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QHBoxLayout" name="saveCanel_horizontalLayout">
+                <layout class="QHBoxLayout" name="saveCanel_horizontalLayout" stretch="1,1,1">
                  <item>
                   <widget class="QPushButton" name="save_button">
                    <property name="sizePolicy">
@@ -448,11 +508,27 @@
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>Saves asset to the server</string>
+                   </property>
                    <property name="statusTip">
-                    <string>Save asset to the server</string>
+                    <string>Saves asset to the server</string>
                    </property>
                    <property name="text">
                     <string>Save</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="export_button">
+                   <property name="toolTip">
+                    <string>Exports the Selected items as a new asset</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>Exports the Selected items as a new asset</string>
+                   </property>
+                   <property name="text">
+                    <string>Export</string>
                    </property>
                   </widget>
                  </item>
@@ -463,6 +539,9 @@
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="toolTip">
+                    <string>Quit without doing anything</string>
                    </property>
                    <property name="statusTip">
                     <string>Quit without doing anything</string>
@@ -536,6 +615,9 @@
                      <verstretch>1</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>Select an asset type</string>
+                   </property>
                    <property name="statusTip">
                     <string>Select an asset type</string>
                    </property>
@@ -564,6 +646,9 @@
                      <horstretch>0</horstretch>
                      <verstretch>1</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="toolTip">
+                    <string>if the type is a shot dependent type this will be activated</string>
                    </property>
                    <property name="statusTip">
                     <string>if the type is a shot dependent type this will be activated</string>
@@ -610,6 +695,9 @@
                      <verstretch>1</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>if the project supports SubName field, you can select a subName</string>
+                   </property>
                    <property name="statusTip">
                     <string>if the project supports SubName field, you can select a subName</string>
                    </property>
@@ -622,6 +710,9 @@
                      <horstretch>0</horstretch>
                      <verstretch>1</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="toolTip">
+                    <string>for shot independent types select a baseName</string>
                    </property>
                    <property name="statusTip">
                     <string>for shot independent types select a baseName</string>

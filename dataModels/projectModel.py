@@ -260,15 +260,10 @@ class Database(object):
         """returns the homePath environment variable
         it is :
         /home/userName/ for linux
-        C:/Documents and Settings/userName for Windows
+        C:\Documents and Settings\userName\My Documents for Windows
         """
         
-        homePath = ''
-        
-        if os.name == 'posix':
-            homePath = os.environ.get('HOME')
-        elif os.name == 'nt':
-            homePath = os.environ.get('HOMEPATH')
+        homePath = os.environ.get('HOME')
         
         return homePath
     

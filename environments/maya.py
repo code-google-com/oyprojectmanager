@@ -12,10 +12,7 @@ def save( assetObject ):
     uses PyMel to save the file (not necessary but comfortable )
     """
     
-    #assert(isinstance(assetObject, assetModel.Asset ) )
-    
     # set the extension to ma by default
-    #assert(isinstance(assetObject, assetModel.Asset))
     assetObject.setExtension( 'ma' )
     
     # set the project to the current environment
@@ -32,6 +29,29 @@ def save( assetObject ):
     
     # save the file
     pm.saveAs( assetObject.getFullPath(), type='mayaAscii' )
+    
+    return True
+
+
+
+
+#----------------------------------------------------------------------
+def export( assetObject ):
+    """the exprot action for maya environment
+    """
+    
+    # check if there is something selected
+    if len(pm.ls(sl=True)) < 1:
+        return False
+    
+    # set the extension to ma by default
+    assetObject.setExtension( 'ma' )
+    
+    # create the folder if it doesn't exists
+    oyAux.createFolder( assetObject.getPath() )
+    
+    # export the file
+    pm.exportSelected( assetObject.getFullPath(), type='mayaAscii' )
     
     return True
 
@@ -92,10 +112,11 @@ def getPathVariables():
     
     if fullPath != '':
         fileName = os.path.basename( fullPath )
-        path = os.path.dirname( fullPath )
-    else: # no file is open
-        #try to get at least the project and sequence names
-        path = getWorkspacePath()
+        #path = os.path.dirname( fullPath )
+    #else: # no file is open
+        ##try to get at least the project and sequence names
+    
+    path = getWorkspacePath()
     
     return fileName, path
 
@@ -165,7 +186,7 @@ def getWorkspacePath():
     
     if os.name == 'nt':
         myDict = dict()
-        myDict['/'] = '\\'
+        myDict[u'/'] = u'\\'
         path = oyAux.multiple_replace( path, myDict)
     
     return path

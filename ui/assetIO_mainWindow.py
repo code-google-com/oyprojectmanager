@@ -48,6 +48,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # connect SIGNALs
         # SAVE Asset
         QtCore.QObject.connect(self.save_button, QtCore.SIGNAL("clicked()"), self.saveAsset )
+        QtCore.QObject.connect(self.export_button, QtCore.SIGNAL("clicked()"), self.exportAsset )
         QtCore.QObject.connect(self.open_button, QtCore.SIGNAL("clicked()"), self.openAsset )
         QtCore.QObject.connect(self.reference_button, QtCore.SIGNAL("clicked()"), self.referenceAsset )
         QtCore.QObject.connect(self.import_button, QtCore.SIGNAL("clicked()"), self.importAsset )
@@ -154,7 +155,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # update the user with the last selected user
         lastUser = self._db.getLastUser()
         
-        if lastUser != '' or lastUser != None:
+        if lastUser != '' and lastUser != None:
             userIndex = self.user_comboBox1.findText(lastUser) 
         else:
             userIndex = 0
@@ -1015,6 +1016,76 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     #----------------------------------------------------------------------
     # SAVE & OPEN & IMPORT & REFERENCE ACTIONS FOR ENVIRONMENTS
     #----------------------------------------------------------------------
+    
+    #----------------------------------------------------------------------
+    def checkOutputFileVersion(self, assetObject):
+        """checks if the asset is set to latest version for its own kind
+        """
+        
+        verStatus = False
+        
+        # check for the latest version
+        if not assetObject.isLatestVersion():
+            
+            # ask permission to update the fields automatically
+            answer = QtGui.QMessageBox.question(self, 'Version Error', 'it is not the latest version\nshould I increase the version number?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            
+            if answer == QtGui.QMessageBox.Yes:
+                assetObject.setVersionToNextAvailable()
+                
+                self.setVersionNumberField( assetObject.getVersionNumber() )
+                
+                verStatus = True
+        else:
+            verStatus = True
+        
+        return verStatus
+    
+    
+    
+    #----------------------------------------------------------------------
+    def checkOutputFileRevision(self, assetObject):
+        """checks if the asset is set to latest revision for its own kind
+        """
+        
+        revStatus = False
+        
+        # check for latest revision
+        if not assetObject.isLatestRevision():
+            # ask permission to update the fields automatically
+            answer = QtGui.QMessageBox.question(self, 'Revision Error', 'it is not the latest revision\nshould I increase the revision number?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            
+            if answer == QtGui.QMessageBox.Yes:
+                assetObject.setRevisionToNextAvailable()
+                
+                self.setRevisionNumberField( assetObject.getRevisionNumber() )
+                
+                revStatus = True
+        else:
+            revStatus = True
+    
+    
+    
+    #----------------------------------------------------------------------
+    def checkOutputFileOverwrite(self, assetObject):
+        """checks if the assetObject already exists, so user tries to overwrite
+        """
+        
+        overwriteStatus = False
+        
+        # check for overwrites
+        if assetObject.exists():
+            answer = QtGui.QMessageBox.question(self, 'File Error', 'owerwrite?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            if answer == QtGui.QMessageBox.Yes:
+                overwriteStatus = True
+        else:
+            overwriteStatus = True
+        
+        return overwriteStatus
+    
+    
+    
+    #----------------------------------------------------------------------
     def saveAsset(self):
         """prepares the data and sends the asset object to the function
         specially written for the host environment to save the asset file
@@ -1030,48 +1101,9 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         # check the file conditions
         
-        # check for latest version
-        if not assetObject.isLatestVersion():
-            
-            # ask permission to update the fields automatically
-            answer = QtGui.QMessageBox.question(self, 'Version Error', 'it is not the latest version\nshould I increase the version number?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-            
-            if answer == QtGui.QMessageBox.Yes:
-                assetObject.setVersionToNextAvailable()
-                
-                self.setVersionNumberField( assetObject.getVersionNumber() )
-                
-                verStatus = True
-        else:
-            verStatus = True
-        
-        
-        # check for latest revision
-        if not assetObject.isLatestRevision():
-            # ask permission to update the fields automatically
-            answer = QtGui.QMessageBox.question(self, 'Revision Error', 'it is not the latest revision\nshould I increase the revision number?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-            
-            if answer == QtGui.QMessageBox.Yes:
-                assetObject.setRevisionToNextAvailable()
-                
-                self.setRevisionNumberField( assetObject.getRevisionNumber() )
-                
-                revStatus = True
-        else:
-            revStatus = True
-        
-        
-        
-        # check for overwrites
-        if self.isOverwriting():
-            answer = QtGui.QMessageBox.question(self, 'File Error', 'owerwrite?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-            #self.close()
-            if answer == QtGui.QMessageBox.Yes:
-                overwriteStatus = True
-        else:
-            overwriteStatus = True
-        
-        
+        verStatus = self.checkOutputFileVersion( assetObject )
+        revStatus = self.checkOutputFileRevision( assetObject )
+        overwriteStatus = self.checkOutputFileOverwrite( assetObject )
         
         if verStatus and revStatus and overwriteStatus:
             # everything is ok now save in the host application
@@ -1085,6 +1117,35 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
                 self._db.setLastUser( assetObject.getUserInitials() )
                 
                 self.close()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def exportAsset(self):
+        """prepares the data and sends the asset object to the function
+        specially written for the host environment to open the asset file
+        """
+        
+        # get the asset object
+        assetObject = self.getAssetObjectFromSaveFields()
+        
+        # check the file conditions
+        
+        verStatus = self.checkOutputFileVersion( assetObject )
+        revStatus = self.checkOutputFileRevision( assetObject )
+        overwriteStatus = self.checkOutputFileOverwrite( assetObject )
+        
+        
+        if verStatus and revStatus and overwriteStatus:
+            # everything is ok now save in the host application
+            if self.environment == 'MAYA':
+                envStatus = maya.export( assetObject )
+            
+            # if everything worked fine close the interface
+            if envStatus:
+                # do not set the last user variable
+                self.close()
+            
     
     
     
@@ -1172,17 +1233,4 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
             # warn the user for non existing asset files
             answer = QtGui.QMessageBox.question(self, 'File Error', assetObject.getFullPath() + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
     
-    
-    
-    #----------------------------------------------------------------------
-    def isOverwriting(self):
-        """checks if the file name exists in the server
-        """
-        
-        assetObject = self.getAssetObjectFromSaveFields()
-        
-        if assetObject.exists():
-            return True
-        
-        return False
     

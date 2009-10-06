@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.3.4
+v0.4.0
 
 Description :
 -------------
@@ -149,6 +149,14 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.4.0
+- range tools now works properly with unicode inputs
+- maya now always gets the path from the workspace
+- fixed getting and setting the user initials in the interface
+- fixed getting of the HOME path of the user for Windows
+- added the ability to export the selected content as a new asset instead of
+  just saving them
+
 v0.3.4
 - introduced a lot of speed optimizations, eliminated all the unnecessary asset
   object creations in the interface, but this introduced listing of non-asset
@@ -355,6 +363,6 @@ TODO List :
 
 
 
-__version__ = "0.3.4"
+__version__ = "0.4.0"
 
 
