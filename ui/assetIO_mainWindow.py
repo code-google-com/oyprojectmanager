@@ -1005,7 +1005,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """gets the data from environment
         """
         if self.environment == 'MAYA':
-            from oyProjectManager import maya
+            from oyProjectManager.environments import maya
             self.fileName, self.path = maya.getPathVariables()
         
         if self.environment != None:
