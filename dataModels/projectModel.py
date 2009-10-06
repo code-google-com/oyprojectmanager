@@ -1245,9 +1245,9 @@ class Sequence(object):
                     
                     asset = assetModelAsset( selfProject, self, childFile )
                     
-                    #if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
-                        #assets.append( asset )
-                    assets.append( asset )
+                    if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
+                        assets.append( asset )
+                    #assets.append( asset )
         
         return assets
     
@@ -1312,11 +1312,6 @@ class Sequence(object):
                 childFileFullPath = osPathJoin( childFolderFullPath, childFile)
                 if childFile.startswith( childFolder ) and osPathIsFile( childFileFullPath ):
                     
-                    #asset = assetModelAsset( selfProject, self, childFile )
-                    
-                    #if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
-                        #assets.append( asset )
-                    #assets.append( asset )
                     assetFiles.append( childFile )
         
         return assetFiles
@@ -1336,12 +1331,8 @@ class Sequence(object):
         
         assets = [] * 0
         
-        # get the asset folders
-        #assetFolders = self.getAssetFolders()
-        
+        # get the asset folder
         aType = self.getAssetTypeWithName( typeName )
-        
-        #assert(isinstance(aType,assetModel.AssetType))
         assetFolder = aType.getPath()
         
         # optimization variables
@@ -1363,14 +1354,9 @@ class Sequence(object):
         # has missing folder, because the folders will be created whenever somebody
         # uses that folder while saving an asset, we don't care about its non existancy
         #
-        #if not os.path.exists( fullPath ):
         if not osPathExists( fullPath ):
             return []
         
-        #childFolders = osListDir( fullPath )
-        
-        
-        #for childFolder in childFolders:
         childFolder = baseName
         childFolderFullPath = osPathJoin( fullPath, childFolder )
         
@@ -1385,8 +1371,8 @@ class Sequence(object):
                 
                 asset = assetModelAsset( selfProject, self, childFile )
                 
-                #if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
-                    #assets.append( asset )
+                if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
+                    assets.append( asset )
                 assets.append( asset )
         
         return assets
@@ -1446,7 +1432,15 @@ class Sequence(object):
     
     #----------------------------------------------------------------------
     def filterAssetNames(self, assetFileNames, **kwargs):
-        """a fake filter for quick retrieval of infos
+        """a fake filter for quick retrieval of infos from asset file names
+        
+        use filterAsset for filtering with asset objects as input
+        
+        the kwargs should have at least on of these keywords:
+        
+        baseName
+        subName
+        typeName
         """
         
         # generate dictionaries
@@ -1460,7 +1454,8 @@ class Sequence(object):
     
     #----------------------------------------------------------------------
     def generateFakeInfoVariables(self, assetFileName):
-        """generates fake info variables from assetFileNames
+        """generates fake info variables from assetFileNames by splitting the file name
+        from '_' characters and trying to get information from those splits
         """
         #assert(isinstance(assetFileName, str))
         splits = assetFileName.split('_') # replace it with data seperator
@@ -1483,6 +1478,7 @@ class Sequence(object):
                 infoVars['typeName'] = splits[1]
         
         return infoVars
+    
     
     
     #----------------------------------------------------------------------

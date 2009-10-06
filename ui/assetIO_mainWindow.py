@@ -215,8 +215,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         else:
             self.baseName_comboBox1.setCurrentIndex( self.baseName_comboBox1.findText(baseName) )
         
-        #sequenceObject = projectModel.Sequence( projectName, sequenceName )
-        
         if not currentSequence._noSubNameField: # remove this block when the support for old version becomes obsolute
             # sub Name
             self.subName_comboBox1.setCurrentIndex( self.subName_comboBox1.findText(subName) )
@@ -227,12 +225,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # version : set the version and increase it by one
         self.version_spinBox.setValue( verNumber )
         self.updateVersionToLatest()
-        
-        
-        # leave the user initials as it is update from the databse
-        ## user
-        #element = self.user_comboBox1
-        #element.setCurrentIndex( element.findText( userInitials ) )
         
         # notes
         self.note_lineEdit1.setText( notes )
@@ -341,9 +333,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         # if the current selected type is not shot dependent
         # get all the assets of that type and get their baseNames
-        #self._updateProjectObject()
+
         self._updateSequenceObject()
-        #currentProject = self._project
         currentSequence = self._sequence
         
         currentTypeName = self.getCurrentAssetTypeInSave()
@@ -359,29 +350,11 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
             # do nothing
             return
         
-        # get the assets of that type
-        #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName = currentTypeName )
-        #allAssets = currentSequence.getAllAssetsForType( currentTypeName )
-        #allAssets = currentSequence.getAllAssetsForTypeAndBaseName( currentTypeName )
-        
+        # get the asset files of that type
         allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
         # filter for base name
         currSGFIV = currentSequence.generateFakeInfoVariables
         baseNamesList = [ currSGFIV(assetFileName)['baseName'] for assetFileName in allAssetFileNames ]
-        
-        
-        ## try to quickly generate the asset files
-        #count = len(allAssetFileNames)
-        #projList = [ currentProject ] * count
-        #seqList = [ currentSequence ] * count
-        #allAssets = map( assetModel.Asset, projList, seqList, allAssetFileNames )
-        
-        ## get the base names
-        #baseNamesList = [] * 0
-        #for asset in allAssets:
-            #baseNamesList.append( asset.getBaseName() )
-        
-        #basenameList = [ asset.getBaseName() for asset in allAssets ]
         
         # remove duplicates
         baseNamesList = oyAux.unique( baseNamesList )
@@ -424,33 +397,11 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         if currentType == None or currentType.isShotDependent():
             return
         
-        ## get the assets of that type
-        #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName = currentTypeName )
-        #allAssets = currentSequence.getAllAssetsForType( currentTypeName )
-        #allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
-        
-        ## get the base names
-        #baseNamesList = [] * 0
-        #for asset in allAssets:
-            #baseNamesList.append( asset.getBaseName() )
-                # try to quickly generate the asset files
-        
-        #count = len(allAssetFileNames)
-        #projList = [ currentProject ] * count
-        #seqList = [ currentSequence ] * count
-        #allAssets = map( assetModel.Asset, projList, seqList, allAssetFileNames )
-        
+        # get the asset files of that type
         allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
         # filter for base name
         currSGFIV = currentSequence.generateFakeInfoVariables
         baseNamesList = [ currSGFIV(assetFileName)['baseName'] for assetFileName in allAssetFileNames ]
-        
-        # get the base names
-        #baseNamesList = [] * 0
-        #for asset in allAssets:
-            #baseNamesList.append( asset.getBaseName() )
-        
-        #basenameList = [ asset.getBaseName() for asset in allAssets ]
         
         # remove duplicates
         baseNamesList = oyAux.unique( baseNamesList )
@@ -541,29 +492,16 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
             # do nothing
             return
         
-        # get the assets of that type
-        #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName=currentTypeName, baseName=currentBaseName )
-        #allAssets = currentSequence.filterAssets( currentSequence.getAllAssetsForType( currentTypeName ), baseName=currentBaseName )
-        #allAssets = currentSequence.getAllAssetsForType( currentTypeName )
-        
+        # get the asset files of that type
         allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
         # filter for base name
-        #currSGFIV = currentSequence.generateFakeInfoVariables
-        #baseNamesList = [ currSGFIV(assetFileName)['baseName'] for assetFileName in allAssetFileNames ]
-        #assert(isinstance(currentSequence,projectModel.Sequence))
-        
         allAssetFileNamesFiltered = currentSequence.filterAssetNames( allAssetFileNames, baseName=currentBaseName, typeName=currentTypeName ) 
         
-        
-        ## get the subNames
-        #subNamesList = [] * 0
-        #for asset in allAssets:
-            #subNamesList.append( asset.getSubName() )
-        
+        # get the subNames
         curSGFIV = currentSequence.generateFakeInfoVariables
         subNamesList = [ curSGFIV(assetFileName)['subName'] for assetFileName in allAssetFileNamesFiltered ]
         
-        # add MAIN as default
+        # add MAIN by default
         subNamesList.append('MAIN')
         
         # remove duplicates
@@ -679,7 +617,10 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
             baseName = self.getCurrentBaseNameInOpen()
         
         
-        subName = self.getCurrentSubNameInOpen()
+        if not currentSequence.noSubNameField():
+            subName = self.getCurrentSubNameInOpen()
+        else:
+            subName = ''
         
         # construct the dictionary
         assetInfo = dict()
@@ -687,21 +628,12 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         assetInfo['subName' ] = subName
         assetInfo['typeName'] = typeName
         
-        # construct the asset with base info
-        #asset = assetModel.Asset( currentProject.getName(), currentSequence.getName())
-        #asset = assetModel.Asset( currentProject, currentSequence)
-        #asset.setInfoVariables( **assetInfo )
-        
-        ## get all versions list
-        #allVersionsList = asset.getAllVersions()
-        
-        
+        # get all asset files of that type
         allAssetFileNames = currentSequence.getAllAssetFileNamesForType( typeName )
-        # filter for base name
+        # filter for assetInfo
         allAssetFileNamesFiltered = currentSequence.filterAssetNames( allAssetFileNames, **assetInfo ) 
         
-        #print allAssetFileNames
-        
+        # get the fileNames
         currSGFIV = currentSequence.generateFakeInfoVariables
         allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
 
@@ -709,7 +641,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         self.assets_listWidget2.clear()
         
         if len(allVersionsList) > 0:
-            #self.assets_listWidget2.addItems( sorted([asset.getFileName() for asset in allVersionsList]) )
             self.assets_listWidget2.addItems( sorted(allVersionsList) )
     
     
@@ -861,7 +792,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
             maxRevNumber = 0
             
         # update the field
-        #self.revision_spinBox.setValue( maxRevNumber )
         self.setRevisionNumberField( maxRevNumber )
     
     
@@ -883,7 +813,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
             maxVerNumber = 0
         
         # update the field
-        #self.version_spinBox.setValue( maxVerNumber + 1 )
         self.setVersionNumberField( maxVerNumber + 1 )
     
     
@@ -929,7 +858,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """returns the asset object from the fields
         """
         
-        #assetObj = Asset( self._project.getName(), self._sequence.getName() )
         assetObj = assetModel.Asset( self._project, self._sequence )
         
         # gather information
@@ -1063,7 +991,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         if self._sequence == None or (self._sequence.getName() != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) ):
             self._updateProjectObject()
-            #newSeq = sequence.Sequence( self._project.getName(), currentSequenceName )
             newSeq = projectModel.Sequence( self._project, currentSequenceName )
             if newSeq._exists:
                 self._sequence = newSeq

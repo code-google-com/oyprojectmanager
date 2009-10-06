@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.3.3
+v0.3.4
 
 Description :
 -------------
@@ -149,6 +149,19 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.3.4
+- introduced a lot of speed optimizations, eliminated all the unnecessary asset
+  object creations in the interface, but this introduced listing of non-asset
+  objects (like smr files) in the interface, this will be fixed in next versions
+- the interface tries to get all the asset information from the asset file names
+  instead of asset objects
+- fixed asset retrieval in open tab in the interface, caused by switching from
+  a sequence that supports subNames to another which doesn't. The subName field
+  was left in 'MAIN' and the code was trying to get asset file names with a
+  subName of 'MAIN' in a sequence which doesn't support subName fields.
+- getting the latest version or revision for an asset is now much faster
+- cleaned the code a little bit
+
 v0.3.3
 - introduced some Pythonic optimizations to the code
 - added getAllAssetsForType method to the Sequence object
@@ -342,6 +355,6 @@ TODO List :
 
 
 
-__version__ = "0.3.3"
+__version__ = "0.3.4"
 
 

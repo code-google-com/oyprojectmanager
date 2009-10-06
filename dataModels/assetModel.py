@@ -328,9 +328,9 @@ class Asset(object):
         # file system to get other versions
         
         if not self._parentSequence._noSubNameField:
-            return self._parentSequence.filterAssets( self._parentSequence.getAllAssets(), baseName = self._baseName, subName = self._subName, typeName = self._typeName )
+            return self._parentSequence.filterAssets( self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName ), subName = self._subName )
         else:
-            return self._parentSequence.filterAssets( self._parentSequence.getAllAssets(), baseName = self._baseName, typeName = self._typeName )
+            return self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName )
     
     
     
