@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetIO_mainWindow.ui'
 #
-# Created: Tue Oct  6 12:44:26 2009
+# Created: Tue Oct  6 12:50:42 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
