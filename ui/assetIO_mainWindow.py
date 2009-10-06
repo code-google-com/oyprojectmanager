@@ -261,6 +261,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """updates the sequence according to selected project
         """
         
+        #print "assetIO -> updateSequenceList"
+        
         self._updateProjectObject()
         currentProjet = self._project
         
@@ -335,11 +337,13 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         type, if the type is not shot dependent
         """
         
+        #print "assetIO -> updateBaseNameFieldInSave"
+        
         # if the current selected type is not shot dependent
         # get all the assets of that type and get their baseNames
-        self._updateProjectObject()
+        #self._updateProjectObject()
         self._updateSequenceObject()
-        currentProject = self._project
+        #currentProject = self._project
         currentSequence = self._sequence
         
         currentTypeName = self.getCurrentAssetTypeInSave()
@@ -398,6 +402,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """updates the baseName fields with current asset baseNames for selected
         type, if the type is not shot dependent
         """
+        
+        #print "assetIO -> updateBaseNameFieldInOpen"
         
         # if the current selected type is not shot dependent
         # get all the assets of that type and get their baseNames
@@ -523,6 +529,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def _updateSubNameField(self, currentSequence, currentTypeName, currentBaseName, comboBox):
         """
         """
+        
+        #print "assetIO -> _updateSubNameField"
         
         if currentTypeName == None or currentBaseName == None:
             return
@@ -650,6 +658,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """fills the assets listWidget with assets
         """
         
+        #print "assetIO -> updateAssetsListWidget"
+        
         self._updateProjectObject()
         self._updateSequenceObject()
         
@@ -668,6 +678,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         else:
             baseName = self.getCurrentBaseNameInOpen()
         
+        
         subName = self.getCurrentSubNameInOpen()
         
         # construct the dictionary
@@ -678,17 +689,28 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         # construct the asset with base info
         #asset = assetModel.Asset( currentProject.getName(), currentSequence.getName())
-        asset = assetModel.Asset( currentProject, currentSequence)
-        asset.setInfoVariables( **assetInfo )
+        #asset = assetModel.Asset( currentProject, currentSequence)
+        #asset.setInfoVariables( **assetInfo )
         
-        # get all versions list
-        allVersionsList = asset.getAllVersions()
+        ## get all versions list
+        #allVersionsList = asset.getAllVersions()
         
+        
+        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( typeName )
+        # filter for base name
+        allAssetFileNamesFiltered = currentSequence.filterAssetNames( allAssetFileNames, **assetInfo ) 
+        
+        #print allAssetFileNames
+        
+        currSGFIV = currentSequence.generateFakeInfoVariables
+        allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
+
         # append them to the asset list view
         self.assets_listWidget2.clear()
         
         if len(allVersionsList) > 0:
-            self.assets_listWidget2.addItems( sorted([asset.getFileName() for asset in allVersionsList]) )
+            #self.assets_listWidget2.addItems( sorted([asset.getFileName() for asset in allVersionsList]) )
+            self.assets_listWidget2.addItems( sorted(allVersionsList) )
     
     
     

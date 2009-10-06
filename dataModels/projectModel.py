@@ -1323,9 +1323,6 @@ class Sequence(object):
     
     
     
-    
-    
-    
     #----------------------------------------------------------------------
     def getAllAssetsForTypeAndBaseName(self, typeName, baseName):
         """returns Asset objects of the sequence for just the given type and basename
@@ -1476,7 +1473,7 @@ class Sequence(object):
         infoVars['typeName'] = ''
         
         if len(splits) > 1:
-            if not self.noSubNameField:
+            if not self._noSubNameField:
                 infoVars['baseName'] = splits[0]
                 infoVars['subName'] = splits[1]
                 infoVars['typeName'] = splits[2]
