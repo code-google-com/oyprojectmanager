@@ -357,6 +357,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # get the assets of that type
         #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName = currentTypeName )
         allAssets = currentSequence.getAllAssetsForType( currentTypeName )
+        #allAssets = currentSequence.getAllAssetsForTypeAndBaseName( currentTypeName )
         
         # get the base names
         baseNamesList = [] * 0
@@ -498,7 +499,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         # get the assets of that type
         #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName=currentTypeName, baseName=currentBaseName )
-        allAssets = currentSequence.filterAssets( currentSequence.getAllAssetsForType( currentTypeName ), baseName=currentBaseName )
+        #allAssets = currentSequence.filterAssets( currentSequence.getAllAssetsForType( currentTypeName ), baseName=currentBaseName )
+        allAssets = currentSequence.getAllAssetsForType( currentTypeName , currentBaseName )
         
         # get the subNames
         subNamesList = [] * 0
