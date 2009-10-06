@@ -53,6 +53,10 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         QtCore.QObject.connect(self.reference_button, QtCore.SIGNAL("clicked()"), self.referenceAsset )
         QtCore.QObject.connect(self.import_button, QtCore.SIGNAL("clicked()"), self.importAsset )
         
+        # validate input texts
+        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("editTextChanged(QString)"), self.validateBaseName )
+        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("editTextChanged(QString)"), self.validateSubName )
+        #QtCore.QObject.connect(self.note_lineEdit1, QtCore.SIGNAL("textChanged(QString)"), self.validateNotes )
         
         # close button
         QtCore.QObject.connect(self.cancel_button1, QtCore.SIGNAL("clicked()"), self.close )
@@ -254,8 +258,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """updates the sequence according to selected project
         """
         
-        #print "assetIO -> updateSequenceList"
-        
         self._updateProjectObject()
         currentProjet = self._project
         
@@ -330,8 +332,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         type, if the type is not shot dependent
         """
         
-        #print "assetIO -> updateBaseNameFieldInSave"
-        
         # if the current selected type is not shot dependent
         # get all the assets of that type and get their baseNames
 
@@ -376,8 +376,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """updates the baseName fields with current asset baseNames for selected
         type, if the type is not shot dependent
         """
-        
-        #print "assetIO -> updateBaseNameFieldInOpen"
         
         # if the current selected type is not shot dependent
         # get all the assets of that type and get their baseNames
@@ -479,10 +477,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     
     #----------------------------------------------------------------------
     def _updateSubNameField(self, currentSequence, currentTypeName, currentBaseName, comboBox):
+        """updates the subName field to correctly reflect the behaviour of the current sequence
         """
-        """
-        
-        #print "assetIO -> _updateSubNameField"
         
         if currentTypeName == None or currentBaseName == None:
             return
@@ -597,8 +593,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """fills the assets listWidget with assets
         """
         
-        #print "assetIO -> updateAssetsListWidget"
-        
         self._updateProjectObject()
         self._updateSequenceObject()
         
@@ -690,7 +684,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentShotStringInSave(self):
         """returns the current shot string from the UI
         """
-        
         return unicode( self.shot_comboBox1.currentText() )
     
     
@@ -699,7 +692,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentShotStringInOpen(self):
         """returns the current shot string from the UI
         """
-        
         return unicode( self.shot_comboBox2.currentText() )
     
     
@@ -708,7 +700,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentBaseNameInSave(self):
         """returns the current baseName from the UI
         """
-        
         return unicode( self.baseName_comboBox1.currentText() )
     
     
@@ -717,7 +708,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentBaseNameInOpen(self):
         """returns the current baseName from the UI
         """
-        
         return unicode( self.baseName_comboBox2.currentText() )
     
     
@@ -726,7 +716,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentSubNameInSave(self):
         """returns the current subName from the UI
         """
-        
         return unicode( self.subName_comboBox1.currentText() )
     
     
@@ -735,7 +724,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentSubNameInOpen(self):
         """returns the current subName from the UI
         """
-        
         return unicode( self.subName_comboBox2.currentText() )
     
     
@@ -744,7 +732,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentRevNumber(self):
         """returns the current revision number from the UI
         """
-        
         return unicode( self.revision_spinBox.value() )
     
     
@@ -753,7 +740,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentVerNumber(self):
         """returns the current version number from the UI
         """
-        
         return unicode( self.version_spinBox.value() )
     
     
@@ -762,7 +748,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentUserInitials(self):
         """returns the current user initials from the UI
         """
-        
         return unicode( self.user_comboBox1.currentText() )
     
     
@@ -771,7 +756,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def getCurrentNote(self):
         """returns the current note from the UI
         """
-        
         return unicode( self.note_lineEdit1.text() )
     
     
@@ -924,7 +908,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def setRevisionNumberField(self, revNumber):
         """sets the revision number field in the interface
         """
-        
         self.revision_spinBox.setValue( revNumber )
     
     
@@ -933,7 +916,6 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     def setVersionNumberField(self, verNumber):
         """sets the version number field in the interface
         """
-        
         self.version_spinBox.setValue( verNumber )
         
     
@@ -999,11 +981,46 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
+    def validateSubName(self):
+        """validates the subName field by removing unneccessary characters
+        """
+        
+        # get the text
+        text = unicode( self.subName_comboBox1.currentText() )
+        
+        # validate the text
+        text = oyAux.stringConditioner( text, False, False, False, True )
+        
+        # set back
+        self.subName_comboBox1.setEditText( text )
+    
+    
+        
+    #----------------------------------------------------------------------
+    def validateBaseName(self):
+        """validates the baseName field by removing unneccessary characters
+        """
+        
+        # get the text
+        text = unicode( self.baseName_comboBox1.currentText() )
+        
+        print text
+        
+        # validate the text
+        text = oyAux.stringConditioner( text, False, False, False, True )
+        
+        # set back
+        self.baseName_comboBox1.setEditText( text )
+    
+    
+    
+    #----------------------------------------------------------------------
     # ENVIRONMENT PREPARATION
     #----------------------------------------------------------------------
     def getSettingsFromEnvironment(self):
         """gets the data from environment
         """
+        
         if self.environment == 'MAYA':
             from oyProjectManager.environments import maya
             self.fileName, self.path = maya.getPathVariables()
@@ -1064,6 +1081,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
                 revStatus = True
         else:
             revStatus = True
+        
+        return revStatus
     
     
     
@@ -1141,14 +1160,19 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         if verStatus and revStatus and overwriteStatus:
             # everything is ok now save in the host application
             if self.environment == 'MAYA':
+                
                 from oyProjectManager.environments import maya
                 envStatus = maya.export( assetObject )
-            
+                
             # if everything worked fine close the interface
             if envStatus:
                 # do not set the last user variable
+                
+                # inform the user for successful operation
+                
+                QtGui.QMessageBox.information(self, 'Asset Export', 'Asset :\n\n'+ assetObject.getFileName() +'\n\nis exported successfuly', QtGui.QMessageBox.Ok)
+                
                 self.close()
-            
     
     
     

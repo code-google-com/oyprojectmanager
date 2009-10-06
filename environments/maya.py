@@ -42,6 +42,7 @@ def export( assetObject ):
     
     # check if there is something selected
     if len(pm.ls(sl=True)) < 1:
+        print "selection error"
         return False
     
     # set the extension to ma by default

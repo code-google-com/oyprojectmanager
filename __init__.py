@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.4.1
+v0.4.2
 
 Description :
 -------------
@@ -141,7 +141,7 @@ Command Line Options :
 -p, --path           the path of the current asset, it helps getting some of
                      the information
 
--u, --userInterface  displays the user interface ( needs PyQt4 to be installed )
+-u, --userInterface  displays the user interface (needs PyQt4 to be installed)
 
 -v, --version        displays version information
 
@@ -149,6 +149,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.4.2
+- fixed the revision check in the interface
+- tried to remove Turkish characters from the interface fields but it is not
+  working properly for now
+
 v0.4.1
 - fixed the wrong widget sizes assetIO UI
 
@@ -366,6 +371,6 @@ TODO List :
 
 
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 
