@@ -4,7 +4,7 @@ from PyQt4 import QtGui, QtCore
 import assetIO_mainWindowUI
 
 from oyProjectManager.dataModels import assetModel, projectModel
-from oyProjectManager.environments import maya, nuke, photoshop, houdini
+#from oyProjectManager.environments import maya, nuke, photoshop, houdini
 from oyProjectManager import __version__
 
 
@@ -1005,6 +1005,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """gets the data from environment
         """
         if self.environment == 'MAYA':
+            from oyProjectManager import maya
             self.fileName, self.path = maya.getPathVariables()
         
         if self.environment != None:
@@ -1108,6 +1109,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         if verStatus and revStatus and overwriteStatus:
             # everything is ok now save in the host application
             if self.environment == 'MAYA':
+                from oyProjectManager.environments import maya
                 envStatus = maya.save( assetObject )
             
             
@@ -1139,6 +1141,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         if verStatus and revStatus and overwriteStatus:
             # everything is ok now save in the host application
             if self.environment == 'MAYA':
+                from oyProjectManager.environments import maya
                 envStatus = maya.export( assetObject )
             
             # if everything worked fine close the interface
@@ -1164,6 +1167,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # open the asset in the environment
         if exists:
             if self.environment == 'MAYA':
+                from oyProjectManager.environments import maya
                 try:
                     envStatus = maya.open_( assetObject )
                 except RuntimeError:
@@ -1196,6 +1200,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # open the asset in the environment
         if exists:
             if self.environment == 'MAYA':
+                from oyProjectManager.environments import maya
                 envStatus = maya.import_( assetObject )
             
             if envStatus:
@@ -1224,6 +1229,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # open the asset in the environment
         if exists:
             if self.environment == 'MAYA':
+                from oyProjectManager.environments import maya
                 envStatus = maya.reference( assetObject )
             
             if envStatus:

@@ -127,16 +127,13 @@
           <number>0</number>
          </property>
          <widget class="QWidget" name="saveAsset_tab">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
           <attribute name="title">
            <string>Save Asset</string>
           </attribute>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
             <widget class="QWidget" name="saveAsest_verticalWidget" native="true">
-             <layout class="QVBoxLayout" name="saveAsset_verticalLayout" stretch="0,0,0">
+             <layout class="QVBoxLayout" name="saveAsset_verticalLayout">
               <item>
                <widget class="QWidget" name="saveAsset_gridWidget" native="true">
                 <property name="sizePolicy">
@@ -145,7 +142,7 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QGridLayout" name="saveAsset_gridLayout" columnstretch="0,1" columnminimumwidth="100,0">
+                <layout class="QGridLayout" name="saveAsset_gridLayout" columnstretch="0,1">
                  <item row="0" column="1">
                   <widget class="QComboBox" name="assetType_comboBox1">
                    <property name="sizePolicy">
@@ -560,28 +557,13 @@
           </layout>
          </widget>
          <widget class="QWidget" name="openAsset_tab">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>1</horstretch>
-            <verstretch>1</verstretch>
-           </sizepolicy>
-          </property>
           <attribute name="title">
            <string>Open Asset</string>
           </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
             <widget class="QWidget" name="openAsset_verticalWidget" native="true">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>1</horstretch>
-               <verstretch>1</verstretch>
-              </sizepolicy>
-             </property>
              <layout class="QVBoxLayout" name="openAsset_verticalLayout">
-              <property name="margin">
-               <number>6</number>
-              </property>
               <item>
                <widget class="QWidget" name="openAsset_gridWidget" native="true">
                 <property name="sizePolicy">
@@ -590,7 +572,7 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QGridLayout" name="openAsset_gridLayout" columnstretch="0,1" columnminimumwidth="100,0">
+                <layout class="QGridLayout" name="openAsset_gridLayout" columnstretch="0,1">
                  <item row="0" column="0">
                   <widget class="QLabel" name="assetType_label2">
                    <property name="sizePolicy">
@@ -614,6 +596,12 @@
                      <horstretch>0</horstretch>
                      <verstretch>1</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>112</width>
+                     <height>0</height>
+                    </size>
                    </property>
                    <property name="toolTip">
                     <string>Select an asset type</string>
@@ -730,6 +718,9 @@
                   <verstretch>1</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="toolTip">
+                 <string>all the asset for the current settings will be listed here</string>
+                </property>
                 <property name="statusTip">
                  <string>all the asset for the current settings will be listed here</string>
                 </property>
@@ -743,10 +734,7 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QHBoxLayout" name="openButtons_horizontalLayout">
-                 <property name="margin">
-                  <number>6</number>
-                 </property>
+                <layout class="QHBoxLayout" name="openButtons_horizontalLayout" stretch="1,1,1,1">
                  <item>
                   <widget class="QPushButton" name="open_button">
                    <property name="sizePolicy">
@@ -889,6 +877,35 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>server_comboBox</tabstop>
+  <tabstop>project_comboBox</tabstop>
+  <tabstop>sequence_comboBox</tabstop>
+  <tabstop>main_tabWidget</tabstop>
+  <tabstop>assetType_comboBox1</tabstop>
+  <tabstop>shot_comboBox1</tabstop>
+  <tabstop>baseName_comboBox1</tabstop>
+  <tabstop>subName_comboBox1</tabstop>
+  <tabstop>revision_spinBox</tabstop>
+  <tabstop>revision_pushButton</tabstop>
+  <tabstop>version_spinBox</tabstop>
+  <tabstop>version_pushButton</tabstop>
+  <tabstop>user_comboBox1</tabstop>
+  <tabstop>note_lineEdit1</tabstop>
+  <tabstop>assets_listWidget1</tabstop>
+  <tabstop>save_button</tabstop>
+  <tabstop>export_button</tabstop>
+  <tabstop>cancel_button1</tabstop>
+  <tabstop>assetType_comboBox2</tabstop>
+  <tabstop>shot_comboBox2</tabstop>
+  <tabstop>baseName_comboBox2</tabstop>
+  <tabstop>subName_comboBox2</tabstop>
+  <tabstop>assets_listWidget2</tabstop>
+  <tabstop>open_button</tabstop>
+  <tabstop>reference_button</tabstop>
+  <tabstop>import_button</tabstop>
+  <tabstop>cancel_button2</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
