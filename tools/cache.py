@@ -1,5 +1,7 @@
 import time
 
+
+
 #######################################################################
 class CachedMethod(object):
     """caches the result of a class method inside the instance
@@ -61,3 +63,17 @@ class CachedMethod(object):
         """Return the function's docstring
         """
         return self._method.__doc__
+
+
+
+########################################################################
+class InputBasedCachedMethod:
+    """"""
+    
+    #----------------------------------------------------------------------
+    def __init__(self):
+        """Constructor"""
+        
+        
+    
+    

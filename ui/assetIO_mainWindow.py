@@ -154,7 +154,12 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # update the user with the last selected user
         lastUser = self._db.getLastUser()
         
-        self.user_comboBox1.setCurrentIndex( self.user_comboBox1.findText(lastUser) )
+        if lastUser != '' or lastUser != None:
+            userIndex = self.user_comboBox1.findText(lastUser) 
+        else:
+            userIndex = 0
+        
+        self.user_comboBox1.setCurrentIndex( userIndex )
     
     
     
@@ -350,7 +355,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
             return
         
         # get the assets of that type
-        allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName = currentTypeName )
+        #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName = currentTypeName )
+        allAssets = currentSequence.getAllAssetsForType( currentTypeName )
         
         # get the base names
         baseNamesList = [] * 0
@@ -394,8 +400,9 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         if currentType == None or currentType.isShotDependent():
             return
         
-        # get the assets of that type
-        allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName = currentTypeName )
+        ## get the assets of that type
+        #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName = currentTypeName )
+        allAssets = currentSequence.getAllAssetsForType( currentTypeName )
         
         # get the base names
         baseNamesList = [] * 0
@@ -490,7 +497,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
             return
         
         # get the assets of that type
-        allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName=currentTypeName, baseName=currentBaseName )
+        #allAssets = currentSequence.filterAssets( currentSequence.getAllAssets(), typeName=currentTypeName, baseName=currentBaseName )
+        allAssets = currentSequence.filterAssets( currentSequence.getAllAssetsForType( currentTypeName ), baseName=currentBaseName )
         
         # get the subNames
         subNamesList = [] * 0

@@ -17,27 +17,27 @@ class Database(object):
     def __init__(self):
         
         # initialize default variables
-        self._databaseSettingsFileName = u'databaseSettings.xml'
+        self._databaseSettingsFileName = 'databaseSettings.xml'
         
         
-        self._serverPath = u''
-        self._projectsFolderName = u''
+        self._serverPath = ''
+        self._projectsFolderName = ''
         
-        self._projectManagerFolderName = u''
-        self._projectManagerFolderPath = u''
-        self._projectManagerFolderFullPath = u''
+        self._projectManagerFolderName = ''
+        self._projectManagerFolderPath = ''
+        self._projectManagerFolderFullPath = ''
 
-        self._projectsFolderFullPath = u''
-        self._defaultSettingsFileName = u"defaultProjectSettings.xml"
-        self._defaultSettingsFullPath = u''
+        self._projectsFolderFullPath = ''
+        self._defaultSettingsFileName = 'defaultProjectSettings.xml'
+        self._defaultSettingsFullPath = ''
         
-        self._lastUserFileName = u".lastUser"
+        self._lastUserFileName = '.lastUser'
         self._lastUserFilePath = self.getHomePath()
         self._lastUserFileFullPath = os.path.join( self._lastUserFilePath, self._lastUserFileName )
         
         # users
-        self._usersFileName = u'users.xml'
-        self._usersFileFullPath = u''
+        self._usersFileName = 'users.xml'
+        self._usersFileFullPath = ''
         self._users = [] * 0
         
         self._projects = [] * 0
@@ -1136,9 +1136,20 @@ class Sequence(object):
         # get the asset folders
         assetFolders = self.getAssetFolders()
         
+        
+        # optimization variables
+        osPathJoin = os.path.join
+        osPathExists = os.path.exists
+        osPathIsFile = os.path.isfile
+        osPathIsDir = os.path.isdir
+        osListDir = os.listdir
+        selfFullPath = self._fullPath
+        assetModelAsset = assetModel.Asset
+        selfProject = self.getProject()
+        
         # for each folder search child folders
         for folder in assetFolders:
-            fullPath = os.path.join( self._fullPath, folder)
+            fullPath = osPathJoin( selfFullPath, folder)
             
             # 
             # skip if the folder doesn't exists
@@ -1147,32 +1158,98 @@ class Sequence(object):
             # has missing folder, because the folders will be created whenever somebody
             # uses that folder while saving an asset, we don't care about its non existancy
             #
-            if not os.path.exists( fullPath ):
+            #if not os.path.exists( fullPath ):
+            if not osPathExists( fullPath ):
                 continue
             
-            childFolders = os.listdir( fullPath )
+            childFolders = osListDir( fullPath )
             
-            # -- experience --
-            #childFolders = [ folder for folder in os.listdir( fullPath ) if os.path.isdir(os.path.join(fullPath,folder)) and folder != '']
             
             for childFolder in childFolders:
-                
-                childFolderFullPath = os.path.join( fullPath, childFolder )
-                if childFolder == '' or not os.path.isdir(childFolderFullPath):
+                childFolderFullPath = osPathJoin( fullPath, childFolder )
+                if childFolder == '' or not osPathIsDir(childFolderFullPath):
                     continue
                 
-                childFiles = os.listdir( childFolderFullPath )
+                childFiles = osListDir( childFolderFullPath )
                 
                 for childFile in childFiles:
-                    childFileFullPath = os.path.join( childFolderFullPath, childFile)
-                    if childFile.startswith( childFolder ) and os.path.isfile( childFileFullPath ):
+                    childFileFullPath = osPathJoin( childFolderFullPath, childFile)
+                    if childFile.startswith( childFolder ) and osPathIsFile( childFileFullPath ):
                         
-                        asset = assetModel.Asset( self.getProject(), self, childFile ) 
+                        asset = assetModelAsset( selfProject, self, childFile )
                         
                         if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
                             assets.append( asset )
+        return assets
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getAllAssetsForType(self, typeName):
+        """returns Asset objects for just the given type of the sequence
+        """
+        
+        # get asset folders
+        # look at the child folders
+        # and then look at the files under the child folders
+        # if a file starts with the folder name
+        # mark it as an asset
+        
+        assets = [] * 0
+        
+        # get the asset folders
+        #assetFolders = self.getAssetFolders()
+        
+        aType = self.getAssetTypeWithName( typeName )
+        
+        #assert(isinstance(aType,assetModel.AssetType))
+        assetFolder = aType.getPath()
+        
+        # optimization variables
+        osPathJoin = os.path.join
+        osPathExists = os.path.exists
+        osPathIsFile = os.path.isfile
+        osPathIsDir = os.path.isdir
+        osListDir = os.listdir
+        selfFullPath = self._fullPath
+        assetModelAsset = assetModel.Asset
+        selfProject = self.getProject()
+        
+        fullPath = osPathJoin( selfFullPath, assetFolder)
+        
+        # 
+        # skip if the folder doesn't exists
+        # 
+        # it is a big problem in terms of management but some old type projects
+        # has missing folder, because the folders will be created whenever somebody
+        # uses that folder while saving an asset, we don't care about its non existancy
+        #
+        #if not os.path.exists( fullPath ):
+        if not osPathExists( fullPath ):
+            return []
+        
+        childFolders = osListDir( fullPath )
+        
+        
+        for childFolder in childFolders:
+            childFolderFullPath = osPathJoin( fullPath, childFolder )
+            
+            if childFolder == '' or not osPathIsDir(childFolderFullPath):
+                continue
+            
+            childFiles = osListDir( childFolderFullPath )
+            
+            for childFile in childFiles:
+                childFileFullPath = osPathJoin( childFolderFullPath, childFile)
+                if childFile.startswith( childFolder ) and osPathIsFile( childFileFullPath ):
+                    
+                    asset = assetModelAsset( selfProject, self, childFile )
+                    
+                    if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
+                        assets.append( asset )
         
         return assets
+        
     
     
     
@@ -1202,13 +1279,20 @@ class Sequence(object):
                 newKwargs[k] = kwargs[k]
         
         # get all the info variables of the assets
-        assetInfos = [ asset.getInfoVariables() for asset in assetList ]
+        #assetInfos = [ asset.getInfoVariables() for asset in assetList ]
+        
+        assetInfos = map( assetModel.Asset.getInfoVariables, assetList )
+        #keyArray = ['assetObject'] * len(assetInfos)
+        #assetInfos = map( dict.__setitem__, keyArray, assetList )
         
         filteredAssetInfos = self.aFilter( assetInfos, **kwargs)
+        #filteredAssetInfos = self.aFilter( assetInfosWithAsset, **kwargs)
         
         # recreate assets and return
         # TODO: return without recreating the assets
         return [ assetModel.Asset(self._parentProject, self, x['fileName']) for x in filteredAssetInfos ]
+        #return [ assetInfo['assetObject'] for assetInfo in assetInfos ]
+        #return [ x[1] for x in assetInfosWithAsset ]
     
     
     

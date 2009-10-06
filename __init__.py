@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.3.2
+v0.3.3
 
 Description :
 -------------
@@ -149,6 +149,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.3.3
+- introduced some Pythonic optimizations to the code
+- added getAllAssetsForType method to the Sequence object
+
 v0.3.2
 - all str's are converted to unicode
 
@@ -333,6 +337,6 @@ TODO List :
 
 
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 
 
