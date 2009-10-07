@@ -69,7 +69,14 @@ def getPathVariables():
     if fullPath != None and fullPath != '':
         fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
+    else:
+        # use the last file from the recent file list
+        fullPath = nuke.recentFile(1)
+        
+        fileName = os.path.basename( fullPath )
+        path = os.path.dirname( fullPath )
     
+    # if the environment is Windows replace / with \
     if os.name == 'nt':
         myDict = dict()
         myDict[u'/'] = u'\\'

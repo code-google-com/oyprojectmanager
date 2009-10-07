@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.5.1
+v0.5.2
 
 Description :
 -------------
@@ -149,6 +149,25 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.5.5
+- in nuke, if there is no file opened, thus no file name found, the script
+  now tries to get the path variables from the recent file list
+- to be able to mass process the sequences in the server, these new functions
+  has been added:
+    addExtensionToIgnoreList
+    addNewAssetType
+    addNewOutputFolder
+    addNewShotDependentFolder
+    addNewShotIndependentFolder
+    exists
+    removeExtensionFromIgnoreList
+  because these functions edits the settings of the sequence, to make the
+  changes permenant, the Sequence.saveSettings() should be invoked afterwards,
+  and for the folder functions, Sequence.createStructure() and a following
+  Sequence.saveSettings() should be invoked
+- the functions saveSettings and readSettings in Sequence object are now
+  public
+
 v0.5.1
 - fixed file paths for windows environment in NUKE environment
 - fixed initialization of envStatus variables in some functions in the
@@ -382,6 +401,6 @@ TODO List :
 
 
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 
 

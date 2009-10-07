@@ -19,7 +19,6 @@ class Database(object):
         # initialize default variables
         self._databaseSettingsFileName = 'databaseSettings.xml'
         
-        
         self._serverPath = ''
         self._projectsFolderName = ''
         
@@ -521,12 +520,12 @@ class Sequence(object):
         
         self._exists = False
         
-        self._readSettings()
+        self.readSettings()
     
     
     
     #----------------------------------------------------------------------
-    def _readSettings(self):
+    def readSettings(self):
         """reads the settingsFile
         """
         
@@ -600,8 +599,6 @@ class Sequence(object):
         shotIndependentFoldersList = shotIndependentFoldersNode.childNodes[0].wholeText.split('\n')
         
         # strip the elements and remove empty elements
-        #shotDependentFoldersList = [ folder.strip() for i, folder in enumerate(shotDependentFoldersList) if folder.strip() != ""  ]
-        #shotIndependentFoldersList = [ folder.strip() for i, folder in enumerate(shotIndependentFoldersList) if folder.strip() != ""  ]
         shotDependentFoldersList = [ folder.strip() for folder in shotDependentFoldersList if folder.strip() != ""  ]
         shotIndependentFoldersList = [ folder.strip() for folder in shotIndependentFoldersList if folder.strip() != ""  ]
         
@@ -654,13 +651,12 @@ class Sequence(object):
         # get shot list only if the current shot list is empty
         if len(self._shotList) == 0:
             if len(shotListNode.childNodes):
-                #self._shotList  = [ shot.strip() for i, shot in enumerate( shotListNode.childNodes[0].wholeText.split('\n') ) if shot.strip() != "" ]
                 self._shotList  = [ shot.strip() for shot in shotListNode.childNodes[0].wholeText.split('\n') if shot.strip() != "" ]
     
     
     
     #----------------------------------------------------------------------
-    def _saveSettings(self):
+    def saveSettings(self):
         """saves the settings as XML
         """
         
@@ -768,7 +764,7 @@ class Sequence(object):
             shutil.copy( self._database._defaultSettingsFullPath, self._settingsFileFullPath )
         
         # just read the structure from the XML
-        self._readSettings()
+        self.readSettings()
         
         # tell the sequence to create its own structure
         self.createStructure()
@@ -798,6 +794,9 @@ class Sequence(object):
         #,#-#,#
         #-#,#
         etc.
+        
+        you need to invoke self.creatShots and then self.saveSettings to make
+        the changes permenant
         """
         
         # for now consider the shots as a string of range
@@ -829,10 +828,6 @@ class Sequence(object):
     
     
     
-    
-    
-    
-    
     #----------------------------------------------------------------------
     def createShots(self):
         """creates the shot folders in the structure
@@ -853,7 +848,7 @@ class Sequence(object):
                 oyAux.createFolder( shotFullPath )
         
         # update settings
-        self._saveSettings()
+        self.saveSettings()
     
     
     
@@ -1030,14 +1025,14 @@ class Sequence(object):
         if environment==None:
             return self._assetTypes
         else:
-            rList = [] * 0
+            aTypesList = [] * 0
             
             for aType in self._assetTypes:
                 #assert(isinstance(aType, assetModel.AssetType) )
                 if environment in aType.getEnvironments():
-                    rList.append( aType )
+                    aTypesList.append( aType )
             
-            return rList
+            return aTypesList
     
     
     
@@ -1503,6 +1498,14 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    def getInvalidExtensions(self):
+        """returns invalid extensions for the sequence
+        """
+        return self._extensionsToIgnore
+    
+    
+    
+    #----------------------------------------------------------------------
     def isValidExtension(self, extensionString):
         """checks if the given extension is in extensionsToIgnore list
         """
@@ -1523,8 +1526,85 @@ class Sequence(object):
     #----------------------------------------------------------------------
     def addExtensionToIgnoreList(self, extension):
         """adds new extension to ignore list
+        
+        you need to invoke self.saveSettings to make the changes permenant
         """
         self._extensionsToIgnore.append( extension )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def removeExtensionFromIgnoreList(self, extension):
+        """remove the extension from the ignroe list
+        
+        you need to invoke self.saveSettings to make the changes permenant
+        """
+        
+        if extension in self._extensionsToIgnore:
+            self._extensionsToIgnore.remove( extension )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def addNewAssetType(self, name='', path='', shotDependent=False, playblastFolder='', environments=None):
+        """adds a new asset type to the sequence
+        
+        you need to invoke self.saveSettings to make the changes permenant
+        """
+        
+        # create the assetType object with the input
+        newAType = assetModel.AssetType( name, path, shotDependent, playblastFolder, environments )
+        
+        # add it to the list
+        self._assetTypes.append( newAType )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def addNewShotDependentFolder(self, folderPath):
+        """adds new shot dependent folder
+        
+        folderPath should be relative to sequence root
+        
+        you need to invoke self.createStructure and then self.saveSettings
+        to make the changes permenant
+        """
+        
+        self._structure.addShotDependentFolder( folderPath )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def addNewShotIndependentFolder(self, folderPath):
+        """adds new shot independent folder
+        
+        folderPath should be relative to sequence root
+        
+        you need to invoke self.createStructure and then self.saveSettings
+        to make the changes permenant
+        """
+        
+        self._structure.addShotIndependentFolder( folderPath )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def addNewOutputFolder(self, name, path):
+        """adds new output folder to the structure
+        
+        you need to invoke self.saveSettings to make the changes permenant
+        """
+        
+        self._structure.addOutputFolder( name, path )
+        
+    
+    
+    #----------------------------------------------------------------------
+    def exists(self):
+        """returns True if the sequence itself exists, False otherwise
+        """
+        
+        return self._exists
     
     
     
@@ -1532,6 +1612,7 @@ class Sequence(object):
     def noSubNameField(self):
         """returns True if the sequence doesn't support subName fields (old-style)
         """
+        
         return self._noSubNameField
 
 
@@ -1553,8 +1634,8 @@ class Structure(object):
     
     #----------------------------------------------------------------------
     def __init__(self, shotDependentFolders=None, shotIndependentFolders=None, outputFolders=None):
-        self._shotDependentFolders = shotDependentFolders
-        self._shotIndependentFolders = shotIndependentFolders
+        self._shotDependentFolders = shotDependentFolders # should be a list of str or unicode
+        self._shotIndependentFolders = shotIndependentFolders # should be a list of str or unicode
         self._outputFolders = outputFolders # should be a list of tuples
     
     
@@ -1588,12 +1669,35 @@ class Structure(object):
     
     #----------------------------------------------------------------------
     def addOutputFolder(self, name, path):
-        """
+        """adds new output folder to the structure
         """
         if self._outputFolders == None:
             self._outputFolders = [] * 0
         
         self._outputFolders.append( (name, path) )
+    
+    
+    #----------------------------------------------------------------------
+    def addShotDependentFolder(self, folderPath):
+        """adds new shot dependent folder
+        
+        folderPath should be relative to sequence root
+        """
+        
+        self._shotDependentFolders.append( folderPath )
+        self._shotDependentFolders = sorted( self._shotDependentFolders )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def addShotIndependentFolder(self, folderPath):
+        """adds new shot independent folder
+        
+        folderPath should be relative to sequence root
+        """
+        
+        self._shotIndependentFolders.append( folderPath )
+        self._shotIndependentFolders = sorted( self._shotIndependentFolders )
     
     
     
