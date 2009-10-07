@@ -70,4 +70,9 @@ def getPathVariables():
         fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
     
+    if os.name == 'nt':
+        myDict = dict()
+        myDict[u'/'] = u'\\'
+        path = oyAux.multiple_replace( path, myDict)
+    
     return fileName, path

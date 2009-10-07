@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.5.0
+v0.5.1
 
 Description :
 -------------
@@ -149,6 +149,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.5.1
+- fixed file paths for windows environment in NUKE environment
+- fixed initialization of envStatus variables in some functions in the
+  assetIO_mainWindow
+
 v0.5.0
 - to prevent name clashes all the environment scripts are renamed by adding Env
   to the name of the script ( ex: maya.py -> mayaEnv.py )
@@ -377,6 +382,6 @@ TODO List :
 
 
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 

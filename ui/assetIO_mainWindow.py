@@ -1127,6 +1127,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         revStatus = self.checkOutputFileRevision( assetObject )
         overwriteStatus = self.checkOutputFileOverwrite( assetObject )
         
+        envStatus = False
+        
         if verStatus and revStatus and overwriteStatus:
             
             # everything is ok now save in the host application
@@ -1163,6 +1165,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         revStatus = self.checkOutputFileRevision( assetObject )
         overwriteStatus = self.checkOutputFileOverwrite( assetObject )
         
+        envStatus = False
         
         if verStatus and revStatus and overwriteStatus:
             # everything is ok now save in the host application
@@ -1197,6 +1200,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         
         # check the file existancy
         exists = os.path.exists( assetObject.getFullPath() )
+        
+        envStatus = False
         
         # open the asset in the environment
         if exists:
@@ -1234,6 +1239,8 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # check the file existancy
         exists = os.path.exists( assetObject.getFullPath() )
         
+        envStatus = False
+        
         # open the asset in the environment
         if exists:
             if self.environment == 'MAYA':
@@ -1266,12 +1273,15 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # check the file existancy
         exists = os.path.exists( assetObject.getFullPath() )
         
+        envStatus = False
+        
         # open the asset in the environment
         if exists:
             if self.environment == 'MAYA':
                 from oyProjectManager.environments import mayaEnv
                 envStatus = mayaEnv.reference( assetObject )
             elif self.environment == 'NUKE':
+                envStatus = False
                 QtGui.QMessageBox.warning(self, 'Function Error', self.environment + " doesn't support referencing yet !!!", QtGui.QMessageBox.Ok )
             
             
