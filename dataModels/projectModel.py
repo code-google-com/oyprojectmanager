@@ -1276,8 +1276,7 @@ class Sequence(object):
         osPathIsDir = os.path.isdir
         osListDir = os.listdir
         selfFullPath = self._fullPath
-        assetModelAsset = assetModel.Asset
-        selfProject = self.getProject()
+        selfIsValidExtension = self.isValidExtension
         
         fullPath = osPathJoin( selfFullPath, assetFolder)
         
@@ -1294,7 +1293,6 @@ class Sequence(object):
         
         childFolders = osListDir( fullPath )
         
-        
         for childFolder in childFolders:
             childFolderFullPath = osPathJoin( fullPath, childFolder )
             
@@ -1304,6 +1302,10 @@ class Sequence(object):
             childFiles = osListDir( childFolderFullPath )
             
             for childFile in childFiles:
+                
+                if not selfIsValidExtension( os.path.splitext( childFile )[1][1:] ):
+                    continue
+                
                 childFileFullPath = osPathJoin( childFolderFullPath, childFile)
                 if childFile.startswith( childFolder ) and osPathIsFile( childFileFullPath ):
                     
@@ -1338,7 +1340,7 @@ class Sequence(object):
         osListDir = os.listdir
         selfFullPath = self._fullPath
         assetModelAsset = assetModel.Asset
-        selfProject = self.getProject()
+        selfProject = self._parentProject
         
         fullPath = osPathJoin( selfFullPath, assetFolder)
         

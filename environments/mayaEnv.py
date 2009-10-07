@@ -113,9 +113,6 @@ def getPathVariables():
     
     if fullPath != '':
         fileName = os.path.basename( fullPath )
-        #path = os.path.dirname( fullPath )
-    #else: # no file is open
-        ##try to get at least the project and sequence names
     
     path = getWorkspacePath()
     
@@ -127,7 +124,7 @@ def getPathVariables():
 def setRenderFileName( assetObject ):
     """sets the render file name
     """
-    #assert(isinstance(assetObject,assetModel.Asset))
+    
     parentSeq = assetObject.getParentSequence()
     
     renderOutputFolder = parentSeq.getStructure().getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS

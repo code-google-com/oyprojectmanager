@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.4.2
+v0.5.0
 
 Description :
 -------------
@@ -149,6 +149,12 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.5.0
+- to prevent name clashes all the environment scripts are renamed by adding Env
+  to the name of the script ( ex: maya.py -> mayaEnv.py )
+- added support to Nuke environment
+- listing of non-asset objects or files with unwanted extensions are fixed now
+
 v0.4.2
 - fixed the revision check in the interface
 - tried to remove Turkish characters from the interface fields but it is not
@@ -371,6 +377,6 @@ TODO List :
 
 
 
-__version__ = "0.4.2"
+__version__ = "0.5.0"
 
 

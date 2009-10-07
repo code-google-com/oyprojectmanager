@@ -4,7 +4,6 @@ from PyQt4 import QtGui, QtCore
 import assetIO_mainWindowUI
 
 from oyProjectManager.dataModels import assetModel, projectModel
-#from oyProjectManager.environments import maya, nuke, photoshop, houdini
 from oyProjectManager import __version__
 
 
@@ -1022,8 +1021,11 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         """
         
         if self.environment == 'MAYA':
-            from oyProjectManager.environments import maya
-            self.fileName, self.path = maya.getPathVariables()
+            from oyProjectManager.environments import mayaEnv
+            self.fileName, self.path = mayaEnv.getPathVariables()
+        elif self.environment == 'NUKE':
+            from oyProjectManager.environments import nukeEnv
+            self.fileName, self.path = nukeEnv.getPathVariables()
         
         if self.environment != None:
             # update the interface
@@ -1126,11 +1128,16 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         overwriteStatus = self.checkOutputFileOverwrite( assetObject )
         
         if verStatus and revStatus and overwriteStatus:
+            
             # everything is ok now save in the host application
             if self.environment == 'MAYA':
-                from oyProjectManager.environments import maya
-                envStatus = maya.save( assetObject )
-            
+                from oyProjectManager.environments import mayaEnv
+                envStatus = mayaEnv.save( assetObject )
+                
+            elif self.environment == 'NUKE':
+                from oyProjectManager.environments import nukeEnv
+                envStatus = nukeEnv.save( assetObject )
+                
             
             # if everything worked fine close the interface
             if envStatus:
@@ -1161,9 +1168,12 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
             # everything is ok now save in the host application
             if self.environment == 'MAYA':
                 
-                from oyProjectManager.environments import maya
-                envStatus = maya.export( assetObject )
-                
+                from oyProjectManager.environments import mayaEnv
+                envStatus = mayaEnv.export( assetObject )
+            elif self.environment == 'NUKE':
+                from oyProjectManager.environments import nukeEnv
+                envStatus = nukeEnv.export( assetObject )
+            
             # if everything worked fine close the interface
             if envStatus:
                 # do not set the last user variable
@@ -1191,14 +1201,17 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # open the asset in the environment
         if exists:
             if self.environment == 'MAYA':
-                from oyProjectManager.environments import maya
+                from oyProjectManager.environments import mayaEnv
                 try:
-                    envStatus = maya.open_( assetObject )
+                    envStatus = mayaEnv.open_( assetObject )
                 except RuntimeError:
                     answer = QtGui.QMessageBox.question(self, 'File Error', "unsaved changes\nforce open ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                     
                     if answer== QtGui.QMessageBox.Yes:
-                        envStatus = maya.open_( assetObject, True )
+                        envStatus = mayaEnv.open_( assetObject, True )
+            elif self.environment == 'NUKE':
+                from oyProjectManager.environments import nukeEnv
+                envStatus = nukeEnv.open_( assetObject )
             
             if envStatus:
                 self.close()
@@ -1224,8 +1237,11 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # open the asset in the environment
         if exists:
             if self.environment == 'MAYA':
-                from oyProjectManager.environments import maya
-                envStatus = maya.import_( assetObject )
+                from oyProjectManager.environments import mayaEnv
+                envStatus = mayaEnv.import_( assetObject )
+            if self.environment == 'NUKE':
+                from oyProjectManager.environments import nukeEnv
+                envStatus = nukeEnv.import_( assetObject )
             
             if envStatus:
                 self.close()
@@ -1253,8 +1269,11 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # open the asset in the environment
         if exists:
             if self.environment == 'MAYA':
-                from oyProjectManager.environments import maya
-                envStatus = maya.reference( assetObject )
+                from oyProjectManager.environments import mayaEnv
+                envStatus = mayaEnv.reference( assetObject )
+            elif self.environment == 'NUKE':
+                QtGui.QMessageBox.warning(self, 'Function Error', self.environment + " doesn't support referencing yet !!!", QtGui.QMessageBox.Ok )
+            
             
             if envStatus:
                 self.close()
