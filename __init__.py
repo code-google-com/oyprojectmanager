@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.5.2
+v0.5.5
 
 Description :
 -------------
@@ -401,6 +401,6 @@ TODO List :
 
 
 
-__version__ = "0.5.2"
+__version__ = "0.5.5"
 
 
