@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManagement_mainWindow.ui'
 #
-# Created: Tue Oct  6 16:13:17 2009
+# Created: Wed Oct  7 17:03:15 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!

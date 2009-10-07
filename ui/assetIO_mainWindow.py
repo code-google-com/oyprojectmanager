@@ -89,11 +89,16 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameFieldInSave )
         QtCore.QObject.connect(self.baseName_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameFieldInOpen )
         
-        # subName change ---> fille assets_listWidget2 update ( OPEN TAB only )
-        QtCore.QObject.connect(self.subName_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
-        QtCore.QObject.connect(self.baseName_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
-        QtCore.QObject.connect(self.shot_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
-        QtCore.QObject.connect(self.assetType_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
+        # subName change ---> fill assets_listWidget1
+        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
+        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
+        
+        # subName change ---> fill assets_listWidget2 update ( OPEN TAB )
+        QtCore.QObject.connect(self.subName_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
+        QtCore.QObject.connect(self.baseName_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
+        QtCore.QObject.connect(self.shot_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
+        #QtCore.QObject.connect(self.assetType_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
         
         # get latest revision --> revision
         QtCore.QObject.connect(self.revision_pushButton, QtCore.SIGNAL("clicked()"), self.updateRevisionToLatest )
@@ -588,7 +593,7 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def updateAssetsListWidget(self):
+    def updateAssetsListWidgetInOpen(self):
         """fills the assets listWidget with assets
         """
         
@@ -630,12 +635,64 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         # get the fileNames
         currSGFIV = currentSequence.generateFakeInfoVariables
         allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
-
+        
         # append them to the asset list view
         self.assets_listWidget2.clear()
         
         if len(allVersionsList) > 0:
             self.assets_listWidget2.addItems( sorted(allVersionsList) )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def updateAssetsListWidgetInSave(self):
+        """fills the assets listWidget with assets
+        """
+        
+        self._updateProjectObject()
+        self._updateSequenceObject()
+        
+        currentProject = self._project
+        currentSequence = self._sequence
+        
+        typeName = self.getCurrentAssetTypeInSave()
+        
+        if typeName == '' or typeName == None:
+            return
+        
+        # if the type is shot dependent get the shot number
+        # if it is not use the baseName
+        if currentSequence.getAssetTypeWithName( typeName ).isShotDependent():
+            baseName = currentSequence.convertToShotString( self.getCurrentShotStringInSave() )
+        else:
+            baseName = self.getCurrentBaseNameInSave()
+        
+        
+        if not currentSequence.noSubNameField():
+            subName = self.getCurrentSubNameInSave()
+        else:
+            subName = ''
+        
+        # construct the dictionary
+        assetInfo = dict()
+        assetInfo['baseName'] = baseName
+        assetInfo['subName' ] = subName
+        assetInfo['typeName'] = typeName
+        
+        # get all asset files of that type
+        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( typeName )
+        # filter for assetInfo
+        allAssetFileNamesFiltered = currentSequence.filterAssetNames( allAssetFileNames, **assetInfo ) 
+        
+        # get the fileNames
+        currSGFIV = currentSequence.generateFakeInfoVariables
+        allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
+        
+        # append them to the asset list view
+        self.assets_listWidget1.clear()
+        
+        if len(allVersionsList) > 0:
+            self.assets_listWidget1.addItems( sorted(allVersionsList) )
     
     
     

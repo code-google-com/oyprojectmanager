@@ -117,9 +117,6 @@
        </item>
        <item>
         <widget class="QTabWidget" name="main_tabWidget">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
          <property name="statusTip">
           <string>select a tab to save or open an asset or to manage a project</string>
          </property>
@@ -443,10 +440,13 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>Lists the all versions of current asset</string>
+                 <string>Lists all the versions of the current asset</string>
                 </property>
                 <property name="statusTip">
-                 <string>Lists the all versions of current asset</string>
+                 <string>Lists all the versions of the current asset</string>
+                </property>
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::NoSelection</enum>
                 </property>
                </widget>
               </item>
@@ -657,10 +657,10 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>all the asset for the current settings will be listed here</string>
+                 <string>Lists all the versions of the current asset</string>
                 </property>
                 <property name="statusTip">
-                 <string>all the asset for the current settings will be listed here</string>
+                 <string>Lists all the versions of the current asset</string>
                 </property>
                </widget>
               </item>

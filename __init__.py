@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.5.5
+v0.5.6
 
 Description :
 -------------
@@ -149,6 +149,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.5.6
+- the assetList_widget1 is now listing all the versions of the currently
+  selected asset
+
 v0.5.5
 - in nuke, if there is no file opened, thus no file name found, the script
   now tries to get the path variables from the recent file list
@@ -401,6 +405,6 @@ TODO List :
 
 
 
-__version__ = "0.5.5"
+__version__ = "0.5.6"
 
 

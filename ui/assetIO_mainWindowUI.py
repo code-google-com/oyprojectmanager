@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetIO_mainWindow.ui'
 #
-# Created: Tue Oct  6 16:13:17 2009
+# Created: Wed Oct  7 17:03:15 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -75,7 +75,6 @@ class Ui_MainWindow(object):
         self.main_gridLayout.addWidget(self.sequence_comboBox, 2, 1, 1, 1)
         self.main_verticalLayout.addLayout(self.main_gridLayout)
         self.main_tabWidget = QtGui.QTabWidget(self.main_verticalWidget)
-        self.main_tabWidget.setEnabled(True)
         self.main_tabWidget.setObjectName("main_tabWidget")
         self.saveAsset_tab = QtGui.QWidget()
         self.saveAsset_tab.setObjectName("saveAsset_tab")
@@ -216,6 +215,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.assets_listWidget1.sizePolicy().hasHeightForWidth())
         self.assets_listWidget1.setSizePolicy(sizePolicy)
+        self.assets_listWidget1.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         self.assets_listWidget1.setObjectName("assets_listWidget1")
         self.saveAsset_verticalLayout.addWidget(self.assets_listWidget1)
         self.saveButtons_horizontalWidget = QtGui.QWidget(self.saveAsest_verticalWidget)
@@ -471,8 +471,8 @@ class Ui_MainWindow(object):
         self.revision_pushButton.setToolTip(QtGui.QApplication.translate("MainWindow", "gets the latest revision number", None, QtGui.QApplication.UnicodeUTF8))
         self.revision_pushButton.setStatusTip(QtGui.QApplication.translate("MainWindow", "gets the latest revision number", None, QtGui.QApplication.UnicodeUTF8))
         self.revision_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Get Lastest Revision", None, QtGui.QApplication.UnicodeUTF8))
-        self.assets_listWidget1.setToolTip(QtGui.QApplication.translate("MainWindow", "Lists the all versions of current asset", None, QtGui.QApplication.UnicodeUTF8))
-        self.assets_listWidget1.setStatusTip(QtGui.QApplication.translate("MainWindow", "Lists the all versions of current asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.assets_listWidget1.setToolTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.assets_listWidget1.setStatusTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
         self.save_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Saves asset to the server", None, QtGui.QApplication.UnicodeUTF8))
         self.save_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Saves asset to the server", None, QtGui.QApplication.UnicodeUTF8))
         self.save_button.setText(QtGui.QApplication.translate("MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
@@ -495,8 +495,8 @@ class Ui_MainWindow(object):
         self.subName_label2.setText(QtGui.QApplication.translate("MainWindow", "Sub Name", None, QtGui.QApplication.UnicodeUTF8))
         self.subName_comboBox2.setToolTip(QtGui.QApplication.translate("MainWindow", "if the project supports SubName field, you can select a subName", None, QtGui.QApplication.UnicodeUTF8))
         self.subName_comboBox2.setStatusTip(QtGui.QApplication.translate("MainWindow", "if the project supports SubName field, you can select a subName", None, QtGui.QApplication.UnicodeUTF8))
-        self.assets_listWidget2.setToolTip(QtGui.QApplication.translate("MainWindow", "all the asset for the current settings will be listed here", None, QtGui.QApplication.UnicodeUTF8))
-        self.assets_listWidget2.setStatusTip(QtGui.QApplication.translate("MainWindow", "all the asset for the current settings will be listed here", None, QtGui.QApplication.UnicodeUTF8))
+        self.assets_listWidget2.setToolTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.assets_listWidget2.setStatusTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
         self.open_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Open the selected asset", None, QtGui.QApplication.UnicodeUTF8))
         self.open_button.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.reference_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Reference it tho the current scene (Maya only)", None, QtGui.QApplication.UnicodeUTF8))
