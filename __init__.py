@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.5.6
+v0.6.0
 
 Description :
 -------------
@@ -149,6 +149,17 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.6.0
+- connected the assetType_comboBox1 index change signal to assetList_widget1's
+  update method, and re-enabled assetType_comboBox2's update signal being
+  invoked from assetType_comboBox2
+- added an input based cache system to the cache module
+- added whatIsThis help to the interface elements
+- renamed assetIO_mainWindow to assetManager (and the other two files are
+  renamed too)
+- renamed projectManament_mainWindow to projectManager (and the other two files
+  renamed are too)
+
 v0.5.6
 - the assetList_widget1 is now listing all the versions of the currently
   selected asset
@@ -378,33 +389,44 @@ v0.0.1
 
 TODO List :
 -----------
+- convert the system to full featured Production Asset Management System
+- add a user login window
+- add access control
+- add the ability of a user to review an asset
+- add asset approval system
+- add a publishing system
+- add thumbnails to assets
+- add a messaging system
+- add a resource management system
+- switch to a database stored metadata system
 - use the user class to define if the user can change the project
-- keep track of the project timings, progress of the project
-+ add an Asset class
+- keep track of the project timings, progress of the project, with another
+  module
 - create appropriate Error classes for errors
-- use a SQLDatabase running in the server to gather quick information about
-  the projects, sequences and assets
-+ add an interface with PyQt4
-- add program names attribute to the assetType objects, so they can be
+- use a database running in the server to gather quick information about
+  the projects, sequences, assets, users etc.
+- reduce the code duplication in MainDialog
+- for environments supporting referencing, check the references for new
+  versions while opening the asset
++ try to add another type of caching system, which is input dependent, so for
+  the same input it should return the same value without evaluating anything
++ add program names attribute to the assetType objects, so they can be
   listed for specific programs only (e.g. MAYA, NUKE, PHOTOSHOP, HOUDINI etc.)
-- use external settings file in XML format for the database, instead of
++ use external settings file in XML format for the database, instead of
   burrying the data to the class
++ separate the project management to another ui
++ save all xml in pretty xml format
 + to get benefit from the caching system in the MainDialog class, add a project
   and sequence attribute and fill them whenever the project and sequence is
   changed to something else
-- try to add another type of caching system, which is input dependent, so for
-  same input it should return the same value without evaluating anything
-- the objects needs a more robust caching method
-- reduce the code duplication in MainDialog
-- separate the project management to another ui
-- create a publishing system for assets
-- save all xml in pretty xml format
++ add an interface with PyQt4
++ add an Asset class
 
 -------------------------------------------------------------------------------
 """
 
 
 
-__version__ = "0.5.6"
+__version__ = "0.6.0"
 
 

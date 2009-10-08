@@ -1014,6 +1014,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @cache.InputBasedCachedMethod
     def getAssetTypes(self, environment=None):
         """returns a list of AssetType objects that this project has
         
@@ -1037,6 +1038,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @cache.InputBasedCachedMethod
     def getAssetTypeWithName(self, typeName):
         """returns the assetType object that has the name typeName.
         if it can't find any assetType that has the name typeName it returns None
@@ -1175,6 +1177,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @cache.InputBasedCachedMethod
     def getAllAssetsForType(self, typeName):
         """returns Asset objects for just the given type of the sequence
         """
@@ -1244,6 +1247,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @cache.InputBasedCachedMethod
     def getAllAssetFileNamesForType(self, typeName):
         """returns Asset objects for just the given type of the sequence
         """
@@ -1311,6 +1315,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @cache.InputBasedCachedMethod
     def getAllAssetsForTypeAndBaseName(self, typeName, baseName):
         """returns Asset objects of the sequence for just the given type and basename
         """
@@ -1445,6 +1450,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @cache.InputBasedCachedMethod
     def generateFakeInfoVariables(self, assetFileName):
         """generates fake info variables from assetFileNames by splitting the file name
         from '_' characters and trying to get information from those splits
@@ -1506,6 +1512,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @cache.InputBasedCachedMethod
     def isValidExtension(self, extensionString):
         """checks if the given extension is in extensionsToIgnore list
         """

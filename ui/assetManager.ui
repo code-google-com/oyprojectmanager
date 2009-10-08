@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>asset IO</string>
+   <string>Asset Manager</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -53,8 +53,16 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>Select a Server</string>
+           </property>
            <property name="statusTip">
             <string>Select a Server</string>
+           </property>
+           <property name="whatsThis">
+            <string>Server:
+
+Servers are the places that the main project folders are saved. For now there is only one supported server. In the future that can be expanded to multiple servers...</string>
            </property>
            <property name="editable">
             <bool>false</bool>
@@ -79,8 +87,16 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>Select a Project</string>
+           </property>
            <property name="statusTip">
             <string>Select a Project</string>
+           </property>
+           <property name="whatsThis">
+            <string>Project:
+
+A project is a collection of sequences. So projects can only contain sequences. This comboBox lists the current projects on the server. If you select one it will update the available sequences for that project...</string>
            </property>
            <property name="editable">
             <bool>false</bool>
@@ -105,8 +121,16 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>Select a Sequence</string>
+           </property>
            <property name="statusTip">
             <string>Select a Sequence</string>
+           </property>
+           <property name="whatsThis">
+            <string>Sequence:
+
+Sequences are collections of folders. Each folder has a special meaning and can may contain one type of asset file. Every sequence has its own settings. So while one sequence supports some features, others may not...</string>
            </property>
            <property name="editable">
             <bool>false</bool>
@@ -154,6 +178,11 @@
                    <property name="statusTip">
                     <string>Select an asset type</string>
                    </property>
+                   <property name="whatsThis">
+                    <string>Asset Type:
+
+Assets has types that lets you distinguish their purpose of existance. This comboBox lists the asset types that the sequence and the current host environment (MAYA, NUKE etc.) can support.</string>
+                   </property>
                   </widget>
                  </item>
                  <item row="7" column="1">
@@ -169,6 +198,11 @@
                    </property>
                    <property name="statusTip">
                     <string>it is a limited field, try to keep it brief</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Note:
+
+You can use this field to leave little but important messages here... It is limited with 30 characters...</string>
                    </property>
                   </widget>
                  </item>
@@ -209,6 +243,11 @@
                    <property name="statusTip">
                     <string>if the project supports SubName field, you can enter or select a subName</string>
                    </property>
+                   <property name="whatsThis">
+                    <string>Sub Name:
+
+Sub name field is introduced with this new version. Its main purpose is to let the users work on the same shot dependent assets togather. By default the field will be set to MAIN...</string>
+                   </property>
                    <property name="editable">
                     <bool>true</bool>
                    </property>
@@ -231,6 +270,11 @@
                    <property name="statusTip">
                     <string>if the type is a shot dependent type this will be activated</string>
                    </property>
+                   <property name="whatsThis">
+                    <string>Shot:
+
+If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc. ). So, shot and base name comboBoxes are actually showing the base name of the asset, but it lets the user to separate the shot dependent asset types from shot independent types.</string>
+                   </property>
                   </widget>
                  </item>
                  <item row="6" column="1">
@@ -246,6 +290,11 @@
                    </property>
                    <property name="statusTip">
                     <string>select your user initials</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>User Initials:
+
+Select your user initials from the list, so anybody can understand who created this version of the asset...</string>
                    </property>
                   </widget>
                  </item>
@@ -285,6 +334,11 @@
                    </property>
                    <property name="statusTip">
                     <string>for shot independent types enter or select a baseName</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Base Name:
+
+This shows the base name of an asset</string>
                    </property>
                    <property name="editable">
                     <bool>true</bool>
@@ -351,6 +405,11 @@
                       <property name="statusTip">
                        <string>it is automatically increased by 1</string>
                       </property>
+                      <property name="whatsThis">
+                       <string>Version Number:
+
+Any incarnation of an asset should be have different version numbers.</string>
+                      </property>
                       <property name="prefix">
                        <string/>
                       </property>
@@ -404,6 +463,11 @@
                       <property name="statusTip">
                        <string>increase it when the asset needs a revision</string>
                       </property>
+                      <property name="whatsThis">
+                       <string>Revision Number:
+
+Revision numbers represents the milestones in the development of this asset. Generally it is increased when something big is changed in the asset.</string>
+                      </property>
                      </widget>
                     </item>
                     <item>
@@ -445,6 +509,11 @@
                 <property name="statusTip">
                  <string>Lists all the versions of the current asset</string>
                 </property>
+                <property name="whatsThis">
+                 <string>Asset List:
+
+All versions of the currently selected asset will be listed here...</string>
+                </property>
                 <property name="selectionMode">
                  <enum>QAbstractItemView::NoSelection</enum>
                 </property>
@@ -461,17 +530,16 @@
                 <layout class="QHBoxLayout" name="saveCanel_horizontalLayout" stretch="1,1,1">
                  <item>
                   <widget class="QPushButton" name="save_button">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="toolTip">
-                    <string>Saves asset to the server</string>
+                    <string>Saves the asset to the server</string>
                    </property>
                    <property name="statusTip">
-                    <string>Saves asset to the server</string>
+                    <string>Saves the asset to the server</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Save:
+
+Saves the asset to the server</string>
                    </property>
                    <property name="text">
                     <string>Save</string>
@@ -486,6 +554,11 @@
                    <property name="statusTip">
                     <string>Exports the Selected items as a new asset</string>
                    </property>
+                   <property name="whatsThis">
+                    <string>Export:
+
+Exports the selected content to the server as an asset</string>
+                   </property>
                    <property name="text">
                     <string>Export</string>
                    </property>
@@ -493,17 +566,16 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="cancel_button1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
                    <property name="toolTip">
-                    <string>Quit without doing anything</string>
+                    <string>Quits without doing anything</string>
                    </property>
                    <property name="statusTip">
-                    <string>Quit without doing anything</string>
+                    <string>Quits without doing anything</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Cancel:
+
+Just quits the application without doing anything</string>
                    </property>
                    <property name="text">
                     <string>Cancel</string>
@@ -565,6 +637,11 @@
                    <property name="statusTip">
                     <string>Select an asset type</string>
                    </property>
+                   <property name="whatsThis">
+                    <string>Asset Type:
+
+Assets has types that lets you distinguish their purpose of existance. This comboBox lists the asset types that the sequence and the current host environment (MAYA, NUKE etc.) can support.</string>
+                   </property>
                   </widget>
                  </item>
                  <item row="1" column="0">
@@ -586,10 +663,15 @@
                     </sizepolicy>
                    </property>
                    <property name="toolTip">
-                    <string>if the type is a shot dependent type this will be activated</string>
+                    <string>for shot dependent types select a shot number</string>
                    </property>
                    <property name="statusTip">
-                    <string>if the type is a shot dependent type this will be activated</string>
+                    <string>for shot dependent types select a shot number</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Shot:
+
+If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc. ). So, shot and base name comboBoxes are actually showing the base name of the asset, but it lets the user to separate the shot dependent asset types from shot independent types.</string>
                    </property>
                   </widget>
                  </item>
@@ -617,6 +699,11 @@
                    <property name="statusTip">
                     <string>for shot independent types select a baseName</string>
                    </property>
+                   <property name="whatsThis">
+                    <string>Base Name:
+
+This shows the base name of an asset</string>
+                   </property>
                   </widget>
                  </item>
                  <item row="3" column="0">
@@ -638,10 +725,15 @@
                     </sizepolicy>
                    </property>
                    <property name="toolTip">
-                    <string>if the project supports SubName field, you can select a subName</string>
+                    <string>select a Sub Name ( for projects that supports it )</string>
                    </property>
                    <property name="statusTip">
-                    <string>if the project supports SubName field, you can select a subName</string>
+                    <string>select a Sub Name ( for projects that supports it )</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Sub Name:
+
+Sub name field is introduced with this new version. Its main purpose is to let the users work on the same shot dependent assets togather. By default the field will be set to MAIN...</string>
                    </property>
                   </widget>
                  </item>
@@ -662,6 +754,11 @@
                 <property name="statusTip">
                  <string>Lists all the versions of the current asset</string>
                 </property>
+                <property name="whatsThis">
+                 <string>Asset List:
+
+All versions of the currently selected asset will be listed here...</string>
+                </property>
                </widget>
               </item>
               <item>
@@ -681,8 +778,16 @@
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>Opens the selected asset</string>
+                   </property>
                    <property name="statusTip">
-                    <string>Open the selected asset</string>
+                    <string>Opens the selected asset</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Open:
+
+Opens the current selected asset in the host application</string>
                    </property>
                    <property name="text">
                     <string>Open</string>
@@ -697,8 +802,16 @@
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>References the asset tho the current scene (Maya only)</string>
+                   </property>
                    <property name="statusTip">
-                    <string>Reference it tho the current scene (Maya only)</string>
+                    <string>References the asset tho the current scene (Maya only)</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Reference:
+
+References the asset to the current environment in the host application. For now just MAYA supports referencing, but in near future NUKE will have too...</string>
                    </property>
                    <property name="text">
                     <string>Reference</string>
@@ -713,8 +826,16 @@
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="toolTip">
+                    <string>Imports the contents to the current scene</string>
+                   </property>
                    <property name="statusTip">
-                    <string>Import the contents to the current scene</string>
+                    <string>Imports the contents to the current scene</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Import:
+
+Imports the content of the selected asset to the current environment in the host application...</string>
                    </property>
                    <property name="text">
                     <string>Import</string>
@@ -723,8 +844,16 @@
                  </item>
                  <item>
                   <widget class="QPushButton" name="cancel_button2">
+                   <property name="toolTip">
+                    <string>Quits without doing anything</string>
+                   </property>
                    <property name="statusTip">
-                    <string>Quit without doing anything</string>
+                    <string>Quits without doing anything</string>
+                   </property>
+                   <property name="whatsThis">
+                    <string>Cancel:
+
+Just quits the application without doing anything</string>
                    </property>
                    <property name="text">
                     <string>Cancel</string>

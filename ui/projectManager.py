@@ -1,7 +1,7 @@
 import os, sys, re
 import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
-from oyProjectManager.ui import projectManagement_mainWindowUI
+import projectManager_mainWindowUI
 from oyProjectManager.dataModels import projectModel
 from oyProjectManager.tools import rangeTools
 from oyProjectManager import __version__
@@ -27,7 +27,7 @@ def UI():
 
 
 ########################################################################
-class MainWindow(QtGui.QMainWindow, projectManagement_mainWindowUI.Ui_MainWindow):
+class MainWindow(QtGui.QMainWindow, projectManager_mainWindowUI.Ui_MainWindow):
     """the main dialog of the system
     """
     

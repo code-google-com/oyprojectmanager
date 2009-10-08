@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetIO_mainWindow.ui'
+# Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Wed Oct  7 17:03:15 2009
+# Created: Thu Oct  8 12:17:47 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -228,22 +228,12 @@ class Ui_MainWindow(object):
         self.saveCanel_horizontalLayout = QtGui.QHBoxLayout(self.saveButtons_horizontalWidget)
         self.saveCanel_horizontalLayout.setObjectName("saveCanel_horizontalLayout")
         self.save_button = QtGui.QPushButton(self.saveButtons_horizontalWidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.save_button.sizePolicy().hasHeightForWidth())
-        self.save_button.setSizePolicy(sizePolicy)
         self.save_button.setObjectName("save_button")
         self.saveCanel_horizontalLayout.addWidget(self.save_button)
         self.export_button = QtGui.QPushButton(self.saveButtons_horizontalWidget)
         self.export_button.setObjectName("export_button")
         self.saveCanel_horizontalLayout.addWidget(self.export_button)
         self.cancel_button1 = QtGui.QPushButton(self.saveButtons_horizontalWidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.cancel_button1.sizePolicy().hasHeightForWidth())
-        self.cancel_button1.setSizePolicy(sizePolicy)
         self.cancel_button1.setObjectName("cancel_button1")
         self.saveCanel_horizontalLayout.addWidget(self.cancel_button1)
         self.saveAsset_verticalLayout.addWidget(self.saveButtons_horizontalWidget)
@@ -433,77 +423,156 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.import_button, self.cancel_button2)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "asset IO", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Asset Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.server_label.setText(QtGui.QApplication.translate("MainWindow", "Server", None, QtGui.QApplication.UnicodeUTF8))
+        self.server_comboBox.setToolTip(QtGui.QApplication.translate("MainWindow", "Select a Server", None, QtGui.QApplication.UnicodeUTF8))
         self.server_comboBox.setStatusTip(QtGui.QApplication.translate("MainWindow", "Select a Server", None, QtGui.QApplication.UnicodeUTF8))
+        self.server_comboBox.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Server:\n"
+"\n"
+"Servers are the places that the main project folders are saved. For now there is only one supported server. In the future that can be expanded to multiple servers...", None, QtGui.QApplication.UnicodeUTF8))
         self.project_label.setText(QtGui.QApplication.translate("MainWindow", "Project", None, QtGui.QApplication.UnicodeUTF8))
+        self.project_comboBox.setToolTip(QtGui.QApplication.translate("MainWindow", "Select a Project", None, QtGui.QApplication.UnicodeUTF8))
         self.project_comboBox.setStatusTip(QtGui.QApplication.translate("MainWindow", "Select a Project", None, QtGui.QApplication.UnicodeUTF8))
+        self.project_comboBox.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Project:\n"
+"\n"
+"A project is a collection of sequences. So projects can only contain sequences. This comboBox lists the current projects on the server. If you select one it will update the available sequences for that project...", None, QtGui.QApplication.UnicodeUTF8))
         self.sequence_label.setText(QtGui.QApplication.translate("MainWindow", "Sequence", None, QtGui.QApplication.UnicodeUTF8))
+        self.sequence_comboBox.setToolTip(QtGui.QApplication.translate("MainWindow", "Select a Sequence", None, QtGui.QApplication.UnicodeUTF8))
         self.sequence_comboBox.setStatusTip(QtGui.QApplication.translate("MainWindow", "Select a Sequence", None, QtGui.QApplication.UnicodeUTF8))
+        self.sequence_comboBox.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Sequence:\n"
+"\n"
+"Sequences are collections of folders. Each folder has a special meaning and can may contain one type of asset file. Every sequence has its own settings. So while one sequence supports some features, others may not...", None, QtGui.QApplication.UnicodeUTF8))
         self.main_tabWidget.setStatusTip(QtGui.QApplication.translate("MainWindow", "select a tab to save or open an asset or to manage a project", None, QtGui.QApplication.UnicodeUTF8))
         self.assetType_comboBox1.setToolTip(QtGui.QApplication.translate("MainWindow", "Select an asset type", None, QtGui.QApplication.UnicodeUTF8))
         self.assetType_comboBox1.setStatusTip(QtGui.QApplication.translate("MainWindow", "Select an asset type", None, QtGui.QApplication.UnicodeUTF8))
+        self.assetType_comboBox1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Asset Type:\n"
+"\n"
+"Assets has types that lets you distinguish their purpose of existance. This comboBox lists the asset types that the sequence and the current host environment (MAYA, NUKE etc.) can support.", None, QtGui.QApplication.UnicodeUTF8))
         self.note_lineEdit1.setToolTip(QtGui.QApplication.translate("MainWindow", "it is a limited field, try to keep it brief", None, QtGui.QApplication.UnicodeUTF8))
         self.note_lineEdit1.setStatusTip(QtGui.QApplication.translate("MainWindow", "it is a limited field, try to keep it brief", None, QtGui.QApplication.UnicodeUTF8))
+        self.note_lineEdit1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Note:\n"
+"\n"
+"You can use this field to leave little but important messages here... It is limited with 30 characters...", None, QtGui.QApplication.UnicodeUTF8))
         self.assetType_label1.setText(QtGui.QApplication.translate("MainWindow", "Asset Type", None, QtGui.QApplication.UnicodeUTF8))
         self.baseName_label1.setText(QtGui.QApplication.translate("MainWindow", "Base Name", None, QtGui.QApplication.UnicodeUTF8))
         self.subName_comboBox1.setToolTip(QtGui.QApplication.translate("MainWindow", "if the project supports SubName field, you can enter or select a subName", None, QtGui.QApplication.UnicodeUTF8))
         self.subName_comboBox1.setStatusTip(QtGui.QApplication.translate("MainWindow", "if the project supports SubName field, you can enter or select a subName", None, QtGui.QApplication.UnicodeUTF8))
+        self.subName_comboBox1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Sub Name:\n"
+"\n"
+"Sub name field is introduced with this new version. Its main purpose is to let the users work on the same shot dependent assets togather. By default the field will be set to MAIN...", None, QtGui.QApplication.UnicodeUTF8))
         self.shot_comboBox1.setToolTip(QtGui.QApplication.translate("MainWindow", "if the type is a shot dependent type this will be activated", None, QtGui.QApplication.UnicodeUTF8))
         self.shot_comboBox1.setStatusTip(QtGui.QApplication.translate("MainWindow", "if the type is a shot dependent type this will be activated", None, QtGui.QApplication.UnicodeUTF8))
+        self.shot_comboBox1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Shot:\n"
+"\n"
+"If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc. ). So, shot and base name comboBoxes are actually showing the base name of the asset, but it lets the user to separate the shot dependent asset types from shot independent types.", None, QtGui.QApplication.UnicodeUTF8))
         self.user_comboBox1.setToolTip(QtGui.QApplication.translate("MainWindow", "select your user initials", None, QtGui.QApplication.UnicodeUTF8))
         self.user_comboBox1.setStatusTip(QtGui.QApplication.translate("MainWindow", "select your user initials", None, QtGui.QApplication.UnicodeUTF8))
+        self.user_comboBox1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "User Initials:\n"
+"\n"
+"Select your user initials from the list, so anybody can understand who created this version of the asset...", None, QtGui.QApplication.UnicodeUTF8))
         self.user_label1.setText(QtGui.QApplication.translate("MainWindow", "User", None, QtGui.QApplication.UnicodeUTF8))
         self.subName_label1.setText(QtGui.QApplication.translate("MainWindow", "Sub Name", None, QtGui.QApplication.UnicodeUTF8))
         self.baseName_comboBox1.setToolTip(QtGui.QApplication.translate("MainWindow", "for shot independent types enter or select a baseName", None, QtGui.QApplication.UnicodeUTF8))
         self.baseName_comboBox1.setStatusTip(QtGui.QApplication.translate("MainWindow", "for shot independent types enter or select a baseName", None, QtGui.QApplication.UnicodeUTF8))
+        self.baseName_comboBox1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Base Name:\n"
+"\n"
+"This shows the base name of an asset", None, QtGui.QApplication.UnicodeUTF8))
         self.version_label1.setText(QtGui.QApplication.translate("MainWindow", "Version", None, QtGui.QApplication.UnicodeUTF8))
         self.shot_label1.setText(QtGui.QApplication.translate("MainWindow", "Shot", None, QtGui.QApplication.UnicodeUTF8))
         self.note_label1.setText(QtGui.QApplication.translate("MainWindow", "Note", None, QtGui.QApplication.UnicodeUTF8))
         self.revision_label1.setText(QtGui.QApplication.translate("MainWindow", "Revision", None, QtGui.QApplication.UnicodeUTF8))
         self.version_spinBox.setToolTip(QtGui.QApplication.translate("MainWindow", "it is automatically increased by 1", None, QtGui.QApplication.UnicodeUTF8))
         self.version_spinBox.setStatusTip(QtGui.QApplication.translate("MainWindow", "it is automatically increased by 1", None, QtGui.QApplication.UnicodeUTF8))
+        self.version_spinBox.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Version Number:\n"
+"\n"
+"Any incarnation of an asset should be have different version numbers.", None, QtGui.QApplication.UnicodeUTF8))
         self.version_pushButton.setToolTip(QtGui.QApplication.translate("MainWindow", "gets the latest version number", None, QtGui.QApplication.UnicodeUTF8))
         self.version_pushButton.setStatusTip(QtGui.QApplication.translate("MainWindow", "gets the latest version number", None, QtGui.QApplication.UnicodeUTF8))
         self.version_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Get Latest Version", None, QtGui.QApplication.UnicodeUTF8))
         self.revision_spinBox.setToolTip(QtGui.QApplication.translate("MainWindow", "increase it when the asset needs a revision", None, QtGui.QApplication.UnicodeUTF8))
         self.revision_spinBox.setStatusTip(QtGui.QApplication.translate("MainWindow", "increase it when the asset needs a revision", None, QtGui.QApplication.UnicodeUTF8))
+        self.revision_spinBox.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Revision Number:\n"
+"\n"
+"Revision numbers represents the milestones in the development of this asset. Generally it is increased when something big is changed in the asset.", None, QtGui.QApplication.UnicodeUTF8))
         self.revision_pushButton.setToolTip(QtGui.QApplication.translate("MainWindow", "gets the latest revision number", None, QtGui.QApplication.UnicodeUTF8))
         self.revision_pushButton.setStatusTip(QtGui.QApplication.translate("MainWindow", "gets the latest revision number", None, QtGui.QApplication.UnicodeUTF8))
         self.revision_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Get Lastest Revision", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_listWidget1.setToolTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_listWidget1.setStatusTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
-        self.save_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Saves asset to the server", None, QtGui.QApplication.UnicodeUTF8))
-        self.save_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Saves asset to the server", None, QtGui.QApplication.UnicodeUTF8))
+        self.assets_listWidget1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Asset List:\n"
+"\n"
+"All versions of the currently selected asset will be listed here...", None, QtGui.QApplication.UnicodeUTF8))
+        self.save_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Saves the asset to the server", None, QtGui.QApplication.UnicodeUTF8))
+        self.save_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Saves the asset to the server", None, QtGui.QApplication.UnicodeUTF8))
+        self.save_button.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Save:\n"
+"\n"
+"Saves the asset to the server", None, QtGui.QApplication.UnicodeUTF8))
         self.save_button.setText(QtGui.QApplication.translate("MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
         self.export_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Exports the Selected items as a new asset", None, QtGui.QApplication.UnicodeUTF8))
         self.export_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Exports the Selected items as a new asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.export_button.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Export:\n"
+"\n"
+"Exports the selected content to the server as an asset", None, QtGui.QApplication.UnicodeUTF8))
         self.export_button.setText(QtGui.QApplication.translate("MainWindow", "Export", None, QtGui.QApplication.UnicodeUTF8))
-        self.cancel_button1.setToolTip(QtGui.QApplication.translate("MainWindow", "Quit without doing anything", None, QtGui.QApplication.UnicodeUTF8))
-        self.cancel_button1.setStatusTip(QtGui.QApplication.translate("MainWindow", "Quit without doing anything", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_button1.setToolTip(QtGui.QApplication.translate("MainWindow", "Quits without doing anything", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_button1.setStatusTip(QtGui.QApplication.translate("MainWindow", "Quits without doing anything", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_button1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Cancel:\n"
+"\n"
+"Just quits the application without doing anything", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_button1.setText(QtGui.QApplication.translate("MainWindow", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.main_tabWidget.setTabText(self.main_tabWidget.indexOf(self.saveAsset_tab), QtGui.QApplication.translate("MainWindow", "Save Asset", None, QtGui.QApplication.UnicodeUTF8))
         self.assetType_label2.setText(QtGui.QApplication.translate("MainWindow", "Asset Type", None, QtGui.QApplication.UnicodeUTF8))
         self.assetType_comboBox2.setToolTip(QtGui.QApplication.translate("MainWindow", "Select an asset type", None, QtGui.QApplication.UnicodeUTF8))
         self.assetType_comboBox2.setStatusTip(QtGui.QApplication.translate("MainWindow", "Select an asset type", None, QtGui.QApplication.UnicodeUTF8))
+        self.assetType_comboBox2.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Asset Type:\n"
+"\n"
+"Assets has types that lets you distinguish their purpose of existance. This comboBox lists the asset types that the sequence and the current host environment (MAYA, NUKE etc.) can support.", None, QtGui.QApplication.UnicodeUTF8))
         self.shot_label2.setText(QtGui.QApplication.translate("MainWindow", "Shot", None, QtGui.QApplication.UnicodeUTF8))
-        self.shot_comboBox2.setToolTip(QtGui.QApplication.translate("MainWindow", "if the type is a shot dependent type this will be activated", None, QtGui.QApplication.UnicodeUTF8))
-        self.shot_comboBox2.setStatusTip(QtGui.QApplication.translate("MainWindow", "if the type is a shot dependent type this will be activated", None, QtGui.QApplication.UnicodeUTF8))
+        self.shot_comboBox2.setToolTip(QtGui.QApplication.translate("MainWindow", "for shot dependent types select a shot number", None, QtGui.QApplication.UnicodeUTF8))
+        self.shot_comboBox2.setStatusTip(QtGui.QApplication.translate("MainWindow", "for shot dependent types select a shot number", None, QtGui.QApplication.UnicodeUTF8))
+        self.shot_comboBox2.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Shot:\n"
+"\n"
+"If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc. ). So, shot and base name comboBoxes are actually showing the base name of the asset, but it lets the user to separate the shot dependent asset types from shot independent types.", None, QtGui.QApplication.UnicodeUTF8))
         self.baseName_label2.setText(QtGui.QApplication.translate("MainWindow", "Base Name", None, QtGui.QApplication.UnicodeUTF8))
         self.baseName_comboBox2.setToolTip(QtGui.QApplication.translate("MainWindow", "for shot independent types select a baseName", None, QtGui.QApplication.UnicodeUTF8))
         self.baseName_comboBox2.setStatusTip(QtGui.QApplication.translate("MainWindow", "for shot independent types select a baseName", None, QtGui.QApplication.UnicodeUTF8))
+        self.baseName_comboBox2.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Base Name:\n"
+"\n"
+"This shows the base name of an asset", None, QtGui.QApplication.UnicodeUTF8))
         self.subName_label2.setText(QtGui.QApplication.translate("MainWindow", "Sub Name", None, QtGui.QApplication.UnicodeUTF8))
-        self.subName_comboBox2.setToolTip(QtGui.QApplication.translate("MainWindow", "if the project supports SubName field, you can select a subName", None, QtGui.QApplication.UnicodeUTF8))
-        self.subName_comboBox2.setStatusTip(QtGui.QApplication.translate("MainWindow", "if the project supports SubName field, you can select a subName", None, QtGui.QApplication.UnicodeUTF8))
+        self.subName_comboBox2.setToolTip(QtGui.QApplication.translate("MainWindow", "select a Sub Name ( for projects that supports it )", None, QtGui.QApplication.UnicodeUTF8))
+        self.subName_comboBox2.setStatusTip(QtGui.QApplication.translate("MainWindow", "select a Sub Name ( for projects that supports it )", None, QtGui.QApplication.UnicodeUTF8))
+        self.subName_comboBox2.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Sub Name:\n"
+"\n"
+"Sub name field is introduced with this new version. Its main purpose is to let the users work on the same shot dependent assets togather. By default the field will be set to MAIN...", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_listWidget2.setToolTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_listWidget2.setStatusTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
-        self.open_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Open the selected asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.assets_listWidget2.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Asset List:\n"
+"\n"
+"All versions of the currently selected asset will be listed here...", None, QtGui.QApplication.UnicodeUTF8))
+        self.open_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Opens the selected asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.open_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Opens the selected asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.open_button.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Open:\n"
+"\n"
+"Opens the current selected asset in the host application", None, QtGui.QApplication.UnicodeUTF8))
         self.open_button.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
-        self.reference_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Reference it tho the current scene (Maya only)", None, QtGui.QApplication.UnicodeUTF8))
+        self.reference_button.setToolTip(QtGui.QApplication.translate("MainWindow", "References the asset tho the current scene (Maya only)", None, QtGui.QApplication.UnicodeUTF8))
+        self.reference_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "References the asset tho the current scene (Maya only)", None, QtGui.QApplication.UnicodeUTF8))
+        self.reference_button.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Reference:\n"
+"\n"
+"References the asset to the current environment in the host application. For now just MAYA supports referencing, but in near future NUKE will have too...", None, QtGui.QApplication.UnicodeUTF8))
         self.reference_button.setText(QtGui.QApplication.translate("MainWindow", "Reference", None, QtGui.QApplication.UnicodeUTF8))
-        self.import_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Import the contents to the current scene", None, QtGui.QApplication.UnicodeUTF8))
+        self.import_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Imports the contents to the current scene", None, QtGui.QApplication.UnicodeUTF8))
+        self.import_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Imports the contents to the current scene", None, QtGui.QApplication.UnicodeUTF8))
+        self.import_button.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Import:\n"
+"\n"
+"Imports the content of the selected asset to the current environment in the host application...", None, QtGui.QApplication.UnicodeUTF8))
         self.import_button.setText(QtGui.QApplication.translate("MainWindow", "Import", None, QtGui.QApplication.UnicodeUTF8))
-        self.cancel_button2.setStatusTip(QtGui.QApplication.translate("MainWindow", "Quit without doing anything", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_button2.setToolTip(QtGui.QApplication.translate("MainWindow", "Quits without doing anything", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_button2.setStatusTip(QtGui.QApplication.translate("MainWindow", "Quits without doing anything", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_button2.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Cancel:\n"
+"\n"
+"Just quits the application without doing anything", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_button2.setText(QtGui.QApplication.translate("MainWindow", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.main_tabWidget.setTabText(self.main_tabWidget.indexOf(self.openAsset_tab), QtGui.QApplication.translate("MainWindow", "Open Asset", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))

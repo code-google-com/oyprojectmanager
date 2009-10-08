@@ -1,7 +1,7 @@
 import os, sys
 import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
-import assetIO_mainWindowUI
+import assetManager_mainWindowUI
 
 from oyProjectManager.dataModels import assetModel, projectModel
 from oyProjectManager import __version__
@@ -27,7 +27,7 @@ def UI(environment=None, fileName=None, path=None ):
 
 
 ########################################################################
-class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
+class MainWindow(QtGui.QMainWindow, assetManager_mainWindowUI.Ui_MainWindow):
     """the main dialog of the system
     """
     
@@ -93,12 +93,13 @@ class MainWindow(QtGui.QMainWindow, assetIO_mainWindowUI.Ui_MainWindow):
         QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
         QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
         QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
         
         # subName change ---> fill assets_listWidget2 update ( OPEN TAB )
         QtCore.QObject.connect(self.subName_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
         QtCore.QObject.connect(self.baseName_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
         QtCore.QObject.connect(self.shot_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
-        #QtCore.QObject.connect(self.assetType_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
+        QtCore.QObject.connect(self.assetType_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
         
         # get latest revision --> revision
         QtCore.QObject.connect(self.revision_pushButton, QtCore.SIGNAL("clicked()"), self.updateRevisionToLatest )
