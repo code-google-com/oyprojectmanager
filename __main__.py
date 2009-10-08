@@ -31,9 +31,9 @@ def main(argv=None):
             print __doc__
             sys.exit(0)
         
-        if opt in ("-e", "--environment"):
-            environment = arg
-            
+        #if opt in ("-e", "--environment"):
+            #environment = arg
+        
         if opt in ("-u", "--userInterface"):
             userInterface = True
         
@@ -42,15 +42,16 @@ def main(argv=None):
             print __version__
             sys.exit(0)
         
-        if opt in ("-f", "--fileName"):
-            fileName = apt
+        #if opt in ("-f", "--fileName"):
+            #fileName = apt
         
-        if opt in ("-p", "--path"):
-            path = apt
+        #if opt in ("-p", "--path"):
+            #path = apt
     
     if userInterface:
-        from ui import mainWindow
-        return mainWindow.UI(environment, fileName, path)
+        from oyProjectManager.ui import projectManager
+        #return mainWindow.UI(environment, fileName, path)
+        return projectManager.UI()
 
 
 

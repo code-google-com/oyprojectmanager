@@ -149,6 +149,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.6.1
+- fixed __main__ function for the package, now the project manager user
+  interface pops up by default
+
 v0.6.0
 - connected the assetType_comboBox1 index change signal to assetList_widget1's
   update method, and re-enabled assetType_comboBox2's update signal being
