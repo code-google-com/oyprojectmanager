@@ -153,6 +153,8 @@ v0.6.1
 - fixed __main__ function for the package, now the project manager user
   interface pops up by default
 - fixed window title in projectManager ui
+- added asset validation check in the assetManager ui before trying to get any
+  variable from the asset, to prevent errors
 
 v0.6.0
 - connected the assetType_comboBox1 index change signal to assetList_widget1's

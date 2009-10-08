@@ -204,6 +204,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         assetObj = assetModel.Asset( currentProject, currentSequence, self.fileName )
         
+        if not assetObj.isValidAsset():
+            return
+        
         assetType = assetObj.getTypeName()
         shotNumber = assetObj.getShotNumber()
         baseName = assetObj.getBaseName()
