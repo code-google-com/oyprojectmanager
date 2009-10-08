@@ -155,6 +155,7 @@ v0.6.1
 - fixed window title in projectManager ui
 - added asset validation check in the assetManager ui before trying to get any
   variable from the asset, to prevent errors
+- added removeOutputFolder to structure class
 
 v0.6.0
 - connected the assetType_comboBox1 index change signal to assetList_widget1's

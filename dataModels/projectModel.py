@@ -1603,7 +1603,18 @@ class Sequence(object):
         """
         
         self._structure.addOutputFolder( name, path )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def removeOutputFolder(self, name):
+        """removes the specified output folder
         
+        you need to invoke self.saveSettings to make the changes permenant
+        """
+        
+        self._structure.removeOutputFolder( name )
+    
     
     
     #----------------------------------------------------------------------
@@ -1741,3 +1752,14 @@ class Structure(object):
                 return oFolderT[1]
         
         return None
+    
+    
+    
+    #----------------------------------------------------------------------
+    def removeOutputFolder(self, name):
+        """removes the specified output folder
+        """
+        
+        path = self.getOutputFolderPathOf( name )
+        oTuple = (name, path)
+        self._outputFolders.remove( oTuple )
