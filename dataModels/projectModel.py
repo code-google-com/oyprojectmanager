@@ -1567,53 +1567,53 @@ class Sequence(object):
     
     
     
-    #----------------------------------------------------------------------
-    def addNewShotDependentFolder(self, folderPath):
-        """adds new shot dependent folder
+    ##----------------------------------------------------------------------
+    #def addNewShotDependentFolder(self, folderPath):
+        #"""adds new shot dependent folder
         
-        folderPath should be relative to sequence root
+        #folderPath should be relative to sequence root
         
-        you need to invoke self.createStructure and then self.saveSettings
-        to make the changes permenant
-        """
+        #you need to invoke self.createStructure and then self.saveSettings
+        #to make the changes permenant
+        #"""
         
-        self._structure.addShotDependentFolder( folderPath )
+        #self._structure.addShotDependentFolder( folderPath )
     
     
     
-    #----------------------------------------------------------------------
-    def addNewShotIndependentFolder(self, folderPath):
-        """adds new shot independent folder
+    ##----------------------------------------------------------------------
+    #def addNewShotIndependentFolder(self, folderPath):
+        #"""adds new shot independent folder
         
-        folderPath should be relative to sequence root
+        #folderPath should be relative to sequence root
         
-        you need to invoke self.createStructure and then self.saveSettings
-        to make the changes permenant
-        """
+        #you need to invoke self.createStructure and then self.saveSettings
+        #to make the changes permenant
+        #"""
         
-        self._structure.addShotIndependentFolder( folderPath )
+        #self._structure.addShotIndependentFolder( folderPath )
     
     
     
-    #----------------------------------------------------------------------
-    def addNewOutputFolder(self, name, path):
-        """adds new output folder to the structure
+    ##----------------------------------------------------------------------
+    #def addNewOutputFolder(self, name, path):
+        #"""adds new output folder to the structure
         
-        you need to invoke self.saveSettings to make the changes permenant
-        """
+        #you need to invoke self.saveSettings to make the changes permenant
+        #"""
         
-        self._structure.addOutputFolder( name, path )
+        #self._structure.addOutputFolder( name, path )
     
     
     
-    #----------------------------------------------------------------------
-    def removeOutputFolder(self, name):
-        """removes the specified output folder
+    ##----------------------------------------------------------------------
+    #def removeOutputFolder(self, name):
+        #"""removes the specified output folder
         
-        you need to invoke self.saveSettings to make the changes permenant
-        """
+        #you need to invoke self.saveSettings to make the changes permenant
+        #"""
         
-        self._structure.removeOutputFolder( name )
+        #self._structure.removeOutputFolder( name )
     
     
     
@@ -1644,6 +1644,8 @@ class Structure(object):
     
     outputFolders should be a list of tuples showing the name and path of the outputFolder
     """
+    
+    
     
     _shotDependentFolders = [] * 0
     _shotIndependentFolders = [] * 0
@@ -1763,3 +1765,27 @@ class Structure(object):
         path = self.getOutputFolderPathOf( name )
         oTuple = (name, path)
         self._outputFolders.remove( oTuple )
+    
+    
+    #----------------------------------------------------------------------
+    def removeShotDependentFolder(self, folderPath):
+        """removes the shot dependent folder from the structure
+        
+        beware that if the parent sequence uses that folder as a assetType folder
+        you introduce an error to the sequence
+        """
+        
+        self._shotDependentFolders.remove( folderPath )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def removeShotIndependentFolder(self, folderPath):
+        """removes the shot independent folder from the structure
+        
+        beware that if the parent sequence uses that folder as a assetType folder
+        you introduce an error to the sequence
+        """
+        
+        self._shotIndependentFolders.remove( folderPath )
+    

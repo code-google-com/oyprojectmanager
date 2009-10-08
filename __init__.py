@@ -119,7 +119,8 @@ Notes        : The notes about the asset can be hold here. Although it
 
 Assets are placed under:
 
-{projectsPath}/{projectName}/{sequenceName}/{typeFolder}/{baseName}/{assetFileName}
+{projectsPath}/{projectName}/{sequenceName}/{typeFolder}/{baseName}/
+{assetFileName}
 
 
 
@@ -156,6 +157,14 @@ v0.6.1
 - added asset validation check in the assetManager ui before trying to get any
   variable from the asset, to prevent errors
 - added removeOutputFolder to structure class
+- removed some of the methods from the Sequence object, because they were just
+  simple wraps of Structure objects corresponding methods. One can use directly
+  the structure object by using Sequence.getStructure and then calling the same
+  methods
+- added these methods to Structure object
+    removeOutputFolder
+    removeShotDependentFolder
+    removeShotIndependentFolder
 
 v0.6.0
 - connected the assetType_comboBox1 index change signal to assetList_widget1's
@@ -221,9 +230,10 @@ v0.4.0
 v0.3.4
 - introduced a lot of speed optimizations, eliminated all the unnecessary asset
   object creations in the interface, but this introduced listing of non-asset
-  objects (like smr files) in the interface, this will be fixed in next versions
-- the interface tries to get all the asset information from the asset file names
-  instead of asset objects
+  objects (like smr files) in the interface, this will be fixed in next
+  versions
+- the interface tries to get all the asset information from the asset file
+  names instead of asset objects
 - fixed asset retrieval in open tab in the interface, caused by switching from
   a sequence that supports subNames to another which doesn't. The subName field
   was left in 'MAIN' and the code was trying to get asset file names with a
