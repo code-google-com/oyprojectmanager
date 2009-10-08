@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.6.0
+v0.6.1
 
 Description :
 -------------
@@ -152,6 +152,7 @@ Version History :
 v0.6.1
 - fixed __main__ function for the package, now the project manager user
   interface pops up by default
+- fixed window title in projectManager ui
 
 v0.6.0
 - connected the assetType_comboBox1 index change signal to assetList_widget1's
@@ -431,6 +432,6 @@ TODO List :
 
 
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"
 
 

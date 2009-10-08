@@ -603,7 +603,7 @@ Just quits the application without doing anything</string>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QGridLayout" name="openAsset_gridLayout" columnstretch="0,1" columnminimumwidth="100,0">
+                <layout class="QGridLayout" name="openAsset_gridLayout" columnstretch="0,1">
                  <item row="0" column="0">
                   <widget class="QLabel" name="assetType_label2">
                    <property name="text">
