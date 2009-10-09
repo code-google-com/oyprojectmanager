@@ -222,9 +222,6 @@ class Asset(object):
                 self._fileName = self.getFileName()
                 self._fullPath = os.path.join( self._path, self._fileName )
                 
-                print "assetModel.Asset.setPathVariable -> self._path -> ", self._path
-                print "assetModel.Asset.setPathVariable -> self._fullPath -> ", self._fullPath
-                
                 self.updateExistancy()
     
     

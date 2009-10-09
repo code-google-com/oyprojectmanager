@@ -42,8 +42,6 @@ def open_( assetObject ):
     
     nuke.scriptOpen( assetObject.getFullPath() )
     
-    print "open_ -> assetObject.getFullPath() -> ", assetObject.getFullPath()
-    
     return True
 
 
