@@ -155,6 +155,8 @@ v0.6.2
 - nuke gives problems in windows about autsave, now trying to fix it by
   replacing '\' with '/' characters after any save or open operation
 - fixed _validateRevString and _validateVerString in Asset class
+- added assetStatus to save and export methods of the assetManager interface to
+  check if the current asset from the fields is a valid asset
 
 v0.6.1
 - fixed __main__ function for the package, now the project manager user

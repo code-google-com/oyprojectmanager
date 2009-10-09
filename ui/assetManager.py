@@ -1096,6 +1096,13 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     #----------------------------------------------------------------------
     # SAVE & OPEN & IMPORT & REFERENCE ACTIONS FOR ENVIRONMENTS
     #----------------------------------------------------------------------
+    #----------------------------------------------------------------------
+    def checkOutputAsset(self, assetObject):
+        """check if the asset is a valid asset
+        """
+        return assetObject.isValidAsset()
+    
+    
     
     #----------------------------------------------------------------------
     def checkOutputFileVersion(self, assetObject):
@@ -1177,19 +1184,20 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         verStatus = False
         revStatus = False
         overwriteStatus = False
+        assetStatus = False
         
         # get the asset object
         assetObject = self.getAssetObjectFromSaveFields()
         
         # check the file conditions
-        
+        assetStatus = self.checkOutputAsset(assetObject)
         verStatus = self.checkOutputFileVersion( assetObject )
         revStatus = self.checkOutputFileRevision( assetObject )
         overwriteStatus = self.checkOutputFileOverwrite( assetObject )
         
         envStatus = False
         
-        if verStatus and revStatus and overwriteStatus:
+        if assetStatus and verStatus and revStatus and overwriteStatus:
             
             # everything is ok now save in the host application
             if self.environment == 'MAYA':
@@ -1220,14 +1228,14 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         assetObject = self.getAssetObjectFromSaveFields()
         
         # check the file conditions
-        
+        assetStatus = self.checkOutputAsset(assetObject)
         verStatus = self.checkOutputFileVersion( assetObject )
         revStatus = self.checkOutputFileRevision( assetObject )
         overwriteStatus = self.checkOutputFileOverwrite( assetObject )
         
         envStatus = False
         
-        if verStatus and revStatus and overwriteStatus:
+        if assetStatus and verStatus and revStatus and overwriteStatus:
             # everything is ok now save in the host application
             if self.environment == 'MAYA':
                 
