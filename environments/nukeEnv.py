@@ -17,9 +17,6 @@ def save( assetObject ):
     
     nuke.scriptSaveAs( assetObject.getFullPath() )
     
-    if os.name=='nt':
-        setRootName()
-    
     return True
 
 
@@ -46,11 +43,6 @@ def open_( assetObject ):
     nuke.scriptOpen( assetObject.getFullPath() )
     
     print "open_ -> assetObject.getFullPath() -> ", assetObject.getFullPath()
-    
-    # path name bug
-    if os.name=='nt':
-        rootName = setRootName()
-        print "open_ -> rootName -> ", rootName
     
     return True
 
@@ -86,34 +78,33 @@ def getPathVariables():
         fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
     
-    # if the environment is Windows replace / with \
-    if os.name == 'nt':
-        myDict = dict()
-        myDict[u'/'] = u'\\'
-        path = oyAux.multiple_replace( path, myDict)
+    ## if the environment is Windows replace / with \
+    #if os.name == 'nt':
+        #myDict = dict()
+        #myDict[u'/'] = u'\\'
+        #path = oyAux.multiple_replace( path, myDict)
     
     return fileName, path
 
 
 
 
-#----------------------------------------------------------------------
-def setRootName():
-    """sets the root name variable
-    """
+##----------------------------------------------------------------------
+#def setRootName():
+    #"""sets the root name variable
+    #"""
     
-    rootNode = nuke.toNode("root")
+    #rootNode = nuke.toNode("root")
     
-    # get the name and replace \ with / characters
+    ## get the name and replace \ with / characters
     
-    rootName = rootNode.name()
+    #rootName = rootNode.name()
     
-    myDict = dict()
-    myDict[u'\\'] = u'/'
+    #myDict = dict()
+    #myDict[u'\\'] = u'/'
     
-    rootName = oyAux.multiple_replace( rootName, myDict ) 
+    #rootName = oyAux.multiple_replace( rootName, myDict ) 
     
-    rootNode.setName( rootName )
+    #rootNode.setName( rootName )
     
-    return rootName
-    
+    #return rootName

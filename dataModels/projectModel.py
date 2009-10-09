@@ -602,6 +602,13 @@ class Sequence(object):
         shotDependentFoldersList = [ folder.strip() for folder in shotDependentFoldersList if folder.strip() != ""  ]
         shotIndependentFoldersList = [ folder.strip() for folder in shotIndependentFoldersList if folder.strip() != ""  ]
         
+        # fix path issues for windows
+        osName = os.name
+        
+        if osName=='nt':
+            shotDependentFoldersList = [ oyAux.fixWindowsPath(path) for path in shotDependentFoldersList]
+            shotIndependentFoldersList = [ oyAux.fixWindowsPath(path) for path in shotIndependentFoldersList]
+        
         # set the structure
         self._structure.setShotDependentFolders( shotDependentFoldersList )
         self._structure.setShotIndependentFolders( shotIndependentFoldersList )
@@ -609,10 +616,17 @@ class Sequence(object):
         # read the output folders node
         outputFoldersNode = structureNode.getElementsByTagName('outputFolders')[0]
         outputNodes = outputFoldersNode.getElementsByTagName('output')
+        
+        
         for outputNode in outputNodes:
             #assert(isinstance(outpuNode, minidom.Element))
             name = outputNode.getAttribute('name')
             path = outputNode.getAttribute('path')
+            
+            # fixe path issues for windows
+            if osName == 'nt':
+                path = oyAux.fixWindowsPath( path )
+            
             self._structure.addOutputFolder( name, path )
     
     
@@ -635,6 +649,11 @@ class Sequence(object):
             shotDependency = bool( int( node.getAttribute('shotDependent') ) )
             playblastFolder = node.getAttribute('playblastFolder')
             environments = node.getAttribute('environments').split(",")
+            
+            # fix path issues for windows
+            if os.name == 'nt':
+                path = oyAux.fixWindowsPath( path )
+                playblastFolder = oyAux.fixWindowsPath( playblastFolder )
             
             self._assetTypes.append( assetModel.AssetType( name, path, shotDependency, playblastFolder, environments) )
     
