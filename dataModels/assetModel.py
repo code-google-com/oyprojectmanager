@@ -550,9 +550,17 @@ class Asset(object):
     def _validateRevString(self):
         """validates if the revision string follows the format
         """
+        if self._revString == None or self._revString =='':
+            return False
+        
         revPrefix = self._parentSequence._revPrefix
         
-        return re.match( revPrefix+'[0-9]+', self._revString )
+        matchObj = re.match( revPrefix+'[0-9]+', self._revString )
+        
+        if matchObj == None:
+            return False
+        else:
+            return True
     
     
     
@@ -560,9 +568,17 @@ class Asset(object):
     def _validateVerString(self):
         """validates if the version string follows the format
         """
+        if self._verString == None or self._verString == '':
+            return False
+        
         verPrefix = self._parentSequence._verPrefix
         
-        return re.match( verPrefix+'[0-9]+', self._verString )
+        matchObj = re.match( verPrefix+'[0-9]+', self._verString )
+        
+        if matchObj == None:
+            return False
+        else:
+            return True
     
     
     

@@ -154,6 +154,7 @@ v0.6.2
 - baseName is now capitalized after validation
 - nuke gives problems in windows about autsave, now trying to fix it by
   replacing '\' with '/' characters after any save or open operation
+- fixed _validateRevString and _validateVerString in Asset class
 
 v0.6.1
 - fixed __main__ function for the package, now the project manager user
