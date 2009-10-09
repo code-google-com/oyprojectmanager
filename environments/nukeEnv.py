@@ -45,9 +45,12 @@ def open_( assetObject ):
     
     nuke.scriptOpen( assetObject.getFullPath() )
     
+    print "open_ -> assetObject.getFullPath() -> ", assetObject.getFullPath()
+    
     # path name bug
     if os.name=='nt':
-        setRootName()
+        rootName = setRootName()
+        print "open_ -> rootName -> ", rootName
     
     return True
 
@@ -108,5 +111,9 @@ def setRootName():
     myDict = dict()
     myDict[u'\\'] = u'/'
     
-    rootNode.setName( oyAux.multiple_replace( rootName, myDict ) )
+    rootName = oyAux.multiple_replace( rootName, myDict ) 
+    
+    rootNode.setName( rootName )
+    
+    return rootName
     
