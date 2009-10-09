@@ -212,7 +212,8 @@ class Asset(object):
             seqFullPath = self._parentSequence.getFullPath()
             typeFolder = self._type.getPath()
             
-            self._path = os.path.join( seqFullPath, typeFolder, self._baseName )
+            self._path = os.path.join( seqFullPath, typeFolder)
+            self._path = os.path.join( self._path, self._baseName )
             
             # if it has full info update the rest of the variables
             if self._hasFullInfo:
