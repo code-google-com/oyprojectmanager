@@ -106,7 +106,7 @@ def setRootName():
     
     # get the name and replace \ with / characters
     
-    rootName = root.name()
+    rootName = rootNode.name()
     
     myDict = dict()
     myDict[u'\\'] = u'/'
