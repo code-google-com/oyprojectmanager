@@ -1064,10 +1064,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # get the text
         text = unicode( self.baseName_comboBox1.currentText() )
         
-        print text
-        
         # validate the text
-        text = oyAux.stringConditioner( text, False, False, False, True )
+        text = oyAux.stringConditioner( text, False, False, False, False )
+        text = text.capitalize()
         
         # set back
         self.baseName_comboBox1.setEditText( text )

@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.6.1
+v0.6.2
 
 Description :
 -------------
@@ -150,6 +150,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.6.2
+- baseName is now capitalized after validation
+- nuke gives problems in windows about autsave, now trying to fix it by
+  replacing '\' with '/' characters after any save or open operation
+
 v0.6.1
 - fixed __main__ function for the package, now the project manager user
   interface pops up by default
@@ -445,6 +450,4 @@ TODO List :
 
 
 
-__version__ = "0.6.1"
-
-
+__version__ = "0.6.2"
