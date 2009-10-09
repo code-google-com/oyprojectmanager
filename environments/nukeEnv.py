@@ -77,9 +77,9 @@ def getPathVariables():
         path = os.path.dirname( fullPath )
     
     # if the environment is Windows replace / with \
-    if os.name == 'nt':
-        myDict = dict()
-        myDict[u'/'] = u'\\'
-        path = oyAux.multiple_replace( path, myDict)
+    #if os.name == 'nt':
+        #myDict = dict()
+        #myDict[u'/'] = u'\\'
+        #path = oyAux.multiple_replace( path, myDict)
     
     return fileName, path

@@ -9,7 +9,7 @@ class User(object):
     def __init__(self, name='', initials=''):
         self._name = name
         self._initials = initials
-        #self._type = ''
+        self._type = '' # userType object
         pass
     
     
@@ -43,3 +43,21 @@ class User(object):
         """sets the user initials
         """
         self._initials = initials
+    
+    
+    
+    
+    
+    
+########################################################################
+class UserType(object):
+    """a class for managing user types
+    """
+    
+    #----------------------------------------------------------------------
+    def __init__(self):
+        pass
+        
+        
+    
+    

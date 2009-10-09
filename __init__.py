@@ -407,7 +407,7 @@ v0.0.1
 
 TODO List :
 -----------
-- convert the system to full featured Production Asset Management System
+- convert the system to a full featured Production Asset Management System
 - add a user login window
 - add access control
 - add the ability of a user to review an asset
