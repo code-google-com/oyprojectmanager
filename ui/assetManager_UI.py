@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Sat Oct 10 11:45:04 2009
+# Created: Sat Oct 10 12:41:24 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,7 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowModality(QtCore.Qt.ApplicationModal)
-        MainWindow.resize(656, 513)
+        MainWindow.resize(698, 513)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -36,9 +36,13 @@ class Ui_MainWindow(object):
         self.main_horizontalWidget.setSizePolicy(sizePolicy)
         self.main_horizontalWidget.setObjectName("main_horizontalWidget")
         self.main_horizontalLayout = QtGui.QHBoxLayout(self.main_horizontalWidget)
-        self.main_horizontalLayout.setMargin(6)
         self.main_horizontalLayout.setObjectName("main_horizontalLayout")
         self.verticalWidget1 = QtGui.QWidget(self.main_horizontalWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setHeightForWidth(self.verticalWidget1.sizePolicy().hasHeightForWidth())
+        self.verticalWidget1.setSizePolicy(sizePolicy)
         self.verticalWidget1.setObjectName("verticalWidget1")
         self.verticalLayout1 = QtGui.QVBoxLayout(self.verticalWidget1)
         self.verticalLayout1.setObjectName("verticalLayout1")
@@ -158,7 +162,6 @@ class Ui_MainWindow(object):
         self.revision_horizontalLayout.setMargin(0)
         self.revision_horizontalLayout.setObjectName("revision_horizontalLayout")
         self.revision_spinBox = QtGui.QSpinBox(self.revision_horizontalWidget)
-        self.revision_spinBox.setMinimumSize(QtCore.QSize(50, 0))
         self.revision_spinBox.setObjectName("revision_spinBox")
         self.revision_horizontalLayout.addWidget(self.revision_spinBox)
         self.revision_pushButton = QtGui.QPushButton(self.revision_horizontalWidget)
@@ -176,7 +179,6 @@ class Ui_MainWindow(object):
         self.version_horizontalLayout.setMargin(0)
         self.version_horizontalLayout.setObjectName("version_horizontalLayout")
         self.version_spinBox = QtGui.QSpinBox(self.version_horizontalWidget)
-        self.version_spinBox.setMinimumSize(QtCore.QSize(50, 0))
         self.version_spinBox.setMinimum(1)
         self.version_spinBox.setMaximum(99999999)
         self.version_spinBox.setObjectName("version_spinBox")
@@ -228,7 +230,6 @@ class Ui_MainWindow(object):
         self.verticalWidget2 = QtGui.QWidget(self.main_horizontalWidget)
         self.verticalWidget2.setObjectName("verticalWidget2")
         self.verticalLayout2 = QtGui.QVBoxLayout(self.verticalWidget2)
-        self.verticalLayout2.setMargin(6)
         self.verticalLayout2.setObjectName("verticalLayout2")
         self.assets_listWidget1 = QtGui.QListWidget(self.verticalWidget2)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -279,7 +280,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.main_horizontalWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 656, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 698, 23))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)

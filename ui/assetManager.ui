@@ -41,7 +41,13 @@
       <layout class="QHBoxLayout" name="main_horizontalLayout" stretch="0,1">
        <item>
         <widget class="QWidget" name="verticalWidget1" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout1">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout1" stretch="0,1,0">
           <item>
            <widget class="QWidget" name="gridWidget1" native="true">
             <layout class="QGridLayout" name="gridLayout1">
