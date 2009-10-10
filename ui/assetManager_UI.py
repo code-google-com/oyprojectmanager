@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Sat Oct 10 11:36:44 2009
+# Created: Sat Oct 10 11:45:04 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,7 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowModality(QtCore.Qt.ApplicationModal)
-        MainWindow.resize(665, 513)
+        MainWindow.resize(656, 513)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -39,11 +39,6 @@ class Ui_MainWindow(object):
         self.main_horizontalLayout.setMargin(6)
         self.main_horizontalLayout.setObjectName("main_horizontalLayout")
         self.verticalWidget1 = QtGui.QWidget(self.main_horizontalWidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.verticalWidget1.sizePolicy().hasHeightForWidth())
-        self.verticalWidget1.setSizePolicy(sizePolicy)
         self.verticalWidget1.setObjectName("verticalWidget1")
         self.verticalLayout1 = QtGui.QVBoxLayout(self.verticalWidget1)
         self.verticalLayout1.setObjectName("verticalLayout1")
@@ -163,11 +158,11 @@ class Ui_MainWindow(object):
         self.revision_horizontalLayout.setMargin(0)
         self.revision_horizontalLayout.setObjectName("revision_horizontalLayout")
         self.revision_spinBox = QtGui.QSpinBox(self.revision_horizontalWidget)
-        self.revision_spinBox.setMinimumSize(QtCore.QSize(20, 0))
+        self.revision_spinBox.setMinimumSize(QtCore.QSize(50, 0))
         self.revision_spinBox.setObjectName("revision_spinBox")
         self.revision_horizontalLayout.addWidget(self.revision_spinBox)
         self.revision_pushButton = QtGui.QPushButton(self.revision_horizontalWidget)
-        self.revision_pushButton.setMinimumSize(QtCore.QSize(150, 0))
+        self.revision_pushButton.setMinimumSize(QtCore.QSize(111, 0))
         self.revision_pushButton.setObjectName("revision_pushButton")
         self.revision_horizontalLayout.addWidget(self.revision_pushButton)
         self.gridLayout1.addWidget(self.revision_horizontalWidget, 10, 1, 1, 1)
@@ -181,13 +176,13 @@ class Ui_MainWindow(object):
         self.version_horizontalLayout.setMargin(0)
         self.version_horizontalLayout.setObjectName("version_horizontalLayout")
         self.version_spinBox = QtGui.QSpinBox(self.version_horizontalWidget)
-        self.version_spinBox.setMinimumSize(QtCore.QSize(20, 0))
+        self.version_spinBox.setMinimumSize(QtCore.QSize(50, 0))
         self.version_spinBox.setMinimum(1)
         self.version_spinBox.setMaximum(99999999)
         self.version_spinBox.setObjectName("version_spinBox")
         self.version_horizontalLayout.addWidget(self.version_spinBox)
         self.version_pushButton = QtGui.QPushButton(self.version_horizontalWidget)
-        self.version_pushButton.setMinimumSize(QtCore.QSize(150, 0))
+        self.version_pushButton.setMinimumSize(QtCore.QSize(111, 0))
         self.version_pushButton.setObjectName("version_pushButton")
         self.version_horizontalLayout.addWidget(self.version_pushButton)
         self.gridLayout1.addWidget(self.version_horizontalWidget, 11, 1, 1, 1)
@@ -284,7 +279,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.main_horizontalWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 665, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 656, 23))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -390,7 +385,7 @@ class Ui_MainWindow(object):
 "Revision numbers represents the milestones in the development of this asset. Generally it is increased when something big is changed in the asset.", None, QtGui.QApplication.UnicodeUTF8))
         self.revision_pushButton.setToolTip(QtGui.QApplication.translate("MainWindow", "gets the latest revision number", None, QtGui.QApplication.UnicodeUTF8))
         self.revision_pushButton.setStatusTip(QtGui.QApplication.translate("MainWindow", "gets the latest revision number", None, QtGui.QApplication.UnicodeUTF8))
-        self.revision_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Get Lastest Revision", None, QtGui.QApplication.UnicodeUTF8))
+        self.revision_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Lastest Revision", None, QtGui.QApplication.UnicodeUTF8))
         self.version_label1.setText(QtGui.QApplication.translate("MainWindow", "Version", None, QtGui.QApplication.UnicodeUTF8))
         self.version_spinBox.setToolTip(QtGui.QApplication.translate("MainWindow", "it is automatically increased by 1", None, QtGui.QApplication.UnicodeUTF8))
         self.version_spinBox.setStatusTip(QtGui.QApplication.translate("MainWindow", "it is automatically increased by 1", None, QtGui.QApplication.UnicodeUTF8))
@@ -399,7 +394,7 @@ class Ui_MainWindow(object):
 "Any incarnation of an asset should be have different version numbers.", None, QtGui.QApplication.UnicodeUTF8))
         self.version_pushButton.setToolTip(QtGui.QApplication.translate("MainWindow", "gets the latest version number", None, QtGui.QApplication.UnicodeUTF8))
         self.version_pushButton.setStatusTip(QtGui.QApplication.translate("MainWindow", "gets the latest version number", None, QtGui.QApplication.UnicodeUTF8))
-        self.version_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Get Latest Version", None, QtGui.QApplication.UnicodeUTF8))
+        self.version_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Latest Version", None, QtGui.QApplication.UnicodeUTF8))
         self.user_label1.setText(QtGui.QApplication.translate("MainWindow", "User", None, QtGui.QApplication.UnicodeUTF8))
         self.user_comboBox1.setToolTip(QtGui.QApplication.translate("MainWindow", "select your user initials", None, QtGui.QApplication.UnicodeUTF8))
         self.user_comboBox1.setStatusTip(QtGui.QApplication.translate("MainWindow", "select your user initials", None, QtGui.QApplication.UnicodeUTF8))

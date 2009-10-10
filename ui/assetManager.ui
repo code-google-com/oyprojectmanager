@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>665</width>
+    <width>656</width>
     <height>513</height>
    </rect>
   </property>
@@ -44,12 +44,6 @@
        </property>
        <item>
         <widget class="QWidget" name="verticalWidget1" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>1</verstretch>
-          </sizepolicy>
-         </property>
          <layout class="QVBoxLayout" name="verticalLayout1" stretch="0,0,0">
           <item>
            <widget class="QWidget" name="gridWidget1" native="true">
@@ -321,7 +315,7 @@ Sub name field is introduced with this new version. Its main purpose is to let t
              </item>
              <item row="10" column="1">
               <widget class="QWidget" name="revision_horizontalWidget" native="true">
-               <layout class="QHBoxLayout" name="revision_horizontalLayout">
+               <layout class="QHBoxLayout" name="revision_horizontalLayout" stretch="1,1">
                 <property name="margin">
                  <number>0</number>
                 </property>
@@ -329,7 +323,7 @@ Sub name field is introduced with this new version. Its main purpose is to let t
                  <widget class="QSpinBox" name="revision_spinBox">
                   <property name="minimumSize">
                    <size>
-                    <width>20</width>
+                    <width>50</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -350,7 +344,7 @@ Revision numbers represents the milestones in the development of this asset. Gen
                  <widget class="QPushButton" name="revision_pushButton">
                   <property name="minimumSize">
                    <size>
-                    <width>150</width>
+                    <width>111</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -361,7 +355,7 @@ Revision numbers represents the milestones in the development of this asset. Gen
                    <string>gets the latest revision number</string>
                   </property>
                   <property name="text">
-                   <string>Get Lastest Revision</string>
+                   <string>Lastest Revision</string>
                   </property>
                  </widget>
                 </item>
@@ -388,7 +382,7 @@ Revision numbers represents the milestones in the development of this asset. Gen
                  <widget class="QSpinBox" name="version_spinBox">
                   <property name="minimumSize">
                    <size>
-                    <width>20</width>
+                    <width>50</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -418,7 +412,7 @@ Any incarnation of an asset should be have different version numbers.</string>
                  <widget class="QPushButton" name="version_pushButton">
                   <property name="minimumSize">
                    <size>
-                    <width>150</width>
+                    <width>111</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -429,7 +423,7 @@ Any incarnation of an asset should be have different version numbers.</string>
                    <string>gets the latest version number</string>
                   </property>
                   <property name="text">
-                   <string>Get Latest Version</string>
+                   <string>Latest Version</string>
                   </property>
                  </widget>
                 </item>
@@ -701,7 +695,7 @@ Just quits the application without doing anything</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>665</width>
+     <width>656</width>
      <height>23</height>
     </rect>
    </property>
