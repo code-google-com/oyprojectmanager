@@ -151,9 +151,10 @@ Command Line Options :
 Version History :
 -----------------
 v0.6.3
-- now the baseName allows numbers to be used but not at the beggining of the
-  string
-- 
+- now baseName and subName fields allow numbers to be used but not at the
+  beggining of the string
+- in assetManager ui, both the save and open asset tabs are now updated with
+  the incomming asset infos from the environment
 
 v0.6.2
 - baseName is now capitalized after validation

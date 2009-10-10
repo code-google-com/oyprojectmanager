@@ -217,20 +217,34 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         notes = assetObj.getNotes()
         
         # fill the fields
-        # assetType
+        # assetType SAVE
         element = self.assetType_comboBox1
+        element.setCurrentIndex( element.findText( assetType ) )
+        
+        # assetType OPEN
+        element = self.assetType_comboBox2
         element.setCurrentIndex( element.findText( assetType ) )
         
         # shotNumber and baseName
         if assetObj.isShotDependent():
+            # SAVE
             element = self.shot_comboBox1
             element.setCurrentIndex( element.findText( shotNumber) )
+            # OPEN
+            element = self.shot_comboBox2
+            element.setCurrentIndex( element.findText( shotNumber) )
         else:
+            # SAVE
             self.baseName_comboBox1.setCurrentIndex( self.baseName_comboBox1.findText(baseName) )
+            # OPEN
+            self.baseName_comboBox2.setCurrentIndex( self.baseName_comboBox1.findText(baseName) )
         
         if not currentSequence._noSubNameField: # remove this block when the support for old version becomes obsolute
             # sub Name
+            # SAVE
             self.subName_comboBox1.setCurrentIndex( self.subName_comboBox1.findText(subName) )
+            # OPEN
+            self.subName_comboBox2.setCurrentIndex( self.subName_comboBox1.findText(subName) )
         
         # revision
         self.revision_spinBox.setValue( revNumber )
@@ -292,6 +306,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         assetTypes = currentSequence.getAssetTypes( self.environment )
         
         assetTypeNames = [ assetType.getName() for assetType in assetTypes ]
+        
+        # check the current tab
+        currentTab = self.main_tabWidget.currentWidget().objectName()
         
         # SAVE ASSET TAB
         # clear and update the comboBoxes
