@@ -801,11 +801,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         currentProjectName = self.getCurrentProjectName()
         
-        #assert(isinstance(self._project,Project))
-        
         if self._project == None or self._project.getName() != currentProjectName or (currentProjectName != "" or currentProjectName != None ):
             self._project = projectModel.Project( currentProjectName )
-    
     
     
     #----------------------------------------------------------------------
@@ -817,7 +814,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         #assert(isinstance(self._sequence,Sequence))
         
-        if self._sequence == None or (self._sequence.getName() != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) ):
+        if self._sequence == None or self._sequence.getName() != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) or \
+           self._sequence.getProjectName() != self._project.getName():
             self._updateProjectObject()
             newSeq = projectModel.Sequence( self._project, currentSequenceName )
             if newSeq._exists:
