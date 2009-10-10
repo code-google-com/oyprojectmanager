@@ -1060,7 +1060,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 try:
                     envStatus = mayaEnv.open_( assetObject )
                 except RuntimeError:
-                    answer = QtGui.QMessageBox.question(self, 'RuntimeError', "unsaved changes\nforce open ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
+                    answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There is unsaved changes in the current scene\n\nDo you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                     
                     if answer== QtGui.QMessageBox.Yes:
                         envStatus = mayaEnv.open_( assetObject, True )
