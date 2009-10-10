@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Sat Oct 10 11:14:39 2009
+# Created: Sat Oct 10 11:36:44 2009
 #      by: PyQt4 UI code generator 4.4.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,7 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowModality(QtCore.Qt.ApplicationModal)
-        MainWindow.resize(725, 507)
+        MainWindow.resize(665, 513)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -216,6 +216,8 @@ class Ui_MainWindow(object):
         self.note_lineEdit1.setObjectName("note_lineEdit1")
         self.gridLayout1.addWidget(self.note_lineEdit1, 13, 1, 1, 1)
         self.verticalLayout1.addWidget(self.gridWidget1)
+        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout1.addItem(spacerItem)
         self.saveButtons_horizontalWidget = QtGui.QWidget(self.verticalWidget1)
         self.saveButtons_horizontalWidget.setObjectName("saveButtons_horizontalWidget")
         self.saveCanel_horizontalLayout = QtGui.QHBoxLayout(self.saveButtons_horizontalWidget)
@@ -229,9 +231,9 @@ class Ui_MainWindow(object):
         self.verticalLayout1.addWidget(self.saveButtons_horizontalWidget)
         self.main_horizontalLayout.addWidget(self.verticalWidget1)
         self.verticalWidget2 = QtGui.QWidget(self.main_horizontalWidget)
-        self.verticalWidget2.setMinimumSize(QtCore.QSize(50, 0))
         self.verticalWidget2.setObjectName("verticalWidget2")
         self.verticalLayout2 = QtGui.QVBoxLayout(self.verticalWidget2)
+        self.verticalLayout2.setMargin(6)
         self.verticalLayout2.setObjectName("verticalLayout2")
         self.assets_listWidget1 = QtGui.QListWidget(self.verticalWidget2)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -282,7 +284,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.main_horizontalWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 725, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 665, 23))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)

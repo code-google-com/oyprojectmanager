@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>725</width>
-    <height>507</height>
+    <width>665</width>
+    <height>513</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -50,7 +50,7 @@
            <verstretch>1</verstretch>
           </sizepolicy>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout1" stretch="0,0">
+         <layout class="QVBoxLayout" name="verticalLayout1" stretch="0,0,0">
           <item>
            <widget class="QWidget" name="gridWidget1" native="true">
             <layout class="QGridLayout" name="gridLayout1">
@@ -502,6 +502,19 @@ You can use this field to leave little but important messages here... It is limi
            </widget>
           </item>
           <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <widget class="QWidget" name="saveButtons_horizontalWidget" native="true">
             <layout class="QHBoxLayout" name="saveCanel_horizontalLayout" stretch="1,1">
              <item>
@@ -548,13 +561,10 @@ Exports the selected content to the server as an asset</string>
        </item>
        <item>
         <widget class="QWidget" name="verticalWidget2" native="true">
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>0</height>
-          </size>
-         </property>
          <layout class="QVBoxLayout" name="verticalLayout2">
+          <property name="margin">
+           <number>6</number>
+          </property>
           <item>
            <widget class="QListWidget" name="assets_listWidget1">
             <property name="sizePolicy">
@@ -691,7 +701,7 @@ Just quits the application without doing anything</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>725</width>
+     <width>665</width>
      <height>23</height>
     </rect>
    </property>
