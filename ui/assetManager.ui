@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
-    <height>604</height>
+    <width>725</width>
+    <height>507</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,843 +31,654 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QWidget" name="main_verticalWidget" native="true">
-      <layout class="QVBoxLayout" name="main_verticalLayout" stretch="0,1">
+     <widget class="QWidget" name="main_horizontalWidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>1</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QHBoxLayout" name="main_horizontalLayout" stretch="0,1">
+       <property name="margin">
+        <number>6</number>
+       </property>
        <item>
-        <layout class="QGridLayout" name="main_gridLayout" columnminimumwidth="115,0">
-         <item row="0" column="0">
-          <widget class="QLabel" name="server_label">
-           <property name="text">
-            <string>Server</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="server_comboBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Select a Server</string>
-           </property>
-           <property name="statusTip">
-            <string>Select a Server</string>
-           </property>
-           <property name="whatsThis">
-            <string>Server:
+        <widget class="QWidget" name="verticalWidget1" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout1" stretch="0,0">
+          <item>
+           <widget class="QWidget" name="gridWidget1" native="true">
+            <layout class="QGridLayout" name="gridLayout1">
+             <item row="0" column="0">
+              <widget class="QLabel" name="server_label">
+               <property name="text">
+                <string>Server</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="server_comboBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Select a Server</string>
+               </property>
+               <property name="statusTip">
+                <string>Select a Server</string>
+               </property>
+               <property name="whatsThis">
+                <string>Server:
 
 Servers are the places that the main project folders are saved. For now there is only one supported server. In the future that can be expanded to multiple servers...</string>
-           </property>
-           <property name="editable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="project_label">
-           <property name="text">
-            <string>Project</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="project_comboBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Select a Project</string>
-           </property>
-           <property name="statusTip">
-            <string>Select a Project</string>
-           </property>
-           <property name="whatsThis">
-            <string>Project:
+               </property>
+               <property name="editable">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="project_label">
+               <property name="text">
+                <string>Project</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QComboBox" name="project_comboBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Select a Project</string>
+               </property>
+               <property name="statusTip">
+                <string>Select a Project</string>
+               </property>
+               <property name="whatsThis">
+                <string>Project:
 
 A project is a collection of sequences. So projects can only contain sequences. This comboBox lists the current projects on the server. If you select one it will update the available sequences for that project...</string>
-           </property>
-           <property name="editable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="sequence_label">
-           <property name="text">
-            <string>Sequence</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QComboBox" name="sequence_comboBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Select a Sequence</string>
-           </property>
-           <property name="statusTip">
-            <string>Select a Sequence</string>
-           </property>
-           <property name="whatsThis">
-            <string>Sequence:
+               </property>
+               <property name="editable">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="sequence_label">
+               <property name="text">
+                <string>Sequence</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QComboBox" name="sequence_comboBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Select a Sequence</string>
+               </property>
+               <property name="statusTip">
+                <string>Select a Sequence</string>
+               </property>
+               <property name="whatsThis">
+                <string>Sequence:
 
 Sequences are collections of folders. Each folder has a special meaning and can may contain one type of asset file. Every sequence has its own settings. So while one sequence supports some features, others may not...</string>
-           </property>
-           <property name="editable">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QTabWidget" name="main_tabWidget">
-         <property name="statusTip">
-          <string>select a tab to save or open an asset or to manage a project</string>
-         </property>
-         <property name="currentIndex">
-          <number>0</number>
-         </property>
-         <widget class="QWidget" name="saveAsset_tab">
-          <attribute name="title">
-           <string>Save Asset</string>
-          </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QWidget" name="saveAsest_verticalWidget" native="true">
-             <layout class="QVBoxLayout" name="saveAsset_verticalLayout">
-              <item>
-               <widget class="QWidget" name="saveAsset_gridWidget" native="true">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>1</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QGridLayout" name="saveAsset_gridLayout" columnstretch="0,0">
-                 <item row="0" column="1">
-                  <widget class="QComboBox" name="assetType_comboBox1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>Select an asset type</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>Select an asset type</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Asset Type:
+               </property>
+               <property name="editable">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLabel" name="assetType_label1">
+               <property name="text">
+                <string>Asset Type</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QComboBox" name="assetType_comboBox1">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Select an asset type</string>
+               </property>
+               <property name="statusTip">
+                <string>Select an asset type</string>
+               </property>
+               <property name="whatsThis">
+                <string>Asset Type:
 
 Assets has types that lets you distinguish their purpose of existance. This comboBox lists the asset types that the sequence and the current host environment (MAYA, NUKE etc.) can support.</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="1">
-                  <widget class="QLineEdit" name="note_lineEdit1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>it is a limited field, try to keep it brief</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>it is a limited field, try to keep it brief</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Note:
-
-You can use this field to leave little but important messages here... It is limited with 30 characters...</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="assetType_label1">
-                   <property name="text">
-                    <string>Asset Type</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="baseName_label1">
-                   <property name="text">
-                    <string>Base Name</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="1">
-                  <widget class="QComboBox" name="subName_comboBox1">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>if the project supports SubName field, you can enter or select a subName</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>if the project supports SubName field, you can enter or select a subName</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Sub Name:
-
-Sub name field is introduced with this new version. Its main purpose is to let the users work on the same shot dependent assets togather. By default the field will be set to MAIN...</string>
-                   </property>
-                   <property name="editable">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QComboBox" name="shot_comboBox1">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>if the type is a shot dependent type this will be activated</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>if the type is a shot dependent type this will be activated</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Shot:
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0">
+              <widget class="QLabel" name="shot_label1">
+               <property name="text">
+                <string>Shot</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="1">
+              <widget class="QComboBox" name="shot_comboBox1">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>if the type is a shot dependent type this will be activated</string>
+               </property>
+               <property name="statusTip">
+                <string>if the type is a shot dependent type this will be activated</string>
+               </property>
+               <property name="whatsThis">
+                <string>Shot:
 
 If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc. ). So, shot and base name comboBoxes are actually showing the base name of the asset, but it lets the user to separate the shot dependent asset types from shot independent types.</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="1">
-                  <widget class="QComboBox" name="user_comboBox1">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>select your user initials</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>select your user initials</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>User Initials:
-
-Select your user initials from the list, so anybody can understand who created this version of the asset...</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="0">
-                  <widget class="QLabel" name="user_label1">
-                   <property name="text">
-                    <string>User</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="0">
-                  <widget class="QLabel" name="subName_label1">
-                   <property name="text">
-                    <string>Sub Name</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QComboBox" name="baseName_comboBox1">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>for shot independent types enter or select a baseName</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>for shot independent types enter or select a baseName</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Base Name:
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0">
+              <widget class="QLabel" name="baseName_label1">
+               <property name="text">
+                <string>Base Name</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QComboBox" name="baseName_comboBox1">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>for shot independent types enter or select a baseName</string>
+               </property>
+               <property name="statusTip">
+                <string>for shot independent types enter or select a baseName</string>
+               </property>
+               <property name="whatsThis">
+                <string>Base Name:
 
 This shows the base name of an asset</string>
-                   </property>
-                   <property name="editable">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="0">
-                  <widget class="QLabel" name="version_label1">
-                   <property name="text">
-                    <string>Version</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="shot_label1">
-                   <property name="text">
-                    <string>Shot</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="0">
-                  <widget class="QLabel" name="note_label1">
-                   <property name="text">
-                    <string>Note</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="0">
-                  <widget class="QLabel" name="revision_label1">
-                   <property name="text">
-                    <string>Revision</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="1">
-                  <widget class="QWidget" name="version_horizontalWidget" native="true">
-                   <layout class="QHBoxLayout" name="version_horizontalLayout">
-                    <property name="margin">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <widget class="QSpinBox" name="version_spinBox">
-                      <property name="minimumSize">
-                       <size>
-                        <width>20</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>it is automatically increased by 1</string>
-                      </property>
-                      <property name="statusTip">
-                       <string>it is automatically increased by 1</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Version Number:
+               </property>
+               <property name="editable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QLabel" name="subName_label1">
+               <property name="text">
+                <string>Sub Name</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="1">
+              <widget class="QComboBox" name="subName_comboBox1">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>if the project supports SubName field, you can enter or select a subName</string>
+               </property>
+               <property name="statusTip">
+                <string>if the project supports SubName field, you can enter or select a subName</string>
+               </property>
+               <property name="whatsThis">
+                <string>Sub Name:
 
-Any incarnation of an asset should be have different version numbers.</string>
-                      </property>
-                      <property name="prefix">
-                       <string/>
-                      </property>
-                      <property name="minimum">
-                       <number>1</number>
-                      </property>
-                      <property name="maximum">
-                       <number>99999999</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="version_pushButton">
-                      <property name="minimumSize">
-                       <size>
-                        <width>150</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>gets the latest version number</string>
-                      </property>
-                      <property name="statusTip">
-                       <string>gets the latest version number</string>
-                      </property>
-                      <property name="text">
-                       <string>Get Latest Version</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item row="4" column="1">
-                  <widget class="QWidget" name="revision_horizontalWidget" native="true">
-                   <layout class="QHBoxLayout" name="revision_horizontalLayout">
-                    <property name="margin">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <widget class="QSpinBox" name="revision_spinBox">
-                      <property name="minimumSize">
-                       <size>
-                        <width>20</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>increase it when the asset needs a revision</string>
-                      </property>
-                      <property name="statusTip">
-                       <string>increase it when the asset needs a revision</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>Revision Number:
+Sub name field is introduced with this new version. Its main purpose is to let the users work on the same shot dependent assets togather. By default the field will be set to MAIN...</string>
+               </property>
+               <property name="editable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="Line" name="line">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="2">
+              <widget class="Line" name="line_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="0">
+              <widget class="QLabel" name="revision_label1">
+               <property name="text">
+                <string>Revision</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="1">
+              <widget class="QWidget" name="revision_horizontalWidget" native="true">
+               <layout class="QHBoxLayout" name="revision_horizontalLayout">
+                <property name="margin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QSpinBox" name="revision_spinBox">
+                  <property name="minimumSize">
+                   <size>
+                    <width>20</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>increase it when the asset needs a revision</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>increase it when the asset needs a revision</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>Revision Number:
 
 Revision numbers represents the milestones in the development of this asset. Generally it is increased when something big is changed in the asset.</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="revision_pushButton">
-                      <property name="minimumSize">
-                       <size>
-                        <width>150</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>gets the latest revision number</string>
-                      </property>
-                      <property name="statusTip">
-                       <string>gets the latest revision number</string>
-                      </property>
-                      <property name="text">
-                       <string>Get Lastest Revision</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QListWidget" name="assets_listWidget1">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>1</horstretch>
-                  <verstretch>1</verstretch>
-                 </sizepolicy>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="revision_pushButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>150</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>gets the latest revision number</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>gets the latest revision number</string>
+                  </property>
+                  <property name="text">
+                   <string>Get Lastest Revision</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="11" column="0">
+              <widget class="QLabel" name="version_label1">
+               <property name="text">
+                <string>Version</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="1">
+              <widget class="QWidget" name="version_horizontalWidget" native="true">
+               <layout class="QHBoxLayout" name="version_horizontalLayout">
+                <property name="margin">
+                 <number>0</number>
                 </property>
-                <property name="toolTip">
-                 <string>Lists all the versions of the current asset</string>
-                </property>
-                <property name="statusTip">
-                 <string>Lists all the versions of the current asset</string>
-                </property>
-                <property name="whatsThis">
-                 <string>Asset List:
+                <item>
+                 <widget class="QSpinBox" name="version_spinBox">
+                  <property name="minimumSize">
+                   <size>
+                    <width>20</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>it is automatically increased by 1</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>it is automatically increased by 1</string>
+                  </property>
+                  <property name="whatsThis">
+                   <string>Version Number:
 
-All versions of the currently selected asset will be listed here...</string>
-                </property>
-                <property name="selectionMode">
-                 <enum>QAbstractItemView::NoSelection</enum>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QWidget" name="saveButtons_horizontalWidget" native="true">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>1</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QHBoxLayout" name="saveCanel_horizontalLayout" stretch="1,1,1">
-                 <item>
-                  <widget class="QPushButton" name="save_button">
-                   <property name="toolTip">
-                    <string>Saves the asset to the server</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>Saves the asset to the server</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Save:
+Any incarnation of an asset should be have different version numbers.</string>
+                  </property>
+                  <property name="prefix">
+                   <string/>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>99999999</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="version_pushButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>150</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>gets the latest version number</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>gets the latest version number</string>
+                  </property>
+                  <property name="text">
+                   <string>Get Latest Version</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="12" column="0">
+              <widget class="QLabel" name="user_label1">
+               <property name="text">
+                <string>User</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="12" column="1">
+              <widget class="QComboBox" name="user_comboBox1">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>select your user initials</string>
+               </property>
+               <property name="statusTip">
+                <string>select your user initials</string>
+               </property>
+               <property name="whatsThis">
+                <string>User Initials:
+
+Select your user initials from the list, so anybody can understand who created this version of the asset...</string>
+               </property>
+              </widget>
+             </item>
+             <item row="13" column="0">
+              <widget class="QLabel" name="note_label1">
+               <property name="text">
+                <string>Note</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="13" column="1">
+              <widget class="QLineEdit" name="note_lineEdit1">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>it is a limited field, try to keep it brief</string>
+               </property>
+               <property name="statusTip">
+                <string>it is a limited field, try to keep it brief</string>
+               </property>
+               <property name="whatsThis">
+                <string>Note:
+
+You can use this field to leave little but important messages here... It is limited with 30 characters...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="saveButtons_horizontalWidget" native="true">
+            <layout class="QHBoxLayout" name="saveCanel_horizontalLayout" stretch="1,1">
+             <item>
+              <widget class="QPushButton" name="save_button">
+               <property name="toolTip">
+                <string>Saves the asset to the server</string>
+               </property>
+               <property name="statusTip">
+                <string>Saves the asset to the server</string>
+               </property>
+               <property name="whatsThis">
+                <string>Save:
 
 Saves the asset to the server</string>
-                   </property>
-                   <property name="text">
-                    <string>Save</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="export_button">
-                   <property name="toolTip">
-                    <string>Exports the Selected items as a new asset</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>Exports the Selected items as a new asset</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Export:
+               </property>
+               <property name="text">
+                <string>Save</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="export_button">
+               <property name="toolTip">
+                <string>Exports the Selected items as a new asset</string>
+               </property>
+               <property name="statusTip">
+                <string>Exports the Selected items as a new asset</string>
+               </property>
+               <property name="whatsThis">
+                <string>Export:
 
 Exports the selected content to the server as an asset</string>
-                   </property>
-                   <property name="text">
-                    <string>Export</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="cancel_button1">
-                   <property name="toolTip">
-                    <string>Quits without doing anything</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>Quits without doing anything</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Cancel:
-
-Just quits the application without doing anything</string>
-                   </property>
-                   <property name="text">
-                    <string>Cancel</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="openAsset_tab">
-          <attribute name="title">
-           <string>Open Asset</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="QWidget" name="openAsset_verticalWidget" native="true">
-             <layout class="QVBoxLayout" name="openAsset_verticalLayout">
-              <item>
-               <widget class="QWidget" name="openAsset_gridWidget" native="true">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>1</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QGridLayout" name="openAsset_gridLayout" columnstretch="0,1">
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="assetType_label2">
-                   <property name="text">
-                    <string>Asset Type</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QComboBox" name="assetType_comboBox2">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>112</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="toolTip">
-                    <string>Select an asset type</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>Select an asset type</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Asset Type:
-
-Assets has types that lets you distinguish their purpose of existance. This comboBox lists the asset types that the sequence and the current host environment (MAYA, NUKE etc.) can support.</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="shot_label2">
-                   <property name="text">
-                    <string>Shot</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QComboBox" name="shot_comboBox2">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>for shot dependent types select a shot number</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>for shot dependent types select a shot number</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Shot:
-
-If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc. ). So, shot and base name comboBoxes are actually showing the base name of the asset, but it lets the user to separate the shot dependent asset types from shot independent types.</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="baseName_label2">
-                   <property name="text">
-                    <string>Base Name</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QComboBox" name="baseName_comboBox2">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>for shot independent types select a baseName</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>for shot independent types select a baseName</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Base Name:
-
-This shows the base name of an asset</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="0">
-                  <widget class="QLabel" name="subName_label2">
-                   <property name="text">
-                    <string>Sub Name</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="1">
-                  <widget class="QComboBox" name="subName_comboBox2">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>select a Sub Name ( for projects that supports it )</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>select a Sub Name ( for projects that supports it )</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Sub Name:
-
-Sub name field is introduced with this new version. Its main purpose is to let the users work on the same shot dependent assets togather. By default the field will be set to MAIN...</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QListWidget" name="assets_listWidget2">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>1</horstretch>
-                  <verstretch>1</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Lists all the versions of the current asset</string>
-                </property>
-                <property name="statusTip">
-                 <string>Lists all the versions of the current asset</string>
-                </property>
-                <property name="whatsThis">
-                 <string>Asset List:
+               </property>
+               <property name="text">
+                <string>Export</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="verticalWidget2" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>0</height>
+          </size>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout2">
+          <item>
+           <widget class="QListWidget" name="assets_listWidget1">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>1</horstretch>
+              <verstretch>1</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Lists all the versions of the current asset</string>
+            </property>
+            <property name="statusTip">
+             <string>Lists all the versions of the current asset</string>
+            </property>
+            <property name="whatsThis">
+             <string>Asset List:
 
 All versions of the currently selected asset will be listed here...</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QWidget" name="openButtons_horizontalWidget" native="true">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>1</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QHBoxLayout" name="openButtons_horizontalLayout" stretch="1,1,1,1">
-                 <item>
-                  <widget class="QPushButton" name="open_button">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>Opens the selected asset</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>Opens the selected asset</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Open:
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="openButtons_horizontalWidget" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <layout class="QHBoxLayout" name="openButtons_horizontalLayout" stretch="1,1,1,1">
+             <item>
+              <widget class="QPushButton" name="open_button">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Opens the selected asset</string>
+               </property>
+               <property name="statusTip">
+                <string>Opens the selected asset</string>
+               </property>
+               <property name="whatsThis">
+                <string>Open:
 
 Opens the current selected asset in the host application</string>
-                   </property>
-                   <property name="text">
-                    <string>Open</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="reference_button">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>References the asset tho the current scene (Maya only)</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>References the asset tho the current scene (Maya only)</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Reference:
+               </property>
+               <property name="text">
+                <string>Open</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="reference_button">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>References the asset tho the current scene (Maya only)</string>
+               </property>
+               <property name="statusTip">
+                <string>References the asset tho the current scene (Maya only)</string>
+               </property>
+               <property name="whatsThis">
+                <string>Reference:
 
 References the asset to the current environment in the host application. For now just MAYA supports referencing, but in near future NUKE will have too...</string>
-                   </property>
-                   <property name="text">
-                    <string>Reference</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="import_button">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>Imports the contents to the current scene</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>Imports the contents to the current scene</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Import:
+               </property>
+               <property name="text">
+                <string>Reference</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="import_button">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Imports the contents to the current scene</string>
+               </property>
+               <property name="statusTip">
+                <string>Imports the contents to the current scene</string>
+               </property>
+               <property name="whatsThis">
+                <string>Import:
 
 Imports the content of the selected asset to the current environment in the host application...</string>
-                   </property>
-                   <property name="text">
-                    <string>Import</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="cancel_button2">
-                   <property name="toolTip">
-                    <string>Quits without doing anything</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>Quits without doing anything</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Cancel:
+               </property>
+               <property name="text">
+                <string>Import</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="cancel_button2">
+               <property name="toolTip">
+                <string>Quits without doing anything</string>
+               </property>
+               <property name="statusTip">
+                <string>Quits without doing anything</string>
+               </property>
+               <property name="whatsThis">
+                <string>Cancel:
 
 Just quits the application without doing anything</string>
-                   </property>
-                   <property name="text">
-                    <string>Cancel</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
-         </widget>
+               </property>
+               <property name="text">
+                <string>Cancel</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -880,7 +691,7 @@ Just quits the application without doing anything</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>398</width>
+     <width>725</width>
      <height>23</height>
     </rect>
    </property>
@@ -948,21 +759,11 @@ Just quits the application without doing anything</string>
   <tabstop>server_comboBox</tabstop>
   <tabstop>project_comboBox</tabstop>
   <tabstop>sequence_comboBox</tabstop>
-  <tabstop>main_tabWidget</tabstop>
-  <tabstop>assetType_comboBox1</tabstop>
-  <tabstop>shot_comboBox1</tabstop>
-  <tabstop>baseName_comboBox1</tabstop>
-  <tabstop>subName_comboBox1</tabstop>
   <tabstop>revision_pushButton</tabstop>
   <tabstop>version_spinBox</tabstop>
   <tabstop>version_pushButton</tabstop>
-  <tabstop>user_comboBox1</tabstop>
-  <tabstop>note_lineEdit1</tabstop>
-  <tabstop>assets_listWidget1</tabstop>
   <tabstop>save_button</tabstop>
   <tabstop>export_button</tabstop>
-  <tabstop>cancel_button1</tabstop>
-  <tabstop>assets_listWidget2</tabstop>
   <tabstop>open_button</tabstop>
   <tabstop>reference_button</tabstop>
   <tabstop>import_button</tabstop>

@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.6.3
+v0.7.0
 
 Description :
 -------------
@@ -150,6 +150,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.7.0
+- reorganized the interface of assetManager to have a more optimized look, and
+  to reduce the code duplication
+
 v0.6.3
 - now baseName and subName fields allow numbers to be used but not at the
   beggining of the string
@@ -437,9 +441,9 @@ TODO List :
 - create appropriate Error classes for errors
 - use a database running in the server to gather quick information about
   the projects, sequences, assets, users etc.
-- reduce the code duplication in MainDialog
 - for environments supporting referencing, check the references for new
   versions while opening the asset
++ reduce the code duplication in MainDialog
 + try to add another type of caching system, which is input dependent, so for
   the same input it should return the same value without evaluating anything
 + add program names attribute to the assetType objects, so they can be
@@ -459,4 +463,4 @@ TODO List :
 
 
 
-__version__ = "0.6.3"
+__version__ = "0.7.0"

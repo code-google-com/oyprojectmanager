@@ -58,7 +58,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         #QtCore.QObject.connect(self.note_lineEdit1, QtCore.SIGNAL("textChanged(QString)"), self.validateNotes )
         
         # close button
-        QtCore.QObject.connect(self.cancel_button1, QtCore.SIGNAL("clicked()"), self.close )
+        #QtCore.QObject.connect(self.cancel_button1, QtCore.SIGNAL("clicked()"), self.close )
         QtCore.QObject.connect(self.cancel_button2, QtCore.SIGNAL("clicked()"), self.close )
         
         # project change ---> update sequence
@@ -76,30 +76,26 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotList )
         
         # type change ---> base and shot enable disable
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotDependentFieldsInSave )
-        QtCore.QObject.connect(self.assetType_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotDependentFieldsInOpen )
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotDependentFields )
         
         # type change ---> fill baseName comboBox
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateBaseNameFieldInSave )
-        QtCore.QObject.connect(self.assetType_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateBaseNameFieldInOpen )
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateBaseNameField )
         
         # shotName or baseName change ---> fill subName comboBox
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameFieldInSave )
-        QtCore.QObject.connect(self.shot_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameFieldInOpen )
-        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameFieldInSave )
-        QtCore.QObject.connect(self.baseName_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameFieldInOpen )
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
+        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
         
         # subName change ---> fill assets_listWidget1
-        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
-        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInSave )
+        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
+        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
         
-        # subName change ---> fill assets_listWidget2 update ( OPEN TAB )
-        QtCore.QObject.connect(self.subName_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
-        QtCore.QObject.connect(self.baseName_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
-        QtCore.QObject.connect(self.shot_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
-        QtCore.QObject.connect(self.assetType_comboBox2, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
+        ## subName change ---> fill assets_listWidget2 update ( OPEN TAB )
+        #QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
+        #QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
+        #QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
+        #QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidgetInOpen )
         
         # get latest revision --> revision
         QtCore.QObject.connect(self.revision_pushButton, QtCore.SIGNAL("clicked()"), self.updateRevisionToLatest )
@@ -217,37 +213,21 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         notes = assetObj.getNotes()
         
         # fill the fields
-        # assetType SAVE
+        # assetType
         element = self.assetType_comboBox1
-        element.setCurrentIndex( element.findText( assetType ) )
-        
-        # assetType OPEN
-        element = self.assetType_comboBox2
         element.setCurrentIndex( element.findText( assetType ) )
         
         # shotNumber and baseName
         if assetObj.isShotDependent():
-            # SAVE
             element = self.shot_comboBox1
             element.setCurrentIndex( element.findText( shotNumber) )
-            # OPEN
-            element = self.shot_comboBox2
-            element.setCurrentIndex( element.findText( shotNumber) )
         else:
-            # SAVE
             element = self.baseName_comboBox1
-            element.setCurrentIndex( element.findText(baseName) )
-            # OPEN
-            element = self.baseName_comboBox2
             element.setCurrentIndex( element.findText(baseName) )
         
         if not currentSequence._noSubNameField: # remove this block when the support for old version becomes obsolute
             # sub Name
-            # SAVE
             element = self.subName_comboBox1
-            element.setCurrentIndex( element.findText(subName) )
-            # OPEN
-            element = self.subName_comboBox2
             element.setCurrentIndex( element.findText(subName) )
         
         # revision
@@ -311,10 +291,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         assetTypeNames = [ assetType.getName() for assetType in assetTypes ]
         
-        # check the current tab
-        currentTab = self.main_tabWidget.currentWidget().objectName()
-        
-        # SAVE ASSET TAB
         # clear and update the comboBoxes
         # try to keep the same item in the list
         lastSelectedItem = self.assetType_comboBox1.currentText()
@@ -324,20 +300,12 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         if lastSelectedItem != "":
             self.assetType_comboBox1.setCurrentIndex( self.assetType_comboBox1.findText( lastSelectedItem ) )
-        
-        # OPEN ASSET TAB
-        lastSelectedItem = self.assetType_comboBox2.currentText()
-        self.assetType_comboBox2.clear()
-        self.assetType_comboBox2.addItems( assetTypeNames )
-        #reselect the last seelected item
-        if lastSelectedItem != "":
-            self.assetType_comboBox2.setCurrentIndex( self.assetType_comboBox2.findText( lastSelectedItem ) )
     
     
     
     #----------------------------------------------------------------------
     def updateShotList(self):
-        """
+        """updates shot list
         """
         
         self._updateSequenceObject()
@@ -349,14 +317,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # clear and update the list
         self.shot_comboBox1.clear()
         self.shot_comboBox1.addItems( shotList )
-        
-        self.shot_comboBox2.clear()
-        self.shot_comboBox2.addItems( shotList )
     
     
     
     #----------------------------------------------------------------------
-    def updateBaseNameFieldInSave(self):
+    def updateBaseNameField(self):
         """updates the baseName fields with current asset baseNames for selected
         type, if the type is not shot dependent
         """
@@ -367,7 +332,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self._updateSequenceObject()
         currentSequence = self._sequence
         
-        currentTypeName = self.getCurrentAssetTypeInSave()
+        currentTypeName = self.getCurrentAssetType()
         
         if currentTypeName == None:
             return
@@ -396,54 +361,12 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         comboBox.addItem("")
         
         # add the list
-        comboBox.addItems( baseNamesList )    
-    
-    
-    
-    #----------------------------------------------------------------------
-    def updateBaseNameFieldInOpen(self):
-        """updates the baseName fields with current asset baseNames for selected
-        type, if the type is not shot dependent
-        """
-        
-        # if the current selected type is not shot dependent
-        # get all the assets of that type and get their baseNames
-        self._updateProjectObject()
-        self._updateSequenceObject()
-        currentProject = self._project
-        currentSequence = self._sequence
-        
-        currentTypeName = self.getCurrentAssetTypeInOpen()
-        
-        if currentTypeName == None:
-            return
-        
-        comboBox = self.baseName_comboBox2
-        
-        currentType = currentSequence.getAssetTypeWithName( currentTypeName )
-        
-        if currentType == None or currentType.isShotDependent():
-            return
-        
-        # get the asset files of that type
-        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
-        # filter for base name
-        currSGFIV = currentSequence.generateFakeInfoVariables
-        baseNamesList = [ currSGFIV(assetFileName)['baseName'] for assetFileName in allAssetFileNames ]
-        
-        # remove duplicates
-        baseNamesList = oyAux.unique( baseNamesList )
-        
-        # add them to the baseName combobox
-        comboBox.clear()
-        
-        # add the list
         comboBox.addItems( baseNamesList )
     
     
     
     #----------------------------------------------------------------------
-    def updateSubNameFieldInSave(self):
+    def updateSubNameField(self):
         """updates the subName fields with current asset subNames for selected
         baseName, if the type is not shot dependent
         """
@@ -457,7 +380,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         if currentSequence._noSubNameField:
             return
         
-        currentAssetTypeName = self.getCurrentAssetTypeInSave()
+        currentAssetTypeName = self.getCurrentAssetType()
         
         assetTypeObj = currentSequence.getAssetTypeWithName( currentAssetTypeName )
         
@@ -465,42 +388,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             return
         
         if assetTypeObj.isShotDependent():
-            currentBaseName = currentSequence.convertToShotString( self.getCurrentShotStringInSave() )
+            currentBaseName = currentSequence.convertToShotString( self.getCurrentShotString() )
         else:
-            currentBaseName = self.getCurrentBaseNameInSave()
+            currentBaseName = self.getCurrentBaseName()
         
         self._updateSubNameField( currentSequence, currentAssetTypeName, currentBaseName, self.subName_comboBox1 )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def updateSubNameFieldInOpen(self):
-        """updates the subName fields with current asset subNames for selected
-        baseName, if the type is not shot dependent
-        """
-        
-        # if the current selected type is not shot dependent
-        # get all the assets of that type and get their baseNames
-        self._updateSequenceObject()
-        currentSequence = self._sequence
-        
-        # if the current sequence doesn't support subName field just return
-        if currentSequence._noSubNameField:
-            return
-        
-        currentAssetTypeName = self.getCurrentAssetTypeInOpen()
-        
-        assetTypeObj = currentSequence.getAssetTypeWithName( currentAssetTypeName )
-        
-        if assetTypeObj == None:
-            return
-        
-        if assetTypeObj.isShotDependent():
-            currentBaseName = currentSequence.convertToShotString( self.getCurrentShotStringInOpen() )
-        else:
-            currentBaseName = self.getCurrentBaseNameInOpen()
-        
-        self._updateSubNameField( currentSequence, currentAssetTypeName, currentBaseName, self.subName_comboBox2 )
     
     
     
@@ -551,28 +443,20 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         currentSequence = self._sequence
         
         # get selected asset type name
-        assetTypeName1 = self.getCurrentAssetTypeInSave()
-        assetTypeName2 = self.getCurrentAssetTypeInOpen()
+        assetTypeName = self.getCurrentAssetType()
         
-        assetType1 = currentSequence.getAssetTypeWithName( assetTypeName1 )
-        assetType2 = currentSequence.getAssetTypeWithName( assetTypeName2 )
+        assetType = currentSequence.getAssetTypeWithName( assetTypeName )
         
-        if assetType1 != None:
+        if assetType != None:
             # enable the shot if the asset type is shot dependent
-            isShotDependent = assetType1.isShotDependent() 
+            isShotDependent = assetType.isShotDependent() 
             self.shot_comboBox1.setEnabled( isShotDependent )
             self.baseName_comboBox1.setEnabled( not isShotDependent )
-        
-        # ----- update OPEN ASSET FIELDS -------
-        if assetType2 != None:
-            isShotDependent = assetType2.isShotDependent()
-            self.shot_comboBox2.setEnabled( isShotDependent )
-            self.baseName_comboBox2.setEnabled( not isShotDependent )
     
     
     
     #----------------------------------------------------------------------
-    def updateShotDependentFieldsInSave(self):
+    def updateShotDependentFields(self):
         """updates shot dependent fields like the shotList and baseName
         """
         
@@ -580,7 +464,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         currentSequence = self._sequence
         
         # get selected asset type name
-        assetTypeName = self.getCurrentAssetTypeInSave()
+        assetTypeName = self.getCurrentAssetType()
         
         assetType = currentSequence.getAssetTypeWithName( assetTypeName )
         
@@ -594,31 +478,60 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     
-    #----------------------------------------------------------------------
-    def updateShotDependentFieldsInOpen(self):
-        """updates shot dependent fields like the shotList and baseName
-        """
+    ##----------------------------------------------------------------------
+    #def updateAssetsListWidgetInOpen(self):
+        #"""fills the assets listWidget with assets
+        #"""
         
-        self._updateSequenceObject()
-        currentSequence = self._sequence
+        #self._updateProjectObject()
+        #self._updateSequenceObject()
         
-        # get selected asset type name
-        assetTypeName = self.getCurrentAssetTypeInOpen()
+        #currentProject = self._project
+        #currentSequence = self._sequence
         
-        assetType = currentSequence.getAssetTypeWithName( assetTypeName )
+        #typeName = self.getCurrentAssetType()
         
-        if assetType == None:
-            return
+        #if typeName == '' or typeName == None:
+            #return
         
-        # enable the shot if the asset type is shot dependent
-        isShotDependent = assetType.isShotDependent() 
-        self.shot_comboBox2.setEnabled( isShotDependent )
-        self.baseName_comboBox2.setEnabled( not isShotDependent )
+        ## if the type is shot dependent get the shot number
+        ## if it is not use the baseName
+        #if currentSequence.getAssetTypeWithName( typeName ).isShotDependent():
+            #baseName = currentSequence.convertToShotString( self.getCurrentShotString() )
+        #else:
+            #baseName = self.getCurrentBaseName()
+        
+        
+        #if not currentSequence.noSubNameField():
+            #subName = self.getCurrentSubName()
+        #else:
+            #subName = ''
+        
+        ## construct the dictionary
+        #assetInfo = dict()
+        #assetInfo['baseName'] = baseName
+        #assetInfo['subName' ] = subName
+        #assetInfo['typeName'] = typeName
+        
+        ## get all asset files of that type
+        #allAssetFileNames = currentSequence.getAllAssetFileNamesForType( typeName )
+        ## filter for assetInfo
+        #allAssetFileNamesFiltered = currentSequence.filterAssetNames( allAssetFileNames, **assetInfo ) 
+        
+        ## get the fileNames
+        #currSGFIV = currentSequence.generateFakeInfoVariables
+        #allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
+        
+        ## append them to the asset list view
+        #self.assets_listWidget2.clear()
+        
+        #if len(allVersionsList) > 0:
+            #self.assets_listWidget2.addItems( sorted(allVersionsList) )
     
     
     
     #----------------------------------------------------------------------
-    def updateAssetsListWidgetInOpen(self):
+    def updateAssetsListWidget(self):
         """fills the assets listWidget with assets
         """
         
@@ -628,7 +541,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         currentProject = self._project
         currentSequence = self._sequence
         
-        typeName = self.getCurrentAssetTypeInOpen()
+        typeName = self.getCurrentAssetType()
         
         if typeName == '' or typeName == None:
             return
@@ -636,65 +549,13 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # if the type is shot dependent get the shot number
         # if it is not use the baseName
         if currentSequence.getAssetTypeWithName( typeName ).isShotDependent():
-            baseName = currentSequence.convertToShotString( self.getCurrentShotStringInOpen() )
+            baseName = currentSequence.convertToShotString( self.getCurrentShotString() )
         else:
-            baseName = self.getCurrentBaseNameInOpen()
+            baseName = self.getCurrentBaseName()
         
         
         if not currentSequence.noSubNameField():
-            subName = self.getCurrentSubNameInOpen()
-        else:
-            subName = ''
-        
-        # construct the dictionary
-        assetInfo = dict()
-        assetInfo['baseName'] = baseName
-        assetInfo['subName' ] = subName
-        assetInfo['typeName'] = typeName
-        
-        # get all asset files of that type
-        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( typeName )
-        # filter for assetInfo
-        allAssetFileNamesFiltered = currentSequence.filterAssetNames( allAssetFileNames, **assetInfo ) 
-        
-        # get the fileNames
-        currSGFIV = currentSequence.generateFakeInfoVariables
-        allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
-        
-        # append them to the asset list view
-        self.assets_listWidget2.clear()
-        
-        if len(allVersionsList) > 0:
-            self.assets_listWidget2.addItems( sorted(allVersionsList) )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def updateAssetsListWidgetInSave(self):
-        """fills the assets listWidget with assets
-        """
-        
-        self._updateProjectObject()
-        self._updateSequenceObject()
-        
-        currentProject = self._project
-        currentSequence = self._sequence
-        
-        typeName = self.getCurrentAssetTypeInSave()
-        
-        if typeName == '' or typeName == None:
-            return
-        
-        # if the type is shot dependent get the shot number
-        # if it is not use the baseName
-        if currentSequence.getAssetTypeWithName( typeName ).isShotDependent():
-            baseName = currentSequence.convertToShotString( self.getCurrentShotStringInSave() )
-        else:
-            baseName = self.getCurrentBaseNameInSave()
-        
-        
-        if not currentSequence.noSubNameField():
-            subName = self.getCurrentSubNameInSave()
+            subName = self.getCurrentSubName()
         else:
             subName = ''
         
@@ -736,17 +597,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     
-    ##----------------------------------------------------------------------
-    #def getCurrentAssetType(self):
-        #"""returns the current assetType from the UI
-        #"""
-        
-        #return unicode( self.assetType_comboBox1.currentText() ), unicode( self.assetType_comboBox2.currentText() )
-    
-    
-    
     #----------------------------------------------------------------------
-    def getCurrentAssetTypeInSave(self):
+    def getCurrentAssetType(self):
         """returns the current assetType from the UI
         """
         return unicode( self.assetType_comboBox1.currentText() )
@@ -754,15 +606,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def getCurrentAssetTypeInOpen(self):
-        """returns the current assetType from the UI
-        """
-        return unicode( self.assetType_comboBox2.currentText() )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getCurrentShotStringInSave(self):
+    def getCurrentShotString(self):
         """returns the current shot string from the UI
         """
         return unicode( self.shot_comboBox1.currentText() )
@@ -770,15 +614,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def getCurrentShotStringInOpen(self):
-        """returns the current shot string from the UI
-        """
-        return unicode( self.shot_comboBox2.currentText() )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getCurrentBaseNameInSave(self):
+    def getCurrentBaseName(self):
         """returns the current baseName from the UI
         """
         return unicode( self.baseName_comboBox1.currentText() )
@@ -786,26 +622,10 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def getCurrentBaseNameInOpen(self):
-        """returns the current baseName from the UI
-        """
-        return unicode( self.baseName_comboBox2.currentText() )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getCurrentSubNameInSave(self):
+    def getCurrentSubName(self):
         """returns the current subName from the UI
         """
         return unicode( self.subName_comboBox1.currentText() )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getCurrentSubNameInOpen(self):
-        """returns the current subName from the UI
-        """
-        return unicode( self.subName_comboBox2.currentText() )
     
     
     
@@ -927,7 +747,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         assetObj = assetModel.Asset( self._project, self._sequence )
         
         # gather information
-        typeName = self.getCurrentAssetTypeInSave()
+        typeName = self.getCurrentAssetType()
         
         assetTypeObj = self._sequence.getAssetTypeWithName(typeName)
         
@@ -936,11 +756,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         isShotDependent = assetTypeObj.isShotDependent()
         if isShotDependent:
-            baseName = self._sequence.convertToShotString( self.getCurrentShotStringInSave() )
+            baseName = self._sequence.convertToShotString( self.getCurrentShotString() )
         else:
-            baseName = self.getCurrentBaseNameInSave()
+            baseName = self.getCurrentBaseName()
         
-        subName = self.getCurrentSubNameInSave()
+        subName = self.getCurrentSubName()
         rev = self.getCurrentRevNumber()
         ver = self.getCurrentVerNumber()
         userInitials = self.getCurrentUserInitials()
@@ -961,12 +781,13 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         return assetObj
     
     
+    
     #----------------------------------------------------------------------
     def getAssetObjectFromOpenFields(self):
         """retriewes the file name from the open asset fields
         """
         
-        assetFileName = self.assets_listWidget2.currentItem().text()
+        assetFileName = self.assets_listWidget1.currentItem().text()
         
         assetObject = assetModel.Asset( self._project, self._sequence, assetFileName )
         
@@ -1025,7 +846,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         currentSequence = self._sequence
         
         self.subName_comboBox1.setEnabled(not currentSequence._noSubNameField)
-        self.subName_comboBox2.setEnabled(not currentSequence._noSubNameField)
     
     
     
