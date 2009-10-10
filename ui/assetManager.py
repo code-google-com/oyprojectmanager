@@ -235,16 +235,20 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             element.setCurrentIndex( element.findText( shotNumber) )
         else:
             # SAVE
-            self.baseName_comboBox1.setCurrentIndex( self.baseName_comboBox1.findText(baseName) )
+            element = self.baseName_comboBox1
+            element.setCurrentIndex( element.findText(baseName) )
             # OPEN
-            self.baseName_comboBox2.setCurrentIndex( self.baseName_comboBox1.findText(baseName) )
+            element = self.baseName_comboBox2
+            element.setCurrentIndex( element.findText(baseName) )
         
         if not currentSequence._noSubNameField: # remove this block when the support for old version becomes obsolute
             # sub Name
             # SAVE
-            self.subName_comboBox1.setCurrentIndex( self.subName_comboBox1.findText(subName) )
+            element = self.subName_comboBox1
+            element.setCurrentIndex( element.findText(subName) )
             # OPEN
-            self.subName_comboBox2.setCurrentIndex( self.subName_comboBox1.findText(subName) )
+            element = self.subName_comboBox2
+            element.setCurrentIndex( element.findText(subName) )
         
         # revision
         self.revision_spinBox.setValue( revNumber )
