@@ -340,7 +340,7 @@ class Project(object):
         else:
             self._database = databaseObj
         
-        self._name = oyAux.file_name_conditioner( projectName )
+        self._name = oyAux.stringConditioner( projectName, False, True, False, True, True, False )
         self._path = ''
         self._fullPath = ''
         
@@ -494,7 +494,8 @@ class Sequence(object):
         self._parentProject = project
         self._database = self._parentProject.getDatabase()
         
-        self._name = oyAux.file_name_conditioner( sequenceName )
+        self._name = oyAux.stringConditioner( sequenceName, False, True, False, True, True, False )
+        
         self._path = self._parentProject.getFullPath()
         self._fullPath = os.path.join( self._path, self._name )
         

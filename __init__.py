@@ -153,6 +153,10 @@ Version History :
 v0.7.0
 - reorganized the interface of assetManager to have a more optimized look, and
   to reduce the code duplication
+- Project and Sequence objects are now conditioned so they can not have numbers
+  at the begining of their names
+- Updated the projectManager ui so no numbers are allowed at the begining of
+  the project and sequence names
 
 v0.6.3
 - now baseName and subName fields allow numbers to be used but not at the

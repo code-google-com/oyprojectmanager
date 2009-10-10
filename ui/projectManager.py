@@ -94,8 +94,11 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
     def checkProjectName(self):
         """checks the project lineEdit1
         """
+        
         text = unicode( self.project_lineEdit1.text() )
-        text = oyAux.file_name_conditioner( text )
+        #text = oyAux.file_name_conditioner( text )
+        text = oyAux.stringConditioner( text, False, True, False, True, True, False )
+        
         self.project_lineEdit1.setText( text )
     
     
@@ -105,7 +108,9 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         """checks the sequence lineEdit2
         """
         text = unicode( self.sequence_lineEdit2.text() )
-        text = oyAux.file_name_conditioner( text )
+        #text = oyAux.file_name_conditioner( text )
+        text = oyAux.stringConditioner( text, False, True, False, True, True, False )
+        
         self.sequence_lineEdit2.setText( text )
     
     
