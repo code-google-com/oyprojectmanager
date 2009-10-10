@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.6.2
+v0.6.3
 
 Description :
 -------------
@@ -150,6 +150,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.6.3
+- now the baseName allows numbers to be used but not at the beggining of the
+  string
+- 
+
 v0.6.2
 - baseName is now capitalized after validation
 - fixed _validateRevString and _validateVerString in Asset class
@@ -453,4 +458,4 @@ TODO List :
 
 
 
-__version__ = "0.6.2"
+__version__ = "0.6.3"
