@@ -803,7 +803,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         #assert(isinstance(self._project,Project))
         
-        if self._project == None or (self._project.getName() != currentProjectName and (currentProjectName != "" or currentProjectName != None ) ):
+        if self._project == None or self._project.getName() != currentProjectName or (currentProjectName != "" or currentProjectName != None ):
             self._project = projectModel.Project( currentProjectName )
     
     
