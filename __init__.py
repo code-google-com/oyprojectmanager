@@ -1,7 +1,7 @@
 """
 oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
 
-v0.7.0
+v0.7.1
 
 Description :
 -------------
@@ -150,6 +150,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.7.1
+- InputBasedCachedMethod now supports methods with both arguments and keyword
+  arguments
+
 v0.7.0
 - reorganized the interface of assetManager to have a more optimized look, and
   to reduce the code duplication
@@ -467,4 +471,4 @@ TODO List :
 
 
 
-__version__ = "0.7.0"
+__version__ = "0.7.1"

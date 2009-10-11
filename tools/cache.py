@@ -98,10 +98,10 @@ class InputBasedCachedMethod(object):
         #print "running __get__ in InputBasedCachedMethod"
         
         self._obj = inst
-        if not hasattr( self._obj, self._name + "._dataList" ):
+        if not hasattr( self._obj, self._name + "._outputData" ):
             #print "creating the data"
-            setattr ( self._obj, self._name + "._dataList", list() )
-            setattr ( self._obj, self._name + "._inputList", list() )
+            setattr ( self._obj, self._name + "._outputData", list() )
+            setattr ( self._obj, self._name + "._inputData", list() )
             #print "finished creating data"
         
         return self
@@ -109,26 +109,31 @@ class InputBasedCachedMethod(object):
     
     
     #----------------------------------------------------------------------
-    def __call__(self, *args):
+    def __call__(self, *args, **keys):
         """for now it uses only one argument
         """
         #print "running __call__ in InputBasedCachedMethod"
         
-        dataList  = getattr( self._obj, self._name + "._dataList" )
-        inputList = getattr( self._obj, self._name + "._inputList" )
+        outputData = getattr( self._obj, self._name + "._outputData" )
+        inputData = getattr( self._obj, self._name + "._inputData" )
         
-        if (not args in inputList) or dataList == None:
+        # combine args and keys
+        argsKeysCombined = list()
+        argsKeysCombined.append( args )
+        argsKeysCombined.append( keys )
+        
+        if (not argsKeysCombined in inputData) or outputData == None:
             #print "calculating new data"
-            data = self._method(self._obj, *args)
-            inputList.append( args )
-            dataList.append( data )
-            setattr( self._obj, self._name + "._inputList", inputList )
-            setattr( self._obj, self._name + "._dataList", dataList )
+            data = self._method(self._obj, *args, **keys)
+            inputData.append( argsKeysCombined )
+            outputData.append( data )
+            setattr( self._obj, self._name + "._inputdata", inputData )
+            setattr( self._obj, self._name + "._outputData", outputData )
             
             return data
         else:
             #print "returning cached data"
-            return dataList[ inputList.index( args ) ]
+            return outputData[ inputData.index( argsKeysCombined ) ]
     
     
     
