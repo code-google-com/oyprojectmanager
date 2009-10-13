@@ -294,7 +294,7 @@ class Asset(object):
         parts.append( self._verString )
         parts.append( self._userInitials )
         
-        # if there is no note don't add any self._dataSeparator
+        # check if there is a note
         if self._notes != None and self._notes != '':
             parts.append( self._notes )
         

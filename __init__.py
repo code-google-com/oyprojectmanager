@@ -8,7 +8,7 @@ Description :
 The oyProjectManager is created to manage our animation studios own projects,
 within a predefined project structure. It is also a simple asset management
 system. The main purpose of this system is to create projects, sequences and
-to prevent users to save their files in correct folders with correct names. So
+to allow users to save their files in correct folders with correct names. So
 anyone can find their files by using this system. But again it is not a
 complete Project Asset Management System.
 
@@ -28,6 +28,9 @@ in to same folders, in a predifined folder structure. So this project manager
 creates the folder structure and the file name whenever a user uses this code
 while saving its asset.
 
+Another advantage of oyProjectManager is, it gives a framework to the project
+manager, to edit all the project and sequences with very simple Python scripts.
+
 
 
 Definitions :
@@ -45,10 +48,10 @@ Sequence : A sequence is a structure of child folders. All of these child
            project has a modified copy of this XML file.
            
            So, while one project can have an animation folder for animations,
-           another can choose not to have one. So while working for a project
-           the creator of the project can freely decide the structure of the
-           new project. This was one of the missing properties in the previous
-           systems.
+           another can choose not to have one or can change the name. So while
+           working for a project the creator of the project can freely decide
+           the structure of the new project. This was one of the missing
+           properties in the previous systems.
            
            Most of the child folders are for assets. So some specific types
            of assets are placed under the folders for those asset types.
@@ -58,9 +61,9 @@ Asset    : Assets are any files those the users have created. They have
            Generally these information called the Metadata.
            
            In our current system, the metadata is saved in the file name. So
-           the file system is used as a database.
+           the file system is used as the source of data.
            
-           When the users wants to save their files, the system automatically
+           When the users want to save their files, the system automatically
            decides the file name and the placement of the file, by trying to
            get the minimum amount of information from the user.
            
@@ -82,7 +85,7 @@ BaseName     : The base name that specifies the asset, for shot dependent asset
                types it is the ShotString ( e.g. SH010 ), for shot independent
                assets it is user dependent
 
-SubName      : For assets that doesn't have an subName it is MAIN, for other
+SubName      : For assets that doesn't have a subName it is MAIN, for other
                assets it is user dependent
 
 TypeName     : The asset types are defined in the sequence settings, and the
@@ -142,7 +145,7 @@ Command Line Options :
 -p, --path           the path of the current asset, it helps getting some of
                      the information
 
--u, --userInterface  displays the user interface (needs PyQt4 to be installed)
+-u, --userInterface  displays the user interface (needs PyQt4)
 
 -v, --version        displays version information
 
@@ -447,8 +450,6 @@ TODO List :
 - keep track of the project timings, progress of the project, with another
   module
 - create appropriate Error classes for errors
-- use a database running in the server to gather quick information about
-  the projects, sequences, assets, users etc.
 - for environments supporting referencing, check the references for new
   versions while opening the asset
 + reduce the code duplication in MainDialog
