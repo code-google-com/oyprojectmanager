@@ -28,14 +28,16 @@ def UI():
 
 ########################################################################
 class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
-    """the main dialog of the system
+    """the main window of the system
     """
     
     
     
     #----------------------------------------------------------------------
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        #super(MainWindow).__init__(self)
+        QtGui.QMainWindow.__init__(self)
+        #QtGui.QDialog.__init__(self)
         self.setupUi(self)
         
         # change the window title

@@ -1,5 +1,5 @@
 """
-oyProjectManager.py by Erkan Ozgur Yilmaz (c) 2009
+oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
 v0.7.1
 
@@ -156,6 +156,8 @@ Version History :
 v0.7.1
 - InputBasedCachedMethod now supports methods with both arguments and keyword
   arguments
+- fixed assetManager_UI and projectManager_UI was using __init__ from QDialog
+  instead of QMainWindow
 
 v0.7.0
 - reorganized the interface of assetManager to have a more optimized look, and
