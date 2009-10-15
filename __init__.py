@@ -158,6 +158,7 @@ v0.7.1
   arguments
 - fixed assetManager_UI and projectManager_UI was using __init__ from QDialog
   instead of QMainWindow
+- added printing of the info of the operation while saving an asset
 
 v0.7.0
 - reorganized the interface of assetManager to have a more optimized look, and

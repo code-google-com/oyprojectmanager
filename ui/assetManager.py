@@ -996,6 +996,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 # set the last user variable
                 self._db.setLastUser( assetObject.getUserInitials() )
                 
+                #print info
+                self.printInfo( assetObject,  "saved" )
                 self.close()
     
     
@@ -1143,3 +1145,14 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             answer = QtGui.QMessageBox.question(self, 'File Error', assetObject.getFullPath() + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
     
     
+    
+    #----------------------------------------------------------------------
+    def printInfo(self, assetObject, actionName):
+        """prints info about action
+        """
+        
+        print "-----------------------------------"
+        print "AssetManager " + __version__
+        print assetObject.getFileName()
+        print actionName + " succesfully"
+        
