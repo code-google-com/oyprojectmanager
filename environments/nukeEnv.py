@@ -67,7 +67,7 @@ def getPathVariables():
     if fullPath != None and fullPath != '':
         # for winodws replace the path seperator
         if os.name == 'nt':
-            fullPath.replace('/','\\')
+            fullPath = fullPath.replace('/','\\')
         
         print "getting the path from the file name"
         fileName = os.path.basename( fullPath )
@@ -83,7 +83,7 @@ def getPathVariables():
         
         # for winodws replace the path seperator
         if os.name == 'nt':
-            fullPath.replace('/','\\')
+            fullPath = fullPath.replace('/','\\')
         
         fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
