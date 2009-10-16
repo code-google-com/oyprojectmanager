@@ -69,15 +69,10 @@ def getPathVariables():
         if os.name == 'nt':
             fullPath = fullPath.replace('/','\\')
         
-        print "getting the path from the file name"
         fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
-        print "fullPath : ", fullPath
-        print "fileName : ", fileName
-        print "path     : ", path
     else:
         
-        print "getting the path from the recent file list"
         # use the last file from the recent file list
         fullPath = nuke.recentFile(1)
         
@@ -88,11 +83,6 @@ def getPathVariables():
         fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
         
-        print "fullPath : ", fullPath
-        print "fileName : ", fileName
-        print "path     : ", path
-    
-    
     return fileName, path
 
 

@@ -154,7 +154,9 @@ Command Line Options :
 Version History :
 -----------------
 v0.7.2
-- trying to investigate why nuke sometimes fails to get file name under windows
+- fixed nuke file path problem under windows, while querying the file name and
+  recent file list, nuke was sending the path with wrong path seperator, it is
+  now replaced with correct path seperator
 
 v0.7.1
 - InputBasedCachedMethod now supports methods with both arguments and keyword
