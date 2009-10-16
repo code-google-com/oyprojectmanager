@@ -62,11 +62,13 @@ def getPathVariables():
     """gets the file name from nuke
     """
     fullPath = path = fileName = None
-    
-    
     fullPath = nuke.toNode("root").name()
     
     if fullPath != None and fullPath != '':
+        # for winodws replace the path seperator
+        if os.name == 'nt':
+            fullPath.replace('/','\\')
+        
         print "getting the path from the file name"
         fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
@@ -79,13 +81,17 @@ def getPathVariables():
         # use the last file from the recent file list
         fullPath = nuke.recentFile(1)
         
+        # for winodws replace the path seperator
+        if os.name == 'nt':
+            fullPath.replace('/','\\')
+        
         fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
         
         print "fullPath : ", fullPath
         print "fileName : ", fileName
         print "path     : ", path
-
+    
     
     return fileName, path
 
