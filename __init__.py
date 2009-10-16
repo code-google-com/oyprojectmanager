@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v0.7.1
+v0.7.2
 
 Description :
 -------------
@@ -153,6 +153,9 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.7.2
+- trying to investigate why nuke sometimes fails to get file name under windows
+
 v0.7.1
 - InputBasedCachedMethod now supports methods with both arguments and keyword
   arguments
@@ -475,4 +478,4 @@ TODO List :
 
 
 
-__version__ = "0.7.1"
+__version__ = "0.7.2"

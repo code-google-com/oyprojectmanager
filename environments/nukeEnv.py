@@ -67,20 +67,25 @@ def getPathVariables():
     fullPath = nuke.toNode("root").name()
     
     if fullPath != None and fullPath != '':
+        print "getting the path from the file name"
         fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
+        print "fullPath : ", fullPath
+        print "fileName : ", fileName
+        print "path     : ", path
     else:
+        
+        print "getting the path from the recent file list"
         # use the last file from the recent file list
         fullPath = nuke.recentFile(1)
         
         fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
-    
-    ## if the environment is Windows replace / with \
-    #if os.name == 'nt':
-        #myDict = dict()
-        #myDict[u'/'] = u'\\'
-        #path = oyAux.multiple_replace( path, myDict)
+        
+        print "fullPath : ", fullPath
+        print "fileName : ", fileName
+        print "path     : ", path
+
     
     return fileName, path
 
@@ -101,7 +106,7 @@ def getPathVariables():
     #myDict = dict()
     #myDict[u'\\'] = u'/'
     
-    #rootName = oyAux.multiple_replace( rootName, myDict ) 
+    #rootName = rootName.prelace('\\','/') 
     
     #rootNode.setName( rootName )
     
