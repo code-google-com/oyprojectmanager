@@ -128,6 +128,38 @@ class Database(object):
     
     
     #----------------------------------------------------------------------
+    @cache.CachedMethod
+    def getVaildProjects(self):
+        """returns the projectNames only if they are valid projects.
+        A project is only valid if there are some valid sequences under it
+        """
+        
+        # get all projects and filter them
+        
+        self.updateProjectList()
+        
+        validProjectList = [] * 0
+        
+        for projName in self._projects:
+            
+            # get sequences of that project
+            projObj = Project(projName)
+            
+            seqList = projObj.getSequences()
+            
+            for seq in seqList:
+                
+                #assert(isinstance(seq, Sequence))
+                if seq.isValid():
+                    # it has at least one valid sequence
+                    validProjectList.append( projName )
+                    break
+        
+        return validProjectList
+    
+    
+    
+    #----------------------------------------------------------------------
     def getUsers(self):
         """returns users as a list of User objects
         """
@@ -502,6 +534,7 @@ class Sequence(object):
         self._settingsFile = ".settings.xml"
         self._settingsFilePath = self._fullPath
         self._settingsFileFullPath = os.path.join( self._settingsFilePath, self._settingsFile )
+        self._settingsFileExists = False
         
         self._structure = Structure()
         self._assetTypes = [ assetModel.AssetType() ] * 0
@@ -537,6 +570,7 @@ class Sequence(object):
             # the data (just shot list) from the folders
             return
         else:
+            self._settingsFileExists = True
             self._exists = True
         
         settingsAsXML = minidom.parse( self._settingsFileFullPath )
@@ -766,6 +800,7 @@ class Sequence(object):
         finally:
             settingsXML.writexml( settingsFile, "\t", "\t", "\n" )
             settingsFile.close()
+            self._settingsFileExists = True
     
     
     
@@ -1547,6 +1582,21 @@ class Sequence(object):
             return False
         
         return True
+    
+    
+    #----------------------------------------------------------------------
+    def isValid(self):
+        """checks if the sequence is valid
+        """
+        
+        # a valid should:
+        # - be exist
+        # - have a .settings.xml file inside it
+        
+        if self._exists and self._settingsFileExists:
+            return True
+        
+        return False
     
     
     

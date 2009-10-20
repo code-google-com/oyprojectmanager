@@ -245,7 +245,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         serverPath = self._db.getServerPath()
         
-        projectsList = self._db.getProjects()
+        #projectsList = self._db.getProjects()
+        projectsList = self._db.getVaildProjects()
         projectsList.sort()
         
         self.server_comboBox.clear()

@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v0.7.2
+v0.7.3
 
 Description :
 -------------
@@ -153,6 +153,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.7.3
+- added isValid to Sequence to check if the sequence is valid
+- added getValidProjects to Database to get valid projects only
+- the assetManager UI now only lists valid projects
+
 v0.7.2
 - fixed nuke file path problem under windows, while querying the file name and
   recent file list, nuke was sending the path with wrong path seperator, it is
@@ -480,4 +485,4 @@ TODO List :
 
 
 
-__version__ = "0.7.2"
+__version__ = "0.7.3"
