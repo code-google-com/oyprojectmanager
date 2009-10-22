@@ -153,10 +153,21 @@ Command Line Options :
 
 Version History :
 -----------------
-v0.7.3
-- added isValid to Sequence to check if the sequence is valid
-- added getValidProjects to Database to get valid projects only
+v0.7.5
+- added isValid method to Sequence class to check if the sequence is valid
+- added getValidProjects method to Database class to get valid projects only
+  (valid projects are the projects that has at least one valid sequence, and a
+  valid sequence is the sequence that exists and has a .settings.xml file)
 - the assetManager UI now only lists valid projects
+- added the Singleton class
+- the Database class is now derived from Singleton class
+- to fix the update problem in the projectManager the cache in Database classes
+  getProject method has been removed
+- the assetManager now replaces the user initials with the first in the list if
+  Database.getLastUser method returns None, thus no last user record has been
+  found
+- the baseName and subName fields are now have sorted data
+- the Database.getUserInitials now returns a sorted user initials list
 
 v0.7.2
 - fixed nuke file path problem under windows, while querying the file name and

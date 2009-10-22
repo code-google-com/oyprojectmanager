@@ -6,8 +6,27 @@ import assetModel, userModel
 
 
 
+
+
+
+#######################################################################
+class Singleton(object):
+    _instance = None
+    
+    #----------------------------------------------------------------------
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
+            
+        return cls._instance
+
+
+
+
+
+
 ########################################################################
-class Database(object):
+class Database(Singleton):
     """Database class gives informations about the servers, projects, users etc.
     """
     
@@ -118,7 +137,7 @@ class Database(object):
     
     
     #----------------------------------------------------------------------
-    @cache.CachedMethod
+    #@cache.CachedMethod
     def getProjects(self):
         """returns projects names as a list
         """
@@ -188,7 +207,7 @@ class Database(object):
             #assert(isinstance(user,User))
             initials.append( user.getInitials() )
         
-        return initials
+        return sorted(initials)
     
     
     

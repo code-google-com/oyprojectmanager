@@ -37,7 +37,6 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
     def __init__(self):
         #super(MainWindow).__init__(self)
         QtGui.QMainWindow.__init__(self)
-        #QtGui.QDialog.__init__(self)
         self.setupUi(self)
         
         # change the window title
@@ -195,7 +194,6 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
     def updateProjectLists(self):
         """updates the project comboBoxes
         """
-        
         projects = self.db.getProjects()
         sortedProjects = sorted( projects )
         

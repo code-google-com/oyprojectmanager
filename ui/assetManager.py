@@ -35,7 +35,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     #----------------------------------------------------------------------
     def __init__(self, environment=None, fileName=None, path=None):
-        QtGui.QDialog.__init__(self)
+        QtGui.QMainWindow.__init__(self)
         self.setupUi(self)
         
         # change the window title
@@ -156,9 +156,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # update the user with the last selected user
         lastUser = self._db.getLastUser()
         
+        userIndex = -1
         if lastUser != '' and lastUser != None:
             userIndex = self.user_comboBox1.findText(lastUser) 
-        else:
+        
+        if userIndex == -1:
             userIndex = 0
         
         self.user_comboBox1.setCurrentIndex( userIndex )
@@ -358,7 +360,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         comboBox.addItem("")
         
         # add the list
-        comboBox.addItems( baseNamesList )
+        comboBox.addItems( sorted(baseNamesList) )
     
     
     
@@ -427,7 +429,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # do not add an item for new items, the default should be MAIN
         # add the list
-        comboBox.addItems( subNamesList )
+        comboBox.addItems( sorted(subNamesList) )
     
     
     
@@ -865,12 +867,14 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         if self.environment == 'MAYA':
             from oyProjectManager.environments import mayaEnv
-            self.fileName, self.path = mayaEnv.getPathVariables()
+            env = mayaEnv
         elif self.environment == 'NUKE':
             from oyProjectManager.environments import nukeEnv
-            self.fileName, self.path = nukeEnv.getPathVariables()
+            env = nukeEnv
         
-        if self.environment != None:
+        if self.environment != None and self.environment != '':
+            self.fileName, self.path = env.getPathVariables()
+            
             # update the interface
             self.fillFieldsFromFileInfo()
     
