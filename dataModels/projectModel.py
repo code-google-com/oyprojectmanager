@@ -1736,13 +1736,13 @@ class Structure(object):
     
     
     
-    _shotDependentFolders = [] * 0
-    _shotIndependentFolders = [] * 0
+    _shotDependentFolders = list()
+    _shotIndependentFolders = list()
     
     
     
     #----------------------------------------------------------------------
-    def __init__(self, shotDependentFolders=None, shotIndependentFolders=None, outputFolders=None):
+    def __init__(self, shotDependentFolders=list(), shotIndependentFolders=list(), outputFolders=list()):
         self._shotDependentFolders = shotDependentFolders # should be a list of str or unicode
         self._shotIndependentFolders = shotIndependentFolders # should be a list of str or unicode
         self._outputFolders = outputFolders # should be a list of tuples
@@ -1877,4 +1877,3 @@ class Structure(object):
         """
         
         self._shotIndependentFolders.remove( folderPath )
-    
