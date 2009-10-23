@@ -1792,9 +1792,9 @@ class Structure(object):
         
         folderPath should be relative to sequence root
         """
-        
-        self._shotDependentFolders.append( folderPath )
-        self._shotDependentFolders = sorted( self._shotDependentFolders )
+        if folderPath not in self._shotDependentFolders:
+            self._shotDependentFolders.append( folderPath )
+            self._shotDependentFolders = sorted( self._shotDependentFolders )
     
     
     
@@ -1805,8 +1805,9 @@ class Structure(object):
         folderPath should be relative to sequence root
         """
         
-        self._shotIndependentFolders.append( folderPath )
-        self._shotIndependentFolders = sorted( self._shotIndependentFolders )
+        if folderPath not in self._shotIndependentFolders:
+            self._shotIndependentFolders.append( folderPath )
+            self._shotIndependentFolders = sorted( self._shotIndependentFolders )
     
     
     
@@ -1877,3 +1878,25 @@ class Structure(object):
         """
         
         self._shotIndependentFolders.remove( folderPath )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def fixPathIssues(self):
+        """fixes path issues in the folder data variables
+        """
+        
+        # replaces "\" with "/"
+        for i,folder in enumerate(self._shotDependentFolders):
+            self._shotDependentFolders[i] = folder.replace('\\','/')
+        
+        for i,folder in enumerate(self._shotIndependentFolders):
+            self._shotIndependentFolders[i] = folder.replace('\\','/')
+        
+        for i,folderTuple in enumerate(self._outputFolders):
+            self._outputFolders[i] = ( folderTuple[0], folderTuple[1].replace('\\','/') )
+        
+        # remove any duplicates
+        self._shotDependentFolders = sorted(oyAux.unique( self._shotDependentFolders ))
+        self._shotIndependentFolders = sorted(oyAux.unique( self._shotIndependentFolders ))
+        
