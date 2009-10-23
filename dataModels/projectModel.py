@@ -671,7 +671,8 @@ class Sequence(object):
         outputFoldersNode = structureNode.getElementsByTagName('outputFolders')[0]
         outputNodes = outputFoldersNode.getElementsByTagName('output')
         
-        
+        # clear the data
+        self._structure._outputFolders = list()
         for outputNode in outputNodes:
             #assert(isinstance(outpuNode, minidom.Element))
             name = outputNode.getAttribute('name')

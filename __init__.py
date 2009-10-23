@@ -161,6 +161,8 @@ v0.7.6
 - Structure classes addShotDependentFolder, addShotIndependentFolder and 
   addOutputFolder now checks if the given folderName allready exists in the
   structure to prevent duplicate entries
+- fixed a bug in Sequence class, where it adds outputFolders to the list
+  without first clearing the list while saving the settings
 
 v0.7.5
 - added isValid method to Sequence class to check if the sequence is valid
