@@ -156,9 +156,11 @@ Version History :
 v0.7.6
 - Structure class now initializes the variables with list() not with None
 - Structure class now has a method called fixPathIssues, to fix the path issues
-- Structure classes addShotDependentFolder and addShotIndependentFolder now
-  checks if the given folderName allready exists in the structure to prevent
-  duplicate entries
+- Structure class now has a method called removeDuplicate to remove duplicate
+  entries
+- Structure classes addShotDependentFolder, addShotIndependentFolder and 
+  addOutputFolder now checks if the given folderName allready exists in the
+  structure to prevent duplicate entries
 
 v0.7.5
 - added isValid method to Sequence class to check if the sequence is valid

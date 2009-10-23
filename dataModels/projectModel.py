@@ -1783,7 +1783,10 @@ class Structure(object):
         if self._outputFolders == None:
             self._outputFolders = [] * 0
         
-        self._outputFolders.append( (name, path) )
+        outputFolderTupple = (name, path)
+        
+        if outputFolderTupple not in self._outputFolders:
+            self._outputFolders.append( outputFolderTupple )
     
     
     #----------------------------------------------------------------------
@@ -1895,8 +1898,16 @@ class Structure(object):
         
         for i,folderTuple in enumerate(self._outputFolders):
             self._outputFolders[i] = ( folderTuple[0], folderTuple[1].replace('\\','/') )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def removeDuplicate(self):
+        """removes any duplicate entry
+        """
         
         # remove any duplicates
         self._shotDependentFolders = sorted(oyAux.unique( self._shotDependentFolders ))
         self._shotIndependentFolders = sorted(oyAux.unique( self._shotIndependentFolders ))
+        self._outputFolders = sorted(oyAux.unique( self._outputFolders ))
         
