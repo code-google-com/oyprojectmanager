@@ -1241,7 +1241,7 @@ class Sequence(object):
                 
                 for childFile in childFiles:
                     childFileFullPath = osPathJoin( childFolderFullPath, childFile)
-                    if childFile.startswith( childFolder ) and osPathIsFile( childFileFullPath ):
+                    if childFile.lower().startswith( childFolder.lower() ) and osPathIsFile( childFileFullPath ):
                         
                         asset = assetModelAsset( selfProject, self, childFile )
                         
@@ -1309,7 +1309,7 @@ class Sequence(object):
             
             for childFile in childFiles:
                 childFileFullPath = osPathJoin( childFolderFullPath, childFile)
-                if childFile.startswith( childFolder ) and osPathIsFile( childFileFullPath ):
+                if childFile.lower().startswith( childFolder.lower() ) and osPathIsFile( childFileFullPath ):
                     
                     asset = assetModelAsset( selfProject, self, childFile )
                     
@@ -1381,7 +1381,7 @@ class Sequence(object):
                     continue
                 
                 childFileFullPath = osPathJoin( childFolderFullPath, childFile)
-                if childFile.startswith( childFolder ) and osPathIsFile( childFileFullPath ):
+                if childFile.lower().startswith( childFolder.lower() ) and osPathIsFile( childFileFullPath ):
                     
                     assetFiles.append( childFile )
         
@@ -1439,7 +1439,7 @@ class Sequence(object):
         
         for childFile in childFiles:
             childFileFullPath = osPathJoin( childFolderFullPath, childFile)
-            if childFile.startswith( childFolder ) and osPathIsFile( childFileFullPath ):
+            if childFile.lower().startswith( childFolder.lower() ) and osPathIsFile( childFileFullPath ):
                 
                 asset = assetModelAsset( selfProject, self, childFile )
                 

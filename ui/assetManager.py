@@ -834,10 +834,16 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # get the text
         text = unicode( self.subName_comboBox1.currentText() )
         
-        # validate the text
-        text = oyAux.stringConditioner( text, False, True, False, False, True, False )
+        if len(text) == 0:
+            return
         
-        # set back
+        # validate the text
+        text = oyAux.stringConditioner( text, False, True, False, False, False, False )
+        
+        # capitalize just the first letter
+        text = text[0].upper() + text[1:]
+        
+        # set it back
         self.subName_comboBox1.setEditText( text )
     
     
@@ -850,10 +856,16 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # get the text
         text = unicode( self.baseName_comboBox1.currentText() )
         
-        # validate the text
-        text = oyAux.stringConditioner( text, False, True, False, False, False, True )
+        if len(text) == 0:
+            return
         
-        # set back
+        # validate the text
+        text = oyAux.stringConditioner( text, False, True, False, False, False, False )
+        
+        # capitalize just the first letter
+        text = text[0].upper() + text[1:]
+        
+        # set it back
         self.baseName_comboBox1.setEditText( text )
     
     

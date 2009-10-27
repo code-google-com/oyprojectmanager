@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v0.7.6
+v0.7.7
 
 Description :
 -------------
@@ -153,6 +153,15 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.7.7
+- the baseName and subName fields now are conditioned so that only the first
+  letter is forced to be uppercase but the others can both be upper and lower
+  case characters, and they are not validating any string if the length of the
+  string is zero
+- the Sequence classes getAllAssetFileNamesForType, getAllAssets and
+  getAllAssetsForType methods now compares the lowercase fileName with the
+  asset folders lowercase name to prevent case issues while retrieving assets
+
 v0.7.6
 - Structure class now initializes the variables with list() not with None
 - Structure class now has a method called fixPathIssues, to fix the path issues
@@ -507,4 +516,4 @@ TODO List :
 
 
 
-__version__ = "0.7.6"
+__version__ = "0.7.7"
