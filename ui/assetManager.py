@@ -766,7 +766,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """sets the version number field in the interface
         """
         self.version_spinBox.setValue( verNumber )
-        
+    
     
     
     ##----------------------------------------------------------------------
@@ -847,7 +847,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self.subName_comboBox1.setEditText( text )
     
     
-        
+    
     #----------------------------------------------------------------------
     def validateBaseName(self):
         """validates the baseName field by removing unneccessary characters

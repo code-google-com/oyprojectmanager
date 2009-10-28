@@ -329,10 +329,19 @@ class Asset(object):
         # use the Sequence object instead of letting the Asset object to dive in to the
         # file system to get other versions
         
+        #import projectModel
+        selfproj = self._parentProject
+        selfseq = self._parentSequence
+        #assert(isinstance(selfseq,projectModel.Sequence))
+        
         if not self._parentSequence._noSubNameField:
-            return self._parentSequence.filterAssets( self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName ), subName = self._subName )
+            #return self._parentSequence.filterAssets( self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName ), subName = self._subName )
+            return [ Asset(selfproj, selfseq, filteredAssetFileName) for filteredAssetFileName in selfseq.filterAssetNames( selfseq.getAllAssetFileNamesForType( self._typeName ), baseName=self._baseName, subName=self._subName ) ]
+            
         else:
-            return self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName )
+            
+            #return self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName )
+            return [ Asset(selfproj, selfseq, filteredAssetFileName) for filteredAssetFileName in selfseq.filterAssetNames( selfseq.getAllAssetFileNamesForType( self._typeName ), baseName=self._baseName ) ]
     
     
     

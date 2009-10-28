@@ -161,6 +161,8 @@ v0.7.7
 - the Sequence classes getAllAssetFileNamesForType, getAllAssets and
   getAllAssetsForType methods now compares the lowercase fileName with the
   asset folders lowercase name to prevent case issues while retrieving assets
+- Asset classes getAllVersions uses the fileName instead of the asset objects,
+  to introduce some speed increases in long versioned asset objects
 
 v0.7.6
 - Structure class now initializes the variables with list() not with None
