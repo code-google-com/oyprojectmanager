@@ -619,7 +619,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         if asset == None or not asset.isValidAsset():
             return
         
-        maxRevAsset, maxRevNumber = asset.getLatestRevision()
+        maxRevAsset, maxRevNumber = asset.getLatestRevision2()
         
         if maxRevNumber == None:
             maxRevNumber = 0
@@ -640,7 +640,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         if asset == None or not asset.isValidAsset():
             return
         
-        maxVerAsset, maxVerNumber = asset.getLatestVersion()
+        maxVerAsset, maxVerNumber = asset.getLatestVersion2()
         
         if maxVerNumber == None:
             maxVerNumber = 0

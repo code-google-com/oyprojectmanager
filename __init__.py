@@ -163,6 +163,14 @@ v0.7.7
   asset folders lowercase name to prevent case issues while retrieving assets
 - Asset classes getAllVersions uses the fileName instead of the asset objects,
   to introduce some speed increases in long versioned asset objects
+- Asset class now has a new method called getAllVersionNames, which returns all
+  the version names as a list of string, it is much faster than getAllVersions
+  because it doesn't create any asset object
+- Asset class now has two new methods for getting the latest version and
+  revision numbers and assets, which uses the getAllVersionNames to quickly get
+  the version and revision numbers
+- AssetManager interface class now uses the fast methods to retrieve asset
+  names, versions and revisions quickly
 
 v0.7.6
 - Structure class now initializes the variables with list() not with None

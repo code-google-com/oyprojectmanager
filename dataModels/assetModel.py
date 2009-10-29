@@ -320,7 +320,7 @@ class Asset(object):
     
     #----------------------------------------------------------------------
     def getAllVersions(self):
-        """returns all version names for that asset as a list of strings
+        """returns all versions as a list of asset objects
         """
         # return if we can't even get some little information
         if not self._baseExists and not self._hasBaseInfo:
@@ -334,14 +334,48 @@ class Asset(object):
         selfseq = self._parentSequence
         #assert(isinstance(selfseq,projectModel.Sequence))
         
+        
+        assetVersionNames = self.getAllVersionNames()
+        
+        selfprojList = [selfproj] * len(assetVersionNames)
+        selfseqList = [selfseq] * len(assetVersionNames)
+        
+        return map(Asset,selfprojList,selfseqList,assetVersionNames)
+        
+        #if not self._parentSequence._noSubNameField:
+            ##return self._parentSequence.filterAssets( self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName ), subName = self._subName )
+            #return [ Asset(selfproj, selfseq, filteredAssetFileName) for filteredAssetFileName in selfseq.filterAssetNames( selfseq.getAllAssetFileNamesForType( self._typeName ), baseName=self._baseName, subName=self._subName ) ]
+            
+        #else:
+            
+            ##return self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName )
+            #return [ Asset(selfproj, selfseq, filteredAssetFileName) for filteredAssetFileName in selfseq.filterAssetNames( selfseq.getAllAssetFileNamesForType( self._typeName ), baseName=self._baseName ) ]
+            
+        #return [ Asset(selfproj, selfseq, filteredAssetFileName) for filteredAssetFileName in self.getAllVersionNames() ]
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getAllVersionNames(self):
+        """returns all version names for that asset as a list of string
+        """
+        
+        if not self._baseExists and not self._hasBaseInfo:
+            return []
+        
+        selfseq = self._parentSequence
+        
+        selfseqFilterAssetNames = selfseq.filterAssetNames
+        selfseqGetAllAssetFileNamesForType = selfseq.getAllAssetFileNamesForType
+        
+        typeName = self._typeName
+        baseName = self._baseName
+        subName = self._subName
+        
         if not self._parentSequence._noSubNameField:
-            #return self._parentSequence.filterAssets( self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName ), subName = self._subName )
-            return [ Asset(selfproj, selfseq, filteredAssetFileName) for filteredAssetFileName in selfseq.filterAssetNames( selfseq.getAllAssetFileNamesForType( self._typeName ), baseName=self._baseName, subName=self._subName ) ]
-            
+            return sorted([ filteredAssetFileName for filteredAssetFileName in selfseqFilterAssetNames( selfseqGetAllAssetFileNamesForType( typeName ), baseName=baseName, subName=subName ) ])
         else:
-            
-            #return self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName )
-            return [ Asset(selfproj, selfseq, filteredAssetFileName) for filteredAssetFileName in selfseq.filterAssetNames( selfseq.getAllAssetFileNamesForType( self._typeName ), baseName=self._baseName ) ]
+            return sorted([ filteredAssetFileName for filteredAssetFileName in selfseqFilterAssetNames( selfseqGetAllAssetFileNamesForType( typeName ), baseName=baseName ) ] )
     
     
     
@@ -417,6 +451,25 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
+    def getLatestVersion2(self):
+        """the second version of the older one, it uses file names instead of
+        asset objects.
+        
+        returns the latest version of an asset as an asset object and the
+        number as an integer
+        """
+        
+        # get all version names
+        allVersionNames = self.getAllVersionNames()
+        
+        # return the last one as an asset
+        assetObj = Asset( self._parentProject, self._parentSequence, allVersionNames[-1] )
+        
+        return assetObj, assetObj.getVersionNumber()
+    
+    
+    
+    #----------------------------------------------------------------------
     def getLatestRevision(self):
         """returns the latest revision of an asset as an asset object and the number as an integer
         if the asset doesn't exists yet it returns None, None
@@ -446,6 +499,25 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
+    def getLatestRevision2(self):
+        """the second version of the older one, it uses file names instead of
+        asset objects.
+        
+        returns the latest revision of an asset as an asset object and the
+        number as an integer
+        """
+        
+        # get all version names
+        allVersionNames = self.getAllVersionNames()
+        
+        # return the last one as an asset
+        assetObj = Asset( self._parentProject, self._parentSequence, allVersionNames[-1] )
+        
+        return assetObj, assetObj.getRevisionNumber()
+    
+    
+    
+    #----------------------------------------------------------------------
     def isLatestVersion(self):
         """checks if the asset is the latest version in its series
         """
@@ -454,7 +526,7 @@ class Asset(object):
         if not self._baseExists:
             return True
         
-        latestAssetObject, latestVersionNumber = self.getLatestVersion()
+        latestAssetObject, latestVersionNumber = self.getLatestVersion2()
         
         if self.getVersionNumber() <= latestVersionNumber:
             return False
@@ -486,7 +558,7 @@ class Asset(object):
         """sets the version number to the latest number + 1
         """
         
-        latestAsset, latestVersionNumber = self.getLatestVersion()
+        latestAsset, latestVersionNumber = self.getLatestVersion2()
         self._ver = latestVersionNumber + 1
         self._verString = self._parentSequence.convertToVerString( self._ver )
         self.setPathVariables()
