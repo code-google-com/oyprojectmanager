@@ -159,6 +159,9 @@ v0.7.8
 - in asset manager ui, the subName field is reset if the assetType changed
 - in asset manager ui, the subName field is cleared if there is no valid asset
   found from the input fields
+- in asset manager ui, if there is no valid asset found in
+  updateRevisionToLatest and updateVersionToLatest the fields are set to
+  default values which are 0 and 1 respectly
 
 v0.7.7
 - the baseName and subName fields now are conditioned so that only the first

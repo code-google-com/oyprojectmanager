@@ -100,7 +100,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # get latest version --> version
         QtCore.QObject.connect(self.version_pushButton, QtCore.SIGNAL("clicked()"), self.updateVersionToLatest )
         
-        # type, shotName, baseName or subName change --> revision + version
+        # sequence, type, shotName, baseName or subName change --> revision + version
         QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
         QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
         
@@ -639,6 +639,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         asset = self.getAssetObjectFromSaveFields()
         
         if asset == None or not asset.isValidAsset():
+            self.setRevisionNumberField( 0 )
             return
         
         maxRevAsset, maxRevNumber = asset.getLatestRevision2()
@@ -660,6 +661,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         asset = self.getAssetObjectFromSaveFields()
         
         if asset == None or not asset.isValidAsset():
+            self.setVersionNumberField( 1 )
             return
         
         maxVerAsset, maxVerNumber = asset.getLatestVersion2()
