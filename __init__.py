@@ -155,7 +155,7 @@ Version History :
 -----------------
 v0.7.8
 - the asset manager ui now updates the revision and version to the latest if
-  any of the assetType, shotNumber, baseName or subName field changes
+  any of the sequence, assetType, shotNumber, baseName or subName field changes
 - in asset manager ui, the subName field is reset if the assetType changed
 - in asset manager ui, the subName field is cleared if there is no valid asset
   found from the input fields
