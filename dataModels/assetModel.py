@@ -330,28 +330,16 @@ class Asset(object):
         # file system to get other versions
         
         #import projectModel
-        selfproj = self._parentProject
-        selfseq = self._parentSequence
+        sProj = self._parentProject
+        sSeq = self._parentSequence
         #assert(isinstance(selfseq,projectModel.Sequence))
-        
         
         assetVersionNames = self.getAllVersionNames()
         
-        selfprojList = [selfproj] * len(assetVersionNames)
-        selfseqList = [selfseq] * len(assetVersionNames)
+        sProjList = [sProj] * len(assetVersionNames)
+        sSeqList = [sSeq] * len(assetVersionNames)
         
-        return map(Asset,selfprojList,selfseqList,assetVersionNames)
-        
-        #if not self._parentSequence._noSubNameField:
-            ##return self._parentSequence.filterAssets( self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName ), subName = self._subName )
-            #return [ Asset(selfproj, selfseq, filteredAssetFileName) for filteredAssetFileName in selfseq.filterAssetNames( selfseq.getAllAssetFileNamesForType( self._typeName ), baseName=self._baseName, subName=self._subName ) ]
-            
-        #else:
-            
-            ##return self._parentSequence.getAllAssetsForTypeAndBaseName( self._typeName, self._baseName )
-            #return [ Asset(selfproj, selfseq, filteredAssetFileName) for filteredAssetFileName in selfseq.filterAssetNames( selfseq.getAllAssetFileNamesForType( self._typeName ), baseName=self._baseName ) ]
-            
-        #return [ Asset(selfproj, selfseq, filteredAssetFileName) for filteredAssetFileName in self.getAllVersionNames() ]
+        return map(Asset, sProjList, sSeqList, assetVersionNames)
     
     
     
@@ -363,19 +351,19 @@ class Asset(object):
         if not self._baseExists and not self._hasBaseInfo:
             return []
         
-        selfseq = self._parentSequence
+        sSeq = self._parentSequence
         
-        selfseqFilterAssetNames = selfseq.filterAssetNames
-        selfseqGetAllAssetFileNamesForType = selfseq.getAllAssetFileNamesForType
+        sSeqFAN = sSeq.filterAssetNames
+        sSeqGAAFNFT = sSeq.getAllAssetFileNamesForType
         
         typeName = self._typeName
         baseName = self._baseName
         subName = self._subName
         
         if not self._parentSequence._noSubNameField:
-            return sorted([ filteredAssetFileName for filteredAssetFileName in selfseqFilterAssetNames( selfseqGetAllAssetFileNamesForType( typeName ), baseName=baseName, subName=subName ) ])
+            return sorted([ assetFileName for assetFileName in sSeqFAN( sSeqGAAFNFT( typeName ), baseName=baseName, subName=subName ) ])
         else:
-            return sorted([ filteredAssetFileName for filteredAssetFileName in selfseqFilterAssetNames( selfseqGetAllAssetFileNamesForType( typeName ), baseName=baseName ) ] )
+            return sorted([ assetFileName for assetFileName in sSeqFAN( sSeqGAAFNFT( typeName ), baseName=baseName ) ] )
     
     
     
@@ -459,6 +447,9 @@ class Asset(object):
         number as an integer
         """
         
+        if not self._baseExists:
+            return None, None
+        
         # get all version names
         allVersionNames = self.getAllVersionNames()
         
@@ -507,6 +498,9 @@ class Asset(object):
         number as an integer
         """
         
+        if not self._baseExists:
+            return None, None
+        
         # get all version names
         allVersionNames = self.getAllVersionNames()
         
@@ -544,7 +538,7 @@ class Asset(object):
         if not self._baseExists:
             return True
         
-        latestAssetObject, latestRevisionNumber = self.getLatestRevision()
+        latestAssetObject, latestRevisionNumber = self.getLatestRevision2()
         
         if self.getRevisionNumber() < latestRevisionNumber:
             return False
@@ -570,7 +564,7 @@ class Asset(object):
         """sets the revision number to the latest number
         """
         
-        latestAsset, latestRevisionNumber = self.getLatestRevision()
+        latestAsset, latestRevisionNumber = self.getLatestRevision2()
         self._rev = latestRevisionNumber
         self._revString = self._parentSequence.convertToRevString( self._rev )
         self.setPathVariables()

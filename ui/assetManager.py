@@ -78,8 +78,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # type change ---> base and shot enable disable
         QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotDependentFields )
         
-        # type change ---> fill baseName comboBox
+        # type change ---> fill baseName comboBox and update subName
         QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateBaseNameField )
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
         
         # shotName or baseName change ---> fill subName comboBox
         QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
@@ -98,6 +99,16 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # get latest version --> version
         QtCore.QObject.connect(self.version_pushButton, QtCore.SIGNAL("clicked()"), self.updateVersionToLatest )
+        
+        # shotName, baseName or subName change --> revision + version
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
+        
+        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
+        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
+        
+        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
+        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
         
         QtCore.QMetaObject.connectSlotsByName(self)
         
@@ -377,6 +388,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # if the current sequence doesn't support subName field just return
         if currentSequence._noSubNameField:
+            self.subName_comboBox1.clear()
             return
         
         currentAssetTypeName = self.getCurrentAssetType()
@@ -384,6 +396,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         assetTypeObj = currentSequence.getAssetTypeWithName( currentAssetTypeName )
         
         if assetTypeObj == None:
+            # clear the current subName field and return
+            self.subName_comboBox1.clear()
             return
         
         if assetTypeObj.isShotDependent():
@@ -401,12 +415,14 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """
         
         if currentTypeName == None or currentBaseName == None:
+            comboBox.clear()
             return
         
         currentType = currentSequence.getAssetTypeWithName( currentTypeName )
         
         if currentType == None:
             # do nothing
+            comboBox.clear()
             return
         
         # get the asset files of that type
@@ -691,6 +707,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """returns the asset object from the fields
         """
         
+        if self._project == None or self._sequence == None:
+            return None
+        
         assetObj = assetModel.Asset( self._project, self._sequence )
         
         # gather information
@@ -748,6 +767,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """
         # get the asset object from fields
         assetObject = self.getAssetObjectFromSaveFields()
+        
+        if assetObject == None:
+            return None, None
         
         return assetObject.getPathVariables(), assetObject
     
@@ -988,6 +1010,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # get the asset object
         assetObject = self.getAssetObjectFromSaveFields()
         
+        if assetObject == None:
+            return
+        
         # check the file conditions
         assetStatus = self.checkOutputAsset(assetObject)
         verStatus = self.checkOutputFileVersion( assetObject )
@@ -1027,6 +1052,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # get the asset object
         assetObject = self.getAssetObjectFromSaveFields()
+        
+        if assetObject == None:
+            return
         
         # check the file conditions
         assetStatus = self.checkOutputAsset(assetObject)

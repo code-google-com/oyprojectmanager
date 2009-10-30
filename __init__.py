@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v0.7.7
+v0.7.8
 
 Description :
 -------------
@@ -153,6 +153,13 @@ Command Line Options :
 
 Version History :
 -----------------
+v0.7.8
+- the asset manager ui now updates the revision and version to the latest if
+  any of the shotNumber, baseName or subName field changes
+- in asset manager ui, the subName field is reset if the assetType changed
+- in asset manager ui, the subName field is cleared if there is no valid asset
+  found from the input fields
+
 v0.7.7
 - the baseName and subName fields now are conditioned so that only the first
   letter is forced to be uppercase but the others can both be upper and lower
@@ -506,6 +513,10 @@ TODO List :
 - create appropriate Error classes for errors
 - for environments supporting referencing, check the references for new
   versions while opening the asset
+- an asset object should contain all the versions, revisions, of the same asset
+  , or there should be an superAsset class that holds all the versions,
+  revisions and any subNames of the same asset, so the group of the files
+  should be counted as one asset with multi versions
 + reduce the code duplication in MainDialog
 + try to add another type of caching system, which is input dependent, so for
   the same input it should return the same value without evaluating anything
@@ -526,4 +537,4 @@ TODO List :
 
 
 
-__version__ = "0.7.7"
+__version__ = "0.7.8"
