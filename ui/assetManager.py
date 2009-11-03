@@ -1055,8 +1055,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 self._db.setLastUser( assetObject.getUserInitials() )
                 
                 #print info
-                self.printInfo( assetObject,  "saved" )
-                self.close()
+                if self.environment == 'MAYA':
+                    self.printInfo( assetObject,  "saved" )
+                    self.close()
     
     
     
