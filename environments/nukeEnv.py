@@ -5,6 +5,10 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
+__version__ = "9.10.16"
+
+
+
 #----------------------------------------------------------------------
 def save( assetObject ):
     """"the save action for maya environment

@@ -1,6 +1,11 @@
 import oyAuxiliaryFunctions as oyAux
 import re
 
+
+__version__ = "9.10.5"
+
+
+
 ########################################################################
 class RangeConverter(object):
     """a class for manipulating shot lists

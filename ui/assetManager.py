@@ -4,8 +4,10 @@ from PyQt4 import QtGui, QtCore
 import assetManager_UI
 
 from oyProjectManager.dataModels import assetModel, projectModel
-from oyProjectManager import __version__
 
+
+
+__version__ = "9.11.2"
 
 
 #----------------------------------------------------------------------
@@ -913,6 +915,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         elif self.environment == 'NUKE':
             from oyProjectManager.environments import nukeEnv
             env = nukeEnv
+        elif self.environment == 'HOUDINI':
+            from oyProjectManager.environments import houdiniEnv
+            env = houdiniEnv
         
         if self.environment != None and self.environment != '':
             self.fileName, self.path = env.getPathVariables()
@@ -1039,7 +1044,10 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             elif self.environment == 'NUKE':
                 from oyProjectManager.environments import nukeEnv
                 envStatus = nukeEnv.save( assetObject )
-                
+            
+            elif self.environment == 'HOUDINI':
+                from oyProjectManager.environments import houdiniEnv
+                envStatus = houdiniEnv.save( assetObject )
             
             # if everything worked fine close the interface
             if envStatus:
@@ -1123,6 +1131,16 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 from oyProjectManager.environments import nukeEnv
                 envStatus = nukeEnv.open_( assetObject )
             
+            elif self.environment == 'HOUDINI':
+                from oyProjectManager.environments import houdiniEnv
+                try:
+                    envStatus = houdiniEnv.open_(assetObject)
+                except RuntimeError:
+                    answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There are unsaved changes in the current scene\n\nDo you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
+                    
+                    if answer== QtGui.QMessageBox.Yes:
+                        envStatus = houdiniEnv.open_( assetObject, True )
+            
             if envStatus:
                 self.close()
         
@@ -1154,6 +1172,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             if self.environment == 'NUKE':
                 from oyProjectManager.environments import nukeEnv
                 envStatus = nukeEnv.import_( assetObject )
+            if self.environment == 'HOUDINI':
+                from oyProjectManager.environments import houdiniEnv
+                envStatus = houdiniEnv.import_( assetObject )
             
             if envStatus:
                 self.close()

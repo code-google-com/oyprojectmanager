@@ -2,6 +2,10 @@ import time
 
 
 
+__version__ = "9.10.11"
+
+
+
 #######################################################################
 class CachedMethod(object):
     """caches the result of a class method inside the instance

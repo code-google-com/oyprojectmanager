@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v0.7.8
+v9.11.2
 
 Description :
 -------------
@@ -153,6 +153,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.2
+- switched to a new versioning scheme, where the date is used like in ubuntu
+- added houdini support
+
 v0.7.8
 - the asset manager ui now updates the revision and version to the latest if
   any of the sequence, assetType, shotNumber, baseName or subName field changes
@@ -540,4 +544,4 @@ TODO List :
 
 
 
-__version__ = "0.7.8"
+__version__ = "9.11.2"

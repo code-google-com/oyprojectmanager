@@ -3,6 +3,10 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
+__version__ = "9.10.30"
+
+
+
 ########################################################################
 class Asset(object):
     """to work properly it needs a valid project and sequence objects

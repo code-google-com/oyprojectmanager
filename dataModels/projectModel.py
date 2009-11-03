@@ -6,6 +6,7 @@ import assetModel, userModel
 
 
 
+__version__ = "9.10.27"
 
 
 

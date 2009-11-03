@@ -5,6 +5,10 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
+__version__ = "9.10.7"
+
+
+
 #----------------------------------------------------------------------
 def save( assetObject ):
     """the save action for maya environment
@@ -37,7 +41,7 @@ def save( assetObject ):
 
 #----------------------------------------------------------------------
 def export( assetObject ):
-    """the exprot action for maya environment
+    """the export action for maya environment
     """
     
     # check if there is something selected
