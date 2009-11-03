@@ -153,8 +153,12 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.3
+- fixed, houdini was not opening files with asset manager
+
 v9.11.2
-- switched to a new versioning scheme, where the date is used like in ubuntu
+- switched to a new versioning scheme, where the date is used as the version
+  number like in ubuntu/kubuntu
 - added houdini support
 
 v0.7.8
@@ -524,6 +528,8 @@ TODO List :
   , or there should be an superAsset class that holds all the versions,
   revisions and any subNames of the same asset, so the group of the files
   should be counted as one asset with multi versions
+- programs should not list the files those they can not open, for example
+  houdini shouldn't list ma files, and maya should not list hip files
 + reduce the code duplication in MainDialog
 + try to add another type of caching system, which is input dependent, so for
   the same input it should return the same value without evaluating anything

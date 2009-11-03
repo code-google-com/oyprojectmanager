@@ -34,7 +34,7 @@ def open_( assetObject, force=False ):
     if hou.hipFile.hasUnsavedChanges() and not force:
         raise RuntimeError
     
-    hou.hipFile.load( file_name = str(assetObject.getFullPath()) , suppress_save_prompt=(not force) )
+    hou.hipFile.load( file_name = str(assetObject.getFullPath()) , suppress_save_prompt=True )
     
     return True
 
