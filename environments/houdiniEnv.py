@@ -69,4 +69,7 @@ def getPathVariables():
     else:
         path = None
     
+    print "fileName: ",fileName
+    print "path    : ",path
+    
     return fileName, path
