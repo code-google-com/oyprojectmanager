@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.11.2
+v9.11.6
 
 Description :
 -------------
@@ -153,6 +153,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.6
+- mayaEnv now saves the asset file path to the recent files list in save and
+  open actions, and retrieves the data from that list if there is currently
+  no file opened
+
 v9.11.3
 - fixed, houdini was not opening files with asset manager
 
@@ -550,4 +555,4 @@ TODO List :
 
 
 
-__version__ = "9.11.2"
+__version__ = "9.11.6"

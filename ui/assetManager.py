@@ -920,6 +920,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             env = houdiniEnv
         
         if self.environment != None and self.environment != '':
+            print "importing path variables from env"
             self.fileName, self.path = env.getPathVariables()
             
             # update the interface

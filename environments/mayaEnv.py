@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.10.7"
+__version__ = "9.11.6"
 
 
 
@@ -33,6 +33,9 @@ def save( assetObject ):
     
     # save the file
     pm.saveAs( assetObject.getFullPath(), type='mayaAscii' )
+    
+    # append it to the recent file list
+    appendToRecentFiles( assetObject.getFullPath() )
     
     return True
 
@@ -69,13 +72,17 @@ def open_( assetObject, force=False):
     #assert(isinstance(assetObject, assetModel.Asset ) )
     
     # check for unsaved changes
-    pm.openFile( assetObject.getFullPath(), f=force )
+    assetFullPath = assetObject.getFullPath()
+    
+    pm.openFile( assetFullPath, f=force )
     
     # set the project
     pm.workspace.open( assetObject.getSequenceFullPath() )
     
     # set the playblast folder
     setPlayblastFileName( assetObject )
+    
+    appendToRecentFiles( assetFullPath )
     
     return True
 
@@ -86,7 +93,6 @@ def import_( assetObject ):
     """the import action for maya environment
     """
     #assert( isinstance(assetObject, assetModel.Asset ) )
-    
     pm.importFile( assetObject.getFullPath() )
     
     return True
@@ -99,7 +105,6 @@ def reference( assetObject ):
     """
     
     #assert( isinstance(assetObject, assetModel.Asset ) )
-    
     pm.createReference( assetObject.getFullPath() )
     
     return True
@@ -115,8 +120,19 @@ def getPathVariables():
     
     fullPath = pm.env.sceneName()
     
+    print "the fullpath in maya is ", fullPath
+    
     if fullPath != '':
         fileName = os.path.basename( fullPath )
+    
+    else:
+        # read the fileName from recent files list
+        if fileName == None or fileName == '':
+            print "getting the file name from recent files list"
+            fileName = os.path.basename( pm.optionVar['RecentFilesList'][-1] )
+            print "the filename from recent files list is ", fileName
+        else:
+            print "getting the file name regularly"
     
     path = getWorkspacePath()
     
@@ -187,8 +203,28 @@ def getWorkspacePath():
     path = pm.workspace.name
     
     if os.name == 'nt':
-        myDict = dict()
-        myDict[u'/'] = u'\\'
-        path = oyAux.multiple_replace( path, myDict)
+        #myDict = dict()
+        #myDict[u'/'] = u'\\'
+        #path = oyAux.multiple_replace( path, myDict)
+        path = oyAux.fixWindowsPath( path )
     
     return path
+
+
+
+#----------------------------------------------------------------------
+def appendToRecentFiles(path):
+    """appends the given path to the recent files list
+    """
+    
+    # add the file to the recent file list
+    recentFiles = pm.optionVar['RecentFilesList']
+    
+    #assert(isinstance(recentFiles,pm.OptionVarList))
+    
+    recentFiles.appendVar( path )
+    #pm.optionVar['RecentFilesList'] = recentFiles
+    
+    
+    
+    
