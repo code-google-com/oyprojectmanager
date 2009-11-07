@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.10.30"
+__version__ = "9.11.7"
 
 
 
@@ -168,12 +168,18 @@ class Asset(object):
             if len(parts) < 5:
                 return
             
-            self._baseName     = parts[0]
-            self._subName      = parts[1]
-            self._typeName     = parts[2]
-            self._revString    = parts[3]
-            self._verString    = parts[4]
-            self._userInitials = parts[5]
+            try:
+                
+                self._baseName     = parts[0]
+                self._subName      = parts[1]
+                self._typeName     = parts[2]
+                self._revString    = parts[3]
+                self._verString    = parts[4]
+                self._userInitials = parts[5]
+            except IndexError:
+                # the given file name is not valid
+                self._fileName = ''
+                return
             
             if len(parts) > 6: # there should be a notes part
                 self._notes = self._dataSeparator.join( parts[6:len(parts)] )

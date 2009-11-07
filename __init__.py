@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.11.6
+v9.11.7
 
 Description :
 -------------
@@ -153,6 +153,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.7
+- when an asset object is initialized with a wrong file name, guessing the
+  fields from file name will result index error, it is now fixed
+
 v9.11.6
 - mayaEnv now saves the asset file path to the recent files list in save and
   open actions, and retrieves the data from that list if there is currently
@@ -555,4 +559,4 @@ TODO List :
 
 
 
-__version__ = "9.11.6"
+__version__ = "9.11.7"
