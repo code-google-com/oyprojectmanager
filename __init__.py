@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.11.9
+v9.11.11
 
 Description :
 -------------
@@ -153,6 +153,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.11
+- queries to assets with no previous versions was failing, this error has been
+  fixed
+
 v9.11.9
 - fixed an error, occurred when a new type asset name is send to an old type
   project

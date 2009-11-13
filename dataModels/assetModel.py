@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.11.9"
+__version__ = "9.11.11"
 
 
 
@@ -469,7 +469,10 @@ class Asset(object):
         allVersionNames = self.getAllVersionNames()
         
         # return the last one as an asset
-        assetObj = Asset( self._parentProject, self._parentSequence, allVersionNames[-1] )
+        if len(allVersionNames) > 0:
+            assetObj = Asset( self._parentProject, self._parentSequence, allVersionNames[-1] )
+        else:
+            return None, None
         
         return assetObj, assetObj.getVersionNumber()
     
