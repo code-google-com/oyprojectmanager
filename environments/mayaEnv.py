@@ -120,19 +120,18 @@ def getPathVariables():
     """gets the file name from maya environment
     """
     
+    readRecentFile = True
     fileName = path = None
+    db = projectModel.Database()
     
     fullPath = pm.env.sceneName()
     
     print "the fullPath in maya is ", fullPath
     
-    readRecentFile = True
-    
     if fullPath != '':
         fileName = os.path.basename( fullPath )
         
         # try to create an asset with that info
-        db = projectModel.Database()
         projName, seqName = db.getProjectAndSequenceNameFromFilePath( fullPath )
         
         proj = projectModel.Project( projName )
