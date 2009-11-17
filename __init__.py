@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.11.11
+v9.11.17
 
 Description :
 -------------
@@ -153,6 +153,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.17
+- file referencing in maya now uses name spaces
+- added getFileNameWithoutExtension to Asset class
+
 v9.11.11
 - queries to assets with no previous versions was failing, this error has been
   fixed
