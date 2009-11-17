@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.11.6"
+__version__ = "9.11.17"
 
 
 
@@ -104,8 +104,12 @@ def reference( assetObject ):
     """the reference action for maya environment
     """
     
-    #assert( isinstance(assetObject, assetModel.Asset ) )
-    pm.createReference( assetObject.getFullPath() )
+    assert( isinstance(assetObject, assetModel.Asset ) )
+    
+    # use the file name without extension as the namespace
+    nameSpace = assetObject.getFileNameWithoutExtension()
+    
+    pm.createReference( assetObject.getFullPath(), gl=True, loadReferenceDepth='all', namespace=nameSpace, options='v=0')
     
     return True
 

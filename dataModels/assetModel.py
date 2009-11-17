@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.11.11"
+__version__ = "9.11.17"
 
 
 
@@ -295,6 +295,40 @@ class Asset(object):
         """gathers the info variables to a fileName
         """
         
+        #if not self.isValidAsset():
+            #return None
+        
+        #parts = [] * 0
+        #parts.append( self._baseName )
+        
+        #if not self._parentSequence._noSubNameField:
+            #parts.append( self._subName )
+        
+        #parts.append( self._type.getName() )
+        #parts.append( self._revString )
+        #parts.append( self._verString )
+        #parts.append( self._userInitials )
+        
+        ## check if there is a note
+        #if self._notes != None and self._notes != '':
+            #parts.append( self._notes )
+        
+        #fileName = self._dataSeparator.join(parts)
+        
+        fileName = self.getFileNameWithoutExtension()
+        
+        if self._extension != None and self._extension != '':
+            fileName = fileName + os.extsep + self._extension
+        
+        return fileName
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getFileNameWithoutExtension(self):
+        """returns the file name without extension
+        """
+        
         if not self.isValidAsset():
             return None
         
@@ -314,9 +348,6 @@ class Asset(object):
             parts.append( self._notes )
         
         fileName = self._dataSeparator.join(parts)
-        
-        if self._extension != None and self._extension != '':
-            fileName = fileName + os.extsep + self._extension
         
         return fileName
     
