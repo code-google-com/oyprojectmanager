@@ -126,7 +126,7 @@ def getPathVariables():
     
     print "the fullPath in maya is ", fullPath
     
-    readRecentFile = False
+    readRecentFile = True
     
     if fullPath != '':
         fileName = os.path.basename( fullPath )
@@ -143,8 +143,7 @@ def getPathVariables():
         if testAsset.isValidAsset():
             fileName = testAsset.getFileName()
             path = testAsset.getPath()
-        else:
-            readRecentFile = True
+            readRecentFile = False
     
     if readRecentFile:
         # read the fileName from recent files list
