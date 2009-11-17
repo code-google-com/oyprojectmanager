@@ -156,6 +156,7 @@ Version History :
 v9.11.17
 - file referencing in maya now uses name spaces
 - added getFileNameWithoutExtension to Asset class
+- mayaEnv now tries to get an asset name more robustly
 
 v9.11.11
 - queries to assets with no previous versions was failing, this error has been

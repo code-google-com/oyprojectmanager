@@ -124,21 +124,51 @@ def getPathVariables():
     
     fullPath = pm.env.sceneName()
     
-    print "the fullpath in maya is ", fullPath
+    print "the fullPath in maya is ", fullPath
+    
+    readRecentFile = False
     
     if fullPath != '':
         fileName = os.path.basename( fullPath )
-    
-    else:
-        # read the fileName from recent files list
-        if fileName == None or fileName == '':
-            print "getting the file name from recent files list"
-            fileName = os.path.basename( pm.optionVar['RecentFilesList'][-1] )
-            print "the filename from recent files list is ", fileName
+        
+        # try to create an asset with that info
+        db = projectModel.Database()
+        projName, seqName = db.getProjectAndSequenceNameFromFilePath( fullPath )
+        
+        proj = projectModel.Project( projName )
+        seq = projectModel.Sequence( proj, seqName )
+        
+        testAsset = assetModel.Asset( proj, seq, fileName )
+        
+        if testAsset.isValidAsset():
+            fileName = testAsset.getFileName()
+            path = testAsset.getPath()
         else:
-            print "getting the file name regularly"
+            readRecentFile = True
     
-    path = getWorkspacePath()
+    if readRecentFile:
+        # read the fileName from recent files list
+        # try to get the a valid asset file from starting the last recent file
+        
+        recentFiles = pm.optionVar['RecentFilesList']
+        for i in range(len(recentFiles)-1, -1,-1):
+            
+            fileName = os.path.basename( recentFiles[i] )
+            projName, seqName = db.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
+            
+            proj = projectModel.Project( projName )
+            seq = projectModel.Sequence( proj, seqName )
+            
+            testAsset = assetModel.Asset( proj, seq, fileName )
+            if testAsset.isValidAsset():
+                path = testAsset.getPath()
+                foundValidAsset = True
+                break
+        
+        if not foundValidAsset:
+            # just get the path from workspace and return an empty fileName
+            fileName = None
+            path = getWorkspacePath()
     
     return fileName, path
 
