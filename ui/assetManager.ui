@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>698</width>
-    <height>513</height>
+    <width>703</width>
+    <height>487</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -548,6 +548,67 @@ Exports the selected content to the server as an asset</string>
         <widget class="QWidget" name="verticalWidget2" native="true">
          <layout class="QVBoxLayout" name="verticalLayout2">
           <item>
+           <widget class="QWidget" name="horizontalWidget" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QCheckBox" name="showLastNEntry_checkBox">
+               <property name="toolTip">
+                <string>if checked, the list below shows maximum n number of items, the n is defined in the next spinB,ox</string>
+               </property>
+               <property name="statusTip">
+                <string>maximum number of entry to view</string>
+               </property>
+               <property name="text">
+                <string>Show Last</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="numberOfEntry_spinBox">
+               <property name="statusTip">
+                <string>maximum number of entry to view</string>
+               </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>9999999</number>
+               </property>
+               <property name="value">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="statusTip">
+                <string>maximum number of entry to view</string>
+               </property>
+               <property name="text">
+                <string>entry</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
            <widget class="QListWidget" name="assets_listWidget1">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -683,7 +744,7 @@ Just quits the application without doing anything</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>698</width>
+     <width>703</width>
      <height>23</height>
     </rect>
    </property>

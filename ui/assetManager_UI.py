@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Sat Oct 10 12:41:24 2009
-#      by: PyQt4 UI code generator 4.4.4
+# Created: Wed Nov 18 23:03:15 2009
+#      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -13,7 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowModality(QtCore.Qt.ApplicationModal)
-        MainWindow.resize(698, 513)
+        MainWindow.resize(703, 487)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -231,6 +231,26 @@ class Ui_MainWindow(object):
         self.verticalWidget2.setObjectName("verticalWidget2")
         self.verticalLayout2 = QtGui.QVBoxLayout(self.verticalWidget2)
         self.verticalLayout2.setObjectName("verticalLayout2")
+        self.horizontalWidget = QtGui.QWidget(self.verticalWidget2)
+        self.horizontalWidget.setObjectName("horizontalWidget")
+        self.horizontalLayout = QtGui.QHBoxLayout(self.horizontalWidget)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.showLastNEntry_checkBox = QtGui.QCheckBox(self.horizontalWidget)
+        self.showLastNEntry_checkBox.setChecked(True)
+        self.showLastNEntry_checkBox.setObjectName("showLastNEntry_checkBox")
+        self.horizontalLayout.addWidget(self.showLastNEntry_checkBox)
+        self.numberOfEntry_spinBox = QtGui.QSpinBox(self.horizontalWidget)
+        self.numberOfEntry_spinBox.setMinimum(1)
+        self.numberOfEntry_spinBox.setMaximum(9999999)
+        self.numberOfEntry_spinBox.setProperty("value", 10)
+        self.numberOfEntry_spinBox.setObjectName("numberOfEntry_spinBox")
+        self.horizontalLayout.addWidget(self.numberOfEntry_spinBox)
+        self.label = QtGui.QLabel(self.horizontalWidget)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem1)
+        self.verticalLayout2.addWidget(self.horizontalWidget)
         self.assets_listWidget1 = QtGui.QListWidget(self.verticalWidget2)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
@@ -280,7 +300,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.main_horizontalWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 698, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 703, 23))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -420,6 +440,12 @@ class Ui_MainWindow(object):
 "\n"
 "Exports the selected content to the server as an asset", None, QtGui.QApplication.UnicodeUTF8))
         self.export_button.setText(QtGui.QApplication.translate("MainWindow", "Export", None, QtGui.QApplication.UnicodeUTF8))
+        self.showLastNEntry_checkBox.setToolTip(QtGui.QApplication.translate("MainWindow", "if checked, the list below shows maximum n number of items, the n is defined in the next spinB,ox", None, QtGui.QApplication.UnicodeUTF8))
+        self.showLastNEntry_checkBox.setStatusTip(QtGui.QApplication.translate("MainWindow", "maximum number of entry to view", None, QtGui.QApplication.UnicodeUTF8))
+        self.showLastNEntry_checkBox.setText(QtGui.QApplication.translate("MainWindow", "Show Last", None, QtGui.QApplication.UnicodeUTF8))
+        self.numberOfEntry_spinBox.setStatusTip(QtGui.QApplication.translate("MainWindow", "maximum number of entry to view", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setStatusTip(QtGui.QApplication.translate("MainWindow", "maximum number of entry to view", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("MainWindow", "entry", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_listWidget1.setToolTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_listWidget1.setStatusTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_listWidget1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Asset List:\n"

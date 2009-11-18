@@ -88,13 +88,13 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
         QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
         
-        # subName change ---> fill assets_listWidget1
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
-        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
-        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetsListWidget )
+        # subName change ---> full update assets_listWidget1
+        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
         
         # get latest revision --> revision
         QtCore.QObject.connect(self.revision_pushButton, QtCore.SIGNAL("clicked()"), self.updateRevisionToLatest )
@@ -120,6 +120,10 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         QtCore.QMetaObject.connectSlotsByName(self)
         
+        # showLastNEntry_checkbox or numberOfEntry change ->partial update assets_listWidget1
+        QtCore.QObject.connect(self.showLastNEntry_checkBox, QtCore.SIGNAL("stateChanged(int)"), self.partialUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.numberOfEntry_spinBox, QtCore.SIGNAL("valueChanged(int)"), self.partialUpdateAssetsListWidget )
+        
         # create a database
         self._db = projectModel.Database()
         
@@ -127,6 +131,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self._asset = None
         self._project = None
         self._sequence = None
+        self._versionListBuffer = []
         
         self.environment = environment
         self.fileName = fileName
@@ -502,8 +507,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def updateAssetsListWidget(self):
-        """fills the assets listWidget with assets
+    def updateVersionListBuffer(self):
+        """updates the version list buffer
         """
         
         self._updateProjectObject()
@@ -549,7 +554,40 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self.assets_listWidget1.clear()
         
         if len(allVersionsList) > 0:
-            self.assets_listWidget1.addItems( sorted(allVersionsList) )
+            self._versionListBuffer = sorted(allVersionsList)
+        else:
+            self._versionListBuffer = []
+            #if self.showLastNEntry_checkBox.isChecked():
+                ## get the number of entry
+                #numOfEntry = self.numberOfEntry_spinBox.value()
+                #self.assets_listWidget1.addItems( sorted(allVersionsList)[-numOfEntry:-1] )
+            #else:
+                #self.assets_listWidget1.addItems( sorted(allVersionsList) )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def partialUpdateAssetsListWidget(self):
+        """just updates if the number of maximum displayable entry is changed
+        """
+        
+        self.assets_listWidget1.clear()
+        
+        if self.showLastNEntry_checkBox.isChecked():
+            # get the number of entry
+            numOfEntry = min( len(self._versionListBuffer), self.numberOfEntry_spinBox.value() )
+            self.assets_listWidget1.addItems( self._versionListBuffer[-numOfEntry-1:-1] )
+        else:
+            self.assets_listWidget1.addItems( self._versionListBuffer )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def fullUpdateAssetsListWidget(self):
+        """invokes a version list buffer update and a assets list widget update
+        """
+        self.updateVersionListBuffer()
+        self.partialUpdateAssetsListWidget()
     
     
     

@@ -12,10 +12,10 @@ uic.compileUi( uicFile, pyFile )
 uicFile.close()
 pyFile.close()
 
-uicFile = file('/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager.ui')
-pyFile  = file('/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager_UI.py','w')
-uic.compileUi( uicFile, pyFile )
-uicFile.close()
-pyFile.close()
+#uicFile = file('/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager.ui')
+#pyFile  = file('/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager_UI.py','w')
+#uic.compileUi( uicFile, pyFile )
+#uicFile.close()
+#pyFile.close()
 
 

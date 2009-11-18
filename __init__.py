@@ -155,6 +155,8 @@ Version History :
 -----------------
 v9.11.18
 - fixed the fucking windows path problem in mayaEnv again
+- assetManager UI now has a check box that enables the user to list maximum n
+  number of latest entry in the assets list
 
 v9.11.17
 - file referencing in maya now uses name spaces
