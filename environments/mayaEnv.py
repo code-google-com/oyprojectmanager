@@ -156,14 +156,16 @@ def getPathVariables():
             fileName = os.path.basename( recentFiles[i] )
             projName, seqName = db.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
             
-            proj = projectModel.Project( projName )
-            seq = projectModel.Sequence( proj, seqName )
+            if projName != None and seqName != None:
             
-            testAsset = assetModel.Asset( proj, seq, fileName )
-            if testAsset.isValidAsset():
-                path = testAsset.getPath()
-                foundValidAsset = True
-                break
+                proj = projectModel.Project( projName )
+                seq = projectModel.Sequence( proj, seqName )
+                
+                testAsset = assetModel.Asset( proj, seq, fileName )
+                if testAsset.isValidAsset():
+                    path = testAsset.getPath()
+                    foundValidAsset = True
+                    break
         
         if not foundValidAsset:
             # just get the path from workspace and return an empty fileName
