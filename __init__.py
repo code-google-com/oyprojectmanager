@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.11.17
+v9.11.18
 
 Description :
 -------------
@@ -153,6 +153,9 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.18
+- fixed the fucking windows path problem in mayaEnv again
+
 v9.11.17
 - file referencing in maya now uses name spaces
 - added getFileNameWithoutExtension to Asset class
@@ -572,4 +575,4 @@ TODO List :
 
 
 
-__version__ = "9.11.17"
+__version__ = "9.11.18"

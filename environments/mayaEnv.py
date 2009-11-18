@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.11.17"
+__version__ = "9.11.18"
 
 
 
@@ -125,6 +125,8 @@ def getPathVariables():
     db = projectModel.Database()
     
     fullPath = pm.env.sceneName()
+    if os.name == 'nt':
+        fullPath = oyAux.fixWindowsPath(fullPath)
     
     print "the fullPath in maya is ", fullPath
     
