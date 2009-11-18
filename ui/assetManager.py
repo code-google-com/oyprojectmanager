@@ -575,8 +575,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         if self.showLastNEntry_checkBox.isChecked():
             # get the number of entry
+            
             numOfEntry = min( len(self._versionListBuffer), self.numberOfEntry_spinBox.value() )
-            self.assets_listWidget1.addItems( self._versionListBuffer[-numOfEntry-1:-1] )
+            self.assets_listWidget1.addItems( self._versionListBuffer[-numOfEntry:] )
         else:
             self.assets_listWidget1.addItems( self._versionListBuffer )
     
