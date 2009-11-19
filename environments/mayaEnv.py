@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.11.18"
+__version__ = "9.11.19"
 
 
 
@@ -119,7 +119,7 @@ def reference( assetObject ):
 def getPathVariables():
     """gets the file name from maya environment
     """
-    
+    foundValidAsset = False
     readRecentFile = True
     fileName = path = None
     db = projectModel.Database()
