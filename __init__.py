@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.11.18
+v9.11.19
 
 Description :
 -------------
@@ -153,6 +153,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.19
+- fixed an issue about mayaEnv
+- in houdiniEnv, while saving an asset, the script now creates the asset folder
+  if it doesn't exists
+
 v9.11.18
 - fixed the fucking windows path problem in mayaEnv again
 - assetManager UI now has a check box that enables the user to list maximum n
@@ -577,4 +582,4 @@ TODO List :
 
 
 
-__version__ = "9.11.18"
+__version__ = "9.11.19"

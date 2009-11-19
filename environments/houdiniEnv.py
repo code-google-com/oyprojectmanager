@@ -1,10 +1,11 @@
 import os
 import hou
 from oyProjectManager.dataModels import assetModel, projectModel
+import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.11.3"
+__version__ = "9.11.19"
 
 
 
@@ -17,6 +18,9 @@ def save( assetObject ):
     
     # set the extension to hip
     assetObject.setExtension('hip')
+    
+    # create the folder if it doesn't exists
+    oyAux.createFolder( assetObject.getPath() )
     
     # houdini accepts only strings as file name, no unicode support as I see
     hou.hipFile.save( file_name = str(assetObject.getFullPath()) )
