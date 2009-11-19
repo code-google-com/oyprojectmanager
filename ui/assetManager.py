@@ -3,11 +3,12 @@ import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
 import assetManager_UI
 
+import oyProjectManager
 from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.11.2"
+__version__ = "9.11.18"
 
 
 #----------------------------------------------------------------------
@@ -41,7 +42,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self.setupUi(self)
         
         # change the window title
-        self.setWindowTitle( self.windowTitle() + ' v' + __version__ )
+        self.setWindowTitle( self.windowTitle() + ' v' + __version__ + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
         
         # center to the window
         self._centerWindow()

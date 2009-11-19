@@ -2,6 +2,7 @@ import os, sys, re
 import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
 import projectManager_UI
+import oyProjectManager
 from oyProjectManager.dataModels import projectModel
 from oyProjectManager.tools import rangeTools
 
@@ -42,7 +43,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         self.setupUi(self)
         
         # change the window title
-        self.setWindowTitle( self.windowTitle() + ' v' + __version__ )
+        self.setWindowTitle( self.windowTitle() + ' v' + __version__ + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
         
         # center to the window
         self._centerWindow()
