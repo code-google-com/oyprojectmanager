@@ -79,7 +79,7 @@ def getPathVariables():
     fullPath = hou.hipFile.name()
     
     # unfix windows path
-    fullPath.replace('/','\\')
+    fullPath = fullPath.replace('/','\\')
     
     path = os.path.dirname( fullPath )
     
