@@ -153,6 +153,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.20
+- fixed path separator issues again, this time for houdini, and the reverse fix
+  as the usual one, I mean, houdini uses / instead of the fucking windows' \\
+  under windows
+
 v9.11.19
 - fixed an issue about mayaEnv
 - in houdiniEnv, while saving an asset, the script now creates the asset folder
