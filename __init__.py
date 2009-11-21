@@ -545,6 +545,8 @@ v0.0.1
 
 TODO List :
 -----------
+- store recent files list in database do not trust to the applications recent
+  files
 - convert the system to a full featured Production Asset Management System
 - add a user login window
 - add access control

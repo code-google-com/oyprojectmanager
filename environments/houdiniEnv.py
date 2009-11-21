@@ -78,14 +78,18 @@ def getPathVariables():
     
     fullPath = hou.hipFile.name()
     
-    # unfix windows path
-    fullPath = fullPath.replace('/','\\')
+    if fullPath != 'untitled.hip':
     
-    path = os.path.dirname( fullPath )
-    
-    if path != '':
-        fileName = os.path.basename( fullPath )
+        # unfix windows path
+        fullPath = fullPath.replace('/','\\')
+        
+        path = os.path.dirname( fullPath )
+        
+        if path != '':
+            fileName = os.path.basename( fullPath )
+        else:
+            path = None
     else:
-        path = None
+        hou.
     
     return fileName, path
