@@ -89,7 +89,7 @@ def getPathVariables():
             fileName = os.path.basename( fullPath )
         else:
             path = None
-    else:
-        hou.
+    #else:
+        #hou.
     
     return fileName, path
