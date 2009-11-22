@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.11.19
+v9.11.22
 
 Description :
 -------------
@@ -153,6 +153,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.22
+- mayaEnv now uses the recent file info only if the project is set to the same
+  project with the recent files, if it doesn't match, the interface initialized
+  with the current project
+
 v9.11.20
 - fixed path separator issues again, this time for houdini, and the reverse fix
   as the usual one, I mean, houdini uses / instead of the fucking windows' \\
@@ -589,4 +594,4 @@ TODO List :
 
 
 
-__version__ = "9.11.19"
+__version__ = "9.11.22"
