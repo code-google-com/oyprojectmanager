@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.11.19"
+__version__ = "9.11.22"
 
 
 
@@ -119,9 +119,11 @@ def reference( assetObject ):
 def getPathVariables():
     """gets the file name from maya environment
     """
+    
     foundValidAsset = False
     readRecentFile = True
     fileName = path = None
+    
     db = projectModel.Database()
     
     fullPath = pm.env.sceneName()
@@ -167,10 +169,24 @@ def getPathVariables():
                     foundValidAsset = True
                     break
         
-        if not foundValidAsset:
+        # get the workscape path
+        workspacePath = getWorkspacePath()
+        returnWorkspace = False
+        
+        if foundValidAsset:
+            print "found a valid asset with path", path
+            # check if the recent files path matches the current workspace
+            if not path.startswith( workspacePath ):
+                # use the workspacePath
+                returnWorkspace = True
+        else:
             # just get the path from workspace and return an empty fileName
+            returnWorkspace = True
+        
+        if returnWorkspace:
             fileName = None
-            path = getWorkspacePath()
+            path = workspacePath
+
     
     return fileName, path
 
