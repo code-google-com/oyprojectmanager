@@ -54,9 +54,9 @@ class Database(Singleton):
         self._lastUserFilePath = self.getHomePath()
         self._lastUserFileFullPath = os.path.join( self._lastUserFilePath, self._lastUserFileName )
         
-        self._localSettingsFileName = '.localSettings.xml'
-        self._localSettingsPath = self.getHomePath()
-        self._localSettingsFullPath = os.path( self._localSettingsPath, self._localSettingsFileName )
+        #self._localSettingsFileName = '.localSettings.xml'
+        #self._localSettingsPath = self.getHomePath()
+        #self._localSettingsFullPath = os.path( self._localSettingsPath, self._localSettingsFileName )
         
         # users
         self._usersFileName = 'users.xml'
@@ -1985,39 +1985,39 @@ class Structure(object):
 
 
 
-########################################################################
-class Environment(object):
-    """holds environment data
-    """
+#########################################################################
+#class Environment(object):
+    #"""holds environment data
+    #"""
     
-    #----------------------------------------------------------------------
-    def __init__(self, name):
+    ##----------------------------------------------------------------------
+    #def __init__(self, name):
         
-        self._name = name
+        #self._name = name
         
-        self._recentFilesList = []
+        #self._recentFilesList = []
     
     
     
-    #----------------------------------------------------------------------
-    def addRecentFile(self, recentFile):
-        """adds the given file name to the recent files list
-        """
-        self._recentFilesList.append( recentFile )
+    ##----------------------------------------------------------------------
+    #def addRecentFile(self, recentFile):
+        #"""adds the given file name to the recent files list
+        #"""
+        #self._recentFilesList.append( recentFile )
     
     
-    #----------------------------------------------------------------------
-    def getRecentFiles(self):
-        """returns the recent files list
-        """
-        return self._recentFilesList
+    ##----------------------------------------------------------------------
+    #def getRecentFiles(self):
+        #"""returns the recent files list
+        #"""
+        #return self._recentFilesList
     
     
     
-    #----------------------------------------------------------------------
-    def setRecentFiles(self, recentFiles):
-        """sets the recent files
-        """
-        self._recentFilesList = recentFiles
+    ##----------------------------------------------------------------------
+    #def setRecentFiles(self, recentFiles):
+        #"""sets the recent files
+        #"""
+        #self._recentFilesList = recentFiles
     
-    recentFilesList = property( getRecentFiles, setRecentFiles )
+    #recentFilesList = property( getRecentFiles, setRecentFiles )
