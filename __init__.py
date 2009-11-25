@@ -153,6 +153,12 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.24
+- in houdiniEnv the path seperators were replaced with \\ even the os is linux,
+  this is fixed now
+- assetManager, the ui was not closing itself after a succesfull save operation
+  if the environment is something other than maya, this is fixed now
+
 v9.11.22
 - mayaEnv now uses the recent file info only if the project is set to the same
   project with the recent files, if it doesn't match, the interface initialized

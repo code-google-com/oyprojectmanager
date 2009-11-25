@@ -54,6 +54,10 @@ class Database(Singleton):
         self._lastUserFilePath = self.getHomePath()
         self._lastUserFileFullPath = os.path.join( self._lastUserFilePath, self._lastUserFileName )
         
+        self._localSettingsFileName = '.localSettings.xml'
+        self._localSettingsPath = self.getHomePath()
+        self._localSettingsFullPath = os.path( self._localSettingsPath, self._localSettingsFileName )
+        
         # users
         self._usersFileName = 'users.xml'
         self._usersFileFullPath = ''
@@ -62,6 +66,7 @@ class Database(Singleton):
         self._projects = [] * 0
         self._defaultFilesList = [] * 0
         
+        #self._readLocalSettings()
         self._readSettings()
         self._updatePathVariables()
     
@@ -371,6 +376,68 @@ class Database(Singleton):
         parts = residual.split(os.path.sep)
         
         return parts[0], parts[1]
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def _readLocalSettings(self):
+        #"""reads the local settings file or creates it
+        #"""
+        
+        ##check if there is a local settings file
+        #if os.path.exists( self._localSettingsFullPath ):
+            ## parse it
+            #self._parseLocalSettings()
+        #else:
+            ## create it
+            #self._saveLocalSettings()
+            ## then parse it
+            #self._parseLocalSettings()
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def _parseLocalSettings(self):
+        #"""parses the local settings xml file
+        #"""
+        
+        #settingsFile = minidom.parse( self._localSettingsFullPath )
+        
+        #rootNode = settingsFile.childNodes[0]
+        #programsNode = rootNode.childNodes[0]
+        
+        #allProgramNodes = programsNode.childNodes
+        
+        #for program in allProgramNodes:
+            #programName = program.getAttr('name')
+            
+            #recentFilesNode = program.childNodes[0]
+            #recentFiles = recentFilesNode.childNodes[0].wholeText.splitlines()
+        
+        
+        
+        # read the last user
+        
+        
+        
+        # read the program settings
+        
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def _saveLocalSettings(self):
+        #"""saves the 
+        #"""
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def getRecentFile(self, environmentName):
+        #"""returns the recent file from the given environment
+        #"""
+        
+        
 
 
 
@@ -1912,4 +1979,45 @@ class Structure(object):
         self._shotDependentFolders = sorted(oyAux.unique( self._shotDependentFolders ))
         self._shotIndependentFolders = sorted(oyAux.unique( self._shotIndependentFolders ))
         self._outputFolders = sorted(oyAux.unique( self._outputFolders ))
+
+
+
+
+
+
+########################################################################
+class Environment(object):
+    """holds environment data
+    """
+    
+    #----------------------------------------------------------------------
+    def __init__(self, name):
         
+        self._name = name
+        
+        self._recentFilesList = []
+    
+    
+    
+    #----------------------------------------------------------------------
+    def addRecentFile(self, recentFile):
+        """adds the given file name to the recent files list
+        """
+        self._recentFilesList.append( recentFile )
+    
+    
+    #----------------------------------------------------------------------
+    def getRecentFiles(self):
+        """returns the recent files list
+        """
+        return self._recentFilesList
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setRecentFiles(self, recentFiles):
+        """sets the recent files
+        """
+        self._recentFilesList = recentFiles
+    
+    recentFilesList = property( getRecentFiles, setRecentFiles )

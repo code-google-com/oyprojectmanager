@@ -5,7 +5,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.11.20"
+__version__ = "9.11.24"
 
 
 
@@ -81,7 +81,8 @@ def getPathVariables():
     if fullPath != 'untitled.hip':
     
         # unfix windows path
-        fullPath = fullPath.replace('/','\\')
+        if os.name == 'nt':
+            fullPath = fullPath.replace('/','\\')
         
         path = os.path.dirname( fullPath )
         

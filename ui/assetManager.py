@@ -8,7 +8,7 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.11.18"
+__version__ = "9.11.24"
 
 
 #----------------------------------------------------------------------
@@ -1098,7 +1098,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 #print info
                 if self.environment == 'MAYA':
                     self.printInfo( assetObject,  "saved" )
-                    self.close()
+                    
+                self.close()
     
     
     
