@@ -134,4 +134,4 @@ def setEnvironmentVariables( assetObject ):
     #assert(isinstance(assetObject, assetModel.Asset))
     
     # set the $JOB variable to the sequence root
-    os.environ['JOB'] = str(assetObject.getSequenceFullPath())
+    os.environ['JOB'] = str(assetObject.getSequenceFullPath()).replace('\\','/')
