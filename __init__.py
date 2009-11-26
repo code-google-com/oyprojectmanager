@@ -153,6 +153,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.25
+- houdiniEnv now changes the $JOB environment variable according to the given
+  assetObject while saving or opening the file
+
 v9.11.24
 - in houdiniEnv the path seperators were replaced with \\ even the os is linux,
   this is fixed now
