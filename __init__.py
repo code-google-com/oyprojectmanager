@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.11.22
+v9.11.30
 
 Description :
 -------------
@@ -153,6 +153,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.11.30
+- for mayaEnv the assetManager now checks the referenced assets against newer
+  versions of that asset and warns the user (for now) to update them
+
 v9.11.25
 - houdiniEnv now changes the $JOB environment variable according to the given
   assetObject while saving or opening the file

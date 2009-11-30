@@ -69,7 +69,7 @@ def export( assetObject ):
 def open_( assetObject, force=False):
     """the open action for maya environment
     """
-    #assert(isinstance(assetObject, assetModel.Asset ) )
+    assert(isinstance(assetObject, assetModel.Asset ) )
     
     # check for unsaved changes
     assetFullPath = assetObject.getFullPath()
@@ -84,7 +84,12 @@ def open_( assetObject, force=False):
     
     appendToRecentFiles( assetFullPath )
     
-    return True
+    # check the referenced assets for newer version
+    toUpdateList = checkReferenceVersions()
+    
+    #print toUpdateList
+    
+    return True, toUpdateList
 
 
 
@@ -276,7 +281,64 @@ def appendToRecentFiles(path):
     
     recentFiles.appendVar( path )
     #pm.optionVar['RecentFilesList'] = recentFiles
+
+
+
+
+#----------------------------------------------------------------------
+def checkReferenceVersions():
+    """checks the referenced assets versions
+    """
     
+    # get all the valid asset references
+    assets = getValidReferencedAssets()
     
+    updateList = []
     
+    for asset in assets:
+        #assert(isinstance(asset, assetModel.Asset))
+        
+        if not asset.isLatestVersion():
+            # add asset to the update list
+            
+            updateList.append( asset.getFileName() )
     
+    # for now just return the list that contains the asset file names those
+    # need to be updated
+    
+    return updateList
+
+
+
+
+#----------------------------------------------------------------------
+def getValidReferencedAssets():
+    """returns the valid assets those been referenced to the current scene
+    """
+    
+    validAssets = []
+    
+    # get all the references
+    allReferences = pm.listReferences()
+    
+    # create a database object
+    db = projectModel.Database()
+    
+    # iterate over them to find valid assets
+    for ref in allReferences:
+        # it is a dictionary
+        
+        #assert(isinstance(ref, pm.FileReference))
+        tempAssetFullPath = ref.path
+        tempAssetPath = os.path.basename( tempAssetFullPath )
+        
+        projName, seqName = db.getProjectAndSequenceNameFromFilePath( tempAssetFullPath )
+        proj = projectModel.Project( projName )
+        seq = projectModel.Sequence( proj, seqName )
+        
+        tempAsset = assetModel.Asset( proj, seq, tempAssetPath )
+        
+        if tempAsset.isValidAsset():
+            validAssets.append( tempAsset )
+    
+    return validAssets

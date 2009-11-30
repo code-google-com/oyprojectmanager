@@ -1164,12 +1164,30 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             if self.environment == 'MAYA':
                 from oyProjectManager.environments import mayaEnv
                 try:
-                    envStatus = mayaEnv.open_( assetObject )
+                    envStatus, toUpdateList = mayaEnv.open_( assetObject )
                 except RuntimeError:
                     answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There are unsaved changes in the current scene\n\nDo you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                     
                     if answer== QtGui.QMessageBox.Yes:
                         envStatus = mayaEnv.open_( assetObject, True )
+                
+                # check the toUpdateList to update old assets
+                if len(toUpdateList):
+                    assetNames = '\n'.join( toUpdateList )
+                    
+                    # display the warning
+                    answer = QtGui.QMessageBox.warning(self, 'AssetVersionError', "These assets has newer versions\n\n" + assetNames + "\n\nPlease update them!", QtGui.QMessageBox.Ok )
+                    
+                    # print the text version
+                    print "\n"
+                    print "These assets has newer versions:"
+                    print "--------------------------------"
+                    print "\n"
+                    print assetNames
+                    print "\n"
+                    print "Please update them!"
+                    
+                
             elif self.environment == 'NUKE':
                 from oyProjectManager.environments import nukeEnv
                 envStatus = nukeEnv.open_( assetObject )
