@@ -330,6 +330,9 @@ def getValidReferencedAssets():
         
         #assert(isinstance(ref, pm.FileReference))
         tempAssetFullPath = ref.path
+        if os.name == 'nt':
+            tempAssetFullPath.replace('/','\\')
+        
         tempAssetPath = os.path.basename( tempAssetFullPath )
         
         projName, seqName = db.getProjectAndSequenceNameFromFilePath( tempAssetFullPath )
