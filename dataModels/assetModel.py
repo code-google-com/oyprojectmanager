@@ -230,13 +230,16 @@ class Asset(object):
             try:
                 typeFolder = self._type.getPath()
             except AttributeError:
-                print "fileName     : ", self._fileName
-                print "baseName     : ", self._baseName
-                print "subName      : ", self._subName
-                print "typeName     : ", self._typeName
-                print "revString    : ", self._revString
-                print "verString    : ", self._verString
-                print "userInitials : ", self._userInitials
+                justCnt = 20
+                print "fileName".ljust( justCnt ), ": ", self._fileName
+                print "baseName".ljust( justCnt ), ": ", self._baseName
+                print "subName".ljust( justCnt ), ": ", self._subName
+                print "typeName".ljust( justCnt ), ": ", self._typeName
+                print "revString".ljust( justCnt ), ": ", self._revString
+                print "verString".ljust( justCnt ), ": ", self._verString
+                print "userInitials".ljust( justCnt ), ": ", self._userInitials
+                print "parent sequence".ljust( justCnt ), ": ", self._parentSequence.getName()
+                print "parent project".ljust( justCnt ), ": ", self._parentProject.getName()
                 raise
             
             self._path = os.path.join( seqFullPath, typeFolder)
