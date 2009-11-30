@@ -176,7 +176,10 @@ class Asset(object):
                 self._revString    = parts[3]
                 self._verString    = parts[4]
                 self._userInitials = parts[5]
-            except IndexError:
+            except IndexError, AttributeError:
+                
+                print self._fileName
+                
                 # the given file name is not valid
                 self._fileName = ''
                 return
