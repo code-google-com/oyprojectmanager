@@ -162,6 +162,10 @@ class Asset(object):
         """tries to get all the info variables from the file name
         """
         
+        # check if there is a valid project
+        if self._parentProject == None or self._parentSequence == None:
+            return
+        
         parts = self._fileName.split( self._dataSeparator )
         
         if not self._parentSequence._noSubNameField:
@@ -227,20 +231,21 @@ class Asset(object):
         if self._hasBaseInfo:
             seqFullPath = self._parentSequence.getFullPath()
             
-            try:
-                typeFolder = self._type.getPath()
-            except AttributeError:
-                justCnt = 20
-                print "fileName".ljust( justCnt ), ": ", self._fileName
-                print "baseName".ljust( justCnt ), ": ", self._baseName
-                print "subName".ljust( justCnt ), ": ", self._subName
-                print "typeName".ljust( justCnt ), ": ", self._typeName
-                print "revString".ljust( justCnt ), ": ", self._revString
-                print "verString".ljust( justCnt ), ": ", self._verString
-                print "userInitials".ljust( justCnt ), ": ", self._userInitials
-                print "parent sequence".ljust( justCnt ), ": ", self._parentSequence.getName()
-                print "parent project".ljust( justCnt ), ": ", self._parentProject.getName()
-                raise
+            typeFolder = self._type.getPath()
+            #try:
+                #typeFolder = self._type.getPath()
+            #except AttributeError:
+                #justCnt = 20
+                #print "fileName".ljust( justCnt ), ": ", self._fileName
+                #print "baseName".ljust( justCnt ), ": ", self._baseName
+                #print "subName".ljust( justCnt ), ": ", self._subName
+                #print "typeName".ljust( justCnt ), ": ", self._typeName
+                #print "revString".ljust( justCnt ), ": ", self._revString
+                #print "verString".ljust( justCnt ), ": ", self._verString
+                #print "userInitials".ljust( justCnt ), ": ", self._userInitials
+                #print "parent sequence".ljust( justCnt ), ": ", self._parentSequence.getName()
+                #print "parent project".ljust( justCnt ), ": ", self._parentProject.getName()
+                #raise
             
             self._path = os.path.join( seqFullPath, typeFolder)
             self._path = os.path.join( self._path, self._baseName )

@@ -1162,6 +1162,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # open the asset in the environment
         if exists:
             if self.environment == 'MAYA':
+                
+                toUpdateList = [] # the list that holds the assets those needs to be updated
+                
                 from oyProjectManager.environments import mayaEnv
                 try:
                     envStatus, toUpdateList = mayaEnv.open_( assetObject )

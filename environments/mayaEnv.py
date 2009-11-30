@@ -335,8 +335,8 @@ def getValidReferencedAssets():
         
         tempAssetPath = os.path.basename( tempAssetFullPath )
         
-        print "tempAssetFullPath".ljust(25), ":", tempAssetFullPath
-        print "tempAssetPath".ljust(25), ":", tempAssetPath
+        #print "tempAssetFullPath".ljust(25), ":", tempAssetFullPath
+        #print "tempAssetPath".ljust(25), ":", tempAssetPath
         
         projName, seqName = db.getProjectAndSequenceNameFromFilePath( tempAssetFullPath )
         proj = projectModel.Project( projName )

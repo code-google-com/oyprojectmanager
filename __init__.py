@@ -156,6 +156,8 @@ Version History :
 v9.11.30
 - for mayaEnv the assetManager now checks the referenced assets against newer
   versions of that asset and warns the user (for now) to update them
+- the Asset class now checks the input project and sequence object against
+  being None, if at least one of them is None the asset object becomes invalid
 
 v9.11.25
 - houdiniEnv now changes the $JOB environment variable according to the given
