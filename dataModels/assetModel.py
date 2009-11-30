@@ -229,7 +229,12 @@ class Asset(object):
         # if it has just the base info update some of the variables
         if self._hasBaseInfo:
             seqFullPath = self._parentSequence.getFullPath()
-            typeFolder = self._type.getPath()
+            
+            try:
+                typeFolder = self._type.getPath()
+            except AttributeError:
+                print self._fileName
+                raise
             
             self._path = os.path.join( seqFullPath, typeFolder)
             self._path = os.path.join( self._path, self._baseName )
