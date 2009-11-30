@@ -1172,7 +1172,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                     answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There are unsaved changes in the current scene\n\nDo you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                     
                     if answer== QtGui.QMessageBox.Yes:
-                        envStatus = mayaEnv.open_( assetObject, True )
+                        envStatus, toUpdateList = mayaEnv.open_( assetObject, True )
                 
                 # check the toUpdateList to update old assets
                 if len(toUpdateList):
