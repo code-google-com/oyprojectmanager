@@ -584,6 +584,24 @@ class Asset(object):
         """checks if the asset is the latest version in its series
         """
         
+        # return False if there is no such asset initialized yet
+        if not self._baseExists:
+            return True
+        
+        latestAssetObject, latestVersionNumber = self.getLatestVersion2()
+        
+        # return True if it is the last in the list
+        if self.getVersionNumber() < latestVersionNumber:
+            return False
+        
+        return True
+    
+    
+    
+    #----------------------------------------------------------------------
+    def isNewVersion(self):
+        """checks if the asset is a new version in its series
+        """
         # return True if there is no such asset initialized yet
         if not self._baseExists:
             return True
@@ -602,13 +620,32 @@ class Asset(object):
         """checks if the asset is the latest revision in its series
         """
         
+        # return False if there is no such asset initialized yet
+        if not self._baseExists:
+            return True
+        
+        latestAssetObject, latestRevisionNumber = self.getLatestRevision2()
+        
+        # return True if it is the last in the list
+        if self.getRevisionNumber() < latestRevisionNumber:
+            return False
+        
+        return True
+    
+    
+    
+    #----------------------------------------------------------------------
+    def isNewRevision(self):
+        """checks if the asset is a new revision in its series
+        """
+        
         # return True if there is no such asset initialized yet
         if not self._baseExists:
             return True
         
         latestAssetObject, latestRevisionNumber = self.getLatestRevision2()
         
-        if self.getRevisionNumber() < latestRevisionNumber:
+        if self.getRevisionNumber() <= latestRevisionNumber:
             return False
         
         return True

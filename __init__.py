@@ -158,6 +158,12 @@ v9.11.30
   versions of that asset and warns the user (for now) to update them
 - the Asset class now checks the input project and sequence object against
   being None, if at least one of them is None the asset object becomes invalid
+- Asset class now has a two new methods which called isNewVersion and
+  isNewRevision, which does the same thing that the isLatestVersion and
+  isLatestRevision methods were doing in previous versions. The
+  isLatestVersion and isLatestRevision methods now return true if the version
+  and the revision numbers are the last in their series and they return True if
+  the base doesn't exists
 
 v9.11.25
 - houdiniEnv now changes the $JOB environment variable according to the given

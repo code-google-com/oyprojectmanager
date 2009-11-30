@@ -986,8 +986,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         verStatus = False
         
-        # check for the latest version
-        if not assetObject.isLatestVersion():
+        # check for the new version
+        if not assetObject.isNewVersion():
             
             # ask permission to update the fields automatically
             answer = QtGui.QMessageBox.question(self, 'Version Error', 'it is not the latest version\nshould I increase the version number?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)

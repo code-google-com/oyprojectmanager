@@ -296,7 +296,7 @@ def checkReferenceVersions():
     updateList = []
     
     for asset in assets:
-        #assert(isinstance(asset, assetModel.Asset))
+        assert(isinstance(asset, assetModel.Asset))
         
         if not asset.isLatestVersion():
             # add asset to the update list
