@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>703</width>
-    <height>487</height>
+    <width>749</width>
+    <height>875</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -47,7 +47,7 @@
            <verstretch>1</verstretch>
           </sizepolicy>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout1" stretch="0,1,0">
+         <layout class="QVBoxLayout" name="verticalLayout1" stretch="0,0">
           <item>
            <widget class="QWidget" name="gridWidget1" native="true">
             <layout class="QGridLayout" name="gridLayout1">
@@ -218,7 +218,7 @@ If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc.
                </property>
               </widget>
              </item>
-             <item row="8" column="0">
+             <item row="10" column="0">
               <widget class="QLabel" name="baseName_label1">
                <property name="text">
                 <string>Base Name</string>
@@ -228,67 +228,13 @@ If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc.
                </property>
               </widget>
              </item>
-             <item row="8" column="1">
-              <widget class="QComboBox" name="baseName_comboBox1">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                 <horstretch>1</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>for shot independent types enter or select a baseName</string>
-               </property>
-               <property name="statusTip">
-                <string>for shot independent types enter or select a baseName</string>
-               </property>
-               <property name="whatsThis">
-                <string>Base Name:
-
-This shows the base name of an asset</string>
-               </property>
-               <property name="editable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
+             <item row="13" column="0">
               <widget class="QLabel" name="subName_label1">
                <property name="text">
                 <string>Sub Name</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="1">
-              <widget class="QComboBox" name="subName_comboBox1">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                 <horstretch>1</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>if the project supports SubName field, you can enter or select a subName</string>
-               </property>
-               <property name="statusTip">
-                <string>if the project supports SubName field, you can enter or select a subName</string>
-               </property>
-               <property name="whatsThis">
-                <string>Sub Name:
-
-Sub name field is introduced with this new version. Its main purpose is to let the users work on the same shot dependent assets togather. By default the field will be set to MAIN...</string>
-               </property>
-               <property name="editable">
-                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -306,7 +252,7 @@ Sub name field is introduced with this new version. Its main purpose is to let t
                </property>
               </widget>
              </item>
-             <item row="10" column="0">
+             <item row="16" column="0">
               <widget class="QLabel" name="revision_label1">
                <property name="text">
                 <string>Revision</string>
@@ -316,7 +262,7 @@ Sub name field is introduced with this new version. Its main purpose is to let t
                </property>
               </widget>
              </item>
-             <item row="10" column="1">
+             <item row="16" column="1">
               <widget class="QWidget" name="revision_horizontalWidget" native="true">
                <layout class="QHBoxLayout" name="revision_horizontalLayout" stretch="1,1">
                 <property name="margin">
@@ -359,7 +305,7 @@ Revision numbers represents the milestones in the development of this asset. Gen
                </layout>
               </widget>
              </item>
-             <item row="11" column="0">
+             <item row="17" column="0">
               <widget class="QLabel" name="version_label1">
                <property name="text">
                 <string>Version</string>
@@ -369,7 +315,7 @@ Revision numbers represents the milestones in the development of this asset. Gen
                </property>
               </widget>
              </item>
-             <item row="11" column="1">
+             <item row="17" column="1">
               <widget class="QWidget" name="version_horizontalWidget" native="true">
                <layout class="QHBoxLayout" name="version_horizontalLayout">
                 <property name="margin">
@@ -421,7 +367,7 @@ Any incarnation of an asset should be have different version numbers.</string>
                </layout>
               </widget>
              </item>
-             <item row="12" column="0">
+             <item row="18" column="0">
               <widget class="QLabel" name="user_label1">
                <property name="text">
                 <string>User</string>
@@ -431,7 +377,7 @@ Any incarnation of an asset should be have different version numbers.</string>
                </property>
               </widget>
              </item>
-             <item row="12" column="1">
+             <item row="18" column="1">
               <widget class="QComboBox" name="user_comboBox1">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -452,7 +398,7 @@ Select your user initials from the list, so anybody can understand who created t
                </property>
               </widget>
              </item>
-             <item row="13" column="0">
+             <item row="19" column="0">
               <widget class="QLabel" name="note_label1">
                <property name="text">
                 <string>Note</string>
@@ -462,7 +408,7 @@ Select your user initials from the list, so anybody can understand who created t
                </property>
               </widget>
              </item>
-             <item row="13" column="1">
+             <item row="19" column="1">
               <widget class="QLineEdit" name="note_lineEdit1">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -483,21 +429,64 @@ You can use this field to leave little but important messages here... It is limi
                </property>
               </widget>
              </item>
+             <item row="10" column="1">
+              <widget class="QListWidget" name="baseName_listWidget">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>3</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="1">
+              <widget class="QLineEdit" name="baseName_lineEdit"/>
+             </item>
+             <item row="13" column="1">
+              <widget class="QListWidget" name="subName_listWidget">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>1</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+               <property name="resizeMode">
+                <enum>QListView::Fixed</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="14" column="1">
+              <widget class="QLineEdit" name="subName_lineEdit"/>
+             </item>
+             <item row="8" column="0" colspan="2">
+              <widget class="Line" name="line_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="12" column="0" colspan="2">
+              <widget class="Line" name="line_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="15" column="0" colspan="2">
+              <widget class="Line" name="line_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
           </item>
           <item>
            <widget class="QWidget" name="saveButtons_horizontalWidget" native="true">
@@ -627,6 +616,9 @@ Exports the selected content to the server as an asset</string>
 
 All versions of the currently selected asset will be listed here...</string>
             </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -738,41 +730,6 @@ Just quits the application without doing anything</string>
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>703</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionOpen_Settings"/>
-    <addaction name="actionSave_Asset"/>
-    <addaction name="separator"/>
-    <addaction name="actionSave_Settings"/>
-    <addaction name="actionExit"/>
-   </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <addaction name="actionAbout"/>
-    <addaction name="separator"/>
-   </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="sizePolicy">

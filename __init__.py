@@ -164,6 +164,9 @@ v9.11.30
   isLatestVersion and isLatestRevision methods now return true if the version
   and the revision numbers are the last in their series and they return True if
   the base doesn't exists
+- the assetManagers baseName and subName comboBoxes are replaced with
+  listWidgets to let the user see all the alternatives of the current asset at
+  the first sight
 
 v9.11.25
 - houdiniEnv now changes the $JOB environment variable according to the given
@@ -616,4 +619,4 @@ TODO List :
 
 
 
-__version__ = "9.11.22"
+__version__ = "9.11.30"

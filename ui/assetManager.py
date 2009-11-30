@@ -8,7 +8,8 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.11.24"
+__version__ = "9.11.30"
+
 
 
 #----------------------------------------------------------------------
@@ -47,83 +48,14 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # center to the window
         self._centerWindow()
         
-        # connect SIGNALs
-        # SAVE Asset
-        QtCore.QObject.connect(self.save_button, QtCore.SIGNAL("clicked()"), self.saveAsset )
-        QtCore.QObject.connect(self.export_button, QtCore.SIGNAL("clicked()"), self.exportAsset )
-        QtCore.QObject.connect(self.open_button, QtCore.SIGNAL("clicked()"), self.openAsset )
-        QtCore.QObject.connect(self.reference_button, QtCore.SIGNAL("clicked()"), self.referenceAsset )
-        QtCore.QObject.connect(self.import_button, QtCore.SIGNAL("clicked()"), self.importAsset )
+        # setup signals
+        self._setupSignals()
         
-        # validate input texts
-        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("editTextChanged(QString)"), self.validateBaseName )
-        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("editTextChanged(QString)"), self.validateSubName )
-        #QtCore.QObject.connect(self.note_lineEdit1, QtCore.SIGNAL("textChanged(QString)"), self.validateNotes )
+        # setup validators
+        self._setupValidators()
         
-        # close button
-        #QtCore.QObject.connect(self.cancel_button1, QtCore.SIGNAL("clicked()"), self.close )
-        QtCore.QObject.connect(self.cancel_button2, QtCore.SIGNAL("clicked()"), self.close )
-        
-        # project change ---> update sequence
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self._updateProjectObject )
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSequenceList)
-        
-        # sequence change ---> update _noSubNameField
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self._updateSequenceObject )
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateForNoSubName)
-        
-        # sequence change ---> update asset type
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetTypeList)
-        
-        # sequence change ---> update shot lists
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotList )
-        
-        # type change ---> base and shot enable disable
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotDependentFields )
-        
-        # type change ---> fill baseName comboBox and update subName
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateBaseNameField )
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
-        
-        # shotName or baseName change ---> fill subName comboBox
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
-        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
-        
-        # subName change ---> full update assets_listWidget1
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
-        
-        # get latest revision --> revision
-        QtCore.QObject.connect(self.revision_pushButton, QtCore.SIGNAL("clicked()"), self.updateRevisionToLatest )
-        
-        # get latest version --> version
-        QtCore.QObject.connect(self.version_pushButton, QtCore.SIGNAL("clicked()"), self.updateVersionToLatest )
-        
-        # sequence, type, shotName, baseName or subName change --> revision + version
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
-        
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
-        
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
-        
-        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
-        
-        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.subName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
-        
-        QtCore.QMetaObject.connectSlotsByName(self)
-        
-        # showLastNEntry_checkbox or numberOfEntry change ->partial update assets_listWidget1
-        QtCore.QObject.connect(self.showLastNEntry_checkBox, QtCore.SIGNAL("stateChanged(int)"), self.partialUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.numberOfEntry_spinBox, QtCore.SIGNAL("valueChanged(int)"), self.partialUpdateAssetsListWidget )
+        # attach new item texts
+        #setattr( self.baseName_listWidget, 'newItemText', '(add new...)')
         
         # create a database
         self._db = projectModel.Database()
@@ -153,6 +85,109 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
+    def _setupSignals(self):
+        """sets up the signals/slots
+        """
+        
+        # connect SIGNALs
+        # SAVE Asset
+        QtCore.QObject.connect(self.save_button, QtCore.SIGNAL("clicked()"), self.saveAsset )
+        QtCore.QObject.connect(self.export_button, QtCore.SIGNAL("clicked()"), self.exportAsset )
+        QtCore.QObject.connect(self.open_button, QtCore.SIGNAL("clicked()"), self.openAsset )
+        QtCore.QObject.connect(self.reference_button, QtCore.SIGNAL("clicked()"), self.referenceAsset )
+        QtCore.QObject.connect(self.import_button, QtCore.SIGNAL("clicked()"), self.importAsset )
+        
+        # validate input texts
+        #QtCore.QObject.connect(self.note_lineEdit1, QtCore.SIGNAL("textChanged(QString)"), self.validateNotes )
+        
+        # close button
+        #QtCore.QObject.connect(self.cancel_button1, QtCore.SIGNAL("clicked()"), self.close )
+        QtCore.QObject.connect(self.cancel_button2, QtCore.SIGNAL("clicked()"), self.close )
+        
+        # project change ---> update sequence
+        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self._updateProjectObject )
+        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSequenceList)
+        
+        # sequence change ---> update _noSubNameField
+        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self._updateSequenceObject )
+        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateForNoSubName)
+        
+        # sequence change ---> update asset type
+        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetTypeList)
+        
+        # sequence change ---> update shot lists
+        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotList )
+        
+        # type change ---> base and shot enable disable
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotDependentFields )
+        
+        # type change ---> fill baseName comboBox and update subName
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateBaseNameField )
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
+        
+        # shotName or baseName change ---> fill subName comboBox
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
+        #QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
+        QtCore.QObject.connect(self.baseName_listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.updateSubNameField )
+        
+        # subName change ---> full update assets_listWidget1
+        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
+        
+        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.fullUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.fullUpdateAssetsListWidget )
+        
+        # get latest revision --> revision
+        QtCore.QObject.connect(self.revision_pushButton, QtCore.SIGNAL("clicked()"), self.updateRevisionToLatest )
+        
+        # get latest version --> version
+        QtCore.QObject.connect(self.version_pushButton, QtCore.SIGNAL("clicked()"), self.updateVersionToLatest )
+        
+        # sequence, type, shotName, baseName or subName change --> revision + version
+        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
+        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
+        
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
+        
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
+        
+        QtCore.QObject.connect(self.baseName_listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.updateRevisionToLatest )
+        QtCore.QObject.connect(self.subName_listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.updateVersionToLatest )
+        
+        QtCore.QObject.connect(self.subName_listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.updateRevisionToLatest )
+        QtCore.QObject.connect(self.subName_listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.updateVersionToLatest )
+        
+        QtCore.QMetaObject.connectSlotsByName(self)
+        
+        # showLastNEntry_checkbox or numberOfEntry change ->partial update assets_listWidget1
+        QtCore.QObject.connect(self.showLastNEntry_checkBox, QtCore.SIGNAL("stateChanged(int)"), self.partialUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.numberOfEntry_spinBox, QtCore.SIGNAL("valueChanged(int)"), self.partialUpdateAssetsListWidget )
+        
+        # baseName_listWidget -> baseName_lineEdit
+        QtCore.QObject.connect( self.baseName_listWidget, QtCore.SIGNAL("currentTextChanged(QString)"), self.updateBaseNameLineEdit )
+        QtCore.QObject.connect( self.subName_listWidget, QtCore.SIGNAL("currentTextChanged(QString)"), self.updateSubNameLineEdit )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setupValidators(self):
+        """sets up the input validators
+        """
+        
+        ## new item to the baseName_listWidget
+        #QtCore.QObject.connect(self.baseName_listWidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"), self.addNewListItem )
+        
+        # attach validators
+        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.validateBaseName )
+        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.validateSubName )
+    
+    
+    
+    #----------------------------------------------------------------------
     def _centerWindow(self):
         """centers the window to the screen
         """
@@ -169,8 +204,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """
         
         # set sub name to MAIN by default
-        self.subName_comboBox1.clear()
-        self.subName_comboBox1.addItem( "MAIN" )
+        self.subName_listWidget.clear()
+        self.subName_listWidget.addItem( "MAIN" )
         
         # append the users to the users list
         userInits = self._db.getUserInitials()
@@ -245,12 +280,14 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             element = self.shot_comboBox1
             element.setCurrentIndex( element.findText( shotNumber) )
         else:
-            element = self.baseName_comboBox1
+            #element = self.baseName_comboBox1
+            element = self.baseName_listWidget
             element.setCurrentIndex( element.findText(baseName) )
         
         if not currentSequence._noSubNameField: # remove this block when the support for old version becomes obsolute
             # sub Name
-            element = self.subName_comboBox1
+            #element = self.subName_comboBox1
+            element = self.subName_listWidget
             element.setCurrentIndex( element.findText(subName) )
         
         # revision
@@ -361,8 +398,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         if currentTypeName == None:
             return
         
-        comboBox = self.baseName_comboBox1
-        
         currentType = currentSequence.getAssetTypeWithName( currentTypeName )
         
         if currentType == None or currentType.isShotDependent():
@@ -379,13 +414,28 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         baseNamesList = oyAux.unique( baseNamesList )
         
         # add them to the baseName combobox
-        comboBox.clear()
-        
-        # add an item for new items
-        comboBox.addItem("")
+        self.baseName_listWidget.clear()
         
         # add the list
-        comboBox.addItems( sorted(baseNamesList) )
+        self.baseName_listWidget.addItems( sorted(baseNamesList) )
+        
+        # select the first one in the list
+        if len(baseNamesList) > 0:
+            listItem = self.baseName_listWidget.item(0)
+            #assert(isinstance(listItem, QtGui.QListWidgetItem ))
+            listItem.setSelected(True)
+            
+            self.updateBaseNameLineEdit( listItem.text() )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def updateBaseNameLineEdit(self, baseName):
+        """updates the baseName_lineEdit according to the selected text in the
+        baseName_listWidget
+        """
+        
+        self.baseName_lineEdit.setText( baseName )
     
     
     
@@ -402,7 +452,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # if the current sequence doesn't support subName field just return
         if currentSequence._noSubNameField:
-            self.subName_comboBox1.clear()
+            self.subName_listWidget.clear()
             return
         
         currentAssetTypeName = self.getCurrentAssetType()
@@ -411,7 +461,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         if assetTypeObj == None:
             # clear the current subName field and return
-            self.subName_comboBox1.clear()
+            self.subName_listWidget.clear()
             return
         
         if assetTypeObj.isShotDependent():
@@ -419,30 +469,22 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         else:
             currentBaseName = self.getCurrentBaseName()
         
-        self._updateSubNameField( currentSequence, currentAssetTypeName, currentBaseName, self.subName_comboBox1 )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _updateSubNameField(self, currentSequence, currentTypeName, currentBaseName, comboBox):
-        """updates the subName field to correctly reflect the behaviour of the current sequence
-        """
+        self.subName_listWidget.clear()
         
-        if currentTypeName == None or currentBaseName == None:
-            comboBox.clear()
+        if currentAssetTypeName == None or currentBaseName == None:
             return
         
-        currentType = currentSequence.getAssetTypeWithName( currentTypeName )
+        currentAssetType = currentSequence.getAssetTypeWithName( currentAssetTypeName )
         
-        if currentType == None:
+        if currentAssetType == None:
             # do nothing
-            comboBox.clear()
             return
         
         # get the asset files of that type
-        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
+        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentAssetTypeName )
+        
         # filter for base name
-        allAssetFileNamesFiltered = currentSequence.filterAssetNames( allAssetFileNames, baseName=currentBaseName, typeName=currentTypeName ) 
+        allAssetFileNamesFiltered = currentSequence.filterAssetNames( allAssetFileNames, baseName=currentBaseName, typeName=currentAssetTypeName ) 
         
         # get the subNames
         curSGFIV = currentSequence.generateFakeInfoVariables
@@ -455,12 +497,23 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         subNamesList = oyAux.unique( subNamesList )
         
         # add them to the baseName combobox
-        comboBox.clear()
         
         # do not add an item for new items, the default should be MAIN
         # add the list
-        comboBox.addItems( sorted(subNamesList) )
+        self.subName_listWidget.addItems( sorted(subNamesList) )
+        
+        # update subName line edit
+        self.updateSubNameLineEdit( 'MAIN' )
     
+    
+    
+    #----------------------------------------------------------------------
+    def updateSubNameLineEdit(self, subName):
+        """updates the subName_lineEdit according to the selected text in the
+        subName_listWidget
+        """
+        
+        self.subName_lineEdit.setText( subName )
     
     
     #----------------------------------------------------------------------
@@ -478,9 +531,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         if assetType != None:
             # enable the shot if the asset type is shot dependent
-            isShotDependent = assetType.isShotDependent() 
+            isShotDependent = assetType.isShotDependent()
             self.shot_comboBox1.setEnabled( isShotDependent )
-            self.baseName_comboBox1.setEnabled( not isShotDependent )
+            
+            self.baseName_listWidget.setEnabled( not isShotDependent )
+            self.baseName_lineEdit.setEnabled( not isShotDependent )
     
     
     
@@ -501,9 +556,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             return
         
         # enable the shot if the asset type is shot dependent
-        isShotDependent = assetType.isShotDependent() 
+        isShotDependent = assetType.isShotDependent()
         self.shot_comboBox1.setEnabled( isShotDependent )
-        self.baseName_comboBox1.setEnabled( not isShotDependent )
+        
+        self.baseName_listWidget.setEnabled( not isShotDependent )
+        self.baseName_lineEdit.setEnabled( not isShotDependent )
     
     
     
@@ -558,12 +615,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             self._versionListBuffer = sorted(allVersionsList)
         else:
             self._versionListBuffer = []
-            #if self.showLastNEntry_checkBox.isChecked():
-                ## get the number of entry
-                #numOfEntry = self.numberOfEntry_spinBox.value()
-                #self.assets_listWidget1.addItems( sorted(allVersionsList)[-numOfEntry:-1] )
-            #else:
-                #self.assets_listWidget1.addItems( sorted(allVersionsList) )
     
     
     
@@ -628,7 +679,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     def getCurrentBaseName(self):
         """returns the current baseName from the UI
         """
-        return unicode( self.baseName_comboBox1.currentText() )
+        #return unicode( self.baseName_comboBox1.currentText() )
+        return unicode( self.baseName_lineEdit.text() )
     
     
     
@@ -636,7 +688,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     def getCurrentSubName(self):
         """returns the current subName from the UI
         """
-        return unicode( self.subName_comboBox1.currentText() )
+        return unicode( self.subName_lineEdit.text() )
     
     
     
@@ -841,19 +893,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     
-    ##----------------------------------------------------------------------
-    #def validateFieldInput(self, UIElement):
-        #"""validates the fields input
-        #"""
-        #pass
-        ##if type(UIElement) == type(QtGui.QComboBox):
-            ### validate the item
-            ##assert(isinstance(UIElement, QtGui.QComboBox))
-            
-            ##UIElement.a oyAux.file_name_conditioner( UIElement.currentText() )
-    
-    
-    
     #----------------------------------------------------------------------
     def updateForNoSubName(self):
         """this method will be removed in later version, it is written just to support
@@ -864,7 +903,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self._updateSequenceObject()
         currentSequence = self._sequence
         
-        self.subName_comboBox1.setEnabled(not currentSequence._noSubNameField)
+        self.subName_listWidget.setEnabled(not currentSequence._noSubNameField)
+        self.subName_lineEdit.setEnabled(not currentSequence._noSubNameField)
     
     
     
@@ -899,37 +939,33 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def validateSubName(self):
+    def validateSubName(self, text):
         """validates the subName field by removing unneccessary characters
         """
         
-        # get the text
-        text = unicode( self.subName_comboBox1.currentText() )
-        
-        if len(text) == 0:
-            return
-        
-        # validate the text
-        text = oyAux.stringConditioner( text, False, True, False, False, False, False )
-        
-        # capitalize just the first letter
-        text = text[0].upper() + text[1:]
-        
-        # set it back
-        self.subName_comboBox1.setEditText( text )
+        # just replace the validated text
+        self.subName_lineEdit.setText( self.fieldNameValidator(text) )
     
     
     
     #----------------------------------------------------------------------
-    def validateBaseName(self):
+    def validateBaseName(self, text):
         """validates the baseName field by removing unneccessary characters
         """
         
-        # get the text
-        text = unicode( self.baseName_comboBox1.currentText() )
+        # just replace the validated text
+        self.baseName_lineEdit.setText( self.fieldNameValidator(text) )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def fieldNameValidator(self, text):
+        """a validator that validates input texts
+        """
+        text = unicode(text)
         
         if len(text) == 0:
-            return
+            return text
         
         # validate the text
         text = oyAux.stringConditioner( text, False, True, False, False, False, False )
@@ -937,8 +973,36 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # capitalize just the first letter
         text = text[0].upper() + text[1:]
         
-        # set it back
-        self.baseName_comboBox1.setEditText( text )
+        return text
+    
+    
+    
+    #----------------------------------------------------------------------
+    def addNewListItem(self, inputItem):
+        """adds new base name to the list
+        """
+        
+        assert(isinstance(inputItem, QtGui.QListWidgetItem))
+        inputItemText = inputItem.text()
+        
+        parentListWidget = inputItem.listWidget()
+        assert(isinstance(parentListWidget, QtGui.QListWidget))
+        
+        # go ahead if user double clicked on the newItemText
+        if hasattr( parentListWidget, 'newItemText' ):
+            checkItemText = getattr( parentListWidget, 'newItemText' )
+            
+            if inputItemText == checkItemText:
+                # pop up an input form to ask the user for the new item name
+                newItemName, ok = QtGui.QInputDialog.getText( self, 'Enter new item name', 'Enter a new item name please:' )
+                
+                if ok:
+                    # validate the input
+                    if hasattr( parentListWidget, 'validator' ):
+                        newItemName = eval('parentListWidget.validator( newItemName )')
+                    
+                    # add the new item to the list
+                    parentListWidget.addItem( newItemName )
     
     
     
@@ -1293,4 +1357,3 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         print "AssetManager " + __version__
         print assetObject.getFileName()
         print actionName + " succesfully"
-        

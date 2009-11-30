@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.11.17"
+__version__ = "9.11.30"
 
 
 
