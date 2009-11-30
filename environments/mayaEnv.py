@@ -331,7 +331,7 @@ def getValidReferencedAssets():
         #assert(isinstance(ref, pm.FileReference))
         tempAssetFullPath = ref.path
         if os.name == 'nt':
-            tempAssetFullPath.replace('/','\\')
+            tempAssetFullPath = tempAssetFullPath.replace('/','\\')
         
         tempAssetPath = os.path.basename( tempAssetFullPath )
         
