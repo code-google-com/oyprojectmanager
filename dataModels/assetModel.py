@@ -176,10 +176,7 @@ class Asset(object):
                 self._revString    = parts[3]
                 self._verString    = parts[4]
                 self._userInitials = parts[5]
-            except IndexError, AttributeError:
-                
-                print self._fileName
-                
+            except IndexError:
                 # the given file name is not valid
                 self._fileName = ''
                 return
@@ -233,7 +230,13 @@ class Asset(object):
             try:
                 typeFolder = self._type.getPath()
             except AttributeError:
-                print self._fileName
+                print "fileName     : ", self._fileName
+                print "baseName     : ", self._baseName
+                print "subName      : ", self._subName
+                print "typeName     : ", self._typeName
+                print "revString    : ", self._revString
+                print "verString    : ", self._verString
+                print "userInitials : ", self._userInitials
                 raise
             
             self._path = os.path.join( seqFullPath, typeFolder)
