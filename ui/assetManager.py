@@ -8,7 +8,7 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.11.30"
+__version__ = "9.12.1"
 
 
 
@@ -293,9 +293,15 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                     
                     #self.update
             
+            #assert(isinstance(self.baseName
+            #self.baseName_listWidget.find
+            
             itemIndex = self.findListItemWithText( self.baseName_listWidget, baseName )
             if itemIndex != -1:
                 self.baseName_listWidget.item( itemIndex ).setSelected(True)
+                # update the selection
+                self.updateBaseNameLineEdit( baseName )
+                
         
         if not currentSequence._noSubNameField: # remove this block when the support for old version becomes obsolute
             # sub Name
@@ -303,9 +309,10 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             #element = self.subName_listWidget
             #element.setCurrentIndex( element.findText(subName) )
             
-            itemIndex = self.findListItemWithText( self.subName_listWidget, baseName )
+            itemIndex = self.findListItemWithText( self.subName_listWidget, subName )
             if itemIndex != -1:
                 self.subName_listWidget.item( itemIndex ).setSelected(True)
+                self.updateSubNameLineEdit( subName )
         
         # revision
         self.revision_spinBox.setValue( revNumber )
@@ -1033,7 +1040,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         for i in range(itemCount):
             currentItem = listWidget.item(i)
             #assert(isinstance(currentItem, QtGui.QListWidgetItem ))
-            if currentItem.text == text:
+            #print currentItem.text()
+            if currentItem.text() == text:
                 return i
         
         return -1

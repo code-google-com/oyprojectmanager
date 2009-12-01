@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.11.30
+v9.12.1
 
 Description :
 -------------
@@ -153,6 +153,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.12.1
+- fixed a little update bug in the asset manager interface that causes the
+  asset list widget to list wrong results, also fixed the subName_lineEdit
+  update issue
+
 v9.11.30
 - for mayaEnv the assetManager now checks the referenced assets against newer
   versions of that asset and warns the user (for now) to update them
@@ -619,4 +624,4 @@ TODO List :
 
 
 
-__version__ = "9.11.30"
+__version__ = "9.12.1"
