@@ -437,13 +437,26 @@ You can use this field to leave little but important messages here... It is limi
                  <verstretch>3</verstretch>
                 </sizepolicy>
                </property>
+               <property name="toolTip">
+                <string>displays the baseNames of the current assetType</string>
+               </property>
+               <property name="statusTip">
+                <string>displays the baseNames of the current assetType</string>
+               </property>
                <property name="alternatingRowColors">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
              <item row="11" column="1">
-              <widget class="QLineEdit" name="baseName_lineEdit"/>
+              <widget class="QLineEdit" name="baseName_lineEdit">
+               <property name="toolTip">
+                <string>enter the baseName for new assets here</string>
+               </property>
+               <property name="statusTip">
+                <string>enter the baseName for new assets here</string>
+               </property>
+              </widget>
              </item>
              <item row="13" column="1">
               <widget class="QListWidget" name="subName_listWidget">
@@ -452,6 +465,12 @@ You can use this field to leave little but important messages here... It is limi
                  <horstretch>0</horstretch>
                  <verstretch>1</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>displays the subNames of the current asset</string>
+               </property>
+               <property name="statusTip">
+                <string>displays the subNames of the current asset</string>
                </property>
                <property name="alternatingRowColors">
                 <bool>true</bool>
@@ -462,7 +481,14 @@ You can use this field to leave little but important messages here... It is limi
               </widget>
              </item>
              <item row="14" column="1">
-              <widget class="QLineEdit" name="subName_lineEdit"/>
+              <widget class="QLineEdit" name="subName_lineEdit">
+               <property name="toolTip">
+                <string>enter the subName for new assets here</string>
+               </property>
+               <property name="statusTip">
+                <string>enter the subName for new assets here</string>
+               </property>
+              </widget>
              </item>
              <item row="8" column="0" colspan="2">
               <widget class="Line" name="line_3">

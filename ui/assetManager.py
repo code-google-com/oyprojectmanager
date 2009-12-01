@@ -101,7 +101,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         #QtCore.QObject.connect(self.note_lineEdit1, QtCore.SIGNAL("textChanged(QString)"), self.validateNotes )
         
         # close button
-        #QtCore.QObject.connect(self.cancel_button1, QtCore.SIGNAL("clicked()"), self.close )
         QtCore.QObject.connect(self.cancel_button2, QtCore.SIGNAL("clicked()"), self.close )
         
         # project change ---> update sequence
@@ -127,8 +126,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # shotName or baseName change ---> fill subName comboBox
         QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
-        #QtCore.QObject.connect(self.baseName_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
-        QtCore.QObject.connect(self.baseName_listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.updateSubNameField )
+        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateSubNameField )
         
         # subName change ---> full update assets_listWidget1
         QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
@@ -155,13 +153,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
         QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
         
-        QtCore.QObject.connect(self.baseName_listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.subName_listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.updateVersionToLatest )
+        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateRevisionToLatest )
+        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateVersionToLatest )
         
-        QtCore.QObject.connect(self.subName_listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.subName_listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), self.updateVersionToLatest )
-        
-        QtCore.QMetaObject.connectSlotsByName(self)
+        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateRevisionToLatest )
+        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateVersionToLatest )
         
         # showLastNEntry_checkbox or numberOfEntry change ->partial update assets_listWidget1
         QtCore.QObject.connect(self.showLastNEntry_checkBox, QtCore.SIGNAL("stateChanged(int)"), self.partialUpdateAssetsListWidget )
@@ -170,6 +166,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # baseName_listWidget -> baseName_lineEdit
         QtCore.QObject.connect( self.baseName_listWidget, QtCore.SIGNAL("currentTextChanged(QString)"), self.updateBaseNameLineEdit )
         QtCore.QObject.connect( self.subName_listWidget, QtCore.SIGNAL("currentTextChanged(QString)"), self.updateSubNameLineEdit )
+        
+        
+        QtCore.QMetaObject.connectSlotsByName(self)
     
     
     
@@ -281,14 +280,32 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             element.setCurrentIndex( element.findText( shotNumber) )
         else:
             #element = self.baseName_comboBox1
-            element = self.baseName_listWidget
-            element.setCurrentIndex( element.findText(baseName) )
+            #element = self.baseName_listWidget
+            #element.setCurrentIndex( self.baseName_listWidget.indexFromItem( element.findText(baseName) )
+            #self.baseName_listWidget.setCurrentIndex( self.baseName_listWidget.findItems( baseName ) )
+            
+            #itemCount = self.baseName_listWidget.count()
+            #for i in range(itemCount):
+                #currentItem = self.baseName_listWidget.item(i)
+                #assert(isinstance(currentItem, QtGui.QListWidgetItem ))
+                #if currentItem.text == baseName:
+                    #currentItem.setSelected(True)
+                    
+                    #self.update
+            
+            itemIndex = self.findListItemWithText( self.baseName_listWidget, baseName )
+            if itemIndex != -1:
+                self.baseName_listWidget.item( itemIndex ).setSelected(True)
         
         if not currentSequence._noSubNameField: # remove this block when the support for old version becomes obsolute
             # sub Name
             #element = self.subName_comboBox1
-            element = self.subName_listWidget
-            element.setCurrentIndex( element.findText(subName) )
+            #element = self.subName_listWidget
+            #element.setCurrentIndex( element.findText(subName) )
+            
+            itemIndex = self.findListItemWithText( self.subName_listWidget, baseName )
+            if itemIndex != -1:
+                self.subName_listWidget.item( itemIndex ).setSelected(True)
         
         # revision
         self.revision_spinBox.setValue( revNumber )
@@ -1003,6 +1020,23 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                     
                     # add the new item to the list
                     parentListWidget.addItem( newItemName )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def findListItemWithText(self, listWidget, text):
+        """returns the item index with given index
+        """
+        
+        itemCount = listWidget.count()
+        
+        for i in range(itemCount):
+            currentItem = listWidget.item(i)
+            #assert(isinstance(currentItem, QtGui.QListWidgetItem ))
+            if currentItem.text == text:
+                return i
+        
+        return -1
     
     
     

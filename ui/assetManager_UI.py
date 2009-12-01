@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Tue Dec  1 00:12:00 2009
+# Created: Tue Dec  1 00:54:10 2009
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -415,6 +415,14 @@ class Ui_MainWindow(object):
         self.note_lineEdit1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Note:\n"
 "\n"
 "You can use this field to leave little but important messages here... It is limited with 30 characters...", None, QtGui.QApplication.UnicodeUTF8))
+        self.baseName_listWidget.setToolTip(QtGui.QApplication.translate("MainWindow", "displays the baseNames of the current assetType", None, QtGui.QApplication.UnicodeUTF8))
+        self.baseName_listWidget.setStatusTip(QtGui.QApplication.translate("MainWindow", "displays the baseNames of the current assetType", None, QtGui.QApplication.UnicodeUTF8))
+        self.baseName_lineEdit.setToolTip(QtGui.QApplication.translate("MainWindow", "enter the baseName for new assets here", None, QtGui.QApplication.UnicodeUTF8))
+        self.baseName_lineEdit.setStatusTip(QtGui.QApplication.translate("MainWindow", "enter the baseName for new assets here", None, QtGui.QApplication.UnicodeUTF8))
+        self.subName_listWidget.setToolTip(QtGui.QApplication.translate("MainWindow", "displays the subNames of the current asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.subName_listWidget.setStatusTip(QtGui.QApplication.translate("MainWindow", "displays the subNames of the current asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.subName_lineEdit.setToolTip(QtGui.QApplication.translate("MainWindow", "enter the subName for new assets here", None, QtGui.QApplication.UnicodeUTF8))
+        self.subName_lineEdit.setStatusTip(QtGui.QApplication.translate("MainWindow", "enter the subName for new assets here", None, QtGui.QApplication.UnicodeUTF8))
         self.save_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Saves the asset to the server", None, QtGui.QApplication.UnicodeUTF8))
         self.save_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Saves the asset to the server", None, QtGui.QApplication.UnicodeUTF8))
         self.save_button.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Save:\n"
