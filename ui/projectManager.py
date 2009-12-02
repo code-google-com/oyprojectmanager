@@ -8,7 +8,7 @@ from oyProjectManager.tools import rangeTools
 
 
 
-__version__ = "9.10.10"
+__version__ = "9.12.2"
 
 
 #----------------------------------------------------------------------
@@ -63,6 +63,8 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.createProject_pushButton, QtCore.SIGNAL("clicked()"), self.createProject )
         QtCore.QObject.connect(self.createSequence_pushButton, QtCore.SIGNAL("clicked()"), self.createSequence )
         QtCore.QObject.connect(self.addShots_pushButton, QtCore.SIGNAL("clicked()"), self.addShots )
+        
+        QtCore.QObject.connect(self.addAlternativeShot_pushButton, QtCore.SIGNAL("clicked()"), self.addAlternativeShot )
         
         self.db = projectModel.Database()
         
@@ -203,6 +205,11 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         # clear all the items in the current combo boxes
         # and fill them with new data
         
+        # try to keep the selections
+        p2Text = self.project_comboBox2.currentText()
+        p3Text = self.project_comboBox3.currentText()
+        p4Text = self.project_comboBox4.currentText()
+        
         self.project_comboBox2.clear()
         self.project_comboBox3.clear()
         self.project_comboBox4.clear()
@@ -210,6 +217,19 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         self.project_comboBox2.addItems( sortedProjects )
         self.project_comboBox3.addItems( sortedProjects )
         self.project_comboBox4.addItems( sortedProjects )
+        
+        p2Index = self.project_comboBox2.findText( p2Text )
+        if p2Index != -1:
+            self.project_comboBox2.setCurrentIndex( p2Index )
+        
+        p3Index = self.project_comboBox3.findText( p3Text )
+        if p3Index != -1:
+            self.project_comboBox3.setCurrentIndex( p3Index )
+        
+        p4Index = self.project_comboBox4.findText( p4Text )
+        if p4Index != -1:
+            self.project_comboBox4.setCurrentIndex( p4Index )
+        
     
     
     
@@ -217,6 +237,10 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
     def updateSequenceLists(self):
         """updates the sequence comboBoxes
         """
+        #try to keep the current selections
+        s3Text = self.sequence_comboBox3.currentText()
+        s4Text = self.sequence_comboBox4.currentText()
+        
         # sequence_comboBox3
         project = projectModel.Project( unicode( self.project_comboBox3.currentText() ) )
         self.sequence_comboBox3.clear()
@@ -226,6 +250,15 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         project = projectModel.Project( unicode( self.project_comboBox4.currentText() ) )
         self.sequence_comboBox4.clear()
         self.sequence_comboBox4.addItems( sorted(project.getSequenceNames()) )
+        
+        # restore selections
+        s3Index = self.sequence_comboBox3.findText( s3Text )
+        if s3Index != -1:
+            self.sequence_comboBox3.setCurrentIndex( s3Index )
+        
+        s4Index = self.sequence_comboBox4.findText( s4Text )
+        if s4Index != -1:
+            self.sequence_comboBox4.setCurrentIndex( s4Index )
     
     
     
@@ -245,9 +278,44 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         
         shotList = sequence.getShotList()
         
+        # try to keep the current selection
+        s4Text = self.shotNumber_comboBox4.currentText()
+        
         # remove the current items and update the list
         self.shotNumber_comboBox4.clear()
         self.shotNumber_comboBox4.addItems( shotList )
+        
+        # restore selection
+        s4Index = self.shotNumber_comboBox4.findText( s4Text )
+        if s4Index != -1:
+            self.shotNumber_comboBox4.setCurrentIndex( s4Index )
     
     
     
+    #----------------------------------------------------------------------
+    def addAlternativeShot(self):
+        """adds an alternative to the given shot
+        """
+        
+        # get the projectName
+        projectName = unicode( self.project_comboBox4.currentText() )
+        
+        # get the sequenceName
+        sequenceName = unicode( self.sequence_comboBox4.currentText() )
+        
+        # get the current shot number
+        shotNumber = self.shotNumber_comboBox4.currentText()
+        
+        # create the project and sequence objects
+        project = projectModel.Project( projectName )
+        sequence = projectModel.Sequence( project, sequenceName )
+        
+        # invoke sequence objects add alternate shot method with the given shot number
+        sequence.addAlternativeShot( shotNumber )
+        
+        # create and save
+        sequence.createShots()
+        #sequence.saveSettings()
+        
+        # update the fields
+        self.updateShotLists()

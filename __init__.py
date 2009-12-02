@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.12.1
+v9.12.2
 
 Description :
 -------------
@@ -155,6 +155,8 @@ Version History :
 -----------------
 v9.12.2
 - The alternate shot letter is turned to upper case
+- The sequence object now can add alternative shots
+- ProjectManager UI is updated to have the ability to add alternative shots
 
 v9.12.1
 - fixed a little update bug in the asset manager interface that causes the
@@ -627,4 +629,4 @@ TODO List :
 
 
 
-__version__ = "9.12.1"
+__version__ = "9.12.2"

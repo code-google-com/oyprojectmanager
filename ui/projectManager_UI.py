@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager.ui'
 #
-# Created: Sat Oct 10 12:41:24 2009
-#      by: PyQt4 UI code generator 4.4.4
+# Created: Wed Dec  2 15:46:56 2009
+#      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -13,7 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowModality(QtCore.Qt.ApplicationModal)
-        MainWindow.resize(481, 328)
+        MainWindow.resize(584, 301)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -103,6 +103,7 @@ class Ui_MainWindow(object):
         self.project_lineEdit1 = QtGui.QLineEdit(self.gridWidget)
         self.project_lineEdit1.setObjectName("project_lineEdit1")
         self.gridLayout.addWidget(self.project_lineEdit1, 0, 1, 1, 1)
+        self.gridLayout.setColumnMinimumWidth(0, 100)
         self.horizontalLayout.addWidget(self.gridWidget)
         self.verticalLayout.addWidget(self.horizontalWidget1)
         self.horizontalWidget2 = QtGui.QWidget(self.verticalWidget)
@@ -183,6 +184,8 @@ class Ui_MainWindow(object):
         self.shotRange_lineEdit2 = QtGui.QLineEdit(self.gridWidget_2)
         self.shotRange_lineEdit2.setObjectName("shotRange_lineEdit2")
         self.gridLayout_3.addWidget(self.shotRange_lineEdit2, 2, 1, 1, 1)
+        self.gridLayout_3.setColumnMinimumWidth(0, 100)
+        self.gridLayout_3.setColumnStretch(1, 1)
         self.horizontalLayout_4.addWidget(self.gridWidget_2)
         self.verticalLayout_3.addWidget(self.horizontalWidget_2)
         self.horizontalWidget3 = QtGui.QWidget(self.verticalWidget_2)
@@ -262,6 +265,8 @@ class Ui_MainWindow(object):
         self.sequence_comboBox3 = QtGui.QComboBox(self.gridWidget_3)
         self.sequence_comboBox3.setObjectName("sequence_comboBox3")
         self.gridLayout_4.addWidget(self.sequence_comboBox3, 1, 1, 1, 1)
+        self.gridLayout_4.setColumnMinimumWidth(0, 100)
+        self.gridLayout_4.setColumnStretch(1, 1)
         self.horizontalLayout_8.addWidget(self.gridWidget_3)
         self.verticalLayout_4.addWidget(self.horizontalWidget_4)
         self.horizontalWidget_3 = QtGui.QWidget(self.verticalWidget_3)
@@ -286,7 +291,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.verticalWidget_3)
         self.tabWidget.addTab(self.addShotsTab, "")
         self.addAlternativeShotsTab = QtGui.QWidget()
-        self.addAlternativeShotsTab.setEnabled(False)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -296,6 +300,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12 = QtGui.QHBoxLayout(self.addAlternativeShotsTab)
         self.horizontalLayout_12.setObjectName("horizontalLayout_12")
         self.verticalWidget_4 = QtGui.QWidget(self.addAlternativeShotsTab)
+        self.verticalWidget_4.setEnabled(True)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -343,6 +348,8 @@ class Ui_MainWindow(object):
         self.shotNumber_comboBox4 = QtGui.QComboBox(self.gridWidget_4)
         self.shotNumber_comboBox4.setObjectName("shotNumber_comboBox4")
         self.gridLayout_5.addWidget(self.shotNumber_comboBox4, 2, 1, 1, 1)
+        self.gridLayout_5.setColumnMinimumWidth(0, 100)
+        self.gridLayout_5.setColumnStretch(1, 1)
         self.horizontalLayout_10.addWidget(self.gridWidget_4)
         self.verticalLayout_6.addWidget(self.horizontalWidget_6)
         self.horizontalWidget_5 = QtGui.QWidget(self.verticalWidget_4)
@@ -363,10 +370,6 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.addAlternativeShotsTab, "")
         self.verticalLayout_5.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 481, 23))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)

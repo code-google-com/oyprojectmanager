@@ -794,6 +794,9 @@ class Sequence(object):
         if len(self._shotList) == 0:
             if len(shotListNode.childNodes):
                 self._shotList  = [ shot.strip() for shot in shotListNode.childNodes[0].wholeText.split('\n') if shot.strip() != "" ]
+        
+        # sort the shot list
+        self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
     
     
     
@@ -834,6 +837,8 @@ class Sequence(object):
         shotIndependentNodeText.data = '\n'.join( self._structure.getShotIndependentFolders() )
         
         # create shot list text data
+        # sort the shotList
+        self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
         shotListNodeText.data = '\n'.join( self._shotList )
         
         # create asset types
@@ -938,8 +943,7 @@ class Sequence(object):
         #-#,#
         etc.
         
-        you need to invoke self.createShots and then self.saveSettings to make
-        the changes permenant
+        you need to invoke self.createShots to make the changes permenant
         """
         
         # for now consider the shots as a string of range
@@ -958,16 +962,46 @@ class Sequence(object):
     
     
     
-    ##----------------------------------------------------------------------
-    #def addAlternativeShot(self, shotNumber):
-        #"""adds an alternative to the given shot
-        #"""
+    #----------------------------------------------------------------------
+    def addAlternativeShot(self, shotNumber):
+        """adds a new alternative to the given shot
         
-        #shotNumberAsStr = unicode( shotNumber )
+        you need to invoke self.createShots to make the changes permanent
+        """
         
-        ## check if the shotNumber is in the shotList
-        #if shotNumber in self._shotList:
-            ## get the alternate letter
+        # shotNumber could be an int convert it to str
+        shotNumberAsString = str(shotNumber)
+        
+        # get the first integer as int in the string
+        shotNumber = oyAux.embedded_numbers( shotNumberAsString )[1]
+        
+        # get the next available alternative shot number for that shot
+        alternativeShotNumber = self.getNextAlternateShotNumber( shotNumber )
+        
+        # add that alternative shot to the shot list
+        if alternativeShotNumber != None:
+            self._shotList.append( alternativeShotNumber )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getNextAlternateShotNumber(self, shot):
+        """returns the next alternate shot number for the given shot number
+        """
+        
+        # get the shot list
+        shotList = self.getShotList()
+        alternateLetters = 'ABCDEFGHIJKLMNOPRSTUVWXYZ'
+        
+        for letter in alternateLetters:
+            #check if the alternate is in the list
+            
+            newShotNumber = str(shot) + letter
+            
+            if not newShotNumber in shotList:
+                return newShotNumber
+        
+        return None
     
     
     
