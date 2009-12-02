@@ -6,7 +6,7 @@ import assetModel, userModel
 
 
 
-__version__ = "9.10.27"
+__version__ = "9.12.2"
 
 
 
@@ -938,7 +938,7 @@ class Sequence(object):
         #-#,#
         etc.
         
-        you need to invoke self.creatShots and then self.saveSettings to make
+        you need to invoke self.createShots and then self.saveSettings to make
         the changes permenant
         """
         
@@ -1050,18 +1050,18 @@ class Sequence(object):
         
         if there is an alternate letter it will add it to the end of the
         shot string, like:
-        1a  --> SH001a
-        10S --> SH010s
+        1a  --> SH001A
+        10S --> SH010S
         
         it also properly converts inputs like this
-        abc92a --> SH092a
-        abc323d432e --> SH323d
-        abc001d --> SH001d
+        abc92a --> SH092A
+        abc323d432e --> SH323D
+        abc001d --> SH001D
         
         if the shotNumber argument is None it will return None
         
         for now it can't convert properly if there is more than one letter at the end like:
-        abc23defg --> SH023defg
+        abc23defg --> SH023DEFG
         """
         
         pieces = oyAux.embedded_numbers( unicode(shotNumber) )
@@ -1072,7 +1072,7 @@ class Sequence(object):
         number = pieces[1]
         alternateLetter = pieces[2]
         
-        return self._shotPrefix + oyAux.padNumber( number, self._shotPadding ) + alternateLetter.lower()
+        return self._shotPrefix + oyAux.padNumber( number, self._shotPadding ) + alternateLetter.upper()
     
     
     

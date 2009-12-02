@@ -154,7 +154,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
         
         QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateVersionToLatest )
+        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateVersionToLatest )
         
         QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateRevisionToLatest )
         QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateVersionToLatest )
@@ -164,6 +164,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.numberOfEntry_spinBox, QtCore.SIGNAL("valueChanged(int)"), self.partialUpdateAssetsListWidget )
         
         # baseName_listWidget -> baseName_lineEdit
+        # subName_listWidget -> subName_lineEdit
         QtCore.QObject.connect( self.baseName_listWidget, QtCore.SIGNAL("currentTextChanged(QString)"), self.updateBaseNameLineEdit )
         QtCore.QObject.connect( self.subName_listWidget, QtCore.SIGNAL("currentTextChanged(QString)"), self.updateSubNameLineEdit )
         

@@ -153,6 +153,9 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.12.2
+- The alternate shot letter is turned to upper case
+
 v9.12.1
 - fixed a little update bug in the asset manager interface that causes the
   asset list widget to list wrong results, also fixed the subName_lineEdit
