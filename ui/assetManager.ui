@@ -729,7 +729,7 @@ Imports the content of the selected asset to the current environment in the host
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="cancel_button2">
+              <widget class="QPushButton" name="close_button">
                <property name="toolTip">
                 <string>Quits without doing anything</string>
                </property>
@@ -742,7 +742,7 @@ Imports the content of the selected asset to the current environment in the host
 Just quits the application without doing anything</string>
                </property>
                <property name="text">
-                <string>Cancel</string>
+                <string>Close</string>
                </property>
               </widget>
              </item>
@@ -803,7 +803,7 @@ Just quits the application without doing anything</string>
   <tabstop>open_button</tabstop>
   <tabstop>reference_button</tabstop>
   <tabstop>import_button</tabstop>
-  <tabstop>cancel_button2</tabstop>
+  <tabstop>close_button</tabstop>
  </tabstops>
  <resources/>
  <connections/>

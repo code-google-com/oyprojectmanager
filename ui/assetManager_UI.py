@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Tue Dec  1 00:54:10 2009
+# Created: Sat Dec 12 21:32:06 2009
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -311,9 +311,9 @@ class Ui_MainWindow(object):
         self.import_button.setSizePolicy(sizePolicy)
         self.import_button.setObjectName("import_button")
         self.openButtons_horizontalLayout.addWidget(self.import_button)
-        self.cancel_button2 = QtGui.QPushButton(self.openButtons_horizontalWidget)
-        self.cancel_button2.setObjectName("cancel_button2")
-        self.openButtons_horizontalLayout.addWidget(self.cancel_button2)
+        self.close_button = QtGui.QPushButton(self.openButtons_horizontalWidget)
+        self.close_button.setObjectName("close_button")
+        self.openButtons_horizontalLayout.addWidget(self.close_button)
         self.verticalLayout2.addWidget(self.openButtons_horizontalWidget)
         self.main_horizontalLayout.addWidget(self.verticalWidget2)
         self.verticalLayout.addWidget(self.main_horizontalWidget)
@@ -349,7 +349,7 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.export_button, self.open_button)
         MainWindow.setTabOrder(self.open_button, self.reference_button)
         MainWindow.setTabOrder(self.reference_button, self.import_button)
-        MainWindow.setTabOrder(self.import_button, self.cancel_button2)
+        MainWindow.setTabOrder(self.import_button, self.close_button)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Asset Manager", None, QtGui.QApplication.UnicodeUTF8))
@@ -464,12 +464,12 @@ class Ui_MainWindow(object):
 "\n"
 "Imports the content of the selected asset to the current environment in the host application...", None, QtGui.QApplication.UnicodeUTF8))
         self.import_button.setText(QtGui.QApplication.translate("MainWindow", "Import", None, QtGui.QApplication.UnicodeUTF8))
-        self.cancel_button2.setToolTip(QtGui.QApplication.translate("MainWindow", "Quits without doing anything", None, QtGui.QApplication.UnicodeUTF8))
-        self.cancel_button2.setStatusTip(QtGui.QApplication.translate("MainWindow", "Quits without doing anything", None, QtGui.QApplication.UnicodeUTF8))
-        self.cancel_button2.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Cancel:\n"
+        self.close_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Quits without doing anything", None, QtGui.QApplication.UnicodeUTF8))
+        self.close_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Quits without doing anything", None, QtGui.QApplication.UnicodeUTF8))
+        self.close_button.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Cancel:\n"
 "\n"
 "Just quits the application without doing anything", None, QtGui.QApplication.UnicodeUTF8))
-        self.cancel_button2.setText(QtGui.QApplication.translate("MainWindow", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
+        self.close_button.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_Settings.setText(QtGui.QApplication.translate("MainWindow", "Open Asset", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "About oyProjectManager", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Asset.setText(QtGui.QApplication.translate("MainWindow", "Save Asset", None, QtGui.QApplication.UnicodeUTF8))

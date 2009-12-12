@@ -101,7 +101,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         #QtCore.QObject.connect(self.note_lineEdit1, QtCore.SIGNAL("textChanged(QString)"), self.validateNotes )
         
         # close button
-        QtCore.QObject.connect(self.cancel_button2, QtCore.SIGNAL("clicked()"), self.close )
+        QtCore.QObject.connect(self.close_button, QtCore.SIGNAL("clicked()"), self.close )
         
         # project change ---> update sequence
         QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self._updateProjectObject )

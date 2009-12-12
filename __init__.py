@@ -157,6 +157,7 @@ v9.12.12
 - the UI is not closed after referencing or importing an asset, to help the
   user easily reference multiple files
 - started developing of the SuperAsset class
+- the cancel button renamed to close
 
 v9.12.2
 - The alternate shot letter is turned to upper case
