@@ -1347,8 +1347,10 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 from oyProjectManager.environments import houdiniEnv
                 envStatus = houdiniEnv.import_( assetObject )
             
-            #if envStatus:
+            if envStatus:
                 #self.close()
+                QtGui.QMessageBox.information(self, 'Asset Import', 'Asset :\n\n'+ assetObject.getFileName() +'\n\nis imported successfuly', QtGui.QMessageBox.Ok)
+                
         
         else:
             # warn the user for non existing asset files
@@ -1381,8 +1383,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 envStatus = False
                 QtGui.QMessageBox.warning(self, 'Function Error', self.environment + " doesn't support referencing yet !!!", QtGui.QMessageBox.Ok )
             
-            #if envStatus:
+            if envStatus:
                 #self.close()
+                QtGui.QMessageBox.information(self, 'Asset Reference', 'Asset :\n\n'+ assetObject.getFileName() +'\n\nis referenced successfuly', QtGui.QMessageBox.Ok)
         
         else:
             # warn the user for non existing asset files
