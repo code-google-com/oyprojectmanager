@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.11.30"
+__version__ = "9.12.10"
 
 
 
@@ -19,10 +19,10 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, prj, seq, fileName=None):
+    def __init__(self, project, sequence, fileName=None):
         
-        self._parentProject = prj
-        self._parentSequence = seq
+        self._parentProject = project
+        self._parentSequence = sequence
         
         # asset metadata
         # info variables
@@ -924,7 +924,7 @@ class AssetType(object):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, name='', path='', shotDependent=False, playblastFolder='', environments=None):
+    def __init__(self, name="", path="", shotDependent=False, playblastFolder="", environments=None):
         self._name = name
         self._path = path
         self._shotDependency = shotDependent
@@ -1002,3 +1002,58 @@ class AssetType(object):
         """sets the environment that this asset type is available to
         """
         self._environments = environments
+
+
+
+
+
+
+########################################################################
+class SuperAsset(object):
+    '''this is a new class, which actually should be named as "Asset". But
+    because the name is reserved by the previous designs Asset class it is
+    named as SuperAsset.
+    
+    In the previous design, the Asset objects were only pointing to and giving
+    information about one file, which later on seemed very wrong. Because, the
+    file that the Asset object is tied to is just one of the versions of the
+    same asset. So it was breaking the generality of the whole design.
+    
+    The new SuperAsset class will deal with the assets in a more convienient
+    way.
+    
+    This class shouldn't deal with the individual assets, instead it should
+    deal with more general information about the asset, like:
+    - All the versions as version list
+    - The published asset information
+    - User comments about the asset
+    - 
+    '''
+    
+    
+    
+    #----------------------------------------------------------------------
+    def __init__(self, project, sequence, typeName, baseName, subName):
+        
+        import dataModels.projectModel as projectModel
+        assert( isinstance(sequence, projectModel.Sequence) )
+        
+        self._parentProject = project
+        self._parentSequence = sequence
+        
+        self._baseName = baseName
+        self._subName = subName
+        self._typeName = typeName
+        self._type = self._parentSequence.getAssetTypeWithName(typeName)
+        
+        assert( isinstance(self._type, AssetType) )
+        
+        self._info = dict()
+        
+        # path variables
+        self._path = os.path.join( self._parentSequence.getFullPath(), self._type.getPath(), baseName )
+        
+        
+        
+    
+    
