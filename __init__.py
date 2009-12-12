@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.12.2
+v9.12.12
 
 Description :
 -------------
@@ -153,6 +153,11 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.12.12
+- the UI is not closed after referencing or importing an asset, to help the
+  user easily reference multiple files
+- started developing of the SuperAsset class
+
 v9.12.2
 - The alternate shot letter is turned to upper case
 - The sequence object now can add alternative shots
@@ -585,6 +590,8 @@ v0.0.1
 
 TODO List :
 -----------
+- for houdini set the render output picture path and name if there is an output
+  node, if there is no output node, by default create one
 - store recent files list in database do not trust to the applications recent
   files
 - convert the system to a full featured Production Asset Management System
@@ -629,4 +636,4 @@ TODO List :
 
 
 
-__version__ = "9.12.2"
+__version__ = "9.12.12"

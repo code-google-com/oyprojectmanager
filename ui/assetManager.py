@@ -8,7 +8,7 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.12.1"
+__version__ = "9.12.12"
 
 
 
@@ -1347,8 +1347,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 from oyProjectManager.environments import houdiniEnv
                 envStatus = houdiniEnv.import_( assetObject )
             
-            if envStatus:
-                self.close()
+            #if envStatus:
+                #self.close()
         
         else:
             # warn the user for non existing asset files
@@ -1381,9 +1381,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 envStatus = False
                 QtGui.QMessageBox.warning(self, 'Function Error', self.environment + " doesn't support referencing yet !!!", QtGui.QMessageBox.Ok )
             
-            
-            if envStatus:
-                self.close()
+            #if envStatus:
+                #self.close()
         
         else:
             # warn the user for non existing asset files
