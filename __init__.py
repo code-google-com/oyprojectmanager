@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.12.12
+v9.12.15
 
 Description :
 -------------
@@ -153,6 +153,10 @@ Command Line Options :
 
 Version History :
 -----------------
+v9.12.15
+- the assetManager UI now displays the host environments name on the window
+  title
+
 v9.12.12
 - the UI is not closed after referencing or importing an asset, to help the
   user easily reference multiple files
@@ -637,4 +641,4 @@ TODO List :
 
 
 
-__version__ = "9.12.12"
+__version__ = "9.12.15"

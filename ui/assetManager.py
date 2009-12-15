@@ -8,7 +8,7 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.12.12"
+__version__ = "9.12.15"
 
 
 
@@ -43,7 +43,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self.setupUi(self)
         
         # change the window title
-        self.setWindowTitle( self.windowTitle() + ' v' + __version__ + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
+        self.setWindowTitle( environment + ' | ' + self.windowTitle() + ' v' + __version__ + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
         
         # center to the window
         self._centerWindow()
