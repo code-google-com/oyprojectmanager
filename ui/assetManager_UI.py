@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Sat Dec 12 21:32:06 2009
+# Created: Mon Dec 21 00:16:26 2009
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -195,7 +195,7 @@ class Ui_MainWindow(object):
         self.baseName_listWidget = QtGui.QListWidget(self.gridWidget1)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(3)
+        sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.baseName_listWidget.sizePolicy().hasHeightForWidth())
         self.baseName_listWidget.setSizePolicy(sizePolicy)
         self.baseName_listWidget.setAlternatingRowColors(True)

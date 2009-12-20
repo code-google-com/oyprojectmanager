@@ -1,21 +1,11 @@
 """
 houdiniEnv.py by Erkan Ozgur Yilmaz (c) 2009
 
-
 Description:
 ------------
 the houdini environment part of the asset management system...
 
 has commands to save, open and import houdini files
-
-Version History:
-----------------
-(version history is kept in the main __init__.py file)
-
-TODO:
------
-+ change the environment variables ($JOB etc.) to the current project whenever
-  a file is saved or opened
 
 """
 
@@ -24,6 +14,7 @@ TODO:
 import os
 import hou
 from oyProjectManager.dataModels import assetModel, projectModel
+from oyProjectManager.tools import abstractClasses
 import oyAuxiliaryFunctions as oyAux
 
 
@@ -103,24 +94,87 @@ def getPathVariables():
     """gets the file name from houdini environment
     """
     
+    foundValidAsset = False
+    readRecentFile = True
     fileName = path = None
+    
+    db = projectModel.Database()
     
     fullPath = hou.hipFile.name()
     
-    if fullPath != 'untitled.hip':
+    # unfix windows path
+    if os.name == 'nt':
+        fullPath = fullPath.replace('/','\\')
     
-        # unfix windows path
-        if os.name == 'nt':
-            fullPath = fullPath.replace('/','\\')
+    
+    if fullPath != 'untitled.hip':
         
+        fileName = os.path.baseName ( fullPath )
         path = os.path.dirname( fullPath )
         
-        if path != '':
-            fileName = os.path.basename( fullPath )
+        # try to create an asset with that info
+        projName, seqName = db.getProjectAndSequenceNameFromFilePath( fullPath )
+        
+        proj = projectModel.Project( projName )
+        seq = projectModel.Sequence( proj, seqName )
+        
+        testAsset = assetModel.Asset( proj, seq, fileName )
+        
+        #if path != '':
+            #fileName = os.path.basename( fullPath )
+        #else:
+            #path = None
+        if testAsset.isValidAsset():
+            fileName = testAsset.getFileName()
+            path = testAsset.getPath()
+            readRecentFile = False
+    
+    if readRecentFile:
+        # there is no file oppend yet use the first valid file
+        # from the recent files list
+        
+        recentFiles = getRecentFileList()
+        
+        for i in range(len(recentFiles)):
+            
+            fileName = os.path.basename( recentFiles[i] )
+            projName, seqName = db.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
+            
+            if projName != None and seqName != None:
+                
+                proj = projectModel.Project( projName )
+                seq = projectModel.Sequence( proj, seqName )
+                
+                testAsset = assetModel.Asset( proj, seq, fileName )
+                
+                if testAsset.isValidAsset():
+                    path = testAsset.getPath()
+                    foundValidAsset = True
+                    break
+        
+        # get the workspace path
+        workspacePath = os.getenv('JOB')
+        returnWorkspace = False
+        
+        workspaceIsValid = False
+        
+        if workspacePath != '' and workspacePath != None:
+            workspaceIsValid = True
+        
+        if foundValidAsset:
+            #print "found a valid asset with path", path
+            
+            # check if teh recent files path matches the current workspace
+            if not path.startswith( workspacePath ) and workspaceIsValid:
+                # use the workspacePath
+                returnWorkspace = True
         else:
-            path = None
-    #else:
-        #hou.
+            # just get the path from workspace and return an empty fileName
+            returnWorkspace = True
+        
+        if returnWorkspace and workspaceIsValid:
+            fileName = None
+            path = workspacePath
     
     return fileName, path
 
@@ -135,3 +189,113 @@ def setEnvironmentVariables( assetObject ):
     
     # set the $JOB variable to the sequence root
     os.environ['JOB'] = str(assetObject.getSequenceFullPath()).replace('\\','/')
+
+
+
+#----------------------------------------------------------------------
+def getRecentFileList():
+    """returns the recent HIP files list from the houdini
+    """
+    
+    # use a FileHistory object
+    fHist = FileHistory()
+    
+    # get the hip files list
+    recentHipFiles = fHist.getRecentFiles('HIP')
+    
+    return recentHipFiles
+
+
+
+
+
+
+########################################################################
+class FileHistory( abstractClasses.Singleton ):
+    """a houdini recent file history parser
+    
+    holds the data in a dictionary, where the keys are the file types and the
+    values are string list of recent file paths of that type
+    """
+    
+    #----------------------------------------------------------------------
+    def __init__(self):
+        self._historyFileName = 'file.history'
+        self._historyFilePath = os.getenv('HIH')
+        self._historyFileFullPath = os.path.join( self._historyFilePath, self._historyFileName )
+        
+        self._buffer =  []
+        
+        self._history = dict()
+        
+        self._read()
+        self._parse()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _read(self):
+        """reads the history file to a buffer
+        """
+        
+        historyFile = open( self._historyFileFullPath )
+        self._buffer = historyFile.readlines()
+        
+        # strip all the lines
+        self._buffer = [ line.strip() for line in self._buffer ]
+        
+        historyFile.close()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _parse(self):
+        """parses the data in self._buffer
+        """
+        
+        self._history = dict()
+        
+        bufferList = self._buffer
+        
+        keyName = ''
+        pathList = []
+        
+        lenBuffer = len(bufferList)
+        
+        for i in range(lenBuffer):
+            
+            # try to find a '{'
+            if bufferList[i] == '{':
+                # create a key with the previous line
+                keyName = bufferList[i-1]
+                pathList = []
+                
+                # starting from the next line
+                for j in range(i+1, lenBuffer ):
+                    
+                    # add all the lines to the pathList until you find a '}'
+                    currentElement = bufferList[j]
+                    if  currentElement != '}':
+                        pathList.append( currentElement )
+                    else:
+                        # set i to j+1 and let it continue
+                        i = j + 1
+                        break
+                
+                # append the key and data to the dictionary
+                self._history[ keyName ] = pathList
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getRecentFiles(self, typeName=''):
+        """returns the file list of the given file type
+        """
+        
+        if typeName == '' or typeName == None:
+            return []
+        else:
+            if self._history.has_key( typeName ):
+                return self._history[ typeName ]
+            else:
+                return []

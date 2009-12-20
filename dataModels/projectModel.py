@@ -1,25 +1,25 @@
 import os, re, shutil
 from xml.dom import minidom
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.tools import cache, rangeTools
+from oyProjectManager.tools import cache, rangeTools, abstractClasses
 import assetModel, userModel
 
 
 
-__version__ = "9.12.2"
+__version__ = "9.12.20"
 
 
 
-#######################################################################
-class Singleton(object):
-    _instance = None
+########################################################################
+#class Singleton(object):
+    #_instance = None
     
-    #----------------------------------------------------------------------
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
+    ##----------------------------------------------------------------------
+    #def __new__(cls, *args, **kwargs):
+        #if not cls._instance:
+            #cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
             
-        return cls._instance
+        #return cls._instance
 
 
 
@@ -27,7 +27,7 @@ class Singleton(object):
 
 
 ########################################################################
-class Database(Singleton):
+class Database( abstractClasses.Singleton ):
     """Database class gives informations about the servers, projects, users etc.
     """
     
