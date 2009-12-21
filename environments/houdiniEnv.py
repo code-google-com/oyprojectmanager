@@ -222,13 +222,13 @@ class FileHistory( abstractClasses.Singleton ):
     def __init__(self):
         self._historyFileName = 'file.history'
         
-        self._historyFilepath = ''
+        self._historyFilePath = ''
         
         if os.name == 'nt':
             # under windows the HIH is useless
             # interpret the HIH from POSE environment variable
             
-            self._historyFilepath = os.path.dirname( os.getenv('POSE') )
+            self._historyFilePath = os.path.dirname( os.getenv('POSE') )
         else:
             self._historyFilePath = os.getenv('HIH')
         
