@@ -152,29 +152,29 @@ def getPathVariables():
                     foundValidAsset = True
                     break
         
-        # get the workspace path
-        workspacePath = os.getenv('JOB')
-        returnWorkspace = False
-        
-        workspaceIsValid = False
-        
-        if workspacePath != '' and workspacePath != None:
-            workspaceIsValid = True
-        
-        if foundValidAsset:
-            #print "found a valid asset with path", path
-            
-            # check if teh recent files path matches the current workspace
-            if not path.startswith( workspacePath ) and workspaceIsValid:
-                # use the workspacePath
-                returnWorkspace = True
-        else:
-            # just get the path from workspace and return an empty fileName
-            returnWorkspace = True
-        
-        if returnWorkspace and workspaceIsValid:
-            fileName = None
-            path = workspacePath
+##        # get the workspace path
+##        workspacePath = os.getenv('JOB')
+##        returnWorkspace = False
+##        
+##        workspaceIsValid = False
+##        
+##        if workspacePath != '' and workspacePath != None:
+##            workspaceIsValid = True
+##        
+##        if foundValidAsset:
+##            #print "found a valid asset with path", path
+##            
+##            # check if teh recent files path matches the current workspace
+##            if not path.startswith( workspacePath ) and workspaceIsValid:
+##                # use the workspacePath
+##                returnWorkspace = True
+##        else:
+##            # just get the path from workspace and return an empty fileName
+##            returnWorkspace = True
+##        
+##        if returnWorkspace and workspaceIsValid:
+##            fileName = None
+##            path = workspacePath
     
     return fileName, path
 
