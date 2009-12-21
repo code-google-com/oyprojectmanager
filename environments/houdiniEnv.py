@@ -135,6 +135,10 @@ def getPathVariables():
         
         recentFiles = getRecentFileList()
         
+        # unfix the windows paths from / to \\
+        if os.name == 'nt':
+            recentFiles = [ recentFile.replace('/','\\') for recentFile in recentFiles ]
+        
         for i in range(len(recentFiles)):
             
             fileName = os.path.basename( recentFiles[i] )
