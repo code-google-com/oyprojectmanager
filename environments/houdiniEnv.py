@@ -19,7 +19,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.11.25"
+__version__ = "9.12.21"
 
 
 
@@ -221,7 +221,17 @@ class FileHistory( abstractClasses.Singleton ):
     #----------------------------------------------------------------------
     def __init__(self):
         self._historyFileName = 'file.history'
-        self._historyFilePath = os.getenv('HIH')
+        
+        self._historyFilepath = ''
+        
+        if os.name == 'nt':
+            # under windows the HIH is useless
+            # interpret the HIH from POSE environment variable
+            
+            self._historyFilepath = os.path.dirname( os.getenv('POSE') )
+        else:
+            self._historyFilePath = os.getenv('HIH')
+        
         self._historyFileFullPath = os.path.join( self._historyFilePath, self._historyFileName )
         
         self._buffer =  []

@@ -1,7 +1,7 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.12.20
+v9.12.21
 
 Description :
 -------------
@@ -154,4 +154,4 @@ Command Line Options :
 
 
 
-__version__ = "9.12.20"
+__version__ = "9.12.21"

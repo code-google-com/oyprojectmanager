@@ -1,6 +1,9 @@
 Version History :
 -----------------
-v9.12.20
+v9.12.21
+- houdiniEnv: fixed the HIH environment variable retrieval under windows
+
+sv9.12.20
 - the houdini environment now has the ability to read the recent files history
   to get a valid project and sequence names
 - the Singleton class is now carried to the a new file called
