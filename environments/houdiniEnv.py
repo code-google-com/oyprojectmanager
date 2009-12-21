@@ -109,7 +109,7 @@ def getPathVariables():
     
     if fullPath != 'untitled.hip':
         
-        fileName = os.path.baseName ( fullPath )
+        fileName = os.path.basename( fullPath )
         path = os.path.dirname( fullPath )
         
         # try to create an asset with that info
