@@ -1442,10 +1442,10 @@ class Sequence(object):
         #selfIsValidExtension = self.isValidExtension
         osPathExists = os.path.exists
         osPathJoin = os.path.join
-        oyAuxGetChildFolders = oyAux.getChildFolders
+        #oyAuxGetChildFolders = oyAux.getChildFolders
         osPathBaseName = os.path.basename
         globGlob = glob.glob
-        assetModelAsset = assetModel.Asset
+        #assetModelAsset = assetModel.Asset
         assetFilesAppend = assetFiles.append
         selfFullPath = self._fullPath
         selfProject = self.getProject()
@@ -1476,7 +1476,6 @@ class Sequence(object):
                 [ assetFilesAppend(matchedFile) for matchedFile in matchedFiles ]
         
         assetFiles = map( os.path.basename, assetFiles )
-        
         
         return assetFiles
     
