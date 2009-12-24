@@ -1,4 +1,4 @@
-import os, re, shutil
+import os, re, shutil, glob
 from xml.dom import minidom
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.tools import cache, rangeTools, abstractClasses
@@ -6,23 +6,7 @@ import assetModel, userModel
 
 
 
-__version__ = "9.12.20"
-
-
-
-########################################################################
-#class Singleton(object):
-    #_instance = None
-    
-    ##----------------------------------------------------------------------
-    #def __new__(cls, *args, **kwargs):
-        #if not cls._instance:
-            #cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
-            
-        #return cls._instance
-
-
-
+__version__ = "9.12.24"
 
 
 
@@ -1308,12 +1292,12 @@ class Sequence(object):
         
         # optimization variables
         osPathJoin = os.path.join
-        osPathExists = os.path.exists
-        osPathIsFile = os.path.isfile
-        osPathIsDir = os.path.isdir
-        osListDir = os.listdir
-        selfFullPath = self._fullPath
+        oyAuxGetChildFolders = oyAux.getChildFolders
+        osPathBaseName = os.path.basename
+        globGlob = glob.glob
         assetModelAsset = assetModel.Asset
+        assetsAppend = assets.append
+        selfFullPath = self._fullPath
         selfProject = self.getProject()
         
         # for each folder search child folders
@@ -1324,31 +1308,34 @@ class Sequence(object):
             # skip if the folder doesn't exists
             # 
             # it is a big problem in terms of management but some old type projects
-            # has missing folder, because the folders will be created whenever somebody
+            # has missing folders, because the folders will be created whenever somebody
             # uses that folder while saving an asset, we don't care about its non existancy
             #
             #if not os.path.exists( fullPath ):
-            if not osPathExists( fullPath ):
-                continue
+##            if not osPathExists( fullPath ):
+##                continue
             
-            childFolders = osListDir( fullPath )
+            # use glob instead of doing it by hand
+            childFolders = oyAuxGetChildFolders( fullPath, True )
             
-            
-            for childFolder in childFolders:
-                childFolderFullPath = osPathJoin( fullPath, childFolder )
-                if childFolder == '' or not osPathIsDir(childFolderFullPath):
-                    continue
+            for folder in childFolders:
+                # get possible asset files directly by using glob
+                pattern = osPathBaseName( folder ) + '*'
                 
-                childFiles = osListDir( childFolderFullPath )
+                # files are in fullpath format
+                matchedFiles = globGlob( osPathJoin( folder, pattern ) )
                 
-                for childFile in childFiles:
-                    childFileFullPath = osPathJoin( childFolderFullPath, childFile)
-                    if childFile.lower().startswith( childFolder.lower() ) and osPathIsFile( childFileFullPath ):
-                        
-                        asset = assetModelAsset( selfProject, self, childFile )
-                        
-                        if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
-                            assets.append( asset )
+                matchedFileCount = len(matchedFiles)
+                
+                if matchedFileCount > 0:
+                    # there should be some files matching the pattern
+                    # check if they are valid assets
+                    
+                    matchedAssets = map( assetModelAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
+                    
+                    # append them to the main assets list
+                    [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset() ]
+        
         return assets
     
     
@@ -1376,13 +1363,14 @@ class Sequence(object):
         assetFolder = aType.getPath()
         
         # optimization variables
-        osPathJoin = os.path.join
         osPathExists = os.path.exists
-        osPathIsFile = os.path.isfile
-        osPathIsDir = os.path.isdir
-        osListDir = os.listdir
-        selfFullPath = self._fullPath
+        osPathJoin = os.path.join
+        oyAuxGetChildFolders = oyAux.getChildFolders
+        osPathBaseName = os.path.basename
+        globGlob = glob.glob
         assetModelAsset = assetModel.Asset
+        assetsAppend = assets.append
+        selfFullPath = self._fullPath
         selfProject = self.getProject()
         
         fullPath = osPathJoin( selfFullPath, assetFolder)
@@ -1398,27 +1386,26 @@ class Sequence(object):
         if not osPathExists( fullPath ):
             return []
         
-        childFolders = osListDir( fullPath )
+        # use glob instead of doing it by hand
+        childFolders = oyAuxGetChildFolders( fullPath, True )
         
-        
-        for childFolder in childFolders:
-            childFolderFullPath = osPathJoin( fullPath, childFolder )
+        for folder in childFolders:
+            # get possible asset files directly by using glob
+            pattern = osPathBaseName( folder ) + '*'
             
-            if childFolder == '' or not osPathIsDir(childFolderFullPath):
-                continue
+            # files are in fullpath format
+            matchedFiles = globGlob( osPathJoin( folder, pattern ) )
             
-            childFiles = osListDir( childFolderFullPath )
+            matchedFileCount = len(matchedFiles)
             
-            for childFile in childFiles:
-                childFileFullPath = osPathJoin( childFolderFullPath, childFile)
-                if childFile.lower().startswith( childFolder.lower() ) and osPathIsFile( childFileFullPath ):
-                    
-                    asset = assetModelAsset( selfProject, self, childFile )
-                    
-                    if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
-                        assets.append( asset )
-                    #assets.append( asset )
-        
+            if matchedFileCount > 0:
+                # there should be some files matching the pattern
+                # check if they are valid assets
+                
+                matchedAssets = map( assetModelAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
+                
+                # append them to the main assets list
+                [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset() ]
         return assets
     
     
@@ -1446,13 +1433,22 @@ class Sequence(object):
         assetFolder = aType.getPath()
         
         # optimization variables
-        osPathJoin = os.path.join
+        #osPathJoin = os.path.join
+        #osPathExists = os.path.exists
+        #osPathIsFile = os.path.isfile
+        #osPathIsDir = os.path.isdir
+        #osListDir = os.listdir
+        #selfFullPath = self._fullPath
+        #selfIsValidExtension = self.isValidExtension
         osPathExists = os.path.exists
-        osPathIsFile = os.path.isfile
-        osPathIsDir = os.path.isdir
-        osListDir = os.listdir
+        osPathJoin = os.path.join
+        oyAuxGetChildFolders = oyAux.getChildFolders
+        osPathBaseName = os.path.basename
+        globGlob = glob.glob
+        assetModelAsset = assetModel.Asset
+        assetFilesAppend = assetFiles.append
         selfFullPath = self._fullPath
-        selfIsValidExtension = self.isValidExtension
+        selfProject = self.getProject()
         
         fullPath = osPathJoin( selfFullPath, assetFolder)
         
@@ -1467,25 +1463,20 @@ class Sequence(object):
         if not osPathExists( fullPath ):
             return []
         
-        childFolders = osListDir( fullPath )
+        childFolders = oyAux.getChildFolders( fullPath, True )
         
-        for childFolder in childFolders:
-            childFolderFullPath = osPathJoin( fullPath, childFolder )
+        for folder in childFolders:
+            pattern = osPathBaseName( folder ) + '*'
             
-            if childFolder == '' or not osPathIsDir(childFolderFullPath):
-                continue
+            matchedFiles = globGlob( osPathJoin( folder, pattern ) )
+            #print matchedFiles
+            matchedFileCount = len( matchedFiles )
             
-            childFiles = osListDir( childFolderFullPath )
-            
-            for childFile in childFiles:
-                
-                if not selfIsValidExtension( os.path.splitext( childFile )[1][1:] ):
-                    continue
-                
-                childFileFullPath = osPathJoin( childFolderFullPath, childFile)
-                if childFile.lower().startswith( childFolder.lower() ) and osPathIsFile( childFileFullPath ):
-                    
-                    assetFiles.append( childFile )
+            if matchedFileCount > 0:
+                [ assetFilesAppend(matchedFile) for matchedFile in matchedFiles ]
+        
+        assetFiles = map( os.path.basename, assetFiles )
+        
         
         return assetFiles
     
@@ -1512,12 +1503,13 @@ class Sequence(object):
         # optimization variables
         osPathJoin = os.path.join
         osPathExists = os.path.exists
-        osPathIsFile = os.path.isfile
-        osPathIsDir = os.path.isdir
-        osListDir = os.listdir
         selfFullPath = self._fullPath
         assetModelAsset = assetModel.Asset
         selfProject = self._parentProject
+        assetsAppend = assets.append
+        
+        osPathBaseName = os.path.basename
+        globGlob = glob.glob
         
         fullPath = osPathJoin( selfFullPath, assetFolder)
         
@@ -1534,20 +1526,24 @@ class Sequence(object):
         childFolder = baseName
         childFolderFullPath = osPathJoin( fullPath, childFolder )
         
-        if childFolder == '' or not osPathIsDir(childFolderFullPath):
-            return []
+        # use glob instead of doing it by hand
         
-        childFiles = osListDir( childFolderFullPath )
+        # get possible asset files directly by using glob
+        pattern = osPathBaseName( baseName ) + '*'
         
-        for childFile in childFiles:
-            childFileFullPath = osPathJoin( childFolderFullPath, childFile)
-            if childFile.lower().startswith( childFolder.lower() ) and osPathIsFile( childFileFullPath ):
-                
-                asset = assetModelAsset( selfProject, self, childFile )
-                
-                if asset.isValidAsset() and self.isValidExtension(asset.getExtension()):
-                    assets.append( asset )
-                assets.append( asset )
+        # files are in fullpath format
+        matchedFiles = globGlob( osPathJoin( childFolderFullPath, pattern ) )
+        
+        matchedFileCount = len(matchedFiles)
+        
+        if matchedFileCount > 0:
+            # there should be some files matching the pattern
+            # check if they are valid assets
+            
+            matchedAssets = map( assetModelAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
+            
+            # append them to the main assets list
+            [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset() ]
         
         return assets
     
@@ -1658,7 +1654,9 @@ class Sequence(object):
     
     #----------------------------------------------------------------------
     def aFilter(self, dicts, **kwargs):
-        """filters assets for criteria
+        """filters dictionaries for criteria
+        dicts is a list of dictionaries
+        the function returns the dictionaries that has all the kwargs
         """
         return [ d for d in dicts if all(d.get(k) == kwargs[k] for k in kwargs)]
     
@@ -2019,6 +2017,18 @@ class Structure(object):
 
 
 
+########################################################################
+class Shot(object):
+    """
+    """
+
+    #----------------------------------------------------------------------
+    def __init__(self):
+        """Constructor"""
+        
+        
+    
+    
 #########################################################################
 #class Environment(object):
     #"""holds environment data

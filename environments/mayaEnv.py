@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel
 
 
 
-__version__ = "9.11.30"
+__version__ = "9.12.21"
 
 
 
@@ -133,7 +133,7 @@ def getPathVariables():
     
     fullPath = pm.env.sceneName()
     if os.name == 'nt':
-        fullPath = oyAux.fixWindowsPath(fullPath)
+        fullPath = fullPath.replace('/','\\')
     
     print "the fullPath in maya is ", fullPath
     
@@ -260,10 +260,7 @@ def getWorkspacePath():
     path = pm.workspace.name
     
     if os.name == 'nt':
-        #myDict = dict()
-        #myDict[u'/'] = u'\\'
-        #path = oyAux.multiple_replace( path, myDict)
-        path = oyAux.fixWindowsPath( path )
+        path = path.replace('/','\\')
     
     return path
 

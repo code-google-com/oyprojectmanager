@@ -1,8 +1,6 @@
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
 
-v9.12.21
-
 Description :
 -------------
 The oyProjectManager is created to manage our animation studios own projects,
@@ -154,4 +152,4 @@ Command Line Options :
 
 
 
-__version__ = "9.12.21"
+__version__ = "9.12.24"

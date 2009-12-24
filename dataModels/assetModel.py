@@ -1020,10 +1020,10 @@ class SuperAsset(object):
     same asset. So it was breaking the generality of the whole design.
     
     The new SuperAsset class will deal with the assets in a more convienient
-    way.
+    way. This class now deals with assets, not the individual versions of the
+    asset file.
     
-    This class shouldn't deal with the individual assets, instead it should
-    deal with more general information about the asset, like:
+    The new class deals with the information below:
     - All the versions as version list
     - The published asset information
     - User comments about the asset
@@ -1033,27 +1033,43 @@ class SuperAsset(object):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, project, sequence, typeName, baseName, subName):
+    def __init__(self, project, sequence, typeName, baseName ): #, subName):
         
-        import dataModels.projectModel as projectModel
-        assert( isinstance(sequence, projectModel.Sequence) )
+##        import dataModels.projectModel as projectModel
+##        assert( isinstance(sequence, projectModel.Sequence) )
         
         self._parentProject = project
         self._parentSequence = sequence
         
         self._baseName = baseName
-        self._subName = subName
+##        self._subName = subName
         self._typeName = typeName
         self._type = self._parentSequence.getAssetTypeWithName(typeName)
         
-        assert( isinstance(self._type, AssetType) )
+        self._dataSeparator = u'_'
+        
+##        assert( isinstance(self._type, AssetType) )
         
         self._info = dict()
         
         # path variables
         self._path = os.path.join( self._parentSequence.getFullPath(), self._type.getPath(), baseName )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def findAllAssets(self):
+        """ finds all the asset versions of the super asset
+        """
+        import dataModels.projectModel as projectModel
+        assert( isinstance(self._parentSequence, projectModel.Sequence) )
+        
+        # search the path for the baseName + subName
+        
+        searchPath = self._path
+        pattern = self._baseName + '*'
         
         
-        
+    
     
     

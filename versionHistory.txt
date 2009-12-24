@@ -1,9 +1,19 @@
 Version History :
 -----------------
+v9.12.24
+- projectModel: the getAllAssetFileNamesForType method in sequence object was
+  returning full paths instead of file names
+
+v9.12.23
+- projectModel: updated the sequence classes getAllAssets, getAllAssetsForType
+  methods. The new versions uses glob and some optimizations to get all the
+  assets in a sequence
+
 v9.12.21
 - houdiniEnv: fixed the HIH environment variable retrieval under windows
+- mayaEnv: trying to reduce the dependency to oyAuxiliaryFunctions.py
 
-sv9.12.20
+v9.12.20
 - the houdini environment now has the ability to read the recent files history
   to get a valid project and sequence names
 - the Singleton class is now carried to the a new file called
