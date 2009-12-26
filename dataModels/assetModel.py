@@ -314,26 +314,6 @@ class Asset(object):
         """gathers the info variables to a fileName
         """
         
-        #if not self.isValidAsset():
-            #return None
-        
-        #parts = [] * 0
-        #parts.append( self._baseName )
-        
-        #if not self._parentSequence._noSubNameField:
-            #parts.append( self._subName )
-        
-        #parts.append( self._type.getName() )
-        #parts.append( self._revString )
-        #parts.append( self._verString )
-        #parts.append( self._userInitials )
-        
-        ## check if there is a note
-        #if self._notes != None and self._notes != '':
-            #parts.append( self._notes )
-        
-        #fileName = self._dataSeparator.join(parts)
-        
         fileName = self.getFileNameWithoutExtension()
         
         if self._extension != None and self._extension != '':
@@ -1058,7 +1038,7 @@ class SuperAsset(object):
     
     
     #----------------------------------------------------------------------
-    def findAllAssets(self):
+    def findAllVersions(self):
         """ finds all the asset versions of the super asset
         """
         import dataModels.projectModel as projectModel

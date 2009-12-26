@@ -5,22 +5,23 @@ import assetManager_UI
 
 import oyProjectManager
 from oyProjectManager.dataModels import assetModel, projectModel
+from oyProjectManager.ui import assetUpdater
 
 
 
-__version__ = "9.12.15"
+__version__ = "9.12.26"
 
 
 
 #----------------------------------------------------------------------
-def UI(environment=None, fileName=None, path=None ):
+def UI(environmentName=None, fileName=None, path=None ):
     """the UI
     """
     global app
     global mainWindow
     app = QtGui.QApplication(sys.argv)
-    mainWindow = MainWindow(environment, fileName, path)
-    returnValue = mainWindow.show()
+    mainWindow = MainWindow(environmentName, fileName, path)
+    mainWindow.show()
     app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
@@ -38,12 +39,16 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, environment=None, fileName=None, path=None):
+    def __init__(self, environmentName=None, fileName=None, path=None):
         QtGui.QMainWindow.__init__(self)
         self.setupUi(self)
         
         # change the window title
-        self.setWindowTitle( environment + ' | ' + self.windowTitle() + ' v' + __version__ + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
+        environmentTitle = ''
+        if environmentName != None:
+            environmentTitle = environmentName
+        
+        self.setWindowTitle( environmentTitle + ' | ' + self.windowTitle() + ' v' + __version__ + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
         
         # center to the window
         self._centerWindow()
@@ -66,7 +71,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self._sequence = None
         self._versionListBuffer = []
         
-        self.environment = environment
+        self.environmentName = environmentName
         self.fileName = fileName
         self.path = path
         self.fullPath = ''
@@ -373,7 +378,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         currentSequence = self._sequence
         
         # get asset types
-        assetTypes = currentSequence.getAssetTypes( self.environment )
+        assetTypes = currentSequence.getAssetTypes( self.environmentName )
         
         assetTypeNames = [ assetType.getName() for assetType in assetTypes ]
         
@@ -429,14 +434,15 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             # do nothing
             return
         
-        # get the asset files of that type
-        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
-        # filter for base name
-        currSGFIV = currentSequence.generateFakeInfoVariables
-        baseNamesList = [ currSGFIV(assetFileName)['baseName'] for assetFileName in allAssetFileNames ]
+        ## get the asset files of that type
+        #allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentTypeName )
+        ## filter for base name
+        #currSGFIV = currentSequence.generateFakeInfoVariables
+        #baseNamesList = [ currSGFIV(assetFileName)['baseName'] for assetFileName in allAssetFileNames ]
         
-        # remove duplicates
-        baseNamesList = oyAux.unique( baseNamesList )
+        ## remove duplicates
+        #baseNamesList = oyAux.unique( baseNamesList )
+        baseNamesList = currentSequence.getAssetBaseNamesForType( currentTypeName )
         
         # add them to the baseName combobox
         self.baseName_listWidget.clear()
@@ -1056,18 +1062,19 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """gets the data from environment
         """
         
-        if self.environment == 'MAYA':
+        if self.environmentName == 'MAYA':
             from oyProjectManager.environments import mayaEnv
-            env = mayaEnv
-        elif self.environment == 'NUKE':
+            env = mayaEnv.MayaEnvironment()
+            
+        elif self.environmentName == 'NUKE':
             from oyProjectManager.environments import nukeEnv
-            env = nukeEnv
-        elif self.environment == 'HOUDINI':
+            env = nukeEnv.NukeEnvironment()
+            
+        elif self.environmentName == 'HOUDINI':
             from oyProjectManager.environments import houdiniEnv
-            env = houdiniEnv
+            env = houdiniEnv.HoudiniEnvironment()
         
-        if self.environment != None and self.environment != '':
-            #print "importing path variables from env"
+        if self.environmentName != None and self.environmentName != '':
             self.fileName, self.path = env.getPathVariables()
             
             # update the interface
@@ -1185,17 +1192,22 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         if assetStatus and verStatus and revStatus and overwriteStatus:
             
             # everything is ok now save in the host application
-            if self.environment == 'MAYA':
+            if self.environmentName == 'MAYA':
                 from oyProjectManager.environments import mayaEnv
-                envStatus = mayaEnv.save( assetObject )
+                #envStatus = mayaEnv.save( assetObject )
+                env = mayaEnv.MayaEnvironment( assetObject )
                 
-            elif self.environment == 'NUKE':
+            elif self.environmentName == 'NUKE':
                 from oyProjectManager.environments import nukeEnv
-                envStatus = nukeEnv.save( assetObject )
+                #envStatus = nukeEnv.save( assetObject )
+                env = nukeEnv.NukeEnvironment( assetObject )
             
-            elif self.environment == 'HOUDINI':
+            elif self.environmentName == 'HOUDINI':
                 from oyProjectManager.environments import houdiniEnv
-                envStatus = houdiniEnv.save( assetObject )
+                #envStatus = houdiniEnv.save( assetObject )
+                env = houdiniEnv.HoudiniEnvironment( assetObject )
+            
+            envStatus = env.save()
             
             # if everything worked fine close the interface
             if envStatus:
@@ -1203,7 +1215,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 self._db.setLastUser( assetObject.getUserInitials() )
                 
                 #print info
-                if self.environment == 'MAYA':
+                if self.environmentName == 'MAYA':
                     self.printInfo( assetObject,  "saved" )
                     
                 self.close()
@@ -1232,13 +1244,17 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         if assetStatus and verStatus and revStatus and overwriteStatus:
             # everything is ok now save in the host application
-            if self.environment == 'MAYA':
-                
+            if self.environmentName == 'MAYA':
                 from oyProjectManager.environments import mayaEnv
-                envStatus = mayaEnv.export( assetObject )
-            elif self.environment == 'NUKE':
+                #envStatus = mayaEnv.export( assetObject )
+                env = mayaEnv.MayaEnvironment( assetObject )
+                envSatus = env.export()
+                
+            elif self.environmentName == 'NUKE':
                 from oyProjectManager.environments import nukeEnv
-                envStatus = nukeEnv.export( assetObject )
+                #envStatus = nukeEnv.export( assetObject )
+                env = nukeEnv.NukeEnvironment( assetObject )
+                envStatus = env.export()
             
             # if everything worked fine close the interface
             if envStatus:
@@ -1268,49 +1284,60 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # open the asset in the environment
         if exists:
-            if self.environment == 'MAYA':
+            if self.environmentName == 'MAYA':
                 
                 toUpdateList = [] # the list that holds the assets those needs to be updated
                 
                 from oyProjectManager.environments import mayaEnv
+                env = mayaEnv.MayaEnvironment( assetObject )
+                
                 try:
-                    envStatus, toUpdateList = mayaEnv.open_( assetObject )
+                    envStatus, toUpdateList = env.open_()
                 except RuntimeError:
                     answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There are unsaved changes in the current scene\n\nDo you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                     
                     if answer== QtGui.QMessageBox.Yes:
-                        envStatus, toUpdateList = mayaEnv.open_( assetObject, True )
+                        envStatus, toUpdateList = env.open_( True )
                 
                 # check the toUpdateList to update old assets
                 if len(toUpdateList):
-                    assetNames = '\n'.join( toUpdateList )
+                    # invoke the assetUpdater for this scene
+                    assetUpdater.UI( self.environmentName )
                     
-                    # display the warning
-                    answer = QtGui.QMessageBox.warning(self, 'AssetVersionError', "These assets has newer versions\n\n" + assetNames + "\n\nPlease update them!", QtGui.QMessageBox.Ok )
+                    #assetNames = '\n'.join( [ assetTuple[0].getFileName() for assetTuple in toUpdateList ] )
                     
-                    # print the text version
-                    print "\n"
-                    print "These assets has newer versions:"
-                    print "--------------------------------"
-                    print "\n"
-                    print assetNames
-                    print "\n"
-                    print "Please update them!"
+                    ## display the warning
+                    #answer = QtGui.QMessageBox.warning(self, 'AssetVersionError', "These assets has newer versions\n\n" + assetNames + "\n\nPlease update them!", QtGui.QMessageBox.Ok )
+                    
+                    ## print the text version
+                    #print "\n"
+                    #print "These assets has newer versions:"
+                    #print "--------------------------------"
+                    #print "\n"
+                    #print assetNames
+                    #print "\n"
+                    #print "Please update them!"
                     
                 
-            elif self.environment == 'NUKE':
+            elif self.environmentName == 'NUKE':
                 from oyProjectManager.environments import nukeEnv
-                envStatus = nukeEnv.open_( assetObject )
+                #envStatus = nukeEnv.open_( assetObject )
+                
+                env = nukeEnv.NukeEnvironment( assetObject )
+                envStatus = env.open_()
             
-            elif self.environment == 'HOUDINI':
+            elif self.environmentName == 'HOUDINI':
                 from oyProjectManager.environments import houdiniEnv
+                
+                env = houdiniEnv.HoudiniEnvironment( assetObject )
+                
                 try:
-                    envStatus = houdiniEnv.open_(assetObject)
+                    envStatus = env.open_()
                 except RuntimeError:
                     answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There are unsaved changes in the current scene\n\nDo you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                     
                     if answer== QtGui.QMessageBox.Yes:
-                        envStatus = houdiniEnv.open_( assetObject, True )
+                        envStatus = env.open_( True )
             
             if envStatus:
                 self.close()
@@ -1337,16 +1364,20 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # open the asset in the environment
         if exists:
-            if self.environment == 'MAYA':
+            if self.environmentName == 'MAYA':
                 from oyProjectManager.environments import mayaEnv
-                envStatus = mayaEnv.import_( assetObject )
-            if self.environment == 'NUKE':
+                env = mayaEnv.MayaEnvironment( assetObject )
+                
+            if self.environmentName == 'NUKE':
                 from oyProjectManager.environments import nukeEnv
-                envStatus = nukeEnv.import_( assetObject )
-            if self.environment == 'HOUDINI':
-                from oyProjectManager.environments import houdiniEnv
-                envStatus = houdiniEnv.import_( assetObject )
+                env = nukeEnv.NukeEnvironment( assetObject )
             
+            if self.environmentName == 'HOUDINI':
+                from oyProjectManager.environments import houdiniEnv
+                env = houdiniEnv.HoudiniEnvironment( assetObject )
+            
+            envStatus = env.import_()
+                
             if envStatus:
                 #self.close()
                 QtGui.QMessageBox.information(self, 'Asset Import', 'Asset :\n\n'+ assetObject.getFileName() +'\n\nis imported successfuly', QtGui.QMessageBox.Ok)
@@ -1376,12 +1407,14 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # open the asset in the environment
         if exists:
-            if self.environment == 'MAYA':
+            if self.environmentName == 'MAYA':
                 from oyProjectManager.environments import mayaEnv
-                envStatus = mayaEnv.reference( assetObject )
-            elif self.environment == 'NUKE':
+                env = mayaEnv.MayaEnvironment( assetObject )
+                envStatus = env.reference()
+            
+            elif self.environmentName == 'NUKE':
                 envStatus = False
-                QtGui.QMessageBox.warning(self, 'Function Error', self.environment + " doesn't support referencing yet !!!", QtGui.QMessageBox.Ok )
+                QtGui.QMessageBox.warning(self, 'Function Error', self.environmentName + " doesn't support referencing yet !!!", QtGui.QMessageBox.Ok )
             
             if envStatus:
                 #self.close()

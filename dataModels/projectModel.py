@@ -1,12 +1,12 @@
 import os, re, shutil, glob
 from xml.dom import minidom
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.tools import cache, rangeTools, abstractClasses
-import assetModel, userModel
+from oyProjectManager.tools import cache, rangeTools
+from oyProjectManager.dataModels import assetModel, userModel, abstractClasses
 
 
 
-__version__ = "9.12.24"
+__version__ = "9.12.26"
 
 
 
@@ -610,6 +610,7 @@ class Sequence(object):
         self._structure = Structure()
         self._assetTypes = [ assetModel.AssetType() ] * 0
         self._shotList = [] * 0 # should be a string
+        self._shots = [] # the new shot objects
         
         self._shotPrefix = 'SH'
         self._shotPadding = 3
@@ -644,6 +645,7 @@ class Sequence(object):
             self._settingsFileExists = True
             self._exists = True
         
+        #print (self._settingsFileFullPath)
         settingsAsXML = minidom.parse( self._settingsFileFullPath )
         
         rootNode = settingsAsXML.childNodes[0]
@@ -657,13 +659,39 @@ class Sequence(object):
         # get sequence nodes
         structureNode = sequenceDataNode.getElementsByTagName('structure')[0]
         assetTypesNode = sequenceDataNode.getElementsByTagName('assetTypes')[0]
-        shotListNode = sequenceDataNode.getElementsByTagName('shotList')[0]
+        shotDataNodes = sequenceDataNode.getElementsByTagName('shotData')
+        
+        
+        doConvertionToShotData = False
+        
+        if len(shotDataNodes) == 0:
+            doConvertionToShotData = True
         
         # parse all nodes
         self._parseDatabaseDataNode( databaseDataNode )
         self._parseAssetTypesNode( assetTypesNode )
-        self._parseShotListNode( shotListNode )
         self._parseStructureNode( structureNode )
+        
+        if doConvertionToShotData:
+            # 
+            # it should be an old type of settings file
+            # convert it to the new shotData concept
+            # 
+            shotListNode = sequenceDataNode.getElementsByTagName('shotList')[0]
+            print "converting to shotData concept !!!"
+            
+            # read the shot numbers from the shotList node and create appropriate
+            # shot data nodes
+            
+            # parse the shotListNode to get the shot list
+            self._parseShotListNode( shotListNode )
+            
+            self._convertShotListToShotData()
+            
+            # update the settings file
+            self.saveSettings()
+        else:
+            self._parseShotDataNode( shotDataNodes[0] )
     
     
     
@@ -785,6 +813,66 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    def _parseShotDataNode(self, shotDataNode):
+        """parses shotData node from the XML file
+        """
+        
+        #assert( isinstance( shotDataNode, minidom.Element) )
+        
+        for shotNode in shotDataNode.getElementsByTagName('shot'):
+            #assert( isinstance( shotNode, minidom.Element ) )
+            
+            startFrame = shotNode.getAttribute( 'startFrame' )
+            endFrame = shotNode.getAttribute( 'endFrame' )
+            name = shotNode.getAttribute( 'name' )
+            description = shotNode.getElementsByTagName('description')[0].childNodes[0].wholeText.strip()
+            
+            if startFrame != '':
+                startFrame = int(startFrame)
+            else:
+                startFrame = 0
+            
+            if endFrame != '':
+                endFrame = int(endFrame)
+            else:
+                endFrame = 0
+            
+            # create shot objects with the data
+            newShot = Shot()
+            newShot.startFrame = startFrame
+            newShot.endFrame = endFrame
+            newShot.name = name
+            newShot.description = description
+            
+            # append the shot to the self._shots
+            self._shots.append( newShot )
+            
+            # also append the name to the shotList
+            self._shotList.append( name )
+        
+        # sort the shot list
+        self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
+        
+        
+    
+    
+    #----------------------------------------------------------------------
+    def _convertShotListToShotData(self):
+        """converts the shot list node in the settings to shotData node
+        """
+        
+        # now we should have the self._shotList filled
+        # create the shot objects with default values and the shot names from
+        # the shotList
+        
+        for shotName in self._shotList:
+            newShot = Shot()
+            newShot.name = shotName
+            self._shots.append( newShot )
+    
+    
+    
+    #----------------------------------------------------------------------
     def saveSettings(self):
         """saves the settings as XML
         """
@@ -801,9 +889,16 @@ class Sequence(object):
         assetTypesNode = minidom.Element('assetTypes')
         typeNode = minidom.Element('type')
         
-        shotListNode = minidom.Element('shotList')
-        shotListNodeText = minidom.Text()
+        #shotListNode = minidom.Element('shotList')
+        #shotListNodeText = minidom.Text()
         
+        shotDataNode = minidom.Element('shotData')
+        
+        
+        
+        #----------------------------------------------------------------------
+        # DATABASE DATA
+        #----------------------------------------------------------------------
         # set database node attributes
         databaseDataNode.setAttribute('shotPrefix', self._shotPrefix)
         databaseDataNode.setAttribute('shotPadding', unicode( self._shotPadding ) )
@@ -815,38 +910,90 @@ class Sequence(object):
         
         if self._noSubNameField:
             databaseDataNode.setAttribute('noSubNameField', unicode( self._noSubNameField ) )
+        #----------------------------------------------------------------------
         
+        
+        
+        #----------------------------------------------------------------------
+        # SEQUENCE DATA and childs
+        #----------------------------------------------------------------------
+        
+        #----------------------------------------------------------------------
+        # SHOT DEPENDENT / INDEPENDENT FOLDERS
+        #----------------------------------------------------------------------
         # create shot dependent/independent folders
-        shotDependentNodeText.data = '\n'.join( self._structure.getShotDependentFolders() )
-        shotIndependentNodeText.data = '\n'.join( self._structure.getShotIndependentFolders() )
+        shotDependentNodeText.data = '\n'.join( self._structure.getShotDependentFolders() ).replace('\\','/')
+        shotIndependentNodeText.data = '\n'.join( self._structure.getShotIndependentFolders() ).replace('\\','/')
+        #----------------------------------------------------------------------
         
-        # create shot list text data
-        # sort the shotList
-        self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
-        shotListNodeText.data = '\n'.join( self._shotList )
+        
+        
+        #----------------------------------------------------------------------
+        # SHOT DATA
+        #----------------------------------------------------------------------
+        
+        ## create shot list text data
+        ## sort the shotList
+        #self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
+        ##shotListNodeText.data = '\n'.join( self._shotList )
+        
+        # create the new type of shotData nodes
+        for shot in self._shots:
+            # create a shot node
+            #assert(isinstance(shot,Shot))
+            shotNode = minidom.Element('shot')
+            shotNode.setAttribute('startFrame', str(shot.startFrame) )
+            shotNode.setAttribute('endFrame', str(shot.endFrame) )
+            shotNode.setAttribute('name', shot.name)
+            
+            # create a description node and store the shot description as the node text
+            descriptionNode = minidom.Element('description')
+            
+            # create the text node
+            descriptionText = minidom.Text()
+            descriptionText.data = shot.description
+            
+            # append the nodes to appropriate parents
+            descriptionNode.appendChild( descriptionText )
+            shotNode.appendChild( descriptionNode )
+            shotDataNode.appendChild( shotNode )
+        #----------------------------------------------------------------------
+        
+        
+        
+        #----------------------------------------------------------------------
+        # ASSET TYPE
+        #----------------------------------------------------------------------
         
         # create asset types
         for aType in self._assetTypes:
             #assert( isinstance( aType, assetModel.AssetType ) )
             typeNode = minidom.Element('type')
             typeNode.setAttribute( 'name', aType.getName() )
-            typeNode.setAttribute( 'path', aType.getPath() )
+            typeNode.setAttribute( 'path', aType.getPath().replace('\\','/') )
             typeNode.setAttribute( 'shotDependent', unicode( int( aType.isShotDependent() ) ) )
-            typeNode.setAttribute( 'playblastFolder', aType.getPlayblastFolder() )
+            typeNode.setAttribute( 'playblastFolder', aType.getPlayblastFolder().replace('\\','/') )
             typeNode.setAttribute( 'environments', ",".join( aType.getEnvironments() ) )
             
             assetTypesNode.appendChild( typeNode )
+        #----------------------------------------------------------------------
         
-        # create output folders node
         
+        
+        #----------------------------------------------------------------------
+        # OUTPUT FOLDERS
+        #----------------------------------------------------------------------
         outputFoldersNode = minidom.Element('outputFolders')
         for fTuple in self._structure.getOutputFolders():
             
             outputNode = minidom.Element('output')
             outputNode.setAttribute( 'name', fTuple[0] )
-            outputNode.setAttribute( 'path', fTuple[1] )
+            outputNode.setAttribute( 'path', fTuple[1].replace('\\','/') )
             
             outputFoldersNode.appendChild( outputNode )
+        #----------------------------------------------------------------------
+        
+        
         
         # append childs
         rootNode.appendChild( databaseDataNode )
@@ -854,7 +1001,7 @@ class Sequence(object):
         
         sequenceDataNode.appendChild( structureNode )
         sequenceDataNode.appendChild( assetTypesNode )
-        sequenceDataNode.appendChild( shotListNode )
+        sequenceDataNode.appendChild( shotDataNode )
         
         structureNode.appendChild( shotDependentNode )
         structureNode.appendChild( shotIndependentNode )
@@ -863,13 +1010,15 @@ class Sequence(object):
         shotDependentNode.appendChild( shotDependentNodeText )
         shotIndependentNode.appendChild( shotIndependentNodeText )
         
-        shotListNode.appendChild( shotListNodeText )
+        #shotListNode.appendChild( shotListNodeText )
         
         # create XML file
         settingsXML = minidom.Document()
         settingsXML.appendChild( rootNode )
         
         try:
+            # if there is a settings file backit up
+            oyAux.backUpFile( self._settingsFileFullPath )
             settingsFile = open( self._settingsFileFullPath, 'w' )
         except IOError:
             #print "couldn't open the settings file"
@@ -943,6 +1092,22 @@ class Sequence(object):
         
         # sort the shotList
         self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
+        
+        # just create shot objects with shot name and leave the start and end frame and
+        # description empty, it will be edited later
+        newShotObjects = []
+        for shotName in newShotList:
+            shot = Shot()
+            shot.name = shotName
+            
+            newShotObjects.append( shot )
+        
+        # add the new shot objects to the existing ones
+        self._shots = oyAux.unique( oyAux.concatenateLists( self._shots, newShotObjects ) )
+        
+        # sort the shot objects
+        self._shots = oyAux.sort_strings_with_embedded_numbers( self._shots )
+        
     
     
     
@@ -1425,27 +1590,16 @@ class Sequence(object):
         assetFiles = [] * 0
         
         # get the asset folders
-        #assetFolders = self.getAssetFolders()
-        
         aType = self.getAssetTypeWithName( typeName )
         
         #assert(isinstance(aType,assetModel.AssetType))
         assetFolder = aType.getPath()
         
         # optimization variables
-        #osPathJoin = os.path.join
-        #osPathExists = os.path.exists
-        #osPathIsFile = os.path.isfile
-        #osPathIsDir = os.path.isdir
-        #osListDir = os.listdir
-        #selfFullPath = self._fullPath
-        #selfIsValidExtension = self.isValidExtension
         osPathExists = os.path.exists
         osPathJoin = os.path.join
-        #oyAuxGetChildFolders = oyAux.getChildFolders
         osPathBaseName = os.path.basename
         globGlob = glob.glob
-        #assetModelAsset = assetModel.Asset
         assetFilesAppend = assetFiles.append
         selfFullPath = self._fullPath
         selfProject = self.getProject()
@@ -1469,7 +1623,7 @@ class Sequence(object):
             pattern = osPathBaseName( folder ) + '*'
             
             matchedFiles = globGlob( osPathJoin( folder, pattern ) )
-            #print matchedFiles
+            
             matchedFileCount = len( matchedFiles )
             
             if matchedFileCount > 0:
@@ -1478,6 +1632,25 @@ class Sequence(object):
         assetFiles = map( os.path.basename, assetFiles )
         
         return assetFiles
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getAssetBaseNamesForType(self, typeName):
+        """returns all asset baseNames for the given type
+        """
+        
+        # get the asset files of that type
+        allAssetFileNames = self.getAllAssetFileNamesForType( typeName )
+        
+        # filter for base name
+        sGFIV = self.generateFakeInfoVariables
+        baseNamesList = [ sGFIV(assetFileName)['baseName'] for assetFileName in allAssetFileNames ]
+        
+        # remove duplicates
+        baseNamesList = oyAux.unique( baseNamesList )
+        
+        return baseNamesList
     
     
     
@@ -2018,14 +2191,133 @@ class Structure(object):
 
 ########################################################################
 class Shot(object):
-    """
+    """The class that enables the system to manage shot data
     """
 
     #----------------------------------------------------------------------
     def __init__(self):
         """Constructor"""
-        
-        
+        self._name = ''
+        self._duration = 0
+        self._startFrame = 1
+        self._endFrame = 1
+        self._description = ''
+        #self._cutSummary = ''
+        self._parentSequence = None
+    
+    
+    
+    #----------------------------------------------------------------------
+    def __str__(self):
+        """returns the string representation of the object
+        """
+        return self._name
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getStartFrame(self):
+        """returns the start frame
+        """
+        return self._startFrame
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setStartFrame(self, frame):
+        """sets the start frame
+        """
+        self._startFrame = frame
+        # update the duration
+        self._updateDuration()
+    
+    startFrame = property( _getStartFrame, _setStartFrame )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getEndFrame(self):
+        """returns the end frame
+        """
+        return self._endFrame
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setEndFrame(self, frame):
+        """sets the end frame
+        """
+        self._endFrame = frame
+        # update the duration
+        self._updateDuration()
+    
+    endFrame = property( _getEndFrame, _setEndFrame )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _updateDuration(self):
+        """updates the duration
+        """
+        self._duration = self._endFrame - self._startFrame + 1
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getDescription(self):
+        """returns the description
+        """
+        return self._description
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setDescription(self, description):
+        """sets the description
+        """
+        self._description = description
+    
+    description = property( _getDescription, _setDescription )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getParentSequence(self):
+        """returns the parentSequence
+        """
+        return self._parentSequence
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setParentSequence(self, seq):
+        """sets the parentSequence
+        """
+        self._parentSequence = seq
+    
+    parentSequence = property( _getParentSequence, _setParentSequence )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getName(self):
+        """returns the name of the shot
+        """
+        return self._name
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setName(self, name):
+        """sets the shot name
+        """
+        self._name = name
+    
+    name = property( _getName, _setName )
+    
+    
+    
+    
     
     
 #########################################################################
