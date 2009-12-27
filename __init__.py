@@ -10,9 +10,9 @@ to allow users to save their files in correct folders with correct names. So
 anyone can find their files by using this system. But again it is not a
 complete Project Asset Management System.
 
-This system uses the file system as a database, and extracts the information
-from the folder and file names. And because it uses a consistent structure
-while creating both the projects, sequences and assets, it works very fine.
+This system uses a repository, and extracts the information from the folder and
+file names. And because it uses a consistent structure while creating both the
+projects, sequences and assets, it works very fine.
 
 Another aim of this code is to prevent the user to use the OSes own file
 manager (ie. Windows Explorer on Windows ) to define the name and placement of
@@ -42,7 +42,7 @@ Sequence : A sequence is a structure of child folders. All of these child
            by changing the .settings.xml file under the sequences root.
            
            The default structure is hold in the project managers own folder
-           (this folder can be queried by using a database object), and every
+           (this folder can be queried by using a repository object), and every
            project has a modified copy of this XML file.
            
            So, while one project can have an animation folder for animations,

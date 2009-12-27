@@ -1007,47 +1007,61 @@ class SuperAsset(object):
     - All the versions as version list
     - The published asset information
     - User comments about the asset
-    - 
+    
+    To initialize the class we do not need anything other than the asset
+    folders full path. So for an asset lying down in:
+    
+    M:/JOBs/ETI_TOPKEK/_CHARACTER_SETUP_/_RIG_/Kopil
+    
+    folder, knowing the full path is enough to have the informations
+    below:
+    
+    - the Project name and therefore the project object ( by using the
+      repository object )
+    - the Sequence name and therefore the sequence object ( by using the
+      repository object )
+    - the asset base name
+    - listining the folder contents and having all the subNames ( if
+      available )
     '''
     
     
     
     #----------------------------------------------------------------------
-    def __init__(self, project, sequence, typeName, baseName ): #, subName):
+    #def __init__(self, project, sequence, typeName, baseName ): #, subName):
+    def __init__(self, assetFolderFullPath ):
         
-##        import dataModels.projectModel as projectModel
-##        assert( isinstance(sequence, projectModel.Sequence) )
         
-        self._parentProject = project
-        self._parentSequence = sequence
+        #self._parentProject = project
+        #self._parentSequence = sequence
         
-        self._baseName = baseName
-##        self._subName = subName
-        self._typeName = typeName
-        self._type = self._parentSequence.getAssetTypeWithName(typeName)
+        #self._baseName = baseName
+        ##self._subName = subName
+        #self._typeName = typeName
+        #self._type = self._parentSequence.getAssetTypeWithName(typeName)
         
-        self._dataSeparator = u'_'
+        #self._dataSeparator = u'_'
         
-##        assert( isinstance(self._type, AssetType) )
+        ##assert( isinstance(self._type, AssetType) )
         
-        self._info = dict()
+        #self._info = dict()
         
-        # path variables
-        self._path = os.path.join( self._parentSequence.getFullPath(), self._type.getPath(), baseName )
+        ## path variables
+        #self._path = os.path.join( self._parentSequence.getFullPath(), self._type.getPath(), baseName )
+        pass
     
     
-    
-    #----------------------------------------------------------------------
-    def findAllVersions(self):
-        """ finds all the asset versions of the super asset
-        """
-        import dataModels.projectModel as projectModel
-        assert( isinstance(self._parentSequence, projectModel.Sequence) )
+    ##----------------------------------------------------------------------
+    #def findAllVersions(self):
+        #""" finds all the asset versions of the super asset
+        #"""
+        #import dataModels.projectModel as projectModel
+        #assert( isinstance(self._parentSequence, projectModel.Sequence) )
         
-        # search the path for the baseName + subName
+        ## search the path for the baseName + subName
         
-        searchPath = self._path
-        pattern = self._baseName + '*'
+        #searchPath = self._path
+        #pattern = self._baseName + '*'
         
         
     

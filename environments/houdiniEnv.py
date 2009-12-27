@@ -13,12 +13,12 @@ has commands to save, open and import houdini files
 
 import os
 import hou
-from oyProjectManager.dataModels import assetModel, projectModel, abstractClasses
+from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel, abstractClasses
 import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.12.26"
+__version__ = "9.12.27"
 
 
 
@@ -100,7 +100,8 @@ class HoudiniEnvironment(abstractClasses.Environment):
         readRecentFile = True
         fileName = path = None
         
-        db = projectModel.Database()
+        #db = projectModel.Database()
+        repo = repositoryModel.Repository()
         
         fullPath = hou.hipFile.name()
         
@@ -114,7 +115,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
             path = os.path.dirname( fullPath )
             
             # try to create an asset with that info
-            projName, seqName = db.getProjectAndSequenceNameFromFilePath( fullPath )
+            projName, seqName = repo.getProjectAndSequenceNameFromFilePath( fullPath )
             
             proj = projectModel.Project( projName )
             seq = projectModel.Sequence( proj, seqName )
@@ -143,7 +144,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
             for i in range(len(recentFiles)):
                 
                 fileName = os.path.basename( recentFiles[i] )
-                projName, seqName = db.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
+                projName, seqName = repo.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
                 
                 if projName != None and seqName != None:
                     

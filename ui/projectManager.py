@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
 import projectManager_UI
 import oyProjectManager
-from oyProjectManager.dataModels import projectModel
+from oyProjectManager.dataModels import projectModel, repositoryModel
 from oyProjectManager.tools import rangeTools
 
 
@@ -66,7 +66,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         
         QtCore.QObject.connect(self.addAlternativeShot_pushButton, QtCore.SIGNAL("clicked()"), self.addAlternativeShot )
         
-        self.db = projectModel.Database()
+        self.repo = repositoryModel.Repository()
         
         # fill defaults
         self.setDefaults()
@@ -92,7 +92,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         
         # fill the server comboBox
         self.servers_comboBox.clear()
-        self.servers_comboBox.addItem ( self.db.getServerPath() )
+        self.servers_comboBox.addItem ( self.repo.getServerPath() )
     
     
     
@@ -199,7 +199,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
     def updateProjectLists(self):
         """updates the project comboBoxes
         """
-        projects = self.db.getProjects()
+        projects = self.repo.getProjects()
         sortedProjects = sorted( projects )
         
         # clear all the items in the current combo boxes

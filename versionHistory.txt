@@ -1,5 +1,12 @@
 Version History :
 -----------------
+v9.12.27
+- the database class is renamed to repository to more correctly reflect the
+  current design
+- the repository class moved to repositoryModel.py under dataModels
+- the databaseData node in the .settings.xml for every sequence is removed and
+  the attributes are moved to the sequenceData node
+
 v9.12.26
 - mayaEnv: the return type of the open method has been changed from list of
   asset file names to list of asset objects to have a more solid structure

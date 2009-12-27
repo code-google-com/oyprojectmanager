@@ -4,23 +4,25 @@ from PyQt4 import QtGui, QtCore
 import assetManager_UI
 
 import oyProjectManager
-from oyProjectManager.dataModels import assetModel, projectModel
+from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel
 from oyProjectManager.ui import assetUpdater
 
 
 
-__version__ = "9.12.26"
+__version__ = "9.12.27"
 
 
 
 #----------------------------------------------------------------------
-def UI(environmentName=None, fileName=None, path=None ):
+#def UI(environmentName=None, fileName=None, path=None ):
+def UI(environmentName=None, parent=None):
     """the UI
     """
     global app
     global mainWindow
     app = QtGui.QApplication(sys.argv)
-    mainWindow = MainWindow(environmentName, fileName, path)
+    #mainWindow = MainWindow(environmentName, fileName, path)
+    mainWindow = MainWindow(environmentName, parent)
     mainWindow.show()
     app.setStyle('Plastique')
     app.exec_()
@@ -39,8 +41,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, environmentName=None, fileName=None, path=None):
-        QtGui.QMainWindow.__init__(self)
+    #def __init__(self, environmentName=None, fileName=None, path=None):
+    def __init__(self, environmentName=None, parent=None):
+        QtGui.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         
         # change the window title
@@ -62,8 +65,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # attach new item texts
         #setattr( self.baseName_listWidget, 'newItemText', '(add new...)')
         
-        # create a database
-        self._db = projectModel.Database()
+        # create a repository object
+        self._repo = repositoryModel.Repository()
         
         # fill them later
         self._asset = None
@@ -72,13 +75,15 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self._versionListBuffer = []
         
         self.environmentName = environmentName
-        self.fileName = fileName
-        self.path = path
+        #self.fileName = fileName
+        #self.path = path
+        self.fileName = ''
+        self.path = ''
         self.fullPath = ''
         
-        if (self.fileName != None and self.fileName != '') and \
-           (self.path != None and self.path != '' ):
-            self.fullPath = os.path.join(self.path, self.fileName)
+        #if (self.fileName != None and self.fileName != '') and \
+           #(self.path != None and self.path != '' ):
+            #self.fullPath = os.path.join(self.path, self.fileName)
         
         self.setDefaults()
         self.updateProjectList()
@@ -213,13 +218,13 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self.subName_listWidget.addItem( "MAIN" )
         
         # append the users to the users list
-        userInits = self._db.getUserInitials()
+        userInits = self._repo.getUserInitials()
         
         self.user_comboBox1.clear()
         self.user_comboBox1.addItems( userInits )
         
         # update the user with the last selected user
-        lastUser = self._db.getLastUser()
+        lastUser = self._repo.getLastUser()
         
         userIndex = -1
         if lastUser != '' and lastUser != None:
@@ -242,7 +247,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             return
         
         # get the project and sequence names
-        projectName, sequenceName = self._db.getProjectAndSequenceNameFromFilePath( self.path )
+        projectName, sequenceName = self._repo.getProjectAndSequenceNameFromFilePath( self.path )
                 
         if projectName == None or projectName == '' or sequenceName == None or sequenceName == '':
             return
@@ -337,10 +342,10 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """updates projects list
         """
         
-        serverPath = self._db.getServerPath()
+        serverPath = self._repo.getServerPath()
         
-        #projectsList = self._db.getProjects()
-        projectsList = self._db.getVaildProjects()
+        #projectsList = self._repo.getProjects()
+        projectsList = self._repo.getVaildProjects()
         projectsList.sort()
         
         self.server_comboBox.clear()
@@ -1212,7 +1217,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             # if everything worked fine close the interface
             if envStatus:
                 # set the last user variable
-                self._db.setLastUser( assetObject.getUserInitials() )
+                self._repo.setLastUser( assetObject.getUserInitials() )
                 
                 #print info
                 if self.environmentName == 'MAYA':
@@ -1301,22 +1306,23 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 
                 # check the toUpdateList to update old assets
                 if len(toUpdateList):
-                    # invoke the assetUpdater for this scene
-                    assetUpdater.UI( self.environmentName )
+                    assetNames = '\n'.join( [ assetTuple[0].getFileName() for assetTuple in toUpdateList ] )
                     
-                    #assetNames = '\n'.join( [ assetTuple[0].getFileName() for assetTuple in toUpdateList ] )
+                    # display the warning
+                    answer = QtGui.QMessageBox.warning(self, 'AssetVersionError', "These assets has newer versions\n\n" + assetNames + "\n\nPlease update them!", QtGui.QMessageBox.Ok )
                     
-                    ## display the warning
-                    #answer = QtGui.QMessageBox.warning(self, 'AssetVersionError', "These assets has newer versions\n\n" + assetNames + "\n\nPlease update them!", QtGui.QMessageBox.Ok )
+                    # print the text version
+                    print "\n"
+                    print "These assets has newer versions:"
+                    print "--------------------------------"
+                    print "\n"
+                    print assetNames
+                    print "\n"
+                    print "Please update them!"
                     
-                    ## print the text version
-                    #print "\n"
-                    #print "These assets has newer versions:"
-                    #print "--------------------------------"
-                    #print "\n"
-                    #print assetNames
-                    #print "\n"
-                    #print "Please update them!"
+                    ## invoke the assetUpdater for this scene
+                    #assetUpdater.UI( self.environmentName, self )
+
                     
                 
             elif self.environmentName == 'NUKE':
@@ -1435,3 +1441,29 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         print "AssetManager " + __version__
         print assetObject.getFileName()
         print actionName + " succesfully"
+
+
+
+
+
+
+########################################################################
+class InterfaceRunner(QtCore.QThread):
+    """runs the other windows as another thread
+    """
+    
+    #----------------------------------------------------------------------
+    def __init__(self, parentA=None, interface=None, **interfaceArgs):
+        QtCore.QThread.__init__(self, parentA)
+        self._interface = interface
+        self._interfaceArgs = interfaceArgs
+    
+    
+    
+    #----------------------------------------------------------------------
+    def run(self):
+        """runs the thread, thus the interface
+        """
+        
+        if self._interface != None:
+            self._interface( **self._interfaceArgs )

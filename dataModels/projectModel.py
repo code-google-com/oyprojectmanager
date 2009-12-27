@@ -2,426 +2,11 @@ import os, re, shutil, glob
 from xml.dom import minidom
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.tools import cache, rangeTools
-from oyProjectManager.dataModels import assetModel, userModel, abstractClasses
+from oyProjectManager.dataModels import assetModel, userModel, repositoryModel
 
 
 
-__version__ = "9.12.26"
-
-
-
-########################################################################
-class Database( abstractClasses.Singleton ):
-    """Database class gives informations about the servers, projects, users etc.
-    """
-    
-    
-    
-    #----------------------------------------------------------------------
-    def __init__(self):
-        
-        # initialize default variables
-        self._databaseSettingsFileName = 'databaseSettings.xml'
-        
-        self._serverPath = ''
-        self._projectsFolderName = ''
-        
-        self._projectManagerFolderName = ''
-        self._projectManagerFolderPath = ''
-        self._projectManagerFolderFullPath = ''
-
-        self._projectsFolderFullPath = ''
-        self._defaultSettingsFileName = 'defaultProjectSettings.xml'
-        self._defaultSettingsFullPath = ''
-        
-        self._lastUserFileName = '.lastUser'
-        self._lastUserFilePath = self.getHomePath()
-        self._lastUserFileFullPath = os.path.join( self._lastUserFilePath, self._lastUserFileName )
-        
-        #self._localSettingsFileName = '.localSettings.xml'
-        #self._localSettingsPath = self.getHomePath()
-        #self._localSettingsFullPath = os.path( self._localSettingsPath, self._localSettingsFileName )
-        
-        # users
-        self._usersFileName = 'users.xml'
-        self._usersFileFullPath = ''
-        self._users = [] * 0
-        
-        self._projects = [] * 0
-        self._defaultFilesList = [] * 0
-        
-        #self._readLocalSettings()
-        self._readSettings()
-        self._updatePathVariables()
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _readSettings(self):
-        """reads the settings from the xml file at the project root
-        """
-        
-        # get the module root path
-        import oyProjectManager
-        settingsFilePath = oyProjectManager.__path__[0]
-        
-        # then the database settings full path
-        settingsFileFullPath = os.path.join( settingsFilePath, self._databaseSettingsFileName )
-        
-        # open the file
-        xmlFile = minidom.parse( settingsFileFullPath )
-        
-        rootNode = xmlFile.childNodes[0]
-        
-        # -----------------------------------------------------
-        # get the nodes
-        settingsNode = rootNode.getElementsByTagName('settings')[0]
-        serverNodes = settingsNode.getElementsByTagName('server')
-        defaultFilesNode = rootNode.getElementsByTagName('defaultFiles')[0]
-        
-        #assert(isinstance(settingsNode, minidom.Element))
-        #assert(isinstance(defaultFilesNode, minidom.Element))
-        
-        
-        # -----------------------------------------------------
-        # read the server settings
-        # for now just assume one server
-        self._serverPath = serverNodes[0].getAttribute('serverPath')
-        self._projectsFolderName = serverNodes[0].getAttribute('projectsFolderName')
-        
-        
-        # read the project manager folder path
-        self._projectManagerFolderPath = settingsNode.getAttribute('projectManagerFolderPath')
-        self._projectManagerFolderName = settingsNode.getAttribute('projectManagerFolderName')
-        self._projectManagerFolderFullPath = os.path.join( self._projectManagerFolderPath, self._projectManagerFolderName )
-        
-        defaultFilesFolderFullPath = os.path.join( self._projectManagerFolderFullPath, "_defaultFiles_" )
-        # read and create the default files list
-        for fileNode in defaultFilesNode.getElementsByTagName('file'):
-            #assert(isinstance(fileNode, minidom.Element))
-            #                                    fileName                          projectRelativePath                       sourcePath
-            self._defaultFilesList.append( (fileNode.getAttribute('name'), fileNode.getAttribute('projectRelativePath') , defaultFilesFolderFullPath) )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _updatePathVariables(self):
-        """updates path variables
-        """
-        self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
-        self._projectManagerFolderFullPath = os.path.join( self._projectManagerFolderPath, self._projectManagerFolderName )
-        self._defaultSettingsFullPath = os.path.join( self._projectManagerFolderFullPath, self._defaultSettingsFileName )
-        self._usersFileFullPath = os.path.join( self._projectManagerFolderFullPath, self._usersFileName )
-        
-        self._users = [] * 0
-        self._readUsers()
-        
-        self._projects = [] * 0
-        self.updateProjectList()
-        
-        # udpate the default files lists third element : the source path
-        defaultFilesFolderFullPath = os.path.join( self._projectManagerFolderFullPath, "_defaultFiles_" )
-        for fileNode in self._defaultFilesList:
-            fileNode = ( fileNode[0], fileNode[1], defaultFilesFolderFullPath )
-    
-    
-    
-    #----------------------------------------------------------------------
-    #@cache.CachedMethod
-    def getProjects(self):
-        """returns projects names as a list
-        """
-        self.updateProjectList()
-        return self._projects
-    
-    
-    
-    #----------------------------------------------------------------------
-    @cache.CachedMethod
-    def getVaildProjects(self):
-        """returns the projectNames only if they are valid projects.
-        A project is only valid if there are some valid sequences under it
-        """
-        
-        # get all projects and filter them
-        
-        self.updateProjectList()
-        
-        validProjectList = [] * 0
-        
-        for projName in self._projects:
-            
-            # get sequences of that project
-            projObj = Project(projName)
-            
-            seqList = projObj.getSequences()
-            
-            for seq in seqList:
-                
-                #assert(isinstance(seq, Sequence))
-                if seq.isValid():
-                    # it has at least one valid sequence
-                    validProjectList.append( projName )
-                    break
-        
-        return validProjectList
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getUsers(self):
-        """returns users as a list of User objects
-        """
-        return self._users
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getUserNames(self):
-        """returns the user names
-        """
-        names = [] * 0
-        for user in self._users:
-            names.append( user.getName() )
-        
-        return names
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getUserInitials(self):
-        """returns the user intials
-        """
-        initials = [] * 0
-        for user in self._users:
-            #assert(isinstance(user,User))
-            initials.append( user.getInitials() )
-        
-        return sorted(initials)
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _readUsers(self):
-        """parses the usersFile
-        """
-        
-        # check if the usersFile exists
-        if not os.path.exists( self._usersFileFullPath ):
-            return
-        
-        usersXML = minidom.parse( self._usersFileFullPath )
-        
-        rootNode = usersXML.childNodes[0]
-        
-        # -----------------------------------------------------
-        # get the users node
-        userNodes = rootNode.getElementsByTagName('user')
-        
-        self._users = [] * 0
-        
-        for node in userNodes:
-            name = node.getAttribute('name')
-            initials = node.getAttribute('initials')
-            self._users.append( userModel.User(name, initials) )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def updateProjectList(self):
-        """updates the project list variable
-        """
-        
-        if os.path.exists( self._projectsFolderFullPath ):
-            self._projects = os.listdir( self._projectsFolderFullPath )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getProjectsFullPath(self):
-        """returns the projects folder full path
-        
-        ex : M:/JOBs
-        """
-        
-        return self._projectsFolderFullPath
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getServerPath(self):
-        """gets the server path
-        """
-        return self._serverPath
-    
-    
-    
-    #----------------------------------------------------------------------
-    def setServerPath(self, serverPath):
-        """sets the server path
-        """
-        self._serverPath = serverPath + os.path.sep
-        
-        self._updatePathVariables()
-    
-    
-    
-    #----------------------------------------------------------------------
-    #def createStructureDataFromPath(self, structurePath ):
-        #"""creates structure data of a given path
-        #can be used to create new structure definitions for new projects
-        #"""
-        #structureData = [] * 0
-        
-        #for dirPath, dirNames, fileNames in os.walk(defaultProjectPath):
-            #structureData.append( dirPath[len(defaultProjectPath)+1:len(dirPath)] )
-        
-        #structureData.sort()
-        
-        #return structureData
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getDefaultFiles(self):
-        """returns the default files list as list of tuples, the first element contains
-        the file name, the second the project relative path, the third the source path
-        
-        this is the list that contains files those
-        need to be copied to every project like workspace.mel for Maya
-        """
-        
-        return self._defaultFilesList
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getHomePath(self):
-        """returns the homePath environment variable
-        it is :
-        /home/userName/ for linux
-        C:\Documents and Settings\userName\My Documents for Windows
-        """
-        
-        homePath = os.environ.get('HOME')
-        
-        return homePath
-    
-    
-    
-    #----------------------------------------------------------------------
-    @cache.CachedMethod
-    def getLastUser(self):
-        """returns the last user initials if the lastUserFile file exists
-        otherwise returns None
-        """
-        
-        lastUserInitials = None
-        
-        try:
-            lastUserFile = open( self._lastUserFileFullPath )
-        except IOError:
-            pass
-        else:
-            lastUserInitials = lastUserFile.readline().strip()
-            lastUserFile.close()
-        
-        return lastUserInitials
-    
-    
-    
-    #----------------------------------------------------------------------
-    def setLastUser(self, userInitials):
-        """saves the last user initials to the lastUserFile
-        """
-        
-        try:
-            lastUserFile = open( self._lastUserFileFullPath, 'w' )
-        except IOError:
-            pass
-        else:
-            lastUserFile.write( userInitials )
-            lastUserFile.close()
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getProjectAndSequenceNameFromFilePath(self, filePath):
-        """returns the project name and sequence name from the path or fullPath
-        """
-        
-        #assert(isinstance(filePath, (str, unicode)))
-        
-        if not filePath.startswith( self._projectsFolderFullPath ):
-            return None,None
-        
-        residual = filePath[ len(self._projectsFolderFullPath)+1 : ]
-        
-        parts = residual.split(os.path.sep)
-        
-        return parts[0], parts[1]
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def _readLocalSettings(self):
-        #"""reads the local settings file or creates it
-        #"""
-        
-        ##check if there is a local settings file
-        #if os.path.exists( self._localSettingsFullPath ):
-            ## parse it
-            #self._parseLocalSettings()
-        #else:
-            ## create it
-            #self._saveLocalSettings()
-            ## then parse it
-            #self._parseLocalSettings()
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def _parseLocalSettings(self):
-        #"""parses the local settings xml file
-        #"""
-        
-        #settingsFile = minidom.parse( self._localSettingsFullPath )
-        
-        #rootNode = settingsFile.childNodes[0]
-        #programsNode = rootNode.childNodes[0]
-        
-        #allProgramNodes = programsNode.childNodes
-        
-        #for program in allProgramNodes:
-            #programName = program.getAttr('name')
-            
-            #recentFilesNode = program.childNodes[0]
-            #recentFiles = recentFilesNode.childNodes[0].wholeText.splitlines()
-        
-        
-        
-        # read the last user
-        
-        
-        
-        # read the program settings
-        
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def _saveLocalSettings(self):
-        #"""saves the 
-        #"""
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def getRecentFile(self, environmentName):
-        #"""returns the recent file from the given environment
-        #"""
-        
-        
+__version__ = "9.12.27"
 
 
 
@@ -436,12 +21,12 @@ class Project(object):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, projectName, databaseObj = None):
+    def __init__(self, projectName, repositoryObj = None):
         
-        if databaseObj == None:
-            self._database = Database()
+        if repositoryObj == None:
+            self._repository = repositoryModel.Repository()
         else:
-            self._database = databaseObj
+            self._repository = repositoryObj
         
         self._name = oyAux.stringConditioner( projectName, False, True, False, True, True, False )
         self._path = ''
@@ -457,7 +42,7 @@ class Project(object):
     
     #----------------------------------------------------------------------
     def _initPathVariables(self):
-        self._path = self._database._projectsFolderFullPath
+        self._path = self._repository._projectsFolderFullPath
         self._fullPath = os.path.join( self._path, self._name)
     
     
@@ -531,19 +116,19 @@ class Project(object):
     
     
     #----------------------------------------------------------------------
-    def getDatabase(self):
-        """returns the current project database object
+    def getRepository(self):
+        """returns the current project repository object
         """
-        return self._database
+        return self._repository
     
     
     
     #----------------------------------------------------------------------
-    def setDatabase(self, database ):
-        """sets the project database object
+    def setRepository(self, repository ):
+        """sets the project repository object
         """
         
-        self._database = database
+        self._repository = repository
         
         # reset the path variables
         self._initPathVariables
@@ -595,7 +180,7 @@ class Sequence(object):
         assert(isinstance(project, Project) )
         
         self._parentProject = project
-        self._database = self._parentProject.getDatabase()
+        self._repository = self._parentProject.getRepository()
         
         self._name = oyAux.stringConditioner( sequenceName, False, True, False, True, True, False )
         
@@ -652,8 +237,23 @@ class Sequence(object):
         
         # -----------------------------------------------------
         # get main nodes
-        databaseDataNode = rootNode.getElementsByTagName('databaseData')[0]
+        
+        # remove databaseData if exists
+        doRemoveDatabaseDataNode = False
+        databaseDataNode = rootNode.getElementsByTagName('databaseData')
+        
+        if len(databaseDataNode) > 0:
+            # there should be a databaseData node
+            doRemoveDatabaseDataNode = True
+            
+            # parse the databaseData nodes attributes as if it is a
+            # sequenceDataNode
+            self._parseSequenceDataNodesAttributes( databaseDataNode[0] )
+        
         sequenceDataNode = rootNode.getElementsByTagName('sequenceData')[0]
+        
+        if not doRemoveDatabaseDataNode:
+            self._parseSequenceDataNodesAttributes( sequenceDataNode ) 
         
         # -----------------------------------------------------
         # get sequence nodes
@@ -668,7 +268,6 @@ class Sequence(object):
             doConvertionToShotData = True
         
         # parse all nodes
-        self._parseDatabaseDataNode( databaseDataNode )
         self._parseAssetTypesNode( assetTypesNode )
         self._parseStructureNode( structureNode )
         
@@ -678,7 +277,7 @@ class Sequence(object):
             # convert it to the new shotData concept
             # 
             shotListNode = sequenceDataNode.getElementsByTagName('shotList')[0]
-            print "converting to shotData concept !!!"
+            #print "converting to shotData concept !!!"
             
             # read the shot numbers from the shotList node and create appropriate
             # shot data nodes
@@ -692,28 +291,32 @@ class Sequence(object):
             self.saveSettings()
         else:
             self._parseShotDataNode( shotDataNodes[0] )
+        
+        if doRemoveDatabaseDataNode:
+            # just save the settings over it self, it should be fine
+            self.saveSettings()
     
     
     
     #----------------------------------------------------------------------
-    def _parseDatabaseDataNode(self, databaseDataNode ):
-        """parses databaseData node
+    def _parseSequenceDataNodesAttributes(self, sequenceDataNode ):
+        """parses sequenceDataNode nodes attributes
         """
         
-        #assert( isinstance( databaseDataNode, minidom.Element) )
+        #assert( isinstance( sequenceDataNode, minidom.Element) )
         
-        self._shotPrefix = databaseDataNode.getAttribute('shotPrefix')
-        self._shotPadding = int( databaseDataNode.getAttribute('shotPadding') )
-        self._revPrefix = databaseDataNode.getAttribute('revPrefix')
-        self._revPadding = databaseDataNode.getAttribute('revPadding')
-        self._verPrefix = databaseDataNode.getAttribute('verPrefix')
-        self._verPadding = databaseDataNode.getAttribute('verPadding')
+        self._shotPrefix = sequenceDataNode.getAttribute('shotPrefix')
+        self._shotPadding = int( sequenceDataNode.getAttribute('shotPadding') )
+        self._revPrefix = sequenceDataNode.getAttribute('revPrefix')
+        self._revPadding = sequenceDataNode.getAttribute('revPadding')
+        self._verPrefix = sequenceDataNode.getAttribute('verPrefix')
+        self._verPadding = sequenceDataNode.getAttribute('verPadding')
         
-        if databaseDataNode.hasAttribute('extensionsToIgnore'):
-            self._extensionsToIgnore = databaseDataNode.getAttribute('extensionsToIgnore').split(',')
+        if sequenceDataNode.hasAttribute('extensionsToIgnore'):
+            self._extensionsToIgnore = sequenceDataNode.getAttribute('extensionsToIgnore').split(',')
         
-        if databaseDataNode.hasAttribute('noSubNameField'):
-            self._noSubNameField = bool( eval( databaseDataNode.getAttribute('noSubNameField') ) )
+        if sequenceDataNode.hasAttribute('noSubNameField'):
+            self._noSubNameField = bool( eval( sequenceDataNode.getAttribute('noSubNameField') ) )
     
     
     
@@ -879,7 +482,6 @@ class Sequence(object):
         
         # create nodes
         rootNode = minidom.Element('root')
-        databaseDataNode = minidom.Element('databaseData')
         sequenceDataNode = minidom.Element('sequenceData')
         structureNode = minidom.Element('structure')
         shotDependentNode = minidom.Element('shotDependent')
@@ -897,26 +499,23 @@ class Sequence(object):
         
         
         #----------------------------------------------------------------------
-        # DATABASE DATA
-        #----------------------------------------------------------------------
-        # set database node attributes
-        databaseDataNode.setAttribute('shotPrefix', self._shotPrefix)
-        databaseDataNode.setAttribute('shotPadding', unicode( self._shotPadding ) )
-        databaseDataNode.setAttribute('revPrefix', self._revPrefix)
-        databaseDataNode.setAttribute('revPadding', unicode( self._revPadding ) )
-        databaseDataNode.setAttribute('verPrefix', self._verPrefix)
-        databaseDataNode.setAttribute('verPadding', unicode( self._verPadding ) )
-        databaseDataNode.setAttribute('extensionsToIgnore', unicode( ','.join(self._extensionsToIgnore)) )
-        
-        if self._noSubNameField:
-            databaseDataNode.setAttribute('noSubNameField', unicode( self._noSubNameField ) )
-        #----------------------------------------------------------------------
-        
-        
-        
-        #----------------------------------------------------------------------
         # SEQUENCE DATA and childs
         #----------------------------------------------------------------------
+        # set repository node attributes
+        sequenceDataNode.setAttribute('shotPrefix', self._shotPrefix)
+        sequenceDataNode.setAttribute('shotPadding', unicode( self._shotPadding ) )
+        sequenceDataNode.setAttribute('revPrefix', self._revPrefix)
+        sequenceDataNode.setAttribute('revPadding', unicode( self._revPadding ) )
+        sequenceDataNode.setAttribute('verPrefix', self._verPrefix)
+        sequenceDataNode.setAttribute('verPadding', unicode( self._verPadding ) )
+        sequenceDataNode.setAttribute('extensionsToIgnore', unicode( ','.join(self._extensionsToIgnore)) )
+        
+        if self._noSubNameField:
+            sequenceDataNode.setAttribute('noSubNameField', unicode( self._noSubNameField ) )
+        #----------------------------------------------------------------------
+        
+        
+        
         
         #----------------------------------------------------------------------
         # SHOT DEPENDENT / INDEPENDENT FOLDERS
@@ -996,7 +595,6 @@ class Sequence(object):
         
         
         # append childs
-        rootNode.appendChild( databaseDataNode )
         rootNode.appendChild( sequenceDataNode )
         
         sequenceDataNode.appendChild( structureNode )
@@ -1042,7 +640,7 @@ class Sequence(object):
             exists = oyAux.createFolder( self._fullPath )
             
             # copy the settings file to the root of the sequence
-            shutil.copy( self._database._defaultSettingsFullPath, self._settingsFileFullPath )
+            shutil.copy( self._repository._defaultSettingsFullPath, self._settingsFileFullPath )
         
         # just read the structure from the XML
         self.readSettings()
@@ -1055,7 +653,7 @@ class Sequence(object):
         
         # copy any file to the sequence
         # (like workspace.mel)
-        for _fileInfo in self._database.getDefaultFiles():
+        for _fileInfo in self._repository.getDefaultFiles():
             sourcePath = os.path.join( _fileInfo[2], _fileInfo[0] )
             targetPath = os.path.join( self._fullPath, _fileInfo[1], _fileInfo[0] )
             
@@ -1170,7 +768,7 @@ class Sequence(object):
                 # create the folder with that name
                 shotFullPath = os.path.join ( self._fullPath, folder, shotString )
                 
-                #self._database._create_folder( shotFullPath )
+                #self._repository._create_folder( shotFullPath )
                 oyAux.createFolder( shotFullPath )
         
         # update settings

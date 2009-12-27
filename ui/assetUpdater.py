@@ -4,7 +4,7 @@ from PyQt4 import QtGui, QtCore
 import assetUpdater_UI
 
 import oyProjectManager
-from oyProjectManager.dataModels import assetModel, projectModel
+from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel
 
 
 
@@ -13,17 +13,17 @@ __version__ = "9.12.26"
 
 
 #----------------------------------------------------------------------
-def UI( environmentName=None ):
+def UI( environmentName=None, parent=None ):
     """the UI
     """
-    global app_AU
-    global mainWindow_AU
-    app_AU = QtGui.QApplication(sys.argv)
-    mainWindow_AU = MainWindow( environmentName )
-    mainWindow_AU.show()
-    app_AU.setStyle('Plastique')
-    app_AU.exec_()
-    app_AU.connect(app_AU, QtCore.SIGNAL("lastWindowClosed()"), app_AU, QtCore.SLOT("quit()"))
+    global app
+    global mainWindow
+    app = QtGui.QApplication(sys.argv)
+    mainWindow = MainWindow( environmentName, parent )
+    mainWindow.show()
+    app.setStyle('Plastique')
+    app.exec_()
+    app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
 
 
 
@@ -43,8 +43,8 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, environmentName=None):
-        QtGui.QMainWindow.__init__(self)
+    def __init__(self, environmentName=None, parent=None):
+        QtGui.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         
         # change the window title
@@ -190,7 +190,7 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
         ## create a project a sequence and get some assets
         #assetCount = 10
         
-        #db = projectModel.Database()
+        #repo = repositoryModel.Repository()
         #proj = projectModel.Project( 'ETI_TOPKEK' )
         #seq = projectModel.Sequence( proj, '_CHARACTER_SETUP_' )
         

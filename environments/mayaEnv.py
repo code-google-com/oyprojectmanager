@@ -1,11 +1,11 @@
 import os
 import pymel as pm
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.dataModels import assetModel, projectModel, abstractClasses
+from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel, abstractClasses
 
 
 
-__version__ = "9.12.26"
+__version__ = "9.12.27"
 
 
 
@@ -151,7 +151,7 @@ class MayaEnvironment(abstractClasses.Environment):
         readRecentFile = True
         fileName = path = None
         
-        db = projectModel.Database()
+        repo = repositoryModel.Repository()
         
         fullPath = pm.env.sceneName()
         if os.name == 'nt':
@@ -163,7 +163,7 @@ class MayaEnvironment(abstractClasses.Environment):
             fileName = os.path.basename( fullPath )
             
             # try to create an asset with that info
-            projName, seqName = db.getProjectAndSequenceNameFromFilePath( fullPath )
+            projName, seqName = repo.getProjectAndSequenceNameFromFilePath( fullPath )
             
             proj = projectModel.Project( projName )
             seq = projectModel.Sequence( proj, seqName )
@@ -183,7 +183,7 @@ class MayaEnvironment(abstractClasses.Environment):
             for i in range(len(recentFiles)-1, -1,-1):
                 
                 fileName = os.path.basename( recentFiles[i] )
-                projName, seqName = db.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
+                projName, seqName = repo.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
                 
                 if projName != None and seqName != None:
                 
@@ -265,9 +265,9 @@ class MayaEnvironment(abstractClasses.Environment):
     def setProject(self, projectName, sequenceName ):
         """sets the project
         """
-        db = projectModel.Database()
+        repo = repositoryModel.Repository()
         
-        mayaProjectPath = os.path.join( db.getProjectsFullPath(), projectName, sequenceName )
+        mayaProjectPath = os.path.join( repo.getProjectsFullPath(), projectName, sequenceName )
         
         pm.workspace.open(mayaProjectPath)
     
@@ -341,8 +341,8 @@ class MayaEnvironment(abstractClasses.Environment):
         # get all the references
         allReferences = pm.listReferences()
         
-        # create a database object
-        db = projectModel.Database()
+        # create a repository object
+        repo = repositoryModel.Repository()
         
         # iterate over them to find valid assets
         for ref in allReferences:
@@ -358,7 +358,7 @@ class MayaEnvironment(abstractClasses.Environment):
             #print "tempAssetFullPath".ljust(25), ":", tempAssetFullPath
             #print "tempAssetPath".ljust(25), ":", tempAssetPath
             
-            projName, seqName = db.getProjectAndSequenceNameFromFilePath( tempAssetFullPath )
+            projName, seqName = repo.getProjectAndSequenceNameFromFilePath( tempAssetFullPath )
             proj = projectModel.Project( projName )
             seq = projectModel.Sequence( proj, seqName )
             

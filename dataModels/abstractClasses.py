@@ -1,4 +1,8 @@
-#from oyProjectManager.dataModels import assetModel, projectModel
+
+__version__ = "9.12.27"
+
+
+
 
 
 
