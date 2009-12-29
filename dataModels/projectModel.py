@@ -788,6 +788,14 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    def getShots(self):
+        """returns the shot objects as a list
+        """
+        return self._shots
+    
+    
+    
+    #----------------------------------------------------------------------
     def getShotList(self):
         """returns the shot list object
         """
@@ -1952,9 +1960,20 @@ class Shot(object):
     
     
     
+    #----------------------------------------------------------------------
+    def _getDuration(self):
+        """returns the duration
+        """
+        self._updateDuration()
+        return self._duration
     
-    
-    
+    duration = property( _getDuration )
+
+
+
+
+
+
 #########################################################################
 #class Environment(object):
     #"""holds environment data

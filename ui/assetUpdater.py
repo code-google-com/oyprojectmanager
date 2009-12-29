@@ -222,7 +222,7 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
             # ------------------------------------
             # the critique name
             assetName_tableWI = QtGui.QTableWidgetItem( asset._getCritiqueName() )
-            # align to left
+            # align to left and vertical center
             assetName_tableWI.setTextAlignment( 0x0001 | 0x0080  )
             self.assetList_tableWidget.setItem( i, 0, assetName_tableWI )
             # ------------------------------------
@@ -232,7 +232,7 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
             # current version
             currentVersionNumber = str(asset.getVersionNumber() )
             currentVersion_tableWI = QtGui.QTableWidgetItem( currentVersionNumber )
-            # align to center
+            # align to horizontal and vertical center
             currentVersion_tableWI.setTextAlignment( 0x0004 | 0x0080  )
             self.assetList_tableWidget.setItem( i, 1, currentVersion_tableWI )
             # ------------------------------------
@@ -242,7 +242,7 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
             # last version
             lastVersionNumber = str( asset.getLatestVersion2()[1] )
             lastVersion_tableWI = QtGui.QTableWidgetItem( lastVersionNumber )
-            # align to center
+            # align to horizontal and vertical center
             lastVersion_tableWI.setTextAlignment( 0x0004 | 0x0080 )
             self.assetList_tableWidget.setItem( i, 2, lastVersion_tableWI )
             # ------------------------------------

@@ -19,8 +19,14 @@ pyFile = None
 #pyFile.close()
 
 
-uicFile = file('/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetUpdater.ui')
-pyFile  = file('/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetUpdater_UI.py','w')
+#uicFile = file('/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetUpdater.ui')
+#pyFile  = file('/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetUpdater_UI.py','w')
+#uic.compileUi( uicFile, pyFile )
+#uicFile.close()
+#pyFile.close()
+
+uicFile = file('/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/shotEditor.ui')
+pyFile  = file('/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/shotEditor_UI.py','w')
 uic.compileUi( uicFile, pyFile )
 uicFile.close()
 pyFile.close()

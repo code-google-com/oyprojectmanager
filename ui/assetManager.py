@@ -1003,6 +1003,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         if len(text) == 0:
             return text
         
+        # first remove invalid chars
+        text = oyAux.invalidCharacterRemover( text, oyAux.validChars )
+        
         # validate the text
         text = oyAux.stringConditioner( text, False, True, False, False, False, False )
         

@@ -2,6 +2,7 @@ import os, sys, re
 import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
 import projectManager_UI
+
 import oyProjectManager
 from oyProjectManager.dataModels import projectModel, repositoryModel
 from oyProjectManager.tools import rangeTools
@@ -9,6 +10,7 @@ from oyProjectManager.tools import rangeTools
 
 
 __version__ = "9.12.2"
+
 
 
 #----------------------------------------------------------------------
