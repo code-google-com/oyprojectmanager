@@ -1519,11 +1519,19 @@ class Sequence(object):
         you need to invoke self.saveSettings to make the changes permenant
         """
         
-        # create the assetType object with the input
-        newAType = assetModel.AssetType( name, path, shotDependent, playblastFolder, environments )
+        # check if there is allready an assetType with the same name
         
-        # add it to the list
-        self._assetTypes.append( newAType )
+        # get the names of the asset types and convert them to upper case
+        assetTypeName = [ assetType.getName().upper() for assetType in self._assetTypes ]
+        
+        if name.upper() not in assetTypeName:
+            # create the assetType object with the input
+            newAType = assetModel.AssetType( name, path, shotDependent, playblastFolder, environments )
+            
+            # add it to the list
+            self._assetTypes.append( newAType )
+        #else:
+            #print name, "is allready on the list, skipping"
     
     
     

@@ -1,9 +1,10 @@
 Version History :
 -----------------
 v9.12.29
-- the sequence class now can undo the last change in the .settings.xml, but
-  beware that there is no redo implementation yet
-- silly codes removed from assetType class
+- projectModel: the sequence class now can undo the last change in the
+  .settings.xml, but beware that there is no redo implementation yet
+- projectModel: added name check before adding a new assetType
+- assetModel: silly codes removed from assetType class
 
 v9.12.28
 - the CachedMethod and the InputBasedCachedMethod objects now returns more
