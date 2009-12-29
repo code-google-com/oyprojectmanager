@@ -7,8 +7,8 @@ class QApplication( QtGui.QApplication ):
     """
     
     #----------------------------------------------------------------------
-    def __new__(cls, *args, **kwargs ):
+    def __new__(cls, *args):
         if cls.instance() == None:
-            QtGui.QApplication(*args, **kwargs)
+            QtGui.QApplication(*args)
         
         return cls.instance()
