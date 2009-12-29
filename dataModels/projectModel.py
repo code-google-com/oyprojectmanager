@@ -1519,6 +1519,8 @@ class Sequence(object):
         you need to invoke self.saveSettings to make the changes permenant
         """
         
+        assert(isinstance(environments, list))
+        
         # check if there is allready an assetType with the same name
         
         # get the names of the asset types and convert them to upper case
@@ -1617,6 +1619,8 @@ class Sequence(object):
             # there is at least one backup file
             # delete the current .settings.xml
             # and rename the last backup to .settings.xml
+            
+            print "replacing with : ", os.path.basename( backupFiles[-1] )
             
             shutil.copy( backupFiles[-1], self._settingsFileFullPath )
             os.remove( backupFiles[-1] )
