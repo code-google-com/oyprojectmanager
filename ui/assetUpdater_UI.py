@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetUpdater.ui'
 #
-# Created: Mon Dec 28 23:43:29 2009
+# Created: Tue Dec 29 13:12:36 2009
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -33,6 +33,7 @@ class Ui_MainWindow(object):
         self.assetList_tableWidget.setSizePolicy(sizePolicy)
         self.assetList_tableWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.assetList_tableWidget.setAlternatingRowColors(True)
+        self.assetList_tableWidget.setCornerButtonEnabled(False)
         self.assetList_tableWidget.setColumnCount(4)
         self.assetList_tableWidget.setObjectName("assetList_tableWidget")
         self.assetList_tableWidget.setColumnCount(4)
