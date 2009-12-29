@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetUpdater.ui'
 #
-# Created: Tue Dec 29 13:12:36 2009
+# Created: Tue Dec 29 13:48:55 2009
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -52,6 +52,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
+        self.selectNone_pushButton = QtGui.QPushButton(self.horizontalWidget)
+        self.selectNone_pushButton.setObjectName("selectNone_pushButton")
+        self.horizontalLayout.addWidget(self.selectNone_pushButton)
         self.selectAll_pushButton = QtGui.QPushButton(self.horizontalWidget)
         self.selectAll_pushButton.setObjectName("selectAll_pushButton")
         self.horizontalLayout.addWidget(self.selectAll_pushButton)
@@ -73,6 +76,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Asset Updater", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Please check the Assets that needs to be updated", None, QtGui.QApplication.UnicodeUTF8))
+        self.selectNone_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Select None", None, QtGui.QApplication.UnicodeUTF8))
         self.selectAll_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Select All", None, QtGui.QApplication.UnicodeUTF8))
         self.update_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Update", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Cancel", None, QtGui.QApplication.UnicodeUTF8))

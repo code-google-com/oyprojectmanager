@@ -66,6 +66,9 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
         # select all button
         QtCore.QObject.connect( self.selectAll_pushButton, QtCore.SIGNAL("clicked()"), self._selectAllAssets )
         
+        # select none button
+        QtCore.QObject.connect( self.selectNone_pushButton, QtCore.SIGNAL("clicked()"), self._selectNoAsset )
+        
         # update button
         QtCore.QObject.connect( self.update_pushButton, QtCore.SIGNAL("clicked()"), self.updateAssets )
         
@@ -248,7 +251,8 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
             # ------------------------------------
             # do update ?
             checkBox_tableWI = QtGui.QTableWidgetItem('')
-            checkBox_tableWI.setCheckState(16)
+            #checkBox_tableWI.setCheckState( 16 )
+            checkBox_tableWI.setCheckState( 0 )
             self.assetList_tableWidget.setItem( i, 3, checkBox_tableWI )
             # ------------------------------------
             
@@ -270,19 +274,20 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
         """selects all the assets in the tableWidget
         """
         
-        #for 
-        #self.assetList_tableWidget.itemFromIndex:
-        #pass
-        #for i in range(self._numOfAssets):
-            #item = self.assetList_tableWidget.itemFromIndex( i, 3 )
-            #assert(isinstance(item, QtGui.QTableWidgetItem))
-            ##item.setCheckState(1)
-            #print ( item.type() )
+        for currentItems in self._tableItems:
+            currentItem = currentItems[3]
+            currentItem.setCheckState( 2 )
+    
+    
+    #----------------------------------------------------------------------
+    def _selectNoAsset(self):
+        """deselects all assets in the tableWidget
+        """
         
-        #for item in self.assetList_tableWidget.items():
-            #assert(isinstance(item, QtGui.QTableWidgetItem))
-            #print item.type()
-        pass
+        for currentItems in self._tableItems:
+            currentItem = currentItems[3]
+            currentItem.setCheckState( 0 )
+        
     
     
     
