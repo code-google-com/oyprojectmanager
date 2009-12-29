@@ -5,7 +5,7 @@ import assetManager_UI
 
 import oyProjectManager
 from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel
-from oyProjectManager.ui import assetUpdater
+from oyProjectManager.ui import assetUpdater, singletonQapplication
 
 
 
@@ -20,8 +20,8 @@ def UI(environmentName=None, parent=None):
     """
     global app
     global mainWindow
-    app = QtGui.QApplication(sys.argv)
-    #mainWindow = MainWindow(environmentName, fileName, path)
+    app = singletonQapplication.QApplication(sys.argv)
+    
     mainWindow = MainWindow(environmentName, parent)
     mainWindow.show()
     app.setStyle('Plastique')
@@ -345,7 +345,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         serverPath = self._repo.getServerPath()
         
         #projectsList = self._repo.getProjects()
-        projectsList = self._repo.getVaildProjects()
+        projectsList = self._repo.getValidProjects()
         projectsList.sort()
         
         self.server_comboBox.clear()

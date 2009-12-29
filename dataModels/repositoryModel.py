@@ -140,21 +140,22 @@ class Repository( abstractClasses.Singleton ):
     
     #----------------------------------------------------------------------
     @cache.CachedMethod
-    def getVaildProjects(self):
+    def getValidProjects(self):
         """returns the projectNames only if they are valid projects.
         A project is only valid if there are some valid sequences under it
         """
         
         # get all projects and filter them
-        
         self.updateProjectList()
+        
+        from oyProjectManager.dataModels import projectModel
         
         validProjectList = [] * 0
         
         for projName in self._projects:
             
             # get sequences of that project
-            projObj = Project(projName)
+            projObj = projectModel.Project(projName)
             
             seqList = projObj.getSequences()
             

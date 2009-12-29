@@ -2,7 +2,10 @@ import time
 
 
 
-__version__ = "9.10.11"
+__version__ = "9.12.28"
+
+
+
 
 
 
@@ -68,9 +71,13 @@ class CachedMethod(object):
     
     #----------------------------------------------------------------------
     def __repr__(self):
-        """Return the function's docstring
+        """Return the function's representation
         """
-        return self._method.__doc__
+        objectsRepr = str(self._obj)
+        objectsName = objectsRepr.split(' ')[0].split('.')[-1]
+        cachedObjectsRepr = '<cached bound method ' + objectsName + '.' + self._name + ' of ' + objectsRepr + '>'
+        return cachedObjectsRepr
+
 
 
 
@@ -146,5 +153,8 @@ class InputBasedCachedMethod(object):
         """Return the function's repr
         """
         #print "running __repr_ in InputBasedCachedMethod"
-        return self._method.__doc__
+        objectsRepr = str(self._obj)
+        objectsName = objectsRepr.split(' ')[0].split('.')[-1]
+        cachedObjectsRepr = '<cached bound method ' + objectsName + '.' + self._name + ' of ' + objectsRepr + '>'
+        return cachedObjectsRepr
         

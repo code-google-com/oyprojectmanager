@@ -5,7 +5,7 @@ import assetUpdater_UI
 
 import oyProjectManager
 from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel
-
+from oyProjectManager.ui import singletonQapplication
 
 
 __version__ = "9.12.26"
@@ -18,7 +18,7 @@ def UI( environmentName=None, parent=None ):
     """
     global app
     global mainWindow
-    app = QtGui.QApplication(sys.argv)
+    app = singletonQapplication.QApplication(sys.argv)
     mainWindow = MainWindow( environmentName, parent )
     mainWindow.show()
     app.setStyle('Plastique')

@@ -1,5 +1,8 @@
 TODO List :
 -----------
+- nuke still can't guess where to save the auto-save files under windows,
+  apparently there is a confussion about the seperator
+
 - add a UserType class, save the default user types in an xml file
 
 - add the UserType id to the users.xml  
