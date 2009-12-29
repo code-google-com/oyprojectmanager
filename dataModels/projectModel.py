@@ -1225,7 +1225,7 @@ class Sequence(object):
             matchedFileCount = len( matchedFiles )
             
             if matchedFileCount > 0:
-                [ assetFilesAppend(matchedFile) for matchedFile in matchedFiles if self.isValidExtension( os.path.splitext[1].split('.')[1] ) ]
+                [ assetFilesAppend(matchedFile) for matchedFile in matchedFiles if self.isValidExtension( os.path.splitext(matchedFile)[1].split('.')[1] ) ]
         
         assetFiles = map( os.path.basename, assetFiles )
         
