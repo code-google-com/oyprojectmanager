@@ -1605,7 +1605,7 @@ class Sequence(object):
         backupFiles = oyAux.getBackupFiles( self._settingsFileFullPath )
         
         if len(backupFiles) > 0 :
-            print backupFiles
+            #print backupFiles
             # there is at least one backup file
             # delete the current .settings.xml
             # and rename the last backup to .settings.xml
