@@ -6,7 +6,7 @@ from oyProjectManager.dataModels import assetModel, userModel, repositoryModel
 
 
 
-__version__ = "9.12.27"
+__version__ = "9.12.29"
 
 
 
@@ -616,7 +616,7 @@ class Sequence(object):
         
         try:
             # if there is a settings file backit up
-            oyAux.backUpFile( self._settingsFileFullPath )
+            oyAux.backupFile( self._settingsFileFullPath )
             settingsFile = open( self._settingsFileFullPath, 'w' )
         except IOError:
             #print "couldn't open the settings file"
@@ -1592,6 +1592,27 @@ class Sequence(object):
         """
         
         return self._noSubNameField
+    
+    
+    
+    #----------------------------------------------------------------------
+    def undoChange(self):
+        """undos the last change to the .settings.xml file if there is a
+        backup of the .settings.xml file
+        """
+        
+        # get the backup files of the .settings.xml
+        backupFiles = oyAux.getBackupFiles( self._settingsFileFullPath )
+        
+        if len(backupFiles) > 0 :
+            print backupFiles
+            # there is at least one backup file
+            # delete the current .settings.xml
+            # and rename the last backup to .settings.xml
+            
+            shutil.copy( backupFiles[-1], self._settingsFileFullPath )
+            os.remove( backupFiles[-1] )
+        
 
 
 
@@ -1607,13 +1628,14 @@ class Structure(object):
     
     
     
-    _shotDependentFolders = list()
-    _shotIndependentFolders = list()
+    #_shotDependentFolders = list()
+    #_shotIndependentFolders = list()
     
     
     
     #----------------------------------------------------------------------
-    def __init__(self, shotDependentFolders=list(), shotIndependentFolders=list(), outputFolders=list()):
+    def __init__(self, shotDependentFolders=None, shotIndependentFolders=None, outputFolders=None):
+        
         self._shotDependentFolders = shotDependentFolders # should be a list of str or unicode
         self._shotIndependentFolders = shotIndependentFolders # should be a list of str or unicode
         self._outputFolders = outputFolders # should be a list of tuples
@@ -1658,6 +1680,7 @@ class Structure(object):
         
         if outputFolderTupple not in self._outputFolders:
             self._outputFolders.append( outputFolderTupple )
+    
     
     
     #----------------------------------------------------------------------
@@ -1708,6 +1731,7 @@ class Structure(object):
         return self._outputFolders
     
     
+    
     #----------------------------------------------------------------------
     def getOutputFolderPathOf(self, name):
         """returns the output folder path with the name
@@ -1729,6 +1753,7 @@ class Structure(object):
         path = self.getOutputFolderPathOf( name )
         oTuple = (name, path)
         self._outputFolders.remove( oTuple )
+    
     
     
     #----------------------------------------------------------------------
