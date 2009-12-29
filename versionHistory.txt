@@ -4,6 +4,8 @@ v9.12.29
 - projectModel: the sequence class now can undo the last change in the
   .settings.xml, but beware that there is no redo implementation yet
 - projectModel: added name check before adding a new assetType
+- projectModel: added again the extension checking for the files returned from
+  the sequence.getAllAssetFileNamesForType method
 - assetModel: silly codes removed from assetType class
 
 v9.12.28
