@@ -18,7 +18,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.12.27"
+__version__ = "9.12.30"
 
 
 
@@ -141,7 +141,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
             if os.name == 'nt':
                 recentFiles = [ recentFile.replace('/','\\') for recentFile in recentFiles ]
             
-            for i in range(len(recentFiles)):
+            for i in range(len(recentFiles)-1,0,-1):
                 
                 fileName = os.path.basename( recentFiles[i] )
                 projName, seqName = repo.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
