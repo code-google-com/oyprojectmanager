@@ -372,10 +372,7 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         # get the text
         text = unicode( item.text() )
         
-        #print text
-        
-        #text = oyAux.stringConditioner( text, True, True, True, True, False, False )
-        
+        # remove any invalid character
         text = oyAux.invalidCharacterRemover( text, oyAux.validChars )
         
         # set the text back

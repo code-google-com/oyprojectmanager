@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v9.12.30
+- projectModel: fixed listing of folders instead of just files in sequence
+  class
+
 v9.12.29
 - projectModel: the sequence class now can undo the last change in the
   .settings.xml, but beware that there is no redo implementation yet

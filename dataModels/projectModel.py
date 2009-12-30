@@ -1065,6 +1065,7 @@ class Sequence(object):
         osPathJoin = os.path.join
         oyAuxGetChildFolders = oyAux.getChildFolders
         osPathBaseName = os.path.basename
+        osPathIsDir = os.path.isdir
         globGlob = glob.glob
         assetModelAsset = assetModel.Asset
         assetsAppend = assets.append
@@ -1094,7 +1095,7 @@ class Sequence(object):
                 pattern = osPathBaseName( folder ) + '*'
                 
                 # files are in fullpath format
-                matchedFiles = globGlob( osPathJoin( folder, pattern ) )
+                matchedFiles = [ file_ for file_ in globGlob( osPathJoin( folder, pattern ) ) if not osPathIsDir(file_) ]
                 
                 matchedFileCount = len(matchedFiles)
                 
@@ -1136,6 +1137,7 @@ class Sequence(object):
         # optimization variables
         osPathExists = os.path.exists
         osPathJoin = os.path.join
+        osPathIsDir = os.path.isdir
         oyAuxGetChildFolders = oyAux.getChildFolders
         osPathBaseName = os.path.basename
         globGlob = glob.glob
@@ -1165,7 +1167,7 @@ class Sequence(object):
             pattern = osPathBaseName( folder ) + '*'
             
             # files are in fullpath format
-            matchedFiles = globGlob( osPathJoin( folder, pattern ) )
+            matchedFiles = [ file_ for file_ in globGlob( osPathJoin( folder, pattern ) ) if not osPathIsDir(file_)]
             
             matchedFileCount = len(matchedFiles)
             
@@ -1205,6 +1207,7 @@ class Sequence(object):
         osPathExists = os.path.exists
         osPathJoin = os.path.join
         osPathBaseName = os.path.basename
+        osPathIsDir = os.path.isdir
         globGlob = glob.glob
         assetFilesAppend = assetFiles.append
         selfFullPath = self._fullPath
@@ -1228,7 +1231,7 @@ class Sequence(object):
         for folder in childFolders:
             pattern = osPathBaseName( folder ) + '*'
             
-            matchedFiles = globGlob( osPathJoin( folder, pattern ) )
+            matchedFiles = [ file_ for file_ in globGlob( osPathJoin( folder, pattern ) ) if not osPathIsDir(file_) ]
             
             matchedFileCount = len( matchedFiles )
             
@@ -1281,6 +1284,7 @@ class Sequence(object):
         # optimization variables
         osPathJoin = os.path.join
         osPathExists = os.path.exists
+        osPathIsDir = os.path.isdir
         selfFullPath = self._fullPath
         assetModelAsset = assetModel.Asset
         selfProject = self._parentProject
@@ -1310,7 +1314,7 @@ class Sequence(object):
         pattern = osPathBaseName( baseName ) + '*'
         
         # files are in fullpath format
-        matchedFiles = globGlob( osPathJoin( childFolderFullPath, pattern ) )
+        matchedFiles = [ file_ for file_ in globGlob( osPathJoin( childFolderFullPath, pattern ) ) if not osPathIsDir(file_) ]
         
         matchedFileCount = len(matchedFiles)
         
