@@ -77,7 +77,12 @@ class NukeEnvironment(abstractClasses.Environment):
         """the import action for nuke environment
         """
         
-        nuke.nodePaste( self._asset.getFullPath() )
+        fullPath = self._asset.getFullPath()
+        
+        # replace \\ with /
+        fullPath = fullPath.replace('\\','/')
+        
+        nuke.nodePaste( fullPath )
         return True
     
     
@@ -113,19 +118,19 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
-    def setRootName():
-        """sets the root name variable
-        """
+    ##----------------------------------------------------------------------
+    #def setRootName():
+        #"""sets the root name variable
+        #"""
         
-        rootNode = nuke.toNode("root")
+        #rootNode = nuke.toNode("root")
         
-        # get the name and replace \ with / characters
+        ## get the name and replace \ with / characters
         
-        rootName = rootNode.name()
+        #rootName = rootNode.name()
         
-        rootName = rootName.replace('\\','/') 
+        #rootName = rootName.replace('\\','/') 
         
-        rootNode.setName( rootName )
+        #rootNode.setName( rootName )
         
-        return rootName
+        #return rootName
