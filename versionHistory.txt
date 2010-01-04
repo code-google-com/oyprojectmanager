@@ -2,6 +2,7 @@ Version History :
 -----------------
 v10.1.4
 - projectModel: fixed a typo in sequence classes addShots method
+- nukeEnv : trying to fix the path problems under Windows
 
 v9.12.30
 - projectModel: fixed listing of folders instead of just files in sequence

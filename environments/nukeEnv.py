@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel, abstractClasse
 
 
 
-__version__ = "9.12.26"
+__version__ = "10.1.4"
 
 
 
@@ -42,7 +42,12 @@ class NukeEnvironment(abstractClasses.Environment):
         # set the extension to 'nk'
         self._asset.setExtension('nk')
         
-        nuke.nodeCopy( self._asset.getFullPath() )
+        fullPath = self._asset.getFullPath()
+        
+        # replace \\ with /
+        fullPath = fullPath.replace('\\','/')
+        
+        nuke.nodeCopy( fullPath )
         
         return True
     
@@ -52,7 +57,13 @@ class NukeEnvironment(abstractClasses.Environment):
     def open_(self, force=False):
         """the open action for nuke environment
         """
-        nuke.scriptOpen( self._asset.getFullPath() )
+        
+        fullPath = self._asset.getFullPath()
+        
+        # replace \\ with /
+        fullPath = fullPath.replace('\\','/')
+        
+        nuke.scriptOpen( fullPath )
         return True
     
     
@@ -61,6 +72,7 @@ class NukeEnvironment(abstractClasses.Environment):
     def import_(self):
         """the import action for nuke environment
         """
+        
         nuke.nodePaste( self._asset.getFullPath() )
         return True
     
@@ -97,22 +109,19 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     
-    ##----------------------------------------------------------------------
-    #def setRootName():
-        #"""sets the root name variable
-        #"""
+    #----------------------------------------------------------------------
+    def setRootName():
+        """sets the root name variable
+        """
         
-        #rootNode = nuke.toNode("root")
+        rootNode = nuke.toNode("root")
         
-        ## get the name and replace \ with / characters
+        # get the name and replace \ with / characters
         
-        #rootName = rootNode.name()
+        rootName = rootNode.name()
         
-        #myDict = dict()
-        #myDict[u'\\'] = u'/'
+        rootName = rootName.replace('\\','/') 
         
-        #rootName = rootName.prelace('\\','/') 
+        rootNode.setName( rootName )
         
-        #rootNode.setName( rootName )
-        
-        #return rootName
+        return rootName
