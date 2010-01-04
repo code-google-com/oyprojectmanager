@@ -115,3 +115,19 @@ class Environment(object):
         """
         pass
     
+    
+    
+    #----------------------------------------------------------------------
+    def getFrameRange(self):
+        """returns the frame range from the environment
+        """
+        pass
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setFrameRange(self, startFrame, endFrame):
+        """sets the frame range in the environment
+        """
+        pass
+    

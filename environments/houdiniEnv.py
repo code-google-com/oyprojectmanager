@@ -207,6 +207,15 @@ class HoudiniEnvironment(abstractClasses.Environment):
         recentHipFiles = fHist.getRecentFiles('HIP')
         
         return recentHipFiles
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getFrameRange(self):
+        """returns the frame range of the
+        """
+        pass
+        
 
 
 

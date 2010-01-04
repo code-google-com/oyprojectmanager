@@ -694,7 +694,7 @@ class Sequence(object):
         # just create shot objects with shot name and leave the start and end frame and
         # description empty, it will be edited later
         newShotObjects = []
-        for shotName in newShotList:
+        for shotName in newShotsList:
             shot = Shot()
             shot.name = shotName
             
