@@ -28,7 +28,11 @@ class NukeEnvironment(abstractClasses.Environment):
         
         # set the extension to 'nk'
         self._asset.setExtension( 'nk' )
-        nuke.scriptSaveAs( self._asset.getFullPath() )
+        
+        fullPath = self._asset.getFullPath()
+        fullPath = fullPath.replace('\\','/')
+        
+        nuke.scriptSaveAs( fullPath )
         
         return True
     
