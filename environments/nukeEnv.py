@@ -117,7 +117,6 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     
-    
     ##----------------------------------------------------------------------
     #def setRootName():
         #"""sets the root name variable
