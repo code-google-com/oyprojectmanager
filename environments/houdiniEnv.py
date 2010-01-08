@@ -1,5 +1,5 @@
 """
-houdiniEnv.py by Erkan Ozgur Yilmaz (c) 2009
+houdiniEnv.py by Erkan Ozgur Yilmaz (c) 2009-2010
 
 Description:
 ------------
