@@ -1271,7 +1271,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 
                 # check the toUpdateList to update old assets
                 if len(toUpdateList):
-                    assetNames = '\n'.join( [ assetTuple[0].getFileName() for assetTuple in toUpdateList ] )
+                    assetNames = '<br>'.join( [ assetTuple[0].getFileName() for assetTuple in toUpdateList ] )
                     
                     # display the warning
                     answer = QtGui.QMessageBox.warning(self, 'AssetVersionError', "These assets has <b>newer versions</b><br><br>" + assetNames + "<br><br>Please <b>update</b> them!", QtGui.QMessageBox.Ok )
