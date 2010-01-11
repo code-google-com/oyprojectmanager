@@ -15,7 +15,6 @@ __version__ = "10.1.11"
 
 
 #----------------------------------------------------------------------
-#def UI(environmentName=None, fileName=None, path=None ):
 def UI(environmentName=None, parent=None):
     """the UI
     """
@@ -42,7 +41,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    #def __init__(self, environmentName=None, fileName=None, path=None):
     def __init__(self, environmentName=None, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
         self.setupUi(self)
@@ -63,9 +61,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # setup validators
         self._setupValidators()
         
-        # attach new item texts
-        #setattr( self.baseName_listWidget, 'newItemText', '(add new...)')
-        
         # create a repository object
         self._repo = repositoryModel.Repository()
         
@@ -76,11 +71,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self._sequence = None
         self._versionListBuffer = []
         
-        #self._environmentName = environmentName
-        
         # create the environment object
         self._setEnvironment( environmentName )
-        
         
         self.fileName = ''
         self.path = ''
@@ -377,6 +369,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         assetTypes = currentSequence.getAssetTypes( self._environment.name )
         
         assetTypeNames = [ assetType.getName() for assetType in assetTypes ]
+        
         
         # clear and update the comboBoxes
         # try to keep the same item in the list
@@ -949,7 +942,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         currentSequenceName = self.getCurrentSequenceName()
         
         #assert(isinstance(self._sequence,Sequence))
-        
         if self._sequence == None or self._sequence.getName() != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) or \
            self._sequence.getProjectName() != self._project.getName():
             self._updateProjectObject()

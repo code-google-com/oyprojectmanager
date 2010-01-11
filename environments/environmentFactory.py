@@ -23,12 +23,12 @@ class EnvironmentFactory( abstractClasses.Singleton ):
         
         if environmentName == 'MAYA':
             from oyProjectManager.environments import mayaEnv
-            env = mayaEnv.MayaEnvironment( asset )
+            env = mayaEnv.MayaEnvironment( asset, 'MAYA' )
         elif environmentName == 'NUKE':
             from oyProjectManager.environments import nukeEnv
-            env = nukeEnv.NukeEnvironment( asset )
+            env = nukeEnv.NukeEnvironment( asset, 'NUKE' )
         elif environmentName == 'HOUDINI':
             from oyProjectManager.environments import houdiniEnv
-            env = houdiniEnv.HoudiniEnvironment( asset )
+            env = houdiniEnv.HoudiniEnvironment( asset, 'HOUDINI' )
         
         return env
