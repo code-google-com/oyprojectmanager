@@ -606,6 +606,9 @@ Exports the selected content to the server as an asset</string>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="maximum">
+                <number>999999999</number>
+               </property>
               </widget>
              </item>
              <item>

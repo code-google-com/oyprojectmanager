@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Mon Jan 11 17:59:19 2010
+# Created: Mon Jan 11 18:04:02 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -280,6 +280,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.startFrame_spinBox.sizePolicy().hasHeightForWidth())
         self.startFrame_spinBox.setSizePolicy(sizePolicy)
+        self.startFrame_spinBox.setMaximum(999999999)
         self.startFrame_spinBox.setObjectName("startFrame_spinBox")
         self.horizontalLayout_2.addWidget(self.startFrame_spinBox)
         self.endFrame_label = QtGui.QLabel(self.horizontalWidget)
