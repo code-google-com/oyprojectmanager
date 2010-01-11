@@ -13,6 +13,7 @@ v10.1.11
 - shotEditor: the cancel button renamed to close
 - environmentFactory: to help creating environments a new class is introduced
 - shotEditor: a lot of bugs are eliminated, the interface works much better now
+- assetManager: the messages are now formatted with HTML tags
 
 v10.1.5
 - houdiniEnv: fixed IOError for missing file.history file

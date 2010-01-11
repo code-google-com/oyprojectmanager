@@ -1264,7 +1264,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 try:
                     envStatus, toUpdateList = self._environment.open_()
                 except RuntimeError:
-                    answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There are unsaved changes in the current scene\n\nDo you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
+                    answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There are <b>unsaved changes</b> in the current scene<br><br>Do you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                     
                     if answer== QtGui.QMessageBox.Yes:
                         envStatus, toUpdateList = self._environment.open_( True )
@@ -1274,7 +1274,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                     assetNames = '\n'.join( [ assetTuple[0].getFileName() for assetTuple in toUpdateList ] )
                     
                     # display the warning
-                    answer = QtGui.QMessageBox.warning(self, 'AssetVersionError', "These assets has newer versions\n\n" + assetNames + "\n\nPlease update them!", QtGui.QMessageBox.Ok )
+                    answer = QtGui.QMessageBox.warning(self, 'AssetVersionError', "These assets has <b>newer versions</b><br><br>" + assetNames + "<br><br>Please <b>update</b> them!", QtGui.QMessageBox.Ok )
                     
                     # print the text version
                     print "\n"
@@ -1300,18 +1300,16 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                     if answer== QtGui.QMessageBox.Yes:
                         envStatus = self._environment.open_( True )
             
-            
-            # -----------------------------------------------------------------
-            # check the frame range
-            # -----------------------------------------------------------------
-            # check the range if and only if the asset is shot dependent
-            
-            if self._asset.isShotDependent():
-                # get the frame range from environment
-                self.adjustFrameRange()
-            # -----------------------------------------------------------------
-            
             if envStatus:
+                # -----------------------------------------------------------------
+                # check the frame range
+                # -----------------------------------------------------------------
+                # check the range if and only if the asset is shot dependent
+                
+                if self._asset.isShotDependent():
+                    # get the frame range from environment
+                    self.adjustFrameRange()
+                # -----------------------------------------------------------------
                 self.close()
         
         else:
@@ -1407,8 +1405,10 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             shotEnd = shot.endFrame
             
             if envStart != shotStart or envEnd != shotEnd:
-                answer = QtGui.QMessageBox.question(self, 'FrameRange Error', "The frame range of shot " + shot.name + "is:\n" \
-                                                    + str(shotStart) +"-"+str(shotEnd)+"\n\nThe current frame range is:\n"+str(envStart)+"-"+str(envEnd)+"\n\nshould your frame range be adjusted?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
+                answer = QtGui.QMessageBox.question(self, 'FrameRange Error', "The frame range of shot <b>" + shot.name + "</b> is:<br><b>" + \
+                                                    str(shotStart) + "-" + str(shotEnd) + "</b><br><br>The current frame range is:<br><b>" + \
+                                                    str(envStart) + "-" + str(envEnd) + "</b><br><br>should your frame range be adjusted?", \
+                                                    QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                 
                 if answer == QtGui.QMessageBox.Yes:
                     self._environment.setFrameRange( shotStart, shotEnd )
