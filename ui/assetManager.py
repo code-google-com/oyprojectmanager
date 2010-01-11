@@ -91,7 +91,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     def _setEnvironment(self, environmentName):
         """sets the environment object from the environemnt name
         """
-        
         self._environment = environmentFactory.EnvironmentFactory.create( self._asset, environmentName )
         
     
