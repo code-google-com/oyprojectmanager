@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/shotEditor.ui'
 #
-# Created: Tue Dec 29 20:08:18 2009
+# Created: Mon Jan 11 15:25:07 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -69,9 +69,9 @@ class Ui_MainWindow(object):
         self.save_pushButton = QtGui.QPushButton(self.horizontalWidget)
         self.save_pushButton.setObjectName("save_pushButton")
         self.horizontalLayout.addWidget(self.save_pushButton)
-        self.cancel_pushButton = QtGui.QPushButton(self.horizontalWidget)
-        self.cancel_pushButton.setObjectName("cancel_pushButton")
-        self.horizontalLayout.addWidget(self.cancel_pushButton)
+        self.close_pushButton = QtGui.QPushButton(self.horizontalWidget)
+        self.close_pushButton.setObjectName("close_pushButton")
+        self.horizontalLayout.addWidget(self.close_pushButton)
         self.verticalLayout.addWidget(self.horizontalWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -87,5 +87,5 @@ class Ui_MainWindow(object):
         self.sequence_label3.setText(QtGui.QApplication.translate("MainWindow", "Sequence", None, QtGui.QApplication.UnicodeUTF8))
         self.servers_label.setText(QtGui.QApplication.translate("MainWindow", "server", None, QtGui.QApplication.UnicodeUTF8))
         self.save_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.cancel_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
+        self.close_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
 

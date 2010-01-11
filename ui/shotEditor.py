@@ -5,10 +5,10 @@ import shotEditor_UI
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.dataModels import projectModel, repositoryModel
 from oyProjectManager.ui import singletonQapplication
+from oyProjectManager.environments import environmentFactory
 
 
-
-__version__ = "9.12.29"
+__version__ = "10.1.11"
 
 
 
@@ -16,13 +16,13 @@ __version__ = "9.12.29"
 
 
 #----------------------------------------------------------------------
-def UI():
+def UI(environmentName=''):
     """the UI
     """
     global app
     global mainWindow
     app = singletonQapplication.QApplication(sys.argv)
-    mainWindow = MainWindow()
+    mainWindow = MainWindow(environmentName)
     mainWindow.show()
     app.setStyle('Plastique')
     app.exec_()
@@ -47,9 +47,16 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         
         self.repo = repositoryModel.Repository()
         
+        self._environment = None
+        self._createEnvironment( environmentName )
+        
         # center to the window
         self._centerWindow()
         
+        
+        # create attributes to hold the project and sequence objects in the table
+        setattr( self.shotData_tableWidget, 'project', None)
+        setattr( self.shotData_tableWidget, 'sequence', None )
         
         # connect SIGNALs
         
@@ -63,7 +70,7 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.sequence_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotDataTable )
         
         # shotDataTable change --> update self._newDataOnShotDataTable
-        QtCore.QObject.connect(self.shotData_tableWidget, QtCore.SIGNAL("cellPressed(int,int)"), self._updateNewDataOnShotDataTable )
+        QtCore.QObject.connect(self.shotData_tableWidget, QtCore.SIGNAL("cellChanged(int,int)"), self._updateNewDataOnShotDataTable )
         
         # save button --> _saveShotData
         QtCore.QObject.connect( self.save_pushButton, QtCore.SIGNAL("clicked()"), self._saveShotData )
@@ -74,8 +81,8 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         # anyCell entered --> validate text
         QtCore.QObject.connect( self.shotData_tableWidget, QtCore.SIGNAL("cellChanged(int,int)"), self.validateText )
         
-        # cancel button
-        QtCore.QObject.connect( self.cancel_pushButton, QtCore.SIGNAL("clicked()"), self.close )
+        # close button
+        QtCore.QObject.connect( self.close_pushButton, QtCore.SIGNAL("clicked()"), self.close )
         
         self._newDataOnShotDataTable = bool(False)
         
@@ -87,6 +94,8 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         self.shotCount = 0
         
         self.setDefaults()
+        
+        self.setSettingsFromEnvironment()
     
     
     
@@ -108,6 +117,41 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         # fill the server comboBox
         self.servers_comboBox.clear()
         self.servers_comboBox.addItem ( self.repo.getServerPath() )
+    
+    
+    
+    #----------------------------------------------------------------------
+    # ENVIRONMENT PREPARATION
+    #----------------------------------------------------------------------
+    #----------------------------------------------------------------------
+    def _createEnvironment(self, environmentName):
+        """creates the environment object
+        """
+        self._environment = environmentFactory.EnvironmentFactory.create( environmentName=environmentName )
+    
+    
+    
+    def setSettingsFromEnvironment(self):
+        """sets the data from environment
+        """
+        
+        if self._environment != None:
+            if self._environment.name != None and self._environment.name != '':
+                fileName, path = self._environment.getPathVariables()
+                
+                print "fileName : ", fileName
+                print "path : ", path
+                
+                # update the interface
+                projName, seqName = self.repo.getProjectAndSequenceNameFromFilePath( path )
+                
+                # select them in the interface
+                
+                # project
+                self.project_comboBox1.setCurrentIndex( self.project_comboBox1.findText( projName ) )
+                
+                # sequence
+                self.sequence_comboBox1.setCurrentIndex( self.sequence_comboBox1.findText( seqName ) )
     
     
     
@@ -165,18 +209,25 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         """
         
         if self._newDataOnShotDataTable:
-            if not self.askUserPermission():
-                return
+            if self.askUserPermission():
+                # save the current data before cleaning
+                self._saveShotData()
+            else:
+                # zero the newDataOnShotDataTable attribute
+                self._newDataOnShotDataTable = False
         
         # clear the current table
         self.shotData_tableWidget.clear()
-        
         
         projName = self.getCurrentProjectName()
         seqName = self.getCurrentSequenceName()
         
         proj = projectModel.Project( projName )
         seq = projectModel.Sequence( proj, seqName )
+        
+        # set the project and sequence variables of the table
+        self.shotData_tableWidget.project = proj
+        self.shotData_tableWidget.sequence = seq
         
         # get the shot data
         shots = seq.getShots()
@@ -256,7 +307,8 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         """updates the newDataOnShotDataTable
         """
         
-        self._newDataOnShotDataTable = True
+        if self.isShotDataFilled():
+            self._newDataOnShotDataTable = True
     
     
     
@@ -302,8 +354,9 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         # use the tableItems cache
         
         # get the current project and sequenceName
-        proj = projectModel.Project( self.getCurrentProjectName() )
-        seq = projectModel.Sequence( proj, self.getCurrentSequenceName() )
+        # get the proejct and sequence from the table
+        proj = self.shotData_tableWidget.project
+        seq = self.shotData_tableWidget.sequence
         
         shots = seq.getShots()
         
@@ -332,6 +385,8 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         
         # save the sequence settings
         seq.saveSettings()
+        
+        self._newDataOnShotDataTable = False
     
     
     

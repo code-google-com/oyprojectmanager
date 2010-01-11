@@ -1,7 +1,12 @@
 TODO List :
 -----------
-- nuke still can't guess where to save the auto-save files under windows,
-  apparently there is a confussion about the seperator
+- some suggestions to the system name:
+  * DeepImpact
+  * Raptor
+  * Mynx
+  * 
+
+- for non-asset files, nuke could not open the assetManager interface
 
 - add a UserType class, save the default user types in an xml file
 
@@ -18,11 +23,13 @@ TODO List :
   user preferences. This should give us a gain in performance while replacing
   new versions of assets
 
-- create interfaces for the users to make them be able to easily open and edit
-  referenced assets. The interface should give functionalities to the user to
-  open the referenced files in another session of the host application, to let
-  the user update the referenced files with the latest published versions of
-  the same asset etc.
+- Deep reference update: create interfaces for the users to make them be able
+  to easily open and edit referenced assets. The interface should give
+  functionalities to the user to open the referenced files in another session
+  of the host application, to let the user update the referenced files with the
+  latest published versions of the same asset etc. And the interface should
+  automatically check and update references inside other references
+  (deep reference update)
 
 - for houdini set the render output picture path and name if there is an output
   node, if there is no output node, by default create one
@@ -72,6 +79,9 @@ TODO List :
 
 DONE :
 ------
++ nuke still can't guess where to save the auto-save files under windows,
+  apparently there is a confussion about the seperator
+
 + add a shot class to manage shot data, and keep track of the shot durations,
   start and end frame numbers
 

@@ -1029,26 +1029,24 @@ class SuperAsset(object):
     
     #----------------------------------------------------------------------
     #def __init__(self, project, sequence, typeName, baseName ): #, subName):
-    def __init__(self, assetFolderFullPath ):
+    def __init__(self):
         
+        self._parentProject = None
+        self._parentSequence = None
         
-        #self._parentProject = project
-        #self._parentSequence = sequence
+        self._baseName = ''
+        self._subName = ''
+        self._typeName = ''
+        self._type = None
         
-        #self._baseName = baseName
-        ##self._subName = subName
-        #self._typeName = typeName
-        #self._type = self._parentSequence.getAssetTypeWithName(typeName)
-        
-        #self._dataSeparator = u'_'
-        
-        ##assert( isinstance(self._type, AssetType) )
+        self._dataSeparator = u'_'
         
         #self._info = dict()
         
-        ## path variables
-        #self._path = os.path.join( self._parentSequence.getFullPath(), self._type.getPath(), baseName )
-        pass
+        # path variables
+        self._path = ''
+        self._fullPath = ''
+    
     
     
     ##----------------------------------------------------------------------

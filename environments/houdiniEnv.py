@@ -18,7 +18,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.12.30"
+__version__ = "10.1.5"
 
 
 
@@ -259,8 +259,12 @@ class FileHistory( abstractClasses.Singleton ):
     def _read(self):
         """reads the history file to a buffer
         """
+        try:
+            historyFile = open( self._historyFileFullPath )
+        except IOError:
+            self._buffer = []
+            return
         
-        historyFile = open( self._historyFileFullPath )
         self._buffer = historyFile.readlines()
         
         # strip all the lines

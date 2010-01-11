@@ -1,5 +1,22 @@
 Version History :
 -----------------
+v10.1.11
+- assetManager: added control of shot range while opening or saving shot
+  dependent assets
+- assetManager: the MainDialog now has a unified environment and asset objects
+  which are shared in its methods
+- mayaEnv : added shot range get and set methods
+- projectModel: added getShot to Sequence class, which returns the Shot object
+  with given shot name
+- abstractClasses: Environment class now has a property named asset to get and
+  set asset of the environment
+- shotEditor: the cancel button renamed to close
+- environmentFactory: to help creating environments a new class is introduced
+- shotEditor: a lot of bugs are eliminated, the interface works much better now
+
+v10.1.5
+- houdiniEnv: fixed IOError for missing file.history file
+
 v10.1.4
 - projectModel: fixed a typo in sequence classes addShots method
 - nukeEnv : fixed the path problems for autosave files under Windows

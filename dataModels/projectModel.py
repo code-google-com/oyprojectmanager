@@ -6,7 +6,7 @@ from oyProjectManager.dataModels import assetModel, userModel, repositoryModel
 
 
 
-__version__ = "9.12.29"
+__version__ = "10.1.11"
 
 
 
@@ -792,6 +792,19 @@ class Sequence(object):
         """returns the shot objects as a list
         """
         return self._shots
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getShot(self, shotNumber):
+        """returns the shot with given shotNumber
+        """
+        for shot in self._shots:
+            assert(isinstance(shot, Shot))
+            if shot.name == shotNumber:
+                return shot
+        
+        return None
     
     
     

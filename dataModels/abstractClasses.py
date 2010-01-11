@@ -1,5 +1,5 @@
 
-__version__ = "9.12.27"
+__version__ = "10.1.11"
 
 
 
@@ -27,10 +27,55 @@ class Environment(object):
     """
     
     #----------------------------------------------------------------------
-    def __init__(self, asset=None):
+    def __init__(self, asset=None, name=''):
         
+        self._name = name
         self._asset = asset
-        #assert(isinstance( self._asset, assetModel.Asset) )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def __str__(self):
+        """the string represantation of the environment
+        """
+        return self._name
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getAsset(self):
+        """returns the bound asset object
+        """
+        return self._asset
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setAsset(self, asset):
+        """sets the asset object
+        """
+        self._asset = asset
+    
+    asset = property( _getAsset, _setAsset )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getName(self):
+        """returns the environment name
+        """
+        return self._name
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setName(self, name):
+        """sets the environment name
+        """
+        self._name = name
+    
+    name = property( _getName, _setName )
+    
     
     
     #----------------------------------------------------------------------
@@ -126,7 +171,7 @@ class Environment(object):
     
     
     #----------------------------------------------------------------------
-    def setFrameRange(self, startFrame, endFrame):
+    def setFrameRange(self, startFrame=1, endFrame=100):
         """sets the frame range in the environment
         """
         pass

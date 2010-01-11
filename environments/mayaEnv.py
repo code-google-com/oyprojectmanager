@@ -52,23 +52,6 @@ class MayaEnvironment(abstractClasses.Environment):
     
     
     #----------------------------------------------------------------------
-    def getAsset(self):
-        """returns the asset object of the environment
-        """
-        return self._asset
-    
-    
-    #----------------------------------------------------------------------
-    def setAsset(self, asset):
-        """sets the asset object of this environment
-        """
-        self._asset = asset
-    
-    asset = property( getAsset, setAsset )
-    
-    
-    
-    #----------------------------------------------------------------------
     def export(self):
         """the export action for maya environment
         """
@@ -387,6 +370,29 @@ class MayaEnvironment(abstractClasses.Environment):
             latestAsset = asset.getLatestVersion2()[0]
             
             ref.replaceWith( latestAsset.getFullPath() )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getFrameRange(self):
+        """returns the current playback frame range
+        """
+        startFrame = int( pm.playbackOptions(q=True, ast=True) )
+        endFrame = int( pm.playbackOptions(q=True, aet=True) )
+        return startFrame, endFrame
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setFrameRange(self, startFrame=1, endFrame=100):
+        """sets the start and end frame range
+        """
         
+        # set it in the playback
+        pm.playbackOptions(ast=startFrame, aet=endFrame)
         
+        # set in the render range
+        dRG = pm.PyNode('defaultRenderGlobals')
+        dRG.setAttr('startFrame', startFrame )
+        dRG.setAttr('endFrame', endFrame )
         
