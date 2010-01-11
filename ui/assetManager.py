@@ -135,6 +135,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateBaseNameField )
         QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
         
+        # shotName change ---> update frame ranges
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateFrameRangeFields )
+        
         # shotName or baseName change ---> fill subName comboBox
         QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
         QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateSubNameField )
@@ -903,6 +906,18 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """sets the version number field in the interface
         """
         self.version_spinBox.setValue( verNumber )
+    
+    
+    #----------------------------------------------------------------------
+    def updateFrameRangeFields(self, index):
+        """updates the frame range fields according to the current shot
+        """
+        
+        # get the shot object from the sequence
+        shot = self._sequence.getShots()[ index ]
+        
+        self.startFrame_spinBox.setValue( shot.startFrame )
+        self.endFrame_spinBox.setValue( shot.endFrame )
     
     
     
