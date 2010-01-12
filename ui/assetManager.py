@@ -10,7 +10,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.1.11"
+__version__ = "10.1.12"
 
 
 
@@ -1397,10 +1397,10 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # get the frame range from the sequence settings
         seq = self._asset.getParentSequence()
-        assert(isinstance(seq, projectModel.Sequence))
+        #assert(isinstance(seq, projectModel.Sequence))
         shot = seq.getShot( self._asset.getShotNumber() )
         
-        if shot != None:
+        if shot != None and envStart != None and envEnd != None:
             shotStart = shot.startFrame
             shotEnd = shot.endFrame
             

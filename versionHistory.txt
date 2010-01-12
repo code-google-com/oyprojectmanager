@@ -1,5 +1,10 @@
 Version History :
 -----------------
+v10.1.12
+- assetManager: nuke was complaning about the new frame range adjustments
+  because it is not implemented yet. Added checks for the frame range being
+  None
+
 v10.1.11
 - assetManager: added control of shot range while opening or saving shot
   dependent assets

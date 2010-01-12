@@ -1,5 +1,7 @@
 
-__version__ = "10.1.11"
+
+
+__version__ = "10.1.12"
 
 
 
@@ -166,7 +168,7 @@ class Environment(object):
     def getFrameRange(self):
         """returns the frame range from the environment
         """
-        pass
+        return None, None
     
     
     
