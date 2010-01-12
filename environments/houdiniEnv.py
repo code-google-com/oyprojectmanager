@@ -210,11 +210,11 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
-    def getFrameRange(self):
-        """returns the frame range of the
-        """
-        pass
+    ##----------------------------------------------------------------------
+    #def getFrameRange(self):
+        #"""returns the frame range of the
+        #"""
+        #return Non
         
 
 
