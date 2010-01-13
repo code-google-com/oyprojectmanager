@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Wed Jan 13 14:46:41 2010
+# Created: Wed Jan 13 14:53:01 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -321,6 +321,7 @@ class Ui_MainWindow(object):
         self.shotDescription_label.setObjectName("shotDescription_label")
         self.verticalLayout_2.addWidget(self.shotDescription_label)
         self.shotDescription_textEdit = QtGui.QTextEdit(self.shotData_groupBox)
+        self.shotDescription_textEdit.setEnabled(False)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(1)
