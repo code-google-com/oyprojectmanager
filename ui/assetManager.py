@@ -998,7 +998,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             return text
         
         # first remove invalid chars
-        text = oyAux.invalidCharacterRemover( text, oyAux.validChars )
+        text = oyAux.invalidCharacterRemover( text, oyAux.validFileNameChars )
         
         # validate the text
         text = oyAux.stringConditioner( text, False, True, False, False, False, False )

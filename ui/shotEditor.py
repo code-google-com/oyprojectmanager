@@ -428,7 +428,7 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         text = unicode( item.text() )
         
         # remove any invalid character
-        text = oyAux.invalidCharacterRemover( text, oyAux.validChars )
+        text = oyAux.invalidCharacterRemover( text, oyAux.validTextChars )
         
         # set the text back
         item.setText( text )
