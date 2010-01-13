@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.1.13
+- assetManager: added shot description field and organized the interface by
+  adding group boxes
+
 v10.1.12
 - assetManager: nuke was complaning about the new frame range adjustments
   because it is not implemented yet. Added checks for the frame range being

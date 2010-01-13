@@ -10,7 +10,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.1.12"
+__version__ = "10.1.13"
 
 
 
@@ -136,7 +136,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
         
         # shotName change ---> update frame ranges
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateFrameRangeFields )
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotDataFields )
         
         # shotName or baseName change ---> fill subName comboBox
         QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
@@ -909,8 +909,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def updateFrameRangeFields(self, index):
-        """updates the frame range fields according to the current shot
+    def updateShotDataFields(self, index):
+        """updates the shot data fields like the frame range fields and the
+        shot description fields according to the current shot
         """
         
         # get the shot object from the sequence
@@ -918,6 +919,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         self.startFrame_spinBox.setValue( shot.startFrame )
         self.endFrame_spinBox.setValue( shot.endFrame )
+        
+        self.shotDescription_textEdit.setText( shot.description )
     
     
     
