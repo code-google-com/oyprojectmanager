@@ -1,5 +1,11 @@
 Version History :
 -----------------
+v10.1.14
+- abstractClasses: the Environment class now has an __init_callback__ method
+  which is called after __init__. This will let the environments to call their
+  own init commands.
+- nukeEnv: fixed the retrieval of a file path from the root node
+
 v10.1.13
 - assetManager: added shot description field and organized the interface by
   adding group boxes

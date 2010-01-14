@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel, abstractClasse
 
 
 
-__version__ = "10.1.4"
+__version__ = "10.1.14"
 
 
 
@@ -16,6 +16,16 @@ __version__ = "10.1.4"
 class NukeEnvironment(abstractClasses.Environment):
     """the nuke environment class
     """
+    
+    
+    
+    #----------------------------------------------------------------------
+    def __init_callback__(self):
+        """nuke spesific init
+        """
+        
+        # get the root node
+        self._root = nuke.toNode("root")
     
     
     
@@ -91,8 +101,10 @@ class NukeEnvironment(abstractClasses.Environment):
     def getPathVariables(self):
         """gets the file name from nuke
         """
+        
         fullPath = path = fileName = None
-        fullPath = nuke.toNode("root").name()
+        fullPath = self._root.knob('name').value()
+        
         
         if fullPath != None and fullPath != '':
             # for winodws replace the path seperator

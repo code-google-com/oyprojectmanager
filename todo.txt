@@ -6,6 +6,11 @@ TODO List :
   * Mynx
   * Shaft
 
+- shotEditor is not working in Houdini
+
+- in nuke the asset manager interface starts with irrelevant project and
+  sequence probably it can't get the variables from the nuke environment
+
 - for non-asset files, nuke could not open the assetManager interface
 
 - add a UserType class, save the default user types in an xml file
