@@ -25,7 +25,16 @@ class NukeEnvironment(abstractClasses.Environment):
         """
         
         # get the root node
-        self._root = nuke.toNode("root")
+        self._root = self.getRootNode()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getRootNode(self):
+        """returns the root node of the current nuke session
+        """
+        
+        return nuke.toNode("root")
     
     
     
@@ -133,7 +142,7 @@ class NukeEnvironment(abstractClasses.Environment):
     def getFrameRange(self):
         """returns the current frame range
         """
-        
+        self._root = getRootNode()
         startFrame = self._root.knob('first_frame').value()
         endFrame = self._root.knob('last_frame').value()
         return startFrame, endFrame
@@ -143,9 +152,9 @@ class NukeEnvironment(abstractClasses.Environment):
     def setFrameRange(self, startFrame=1, endFrame=100):
         """sets the start and end frame range
         """
-        
+        self._root = getRootNode()
         self._root.knob('first_frame').setValue(startFrame)
-        self._root.knob('last_frame').setValue(endFrame)
+        self._root.knob('last_frame').set
         
         
     
