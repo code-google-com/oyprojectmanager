@@ -143,9 +143,10 @@ class NukeEnvironment(abstractClasses.Environment):
         """returns the current frame range
         """
         self._root = self.getRootNode()
-        startFrame = self._root.knob('first_frame').value()
-        endFrame = self._root.knob('last_frame').value()
+        startFrame = int(self._root.knob('first_frame').value())
+        endFrame = int(self._root.knob('last_frame').value())
         return startFrame, endFrame
+    
     
     
     #----------------------------------------------------------------------
@@ -155,22 +156,4 @@ class NukeEnvironment(abstractClasses.Environment):
         self._root = self.getRootNode()
         self._root.knob('first_frame').setValue(startFrame)
         self._root.knob('last_frame').setValue(endFrame)
-        
-        
     
-    ##----------------------------------------------------------------------
-    #def setRootName():
-        #"""sets the root name variable
-        #"""
-        
-        #rootNode = nuke.toNode("root")
-        
-        ## get the name and replace \ with / characters
-        
-        #rootName = rootNode.name()
-        
-        #rootName = rootName.replace('\\','/') 
-        
-        #rootNode.setName( rootName )
-        
-        #return rootName
