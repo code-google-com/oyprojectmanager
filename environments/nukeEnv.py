@@ -142,7 +142,7 @@ class NukeEnvironment(abstractClasses.Environment):
     def getFrameRange(self):
         """returns the current frame range
         """
-        self._root = getRootNode()
+        self._root = self.getRootNode()
         startFrame = self._root.knob('first_frame').value()
         endFrame = self._root.knob('last_frame').value()
         return startFrame, endFrame
@@ -152,7 +152,7 @@ class NukeEnvironment(abstractClasses.Environment):
     def setFrameRange(self, startFrame=1, endFrame=100):
         """sets the start and end frame range
         """
-        self._root = getRootNode()
+        self._root = self.getRootNode()
         self._root.knob('first_frame').setValue(startFrame)
         self._root.knob('last_frame').set
         
