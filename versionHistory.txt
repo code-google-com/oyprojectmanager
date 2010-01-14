@@ -5,6 +5,7 @@ v10.1.14
   which is called after __init__. This will let the environments to call their
   own init commands.
 - nukeEnv: fixed the retrieval of a file path from the root node
+- nukeEnv: now can adjust the frame range to match the shot settings
 
 v10.1.13
 - assetManager: added shot description field and organized the interface by

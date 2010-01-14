@@ -129,6 +129,26 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     
+    #----------------------------------------------------------------------
+    def getFrameRange(self):
+        """returns the current frame range
+        """
+        
+        startFrame = self._root.knob('first_frame').value()
+        endFrame = self._root.knob('last_frame').value()
+        return startFrame, endFrame
+    
+    
+    #----------------------------------------------------------------------
+    def setFrameRange(self, startFrame=1, endFrame=100):
+        """sets the start and end frame range
+        """
+        
+        self._root.knob('first_frame').setValue(startFrame)
+        self._root.knob('last_frame').setValue(endFrame)
+        
+        
+    
     ##----------------------------------------------------------------------
     #def setRootName():
         #"""sets the root name variable
