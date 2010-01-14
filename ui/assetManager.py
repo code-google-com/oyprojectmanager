@@ -1309,7 +1309,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 # -----------------------------------------------------------------
                 # check the range if and only if the asset is shot dependent
                 
-                if self._asset.isShotDependent():
+                if self._asset.isShotDependent() and self._environment.name != 'NUKE':
                     # get the frame range from environment
                     self.adjustFrameRange()
                 # -----------------------------------------------------------------
