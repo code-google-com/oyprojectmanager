@@ -239,7 +239,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         currFrame = hou.frame()
         if currFrame < startFrame:
             hou.setFrame( startFrame )
-        elif currFame > endFrame:
+        elif currFrame > endFrame:
             hou.setFrame( endFrame )
         
         # for now use hscript, the python version is not implemented yet
