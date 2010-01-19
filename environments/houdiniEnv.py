@@ -13,6 +13,7 @@ has commands to save, open and import houdini files
 
 import os
 import hou
+import re
 from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel, abstractClasses
 import oyAuxiliaryFunctions as oyAux
 
@@ -210,11 +211,43 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    ##----------------------------------------------------------------------
-    #def getFrameRange(self):
-        #"""returns the frame range of the
-        #"""
-        #return Non
+    #----------------------------------------------------------------------
+    def getFrameRange(self):
+        """returns the frame range of the
+        """
+        # use the hscript commands to get the frame range
+        timeInfo = hou.hscript('tset')[0].split('\n')
+        
+        pattern = r'[0-9\.]+'
+        
+        startFrame = int( hou.timeToFrame( float( re.search( pattern, timeInfo[2] ).group(0) ) ) )
+        duration = int( re.search( pattern, timeInfo[0] ).group(0) )
+        endFrame = startFrame + duration - 1
+        
+        return startFrame, endFrame
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setFrameRange(self, startFrame=1, endFrame=100):
+        """sets the frame range
+        """
+        
+        # set the timeline
+        # for now use hscript, the python version is not implemented yet
+        hou.hscript('tset `('+ str(startFrame) +'-1)/$FPS` `'+ str(endFrame)+'/$FPS`')
+        
+        # --------------------------------------------
+        # Set the render nodes frame ranges if any
+        # get the out nodes
+        ropContext = hou.node('/out')
+        
+        # get the children
+        outNodes = ropContext.children()
+        
+        if len(outNodes):
+            for outNode in outNodes:
+                outNode.setParms( {'trange':1,'f1':startFrame,'f2':endFrame,'f3':1})
         
 
 

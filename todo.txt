@@ -5,6 +5,9 @@ TODO List :
   * Raptor
   * Mynx
   * Shaft
+  * Ghost
+  * Stalker
+  * 
 
 - shotEditor is not working in Houdini
 

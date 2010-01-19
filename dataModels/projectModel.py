@@ -499,7 +499,7 @@ class Sequence(object):
         
         
         #----------------------------------------------------------------------
-        # SEQUENCE DATA and childs
+        # SEQUENCE DATA and children
         #----------------------------------------------------------------------
         # set repository node attributes
         sequenceDataNode.setAttribute('shotPrefix', self._shotPrefix)
@@ -594,7 +594,7 @@ class Sequence(object):
         
         
         
-        # append childs
+        # append children
         rootNode.appendChild( sequenceDataNode )
         
         sequenceDataNode.appendChild( structureNode )

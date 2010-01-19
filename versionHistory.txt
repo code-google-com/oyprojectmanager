@@ -5,6 +5,7 @@ v10.1.19
   get info variables for non standart file names
 - mayaEnv: fixed setting of playblast folder path under windows (the same old
   fucking shitty path seperator problem again!!! )
+- houdiniEnv: now sets and gets the frame range
 
 v10.1.16
 - projectManager: the invalid characters in project and sequence are now
