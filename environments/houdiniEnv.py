@@ -233,9 +233,16 @@ class HoudiniEnvironment(abstractClasses.Environment):
         """sets the frame range
         """
         
+        
+        # --------------------------------------------
         # set the timeline
+        currFrame = hou.frame()
+        if currFrame < startFrame:
+            hou.setFrame( startFrame )
+        
         # for now use hscript, the python version is not implemented yet
         hou.hscript('tset `('+ str(startFrame) +'-1)/$FPS` `'+ str(endFrame)+'/$FPS`')
+        
         
         # --------------------------------------------
         # Set the render nodes frame ranges if any
