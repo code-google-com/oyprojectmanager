@@ -239,6 +239,8 @@ class HoudiniEnvironment(abstractClasses.Environment):
         currFrame = hou.frame()
         if currFrame < startFrame:
             hou.setFrame( startFrame )
+        elif currFame > endFrame:
+            hou.setFrame( endFrame )
         
         # for now use hscript, the python version is not implemented yet
         hou.hscript('tset `('+ str(startFrame) +'-1)/$FPS` `'+ str(endFrame)+'/$FPS`')
