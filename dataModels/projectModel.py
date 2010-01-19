@@ -1433,12 +1433,14 @@ class Sequence(object):
         infoVars['subName'] = ''
         infoVars['typeName'] = ''
         
-        if len(splits) > 1:
-            if not self._noSubNameField:
+        
+        if not self._noSubNameField:
+            if len(splits) > 3:
                 infoVars['baseName'] = splits[0]
                 infoVars['subName'] = splits[1]
                 infoVars['typeName'] = splits[2]
-            else:
+        else:
+            if len(splits) > 2:
                 infoVars['baseName'] = splits[0]
                 infoVars['subName'] = ''
                 infoVars['typeName'] = splits[1]
