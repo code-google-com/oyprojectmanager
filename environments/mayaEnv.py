@@ -240,7 +240,13 @@ class MayaEnvironment(abstractClasses.Environment):
     def setPlayblastFileName(self):
         """sets the playblast file name
         """
-        pm.optionVar['playblastFile'] =  self._asset.getType().getPlayblastFolder()
+        
+        playblastFolderPath = self._asset.getType().getPlayblastFolder()
+        
+        if os.name = 'nt':
+            playblastFolderPath = playblastFolderPath.replace('/','\\')
+        
+        pm.optionVar['playblastFile'] = playblastFolderPath
     
     
     
