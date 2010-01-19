@@ -243,7 +243,7 @@ class MayaEnvironment(abstractClasses.Environment):
         
         playblastFolderPath = self._asset.getType().getPlayblastFolder()
         
-        if os.name = 'nt':
+        if os.name == 'nt':
             playblastFolderPath = playblastFolderPath.replace('/','\\')
         
         pm.optionVar['playblastFile'] = playblastFolderPath
