@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.1.16
+- projectManager: the invalid characters in project and sequence are now
+  removed
+
 v10.1.14
 - abstractClasses: the Environment class now has an __init_callback__ method
   which is called after __init__. This will let the environments to call their

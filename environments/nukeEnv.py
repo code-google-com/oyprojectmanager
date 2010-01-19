@@ -20,10 +20,14 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     #----------------------------------------------------------------------
-    def __init_callback__(self):
+    def __init__(self, asset=None, name=''):
         """nuke spesific init
         """
+        # call the supers __init__
+        super(NukeEnvironment, self).__init__( asset, name )
+        #abstractClasses.Environment.__init__(self)
         
+        # and add you own modifications to __init__
         # get the root node
         self._root = self.getRootNode()
     

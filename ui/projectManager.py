@@ -9,7 +9,7 @@ from oyProjectManager.tools import rangeTools
 
 
 
-__version__ = "9.12.2"
+__version__ = "10.1.16"
 
 
 
@@ -105,6 +105,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         
         text = unicode( self.project_lineEdit1.text() )
         #text = oyAux.file_name_conditioner( text )
+        text = oyAux.invalidCharacterRemover(text, oyAux.validFileNameChars)
         text = oyAux.stringConditioner( text, False, True, False, True, True, False )
         
         self.project_lineEdit1.setText( text )
@@ -117,6 +118,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         """
         text = unicode( self.sequence_lineEdit2.text() )
         #text = oyAux.file_name_conditioner( text )
+        text = oyAux.invalidCharacterRemover(text, oyAux.validFileNameChars)
         text = oyAux.stringConditioner( text, False, True, False, True, True, False )
         
         self.sequence_lineEdit2.setText( text )

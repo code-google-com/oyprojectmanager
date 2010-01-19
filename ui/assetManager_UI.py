@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Wed Jan 13 14:53:01 2010
+# Created: Sat Jan 16 11:52:59 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(822, 876)
+        MainWindow.resize(774, 876)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -26,6 +26,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
+        self.verticalLayout.setMargin(6)
         self.verticalLayout.setObjectName("verticalLayout")
         self.main_horizontalWidget = QtGui.QWidget(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
@@ -35,6 +36,7 @@ class Ui_MainWindow(object):
         self.main_horizontalWidget.setSizePolicy(sizePolicy)
         self.main_horizontalWidget.setObjectName("main_horizontalWidget")
         self.main_horizontalLayout = QtGui.QHBoxLayout(self.main_horizontalWidget)
+        self.main_horizontalLayout.setMargin(6)
         self.main_horizontalLayout.setObjectName("main_horizontalLayout")
         self.verticalWidget1 = QtGui.QWidget(self.main_horizontalWidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
@@ -44,6 +46,7 @@ class Ui_MainWindow(object):
         self.verticalWidget1.setSizePolicy(sizePolicy)
         self.verticalWidget1.setObjectName("verticalWidget1")
         self.verticalLayout1 = QtGui.QVBoxLayout(self.verticalWidget1)
+        self.verticalLayout1.setMargin(0)
         self.verticalLayout1.setObjectName("verticalLayout1")
         self.saveAsset_groupBox = QtGui.QGroupBox(self.verticalWidget1)
         self.saveAsset_groupBox.setObjectName("saveAsset_groupBox")
@@ -252,6 +255,7 @@ class Ui_MainWindow(object):
         self.verticalWidget2 = QtGui.QWidget(self.main_horizontalWidget)
         self.verticalWidget2.setObjectName("verticalWidget2")
         self.verticalLayout2 = QtGui.QVBoxLayout(self.verticalWidget2)
+        self.verticalLayout2.setMargin(0)
         self.verticalLayout2.setObjectName("verticalLayout2")
         self.shotData_groupBox = QtGui.QGroupBox(self.verticalWidget2)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)

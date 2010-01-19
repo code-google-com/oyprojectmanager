@@ -33,16 +33,6 @@ class Environment(object):
         
         self._name = name
         self._asset = asset
-        
-        self.__init_callback__()
-    
-    
-    
-    #----------------------------------------------------------------------
-    def __init_callback__(self):
-        """environemnt specific init function
-        """
-        pass
     
     
     
