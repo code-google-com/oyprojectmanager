@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel, repositoryMode
 
 
 
-__version__ = "9.12.27"
+__version__ = "10.1.23"
 
 
 
@@ -246,7 +246,15 @@ class MayaEnvironment(abstractClasses.Environment):
         if os.name == 'nt':
             playblastFolderPath = playblastFolderPath.replace('/','\\')
         
-        pm.optionVar['playblastFile'] = playblastFolderPath
+        assert(isinstance(self._asset, assetModel.Asset))
+        
+        seqFullPath = self._asset.getParentSequence().getFullPath()
+        
+        baseName = self._asset.getBaseName()
+        
+        playblastFullPath = os.path.join( seqFullPath, playblastFolderPath, baseName, self._asset.getFileNameWithoutExtension() ) + '.avi'
+        
+        pm.optionVar['playblastFile'] = playblastFullPath
     
     
     

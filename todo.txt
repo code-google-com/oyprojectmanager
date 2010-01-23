@@ -6,8 +6,7 @@ TODO List :
   * Mynx
   * Shaft
   * Ghost
-  * Stalker
-  * 
+  * Stalker (Best for now)
 
 - shotEditor is not working in Houdini
 

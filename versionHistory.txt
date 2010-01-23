@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.1.23
+- mayaEnv: fixed setting of the playblast folder path, it should be an absolute
+  path to the playblast file
+
 v10.1.19
 - projectModel: fixed a little bug in Sequence class, where it was trying to
   get info variables for non standart file names
