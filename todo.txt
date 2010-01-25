@@ -1,17 +1,6 @@
 TODO List :
 -----------
-- some suggestions to the system name:
-  * DeepImpact
-  * Raptor
-  * Mynx
-  * Shaft
-  * Ghost
-  * Stalker (Best for now)
-
 - shotEditor is not working in Houdini
-
-- in nuke the asset manager interface starts with irrelevant project and
-  sequence probably it can't get the variables from the nuke environment
 
 - for non-asset files, nuke could not open the assetManager interface
 
@@ -41,7 +30,7 @@ TODO List :
 - for houdini set the render output picture path and name if there is an output
   node, if there is no output node, by default create one
 
-- store recent files list in database do not trust to the applications recent
+- store recent files list in repository do not trust to the applications recent
   files
 
 - convert the system to a full featured Production Asset Management System
@@ -84,8 +73,19 @@ TODO List :
 
 
 
-DONE :
-------
+FIXED & DONE :
+--------------
++ some suggestions to the system name:
+  * DeepImpact
+  * Raptor
+  * Mynx
+  * Shaft
+  * Ghost
+  * Stalker (Best for now) - The new version will be called STALKER
+
++ in nuke the asset manager interface starts with irrelevant project and
+  sequence probably it can't get the variables from the nuke environment
+
 + nuke still can't guess where to save the auto-save files under windows,
   apparently there is a confussion about the seperator
 
