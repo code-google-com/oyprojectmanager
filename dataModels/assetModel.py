@@ -52,7 +52,7 @@ class Asset(object):
         
         self._dataSeparator = u'_'
         
-        self._timeFormat = '%d.%m.%Y %H:%m'
+        self._timeFormat = '%d.%m.%Y %H:%M'
         
         if fileName != None:
             self._fileName  = unicode( os.path.splitext(unicode(fileName))[0] ) # remove the extension
