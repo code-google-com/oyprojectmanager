@@ -968,7 +968,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """retriewes the file name from the open asset fields
         """
         
-        index = self.assets_tableWidget1.currentIndex().column()
+        index = self.assets_tableWidget1.currentIndex().row()
         assetFileName = unicode(self.assets_tableWidget1.tableData[index][1])
         self._asset = assetModel.Asset( self._project, self._sequence, assetFileName )
         self._environment.asset = self._asset
