@@ -10,7 +10,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.1.13"
+__version__ = "10.1.25"
 
 
 
@@ -55,8 +55,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # center to the window
         self._centerWindow()
         
-        # setup signals
-        self._setupSignals()
         
         # setup validators
         self._setupValidators()
@@ -78,12 +76,15 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self.path = ''
         self.fullPath = ''
         
+        # setup signals
+        self._setupSignals()
+        
         self.setDefaults()
         self.updateProjectList()
         
         self.getSettingsFromEnvironment()
         
-        self.fillFieldsFromFileInfo()
+        #self.fillFieldsFromFileInfo()
     
     
     
@@ -289,26 +290,41 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         element = self.assetType_comboBox1
         element.setCurrentIndex( element.findText( assetType ) )
         
+        # ----------------------------------------------------------------------
         # shotNumber and baseName
         if assetObj.isShotDependent():
             element = self.shot_comboBox1
             element.setCurrentIndex( element.findText( shotNumber) )
+            
         else:
             
             itemIndex = self.findListItemWithText( self.baseName_listWidget, baseName )
             if itemIndex != -1:
-                self.baseName_listWidget.item( itemIndex ).setSelected(True)
+                # get the item and set it selected and current item on the list
+                item = self.baseName_listWidget.item( itemIndex )
+                item.setSelected(True)
+                self.baseName_listWidget.setCurrentItem( item )
+                
                 # update the selection
                 self.updateBaseNameLineEdit( baseName )
-                
+        # ----------------------------------------------------------------------
         
+        
+        
+        # ----------------------------------------------------------------------
+        # sub Name
         if not currentSequence._noSubNameField: # remove this block when the support for old version becomes obsolute
-            # sub Name
             
             itemIndex = self.findListItemWithText( self.subName_listWidget, subName )
             if itemIndex != -1:
-                self.subName_listWidget.item( itemIndex ).setSelected(True)
+                # get the item and set it selected and current item on the list
+                item = self.subName_listWidget.item( itemIndex )
+                item.setSelected(True)
+                self.subName_listWidget.setCurrentItem( item )
+                
                 self.updateSubNameLineEdit( subName )
+        # ----------------------------------------------------------------------
+        
         
         # revision
         self.revision_spinBox.setValue( revNumber )
@@ -518,17 +534,34 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self.subName_listWidget.addItems( sorted(subNamesList) )
         
         # update subName line edit
-        self.updateSubNameLineEdit( 'MAIN' )
+        self.updateSubNameLineEdit( 'MAIN' ) #, 'updateSubNameField' )
     
     
     
     #----------------------------------------------------------------------
-    def updateSubNameLineEdit(self, subName):
+    def updateSubNameLineEdit( self, subName ):#, caller_id=None):
         """updates the subName_lineEdit according to the selected text in the
         subName_listWidget
         """
-        
+        #print "updateSubNAmeLineEdit.caller_id -> ", caller_id
+        #print "subName -> ", subName
         self.subName_lineEdit.setText( subName )
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def updateSubNameLineEditFromSignal(self):
+        #"""updates the subName_lineEdit triggered by a signal
+        #"""
+        
+        
+        
+        ## get the current item text
+        ##itemIndex = self.findListItemWithText( self.subName_listWidget, 
+        
+        #text = self.subName_listWidget.
+    
+    
     
     
     #----------------------------------------------------------------------
@@ -745,7 +778,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """
         
         # get the asset object from fields
-        self._createAssetObjectFromSaveFields()
+        self._createAssetObjectFromSaveFields()#'updateRevisionToLatest' )
         
         #if asset == None or not asset.isValidAsset():
         if self._asset == None or not self._asset.isValidAsset():
@@ -768,7 +801,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """
         
         # get the asset objet from fields
-        self._createAssetObjectFromSaveFields()
+        self._createAssetObjectFromSaveFields()#'updateVersionToLatest' )
         
         if self._asset == None or not self._asset.isValidAsset():
             self.setVersionNumberField( 1 )
@@ -821,7 +854,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def _createAssetObjectFromSaveFields(self):
+    def _createAssetObjectFromSaveFields(self):#, caller_id=None):
         """returns the asset object from the fields
         """
         
@@ -849,6 +882,12 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         ver = self.getCurrentVerNumber()
         userInitials = self.getCurrentUserInitials()
         notes = self.getCurrentNote()
+        
+        
+        #print "_createAssetObjectFromSaveFields, caller_id ->", caller_id
+        #print "baseName -> ", baseName
+        #print "subName -> ", subName
+        
         
         # construct info variables
         infoVars = dict()
@@ -884,7 +923,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """returns the file name from the fields
         """
         # get the asset object from fields
-        self._createAssetObjectFromSaveFields()
+        self._createAssetObjectFromSaveFields()#'getFileNameFromSaveFields' )
         
         if self._asset == None:
             return None, None
@@ -1166,7 +1205,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         assetStatus = False
         
         # get the asset object
-        self._createAssetObjectFromSaveFields()
+        self._createAssetObjectFromSaveFields()#'saveAsset' )
         
         if self._asset == None:
             return
@@ -1215,7 +1254,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """
         
         # get the asset object
-        self._createAssetObjectFromSaveFields()
+        self._createAssetObjectFromSaveFields() #'exportAsset' )
         
         if self._asset == None:
             return

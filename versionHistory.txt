@@ -1,5 +1,13 @@
 Version History :
 -----------------
+v10.1.25
+- assetManager: fixed a bug which causes the subName_listWidget and
+  subName_lineEdit displaying different texts, where the subName_listWidget's
+  text was wrong. This bug was caused by the lack of both setting the current
+  item on the list and setting the item itself selected. So the item gets
+  selected but the current item remains in a different item in the
+  subName_listWidget. The same bug was existing in the baseName_listWidget too.
+
 v10.1.23
 - mayaEnv: fixed setting of the playblast folder path, it should be an absolute
   path to the playblast file
