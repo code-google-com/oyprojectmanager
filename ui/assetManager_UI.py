@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Mon Jan 25 16:21:38 2010
+# Created: Mon Jan 25 16:43:24 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -368,12 +368,15 @@ class Ui_MainWindow(object):
         self.assets_tableWidget1.setAlternatingRowColors(True)
         self.assets_tableWidget1.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.assets_tableWidget1.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.assets_tableWidget1.setShowGrid(False)
+        self.assets_tableWidget1.setGridStyle(QtCore.Qt.NoPen)
         self.assets_tableWidget1.setColumnCount(2)
         self.assets_tableWidget1.setObjectName("assets_tableWidget1")
         self.assets_tableWidget1.setColumnCount(2)
         self.assets_tableWidget1.setRowCount(0)
         self.assets_tableWidget1.horizontalHeader().setStretchLastSection(True)
         self.assets_tableWidget1.verticalHeader().setVisible(False)
+        self.assets_tableWidget1.verticalHeader().setDefaultSectionSize(19)
         self.verticalLayout_4.addWidget(self.assets_tableWidget1)
         self.openButtons_horizontalWidget = QtGui.QWidget(self.open_groupBox)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
