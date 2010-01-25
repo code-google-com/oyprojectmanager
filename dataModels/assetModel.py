@@ -757,8 +757,8 @@ class Asset(object):
         
         # get the file dates
         try:
-            self._dateCreated = time.strftime( self._timeFormat, time.gmtime( os.path.getctime( self._fullPath ) ) )
-            self._dateUpdated = time.strftime( self._timeFormat, time.gmtime( os.path.getmtime( self._fullPath ) ) )
+            self._dateCreated = time.strftime( self._timeFormat, time.localtime( os.path.getctime( self._fullPath ) ) )
+            self._dateUpdated = time.strftime( self._timeFormat, time.localtime( os.path.getmtime( self._fullPath ) ) )
         except OSError:
             pass
     
