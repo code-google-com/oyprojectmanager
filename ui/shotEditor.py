@@ -244,7 +244,7 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         self.shotData_tableWidget.setHorizontalHeaderLabels( self._horizontalLabels )
         
         for i,shot in enumerate(shots):
-            assert(isinstance(shot, projectModel.Shot) )
+            #assert(isinstance(shot, projectModel.Shot) )
             
             name = shot.name
             startFrame = str( shot.startFrame )

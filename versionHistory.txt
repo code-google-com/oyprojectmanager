@@ -7,6 +7,9 @@ v10.1.25
   item on the list and setting the item itself selected. So the item gets
   selected but the current item remains in a different item in the
   subName_listWidget. The same bug was existing in the baseName_listWidget too.
+- assetModel: Asset class now has methods for getting the creation and update
+  dates of the asset object
+- assetManager: assets are now listed with their update dates
 
 v10.1.23
 - mayaEnv: fixed setting of the playblast folder path, it should be an absolute

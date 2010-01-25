@@ -1,9 +1,9 @@
-import os, re
+import os, re, time
 import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "9.12.10"
+__version__ = "10.1.25"
 
 
 
@@ -39,6 +39,8 @@ class Asset(object):
         self._userInitials = None
         self._notes = None
         self._extension = u''
+        self._dateCreated = None
+        self._dateUpdated = None
         
         # path variables
         self._fileName = None #os.path.splitext(fileName)[0] # remove the extension
@@ -49,6 +51,8 @@ class Asset(object):
         self._hasBaseInfo = False
         
         self._dataSeparator = u'_'
+        
+        self._timeFormat = '%d.%m.%Y %H:%m'
         
         if fileName != None:
             self._fileName  = unicode( os.path.splitext(unicode(fileName))[0] ) # remove the extension
@@ -218,6 +222,8 @@ class Asset(object):
         self._hasFullInfo = self._hasBaseInfo = True
         
         self.setPathVariables()
+        
+        self._updateFileDates()
     
     
     
@@ -744,6 +750,20 @@ class Asset(object):
     
     
     
+    #----------------------------------------------------------------------
+    def _updateFileDates(self):
+        """updates the file creation and update dates
+        """
+        
+        # get the file dates
+        try:
+            self._dateCreated = time.strftime( self._timeFormat, time.gmtime( os.path.getctime( self._fullPath ) ) )
+            self._dateUpdated = time.strftime( self._timeFormat, time.gmtime( os.path.getmtime( self._fullPath ) ) )
+        except OSError:
+            pass
+    
+    
+    
     ##----------------------------------------------------------------------
     #def _validateExtension(self):
         #"""check if the extension is in the ignore list in the parent
@@ -810,6 +830,22 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
+    @property
+    def dateCreated(self):
+        """returns the date that the asset is created
+        """
+        
+    
+    #----------------------------------------------------------------------
+    @property
+    def dateUpdated(self):
+        """returns the date that the asset is updated
+        """
+        return self._dateUpdated
+    
+    
+    
+    #----------------------------------------------------------------------
     def getUserInitials(self):
         """returns user initials
         """
@@ -865,7 +901,9 @@ class Asset(object):
             
             if self._hasFullInfo:
                 self._exists = os.path.exists( self._fullPath )
-            
+                
+                self._updateFileDates()
+        
         else:
             self._exists = False
             self._baseExists = False

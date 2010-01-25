@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Sat Jan 16 11:52:59 2010
+# Created: Mon Jan 25 16:21:38 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(774, 876)
+        MainWindow.resize(881, 876)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -363,10 +363,18 @@ class Ui_MainWindow(object):
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.verticalLayout_4.addWidget(self.horizontalWidget1)
-        self.assets_listWidget1 = QtGui.QListWidget(self.open_groupBox)
-        self.assets_listWidget1.setAlternatingRowColors(True)
-        self.assets_listWidget1.setObjectName("assets_listWidget1")
-        self.verticalLayout_4.addWidget(self.assets_listWidget1)
+        self.assets_tableWidget1 = QtGui.QTableWidget(self.open_groupBox)
+        self.assets_tableWidget1.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.assets_tableWidget1.setAlternatingRowColors(True)
+        self.assets_tableWidget1.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.assets_tableWidget1.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.assets_tableWidget1.setColumnCount(2)
+        self.assets_tableWidget1.setObjectName("assets_tableWidget1")
+        self.assets_tableWidget1.setColumnCount(2)
+        self.assets_tableWidget1.setRowCount(0)
+        self.assets_tableWidget1.horizontalHeader().setStretchLastSection(True)
+        self.assets_tableWidget1.verticalHeader().setVisible(False)
+        self.verticalLayout_4.addWidget(self.assets_tableWidget1)
         self.openButtons_horizontalWidget = QtGui.QWidget(self.open_groupBox)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(1)
@@ -523,11 +531,6 @@ class Ui_MainWindow(object):
         self.numberOfEntry_spinBox.setStatusTip(QtGui.QApplication.translate("MainWindow", "maximum number of entry to view", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setStatusTip(QtGui.QApplication.translate("MainWindow", "maximum number of entry to view", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "entry", None, QtGui.QApplication.UnicodeUTF8))
-        self.assets_listWidget1.setToolTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
-        self.assets_listWidget1.setStatusTip(QtGui.QApplication.translate("MainWindow", "Lists all the versions of the current asset", None, QtGui.QApplication.UnicodeUTF8))
-        self.assets_listWidget1.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Asset List:\n"
-"\n"
-"All versions of the currently selected asset will be listed here...", None, QtGui.QApplication.UnicodeUTF8))
         self.open_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Opens the selected asset", None, QtGui.QApplication.UnicodeUTF8))
         self.open_button.setStatusTip(QtGui.QApplication.translate("MainWindow", "Opens the selected asset", None, QtGui.QApplication.UnicodeUTF8))
         self.open_button.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Open:\n"

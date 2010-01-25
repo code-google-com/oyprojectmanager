@@ -79,7 +79,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # setup signals
         self._setupSignals()
         
-        self.setDefaults()
+        self._setDefaults()
         self.updateProjectList()
         
         self.getSettingsFromEnvironment()
@@ -143,14 +143,14 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
         QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateSubNameField )
         
-        # subName change ---> full update assets_listWidget1
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsListWidget )
+        # subName change ---> full update assets_tableWidget1
+        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
+        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
+        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
+        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
         
-        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.fullUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.fullUpdateAssetsListWidget )
+        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.fullUpdateAssetsTableWidget )
+        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.fullUpdateAssetsTableWidget )
         
         # get latest revision --> revision
         QtCore.QObject.connect(self.revision_pushButton, QtCore.SIGNAL("clicked()"), self.updateRevisionToLatest )
@@ -174,9 +174,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateRevisionToLatest )
         QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateVersionToLatest )
         
-        # showLastNEntry_checkbox or numberOfEntry change ->partial update assets_listWidget1
-        QtCore.QObject.connect(self.showLastNEntry_checkBox, QtCore.SIGNAL("stateChanged(int)"), self.partialUpdateAssetsListWidget )
-        QtCore.QObject.connect(self.numberOfEntry_spinBox, QtCore.SIGNAL("valueChanged(int)"), self.partialUpdateAssetsListWidget )
+        # showLastNEntry_checkbox or numberOfEntry change -> partial update assets_tableWidget1
+        QtCore.QObject.connect(self.showLastNEntry_checkBox, QtCore.SIGNAL("stateChanged(int)"), self.partialUpdateAssetsTableWidget )
+        QtCore.QObject.connect(self.numberOfEntry_spinBox, QtCore.SIGNAL("valueChanged(int)"), self.partialUpdateAssetsTableWidget )
         
         # baseName_listWidget -> baseName_lineEdit
         # subName_listWidget -> subName_lineEdit
@@ -214,7 +214,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def setDefaults(self):
+    def _setDefaults(self):
         """sets the default values
         """
         
@@ -239,6 +239,10 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             userIndex = 0
         
         self.user_comboBox1.setCurrentIndex( userIndex )
+        
+        # add the assets_tableWidget1 horizontal header labels
+        self._horizontalLabels = [ 'Asset FileName', 'Date Updated' ]
+        self.assets_tableWidget1.setHorizontalHeaderLabels( self._horizontalLabels )
     
     
     
@@ -656,9 +660,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         currSGFIV = currentSequence.generateFakeInfoVariables
         allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
         
-        # append them to the asset list view
-        self.assets_listWidget1.clear()
-        
         if len(allVersionsList) > 0:
             self._versionListBuffer = sorted(allVersionsList)
         else:
@@ -667,28 +668,82 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     #----------------------------------------------------------------------
-    def partialUpdateAssetsListWidget(self):
+    def partialUpdateAssetsTableWidget(self):
         """just updates if the number of maximum displayable entry is changed
         """
         
-        self.assets_listWidget1.clear()
-        
+        _buffer = []
         if self.showLastNEntry_checkBox.isChecked():
-            # get the number of entry
             
+            # get the number of entry
             numOfEntry = min( len(self._versionListBuffer), self.numberOfEntry_spinBox.value() )
-            self.assets_listWidget1.addItems( self._versionListBuffer[-numOfEntry:] )
+            
+            # fill the list
+            _buffer = self._versionListBuffer[-numOfEntry:]
+            
         else:
-            self.assets_listWidget1.addItems( self._versionListBuffer )
+            _buffer = self._versionListBuffer 
+        
+        self.fillAssetsTableWidget( _buffer )
     
     
     
     #----------------------------------------------------------------------
-    def fullUpdateAssetsListWidget(self):
+    def fillAssetsTableWidget(self, assetFileNames):
+        """fills the assets table widget with given assets
+        """
+        
+        assetCount = len(assetFileNames)
+        
+        self.assets_tableWidget1.clear()
+        self.assets_tableWidget1.setRowCount( assetCount )
+        
+        # set the labels
+        self.assets_tableWidget1.setHorizontalHeaderLabels( self._horizontalLabels )
+        
+        data = []
+        
+        for i,assetFileName in enumerate(assetFileNames):
+            #assert( isinstance(asset, assetModel.Asset))
+            
+            asset = assetModel.Asset( self._project, self._sequence, assetFileName )
+            
+            fileName = asset.getFileName()
+            dateUpdated = asset.dateUpdated
+            
+            #print fileName, dateUpdated
+            data.append( ( asset, fileName, dateUpdated ) )
+            
+            # ------------------------------------
+            # asset fileName
+            assetFileName_tableWI = QtGui.QTableWidgetItem( fileName )
+            # align to left and verticle center
+            assetFileName_tableWI.setTextAlignment( 0x0001 | 0x0080  )
+            self.assets_tableWidget1.setItem( i, 0, assetFileName_tableWI )
+            # ------------------------------------
+            
+            # ------------------------------------
+            # asset dateUpdated
+            assetDateUpdated_tableWI = QtGui.QTableWidgetItem( dateUpdated )
+            # align to left and verticle center
+            assetDateUpdated_tableWI.setTextAlignment( 0x0004 | 0x0080  )
+            self.assets_tableWidget1.setItem( i, 1, assetDateUpdated_tableWI )
+            # ------------------------------------
+        
+        # check and create the table data attr
+        setattr( self.assets_tableWidget1, 'tableData', data )
+        
+        # resize the first column
+        self.assets_tableWidget1.resizeColumnToContents(0)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def fullUpdateAssetsTableWidget(self):
         """invokes a version list buffer update and a assets list widget update
         """
         self.updateVersionListBuffer()
-        self.partialUpdateAssetsListWidget()
+        self.partialUpdateAssetsTableWidget()
     
     
     
@@ -912,7 +967,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     def _createAssetObjectFromOpenFields(self):
         """retriewes the file name from the open asset fields
         """
-        assetFileName = self.assets_listWidget1.currentItem().text()
+        
+        index = self.assets_tableWidget1.currentIndex().column()
+        assetFileName = unicode(self.assets_tableWidget1.tableData[index][1])
         self._asset = assetModel.Asset( self._project, self._sequence, assetFileName )
         self._environment.asset = self._asset
     

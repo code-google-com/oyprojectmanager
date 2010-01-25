@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>774</width>
+    <width>881</width>
     <height>876</height>
    </rect>
   </property>
@@ -779,21 +779,36 @@ Exports the selected content to the server as an asset</string>
               </widget>
              </item>
              <item>
-              <widget class="QListWidget" name="assets_listWidget1">
-               <property name="toolTip">
-                <string>Lists all the versions of the current asset</string>
-               </property>
-               <property name="statusTip">
-                <string>Lists all the versions of the current asset</string>
-               </property>
-               <property name="whatsThis">
-                <string>Asset List:
-
-All versions of the currently selected asset will be listed here...</string>
+              <widget class="QTableWidget" name="assets_tableWidget1">
+               <property name="editTriggers">
+                <set>QAbstractItemView::NoEditTriggers</set>
                </property>
                <property name="alternatingRowColors">
                 <bool>true</bool>
                </property>
+               <property name="selectionMode">
+                <enum>QAbstractItemView::SingleSelection</enum>
+               </property>
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+               <property name="columnCount">
+                <number>2</number>
+               </property>
+               <attribute name="horizontalHeaderStretchLastSection">
+                <bool>true</bool>
+               </attribute>
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
+               <attribute name="horizontalHeaderStretchLastSection">
+                <bool>true</bool>
+               </attribute>
+               <column/>
+               <column/>
               </widget>
              </item>
              <item>
