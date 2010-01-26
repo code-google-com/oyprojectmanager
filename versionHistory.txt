@@ -3,6 +3,8 @@ Version History :
 v10.1.26
 - assetManager: the frame range warning was a little bit cumbersome, it is
   fixed now
+- assetManager: the interface was complaning about a wrong argument type while
+  filling the assets_tableWidget, it is now fixed
 
 v10.1.25
 - assetManager: fixed a bug which causes the subName_listWidget and

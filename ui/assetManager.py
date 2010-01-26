@@ -711,6 +711,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             fileName = asset.getFileName()
             dateUpdated = asset.dateUpdated
             
+            if fileName == None or dateUpdated == None:
+                continue
+            
             #print fileName, dateUpdated
             data.append( ( asset, fileName, dateUpdated ) )
             
@@ -1504,8 +1507,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             shotEnd = shot.endFrame
             
             if envStart != shotStart or envEnd != shotEnd:
-                answer = QtGui.QMessageBox.question(self, 'FrameRange Error', "</b><br><br>The current frame range is:<br><b>" + \
-                                                    str(envStart) + "-" + str(envEnd) + "The frame range of shot <b>" + shot.name + "</b> is:<br><b>" + \
+                answer = QtGui.QMessageBox.question(self, 'FrameRange Error', "The current frame range is:<br><b>" + \
+                                                    str(envStart) + "-" + str(envEnd) + "</b><br><br>The frame range of shot <b>" + shot.name + "</b> is:<br><b>" + \
                                                     str(shotStart) + "-" + str(shotEnd) + "</b><br><br>should your frame range be adjusted?", \
                                                     QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                 
