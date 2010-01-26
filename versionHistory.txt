@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.1.26
+- assetManager: the frame range warning was a little bit cumbersome, it is
+  fixed now
+
 v10.1.25
 - assetManager: fixed a bug which causes the subName_listWidget and
   subName_lineEdit displaying different texts, where the subName_listWidget's

@@ -10,7 +10,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.1.25"
+__version__ = "10.1.26"
 
 
 
@@ -1504,9 +1504,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             shotEnd = shot.endFrame
             
             if envStart != shotStart or envEnd != shotEnd:
-                answer = QtGui.QMessageBox.question(self, 'FrameRange Error', "The frame range of shot <b>" + shot.name + "</b> is:<br><b>" + \
-                                                    str(shotStart) + "-" + str(shotEnd) + "</b><br><br>The current frame range is:<br><b>" + \
-                                                    str(envStart) + "-" + str(envEnd) + "</b><br><br>should your frame range be adjusted?", \
+                answer = QtGui.QMessageBox.question(self, 'FrameRange Error', "</b><br><br>The current frame range is:<br><b>" + \
+                                                    str(envStart) + "-" + str(envEnd) + "The frame range of shot <b>" + shot.name + "</b> is:<br><b>" + \
+                                                    str(shotStart) + "-" + str(shotEnd) + "</b><br><br>should your frame range be adjusted?", \
                                                     QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                 
                 if answer == QtGui.QMessageBox.Yes:
