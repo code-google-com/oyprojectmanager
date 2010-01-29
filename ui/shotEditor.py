@@ -8,7 +8,8 @@ from oyProjectManager.ui import singletonQapplication
 from oyProjectManager.environments import environmentFactory
 
 
-__version__ = "10.1.11"
+
+__version__ = "10.1.28"
 
 
 
@@ -191,7 +192,7 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         # sequence_comboBox1
         project = projectModel.Project( unicode( self.project_comboBox1.currentText() ) )
         self.sequence_comboBox1.clear()
-        self.sequence_comboBox1.addItems( sorted(project.getSequenceNames()) )
+        self.sequence_comboBox1.addItems( sorted(project.sequenceNames()) )
         
         # restore selections
         sIndex = self.sequence_comboBox1.findText( sText )
@@ -230,7 +231,7 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         self.shotData_tableWidget.sequence = seq
         
         # get the shot data
-        shots = seq.getShots()
+        shots = seq.shots
         
         self.shotCount = len(shots)
         
@@ -358,7 +359,7 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         proj = self.shotData_tableWidget.project
         seq = self.shotData_tableWidget.sequence
         
-        shots = seq.getShots()
+        shots = seq.shots
         
         for i,item in enumerate(self._tableItems):
             # the table and the sequence settings should be in the same order

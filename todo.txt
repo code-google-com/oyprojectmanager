@@ -1,5 +1,8 @@
 TODO List :
 -----------
+- save a local copy of the asset to not to carry all the eggs in the same
+  basket
+
 - shotEditor is not working in Houdini
 
 - for non-asset files, nuke could not open the assetManager interface

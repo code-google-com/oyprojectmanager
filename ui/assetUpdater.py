@@ -8,7 +8,7 @@ from oyProjectManager.dataModels import assetModel, projectModel, repositoryMode
 from oyProjectManager.ui import singletonQapplication
 
 
-__version__ = "9.12.26"
+__version__ = "10.1.28"
 
 
 
@@ -230,7 +230,7 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
             
             # ------------------------------------
             # current version
-            currentVersionNumber = str(asset.getVersionNumber() )
+            currentVersionNumber = str( asset.versionNumber )
             currentVersion_tableWI = QtGui.QTableWidgetItem( currentVersionNumber )
             # align to horizontal and vertical center
             currentVersion_tableWI.setTextAlignment( 0x0004 | 0x0080  )
@@ -240,7 +240,7 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
             
             # ------------------------------------
             # last version
-            lastVersionNumber = str( asset.getLatestVersion2()[1] )
+            lastVersionNumber = str( asset.latestVersion2[1] )
             lastVersion_tableWI = QtGui.QTableWidgetItem( lastVersionNumber )
             # align to horizontal and vertical center
             lastVersion_tableWI.setTextAlignment( 0x0004 | 0x0080 )

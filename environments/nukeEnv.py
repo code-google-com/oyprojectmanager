@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel, abstractClasse
 
 
 
-__version__ = "10.1.14"
+__version__ = "10.1.28"
 
 
 
@@ -50,9 +50,9 @@ class NukeEnvironment(abstractClasses.Environment):
         """
         
         # set the extension to 'nk'
-        self._asset.setExtension( 'nk' )
+        self._asset.extension = 'nk'
         
-        fullPath = self._asset.getFullPath()
+        fullPath = self._asset.fullPath
         fullPath = fullPath.replace('\\','/')
         
         nuke.scriptSaveAs( fullPath )
@@ -67,9 +67,9 @@ class NukeEnvironment(abstractClasses.Environment):
         """
         
         # set the extension to 'nk'
-        self._asset.setExtension('nk')
+        self._asset.extension = 'nk'
         
-        fullPath = self._asset.getFullPath()
+        fullPath = self._asset.fullPath
         
         # replace \\ with /
         fullPath = fullPath.replace('\\','/')
@@ -85,7 +85,7 @@ class NukeEnvironment(abstractClasses.Environment):
         """the open action for nuke environment
         """
         
-        fullPath = self._asset.getFullPath()
+        fullPath = self._asset.fullPath
         
         # replace \\ with /
         fullPath = fullPath.replace('\\','/')
@@ -100,7 +100,7 @@ class NukeEnvironment(abstractClasses.Environment):
         """the import action for nuke environment
         """
         
-        fullPath = self._asset.getFullPath()
+        fullPath = self._asset.fullPath
         
         # replace \\ with /
         fullPath = fullPath.replace('\\','/')

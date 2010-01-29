@@ -6,7 +6,7 @@ from oyProjectManager.dataModels import assetModel, userModel, repositoryModel
 
 
 
-__version__ = "10.1.11"
+__version__ = "10.1.28"
 
 
 
@@ -71,7 +71,7 @@ class Project(object):
     
     #----------------------------------------------------------------------
     @cache.CachedMethod
-    def getSequenceNames(self):
+    def sequenceNames(self):
         """returns the sequence names of that project
         """
         self.updateSequenceList()
@@ -81,7 +81,7 @@ class Project(object):
     
     #----------------------------------------------------------------------
     @cache.CachedMethod
-    def getSequences(self):
+    def sequences(self):
         """returns the sequences as sequence objects
         
         don't use it offen, because it causes the system to parse all the sequence settings
@@ -110,13 +110,34 @@ class Project(object):
     
     
     #----------------------------------------------------------------------
-    def getFullPath(self):
+    @property
+    def fullPath(self):
+        """reutrns the fullPath
+        """
         return self._fullPath
     
     
     
     #----------------------------------------------------------------------
-    def getRepository(self):
+    @property
+    def path(self):
+        """returns the path
+        """
+        return self._path
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def name(self):
+        """returnns the name
+        """
+        return self._name
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getRepository(self):
         """returns the current project repository object
         """
         return self._repository
@@ -124,7 +145,7 @@ class Project(object):
     
     
     #----------------------------------------------------------------------
-    def setRepository(self, repository ):
+    def _setRepository(self, repository ):
         """sets the project repository object
         """
         
@@ -133,13 +154,7 @@ class Project(object):
         # reset the path variables
         self._initPathVariables
     
-    
-    
-    #----------------------------------------------------------------------
-    def getName(self):
-        """ returns the name of the project
-        """
-        return self._name
+    repository = property( _getRepository, _setRepository )
     
     
     
@@ -180,11 +195,11 @@ class Sequence(object):
         assert(isinstance(project, Project) )
         
         self._parentProject = project
-        self._repository = self._parentProject.getRepository()
+        self._repository = self._parentProject.repository
         
         self._name = oyAux.stringConditioner( sequenceName, False, True, False, True, True, False )
         
-        self._path = self._parentProject.getFullPath()
+        self._path = self._parentProject.fullPath
         self._fullPath = os.path.join( self._path, self._name )
         
         self._settingsFile = ".settings.xml"
@@ -347,8 +362,8 @@ class Sequence(object):
             shotIndependentFoldersList = [ oyAux.fixWindowsPath(path) for path in shotIndependentFoldersList]
         
         # set the structure
-        self._structure.setShotDependentFolders( shotDependentFoldersList )
-        self._structure.setShotIndependentFolders( shotIndependentFoldersList )
+        self._structure.shotDependentFolders = shotDependentFoldersList
+        self._structure.shotIndependentFolders = shotIndependentFoldersList
         
         # read the output folders node
         outputFoldersNode = structureNode.getElementsByTagName('outputFolders')[0]
@@ -521,8 +536,8 @@ class Sequence(object):
         # SHOT DEPENDENT / INDEPENDENT FOLDERS
         #----------------------------------------------------------------------
         # create shot dependent/independent folders
-        shotDependentNodeText.data = '\n'.join( self._structure.getShotDependentFolders() ).replace('\\','/')
-        shotIndependentNodeText.data = '\n'.join( self._structure.getShotIndependentFolders() ).replace('\\','/')
+        shotDependentNodeText.data = '\n'.join( self._structure.shotDependentFolders ).replace('\\','/')
+        shotIndependentNodeText.data = '\n'.join( self._structure.shotIndependentFolders ).replace('\\','/')
         #----------------------------------------------------------------------
         
         
@@ -568,11 +583,11 @@ class Sequence(object):
         for aType in self._assetTypes:
             #assert( isinstance( aType, assetModel.AssetType ) )
             typeNode = minidom.Element('type')
-            typeNode.setAttribute( 'name', aType.getName() )
-            typeNode.setAttribute( 'path', aType.getPath().replace('\\','/') )
-            typeNode.setAttribute( 'shotDependent', unicode( int( aType.isShotDependent() ) ) )
-            typeNode.setAttribute( 'playblastFolder', aType.getPlayblastFolder().replace('\\','/') )
-            typeNode.setAttribute( 'environments', ",".join( aType.getEnvironments() ) )
+            typeNode.setAttribute( 'name', aType.name )
+            typeNode.setAttribute( 'path', aType.path.replace('\\','/') )
+            typeNode.setAttribute( 'shotDependent', unicode( int( aType.isShotDependent ) ) )
+            typeNode.setAttribute( 'playblastFolder', aType.playblastFolder.replace('\\','/') )
+            typeNode.setAttribute( 'environments', ",".join( aType.environments ) )
             
             assetTypesNode.appendChild( typeNode )
         #----------------------------------------------------------------------
@@ -583,7 +598,7 @@ class Sequence(object):
         # OUTPUT FOLDERS
         #----------------------------------------------------------------------
         outputFoldersNode = minidom.Element('outputFolders')
-        for fTuple in self._structure.getOutputFolders():
+        for fTuple in self._structure.outputFolders:
             
             outputNode = minidom.Element('output')
             outputNode.setAttribute( 'name', fTuple[0] )
@@ -625,6 +640,26 @@ class Sequence(object):
             settingsXML.writexml( settingsFile, "\t", "\t", "\n" )
             settingsFile.close()
             self._settingsFileExists = True
+        
+        return
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def shotPadding(self):
+        """returns teh shotPadding
+        """
+        return self._shotPadding
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def shotPrefix(self):
+        """returns the shotPrefix
+        """
+        return self._shotPrefix
     
     
     
@@ -737,7 +772,7 @@ class Sequence(object):
         """
         
         # get the shot list
-        shotList = self.getShotList()
+        shotList = self.shotList
         alternateLetters = 'ABCDEFGHIJKLMNOPRSTUVWXYZ'
         
         for letter in alternateLetters:
@@ -760,7 +795,7 @@ class Sequence(object):
             return
         
         #for folder in self._shotFolders:
-        for folder in self._structure.getShotDependentFolders():
+        for folder in self._structure.shotDependentFolders:
             for shotNumber in self._shotList:
                 # get a shotString for that number
                 shotString = self.convertToShotString( shotNumber )
@@ -776,19 +811,21 @@ class Sequence(object):
     
     
     
-    #----------------------------------------------------------------------
-    def getShotFolders(self):
-        """returns the shot folder paths
-        """
-        if not self._exists:
-            return
+    ##----------------------------------------------------------------------
+    #@property
+    #def shotFolders(self):
+        #"""returns the shot folder paths
+        #"""
+        #if not self._exists:
+            #return
         
-        return self._structure.getShotDependentFolders()
+        #return self._structure.shotDependentFolders
     
     
     
     #----------------------------------------------------------------------
-    def getShots(self):
+    @property
+    def shots(self):
         """returns the shot objects as a list
         """
         return self._shots
@@ -809,7 +846,8 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def getShotList(self):
+    @property
+    def shotList(self):
         """returns the shot list object
         """
         return self._shotList
@@ -817,7 +855,8 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def getStructure(self):
+    @property
+    def structure(self):
         """returns the structure object
         """
         return self._structure
@@ -834,10 +873,10 @@ class Sequence(object):
         createFolder = oyAux.createFolder
         
         # create the structure
-        for folder in self._structure.getShotDependentFolders():
+        for folder in self._structure.shotDependentFolders:
             createFolder( os.path.join( self._fullPath, folder ) )
         
-        for folder in self._structure.getShotIndependentFolders():
+        for folder in self._structure.shotIndependentFolders:
             createFolder( os.path.join( self._fullPath, folder ) )
     
     
@@ -975,7 +1014,7 @@ class Sequence(object):
             
             for aType in self._assetTypes:
                 #assert(isinstance(aType, assetModel.AssetType) )
-                if environment in aType.getEnvironments():
+                if environment in aType.environments:
                     aTypesList.append( aType )
             
             return aTypesList
@@ -990,7 +1029,7 @@ class Sequence(object):
         """
         
         for aType in self._assetTypes:
-            if aType.getName() == typeName:
+            if aType.name == typeName:
                 return aType
         
         return None
@@ -998,15 +1037,8 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def getName(self):
-        """returns the name of the sequence
-        """
-        return self._name
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getPath(self):
+    @property
+    def path(self):
         """returns the path of the sequence
         """
         return self._path
@@ -1014,7 +1046,8 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def getFullPath(self):
+    @property
+    def fullPath(self):
         """returns the full path of the sequence
         """
         return self._fullPath
@@ -1022,7 +1055,8 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def getProject(self):
+    @property
+    def project(self):
         """returns the parent project
         """
         return self._parentProject
@@ -1030,10 +1064,11 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def getProjectName(self):
+    @property
+    def projectName(self):
         """returns the parent projects name
         """
-        return self._parentProject.getName()
+        return self._parentProject.name
     
     
     
@@ -1048,7 +1083,7 @@ class Sequence(object):
         
         for aType in self._assetTypes:
             #assert(isinstance(aType, AssetType))
-            assetFolders.append( aType.getPath() )
+            assetFolders.append( aType.path )
         
         return assetFolders
     
@@ -1083,7 +1118,7 @@ class Sequence(object):
         assetModelAsset = assetModel.Asset
         assetsAppend = assets.append
         selfFullPath = self._fullPath
-        selfProject = self.getProject()
+        selfProject = self.project
         
         # for each folder search child folders
         for folder in assetFolders:
@@ -1119,7 +1154,7 @@ class Sequence(object):
                     matchedAssets = map( assetModelAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
                     
                     # append them to the main assets list
-                    [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset() ]
+                    [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset ]
         
         return assets
     
@@ -1145,7 +1180,7 @@ class Sequence(object):
         aType = self.getAssetTypeWithName( typeName )
         
         #assert(isinstance(aType,assetModel.AssetType))
-        assetFolder = aType.getPath()
+        assetFolder = aType.path
         
         # optimization variables
         osPathExists = os.path.exists
@@ -1157,7 +1192,7 @@ class Sequence(object):
         assetModelAsset = assetModel.Asset
         assetsAppend = assets.append
         selfFullPath = self._fullPath
-        selfProject = self.getProject()
+        selfProject = self.project
         
         fullPath = osPathJoin( selfFullPath, assetFolder)
         
@@ -1191,7 +1226,7 @@ class Sequence(object):
                 matchedAssets = map( assetModelAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
                 
                 # append them to the main assets list
-                [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset() ]
+                [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset ]
         return assets
     
     
@@ -1214,7 +1249,7 @@ class Sequence(object):
         aType = self.getAssetTypeWithName( typeName )
         
         #assert(isinstance(aType,assetModel.AssetType))
-        assetFolder = aType.getPath()
+        assetFolder = aType.path
         
         # optimization variables
         osPathExists = os.path.exists
@@ -1224,7 +1259,7 @@ class Sequence(object):
         globGlob = glob.glob
         assetFilesAppend = assetFiles.append
         selfFullPath = self._fullPath
-        selfProject = self.getProject()
+        selfProject = self.project
         
         fullPath = osPathJoin( selfFullPath, assetFolder)
         
@@ -1292,7 +1327,7 @@ class Sequence(object):
         
         # get the asset folder
         aType = self.getAssetTypeWithName( typeName )
-        assetFolder = aType.getPath()
+        assetFolder = aType.path
         
         # optimization variables
         osPathJoin = os.path.join
@@ -1338,7 +1373,7 @@ class Sequence(object):
             matchedAssets = map( assetModelAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
             
             # append them to the main assets list
-            [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset() ]
+            [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset ]
         
         return assets
     
@@ -1353,7 +1388,7 @@ class Sequence(object):
         
         ##assert(isinstance(aType,assetModel.AssetType))
         
-        #typeFolder = aType.getPath
+        #typeFolder = aType.path
         
         #os.listdir( typeFolder )
     
@@ -1385,7 +1420,7 @@ class Sequence(object):
                 newKwargs[k] = kwargs[k]
         
         # get all the info variables of the assets
-        assetInfos = map( assetModel.Asset.getInfoVariables, assetList )
+        assetInfos = map( assetModel.Asset.infoVariables, assetList )
         
         filteredAssetInfos = self.aFilter( assetInfos, **kwargs)
         
@@ -1460,23 +1495,8 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def getRevPrefix(self):
-        """returns revPrefix
-        """
-        return self._revPrefix
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getVerPrefix(self):
-        """returns verPrefix
-        """
-        return self._verPrefix
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getInvalidExtensions(self):
+    @property
+    def invalidExtensions(self):
         """returns invalid extensions for the sequence
         """
         return self._extensionsToIgnore
@@ -1540,6 +1560,24 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @property
+    def revPadding(self):
+        """returns the revPadding
+        """
+        return self._revPadding
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def revPrefix(self):
+        """returns the revPrefix
+        """
+        return self._revPrefix
+    
+    
+    
+    #----------------------------------------------------------------------
     def addNewAssetType(self, name='', path='', shotDependent=False, playblastFolder='', environments=None):
         """adds a new asset type to the sequence
         
@@ -1551,7 +1589,7 @@ class Sequence(object):
         # check if there is allready an assetType with the same name
         
         # get the names of the asset types and convert them to upper case
-        assetTypeName = [ assetType.getName().upper() for assetType in self._assetTypes ]
+        assetTypeName = [ assetType.name.upper() for assetType in self._assetTypes ]
         
         if name.upper() not in assetTypeName:
             # create the assetType object with the input
@@ -1624,12 +1662,39 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @property
+    def name(self):
+        """returns the sequence name
+        """
+        return self._name
+        
+    
+    
+    #----------------------------------------------------------------------
     def noSubNameField(self):
         """returns True if the sequence doesn't support subName fields (old-style)
         """
         
         return self._noSubNameField
     
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def verPadding(self):
+        """rerturns the verPadding
+        """
+        return self._verPadding
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def verPrefix(self):
+        """returns the verPrefix
+        """
+        return self._verPrefix
+        
     
     
     #----------------------------------------------------------------------
@@ -1682,33 +1747,6 @@ class Structure(object):
     
     
     #----------------------------------------------------------------------
-    def setShotDependentFolders(self, folders):
-        """sets shot dependent folders
-        """
-        self._shotDependentFolders = folders
-    
-    
-    
-    #----------------------------------------------------------------------
-    def setShotIndependentFolders(self, folders):
-        """sets shot independent folders
-        """
-        self._shotIndependentFolders = folders
-    
-    
-    
-    #----------------------------------------------------------------------
-    def setOutputFolders(self, folders):
-        """sets the output folders from a dictionary
-        folders should be a list of tuples, the first element of the tuple
-        should contain the name and the second should contain the path of that
-        output folder
-        """
-        self._outputFolders = folders
-    
-    
-    
-    #----------------------------------------------------------------------
     def addOutputFolder(self, name, path):
         """adds new output folder to the structure
         """
@@ -1748,15 +1786,24 @@ class Structure(object):
     
     
     #----------------------------------------------------------------------
-    def getShotDependentFolders(self):
+    def _getShotDependentFolders(self):
         """returns shot dependent folders as list
         """
         return self._shotDependentFolders
     
     
+    #----------------------------------------------------------------------
+    def _setShotDependentFolders(self, folders):
+        """sets shot dependent folders
+        """
+        self._shotDependentFolders = folders
+    
+    shotDependentFolders = property( _getShotDependentFolders, _setShotDependentFolders )
+    
+    
     
     #----------------------------------------------------------------------
-    def getShotIndependentFolders(self):
+    def _getShotIndependentFolders(self):
         """returns shot independent folders as list
         """
         return self._shotIndependentFolders
@@ -1764,10 +1811,33 @@ class Structure(object):
     
     
     #----------------------------------------------------------------------
-    def getOutputFolders(self):
+    def _setShotIndependentFolders(self, folders):
+        """sets shot independent folders
+        """
+        self._shotIndependentFolders = folders
+    
+    shotIndependentFolders = property( _getShotIndependentFolders, _setShotIndependentFolders )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getOutputFolders(self):
         """returns the output folders as a dictionary
         """
         return self._outputFolders
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setOutputFolders(self, folders):
+        """sets the output folders from a dictionary
+        folders should be a list of tuples, the first element of the tuple
+        should contain the name and the second should contain the path of that
+        output folder
+        """
+        self._outputFolders = folders
+    
+    outputFolders = property( _getOutputFolders, _setOutputFolders )
     
     
     

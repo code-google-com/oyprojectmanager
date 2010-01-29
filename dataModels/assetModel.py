@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.1.25"
+__version__ = "10.1.28"
 
 
 
@@ -63,6 +63,28 @@ class Asset(object):
         self._baseExists = False
         
         self.updateExistancy()
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def infoVariables(self):
+        """returns the info variables as a dictionary
+        """
+        
+        infoVars = dict()
+        infoVars['baseName'] = self._baseName
+        infoVars['subName'] = self._subName
+        infoVars['typeName'] = self._type.name
+        infoVars['rev'] = self._rev
+        infoVars['revString'] = self._revString
+        infoVars['ver'] = self._ver
+        infoVars['verString'] = self._verString
+        infoVars['userInitials'] = self._userInitials
+        infoVars['notes'] = self._notes
+        infoVars['fileName'] = self._fileName
+        
+        return infoVars
     
     
     
@@ -135,29 +157,8 @@ class Asset(object):
                     self._hasFullInfo = True
         
         # get path variables
-        self.setPathVariables()
+        self._initPathVariables()
         self.updateExistancy()
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getInfoVariables(self):
-        """returns the info variables as a dictionary
-        """
-        
-        infoVars = dict()
-        infoVars['baseName'] = self._baseName
-        infoVars['subName'] = self._subName
-        infoVars['typeName'] = self._type.getName()
-        infoVars['rev'] = self._rev
-        infoVars['revString'] = self._revString
-        infoVars['ver'] = self._ver
-        infoVars['verString'] = self._verString
-        infoVars['userInitials'] = self._userInitials
-        infoVars['notes'] = self._notes
-        infoVars['fileName'] = self._fileName
-        
-        return infoVars
     
     
     
@@ -221,68 +222,15 @@ class Asset(object):
         
         self._hasFullInfo = self._hasBaseInfo = True
         
-        self.setPathVariables()
+        self._initPathVariables()
         
         self._updateFileDates()
     
     
     
     #----------------------------------------------------------------------
-    def setPathVariables(self):
-        """sets path variables
-        needs the info variables to be set before
-        """
-        
-        # if it has just the base info update some of the variables
-        if self._hasBaseInfo:
-            seqFullPath = self._parentSequence.getFullPath()
-            
-            typeFolder = self._type.getPath()
-            #try:
-                #typeFolder = self._type.getPath()
-            #except AttributeError:
-                #justCnt = 20
-                #print "fileName".ljust( justCnt ), ": ", self._fileName
-                #print "baseName".ljust( justCnt ), ": ", self._baseName
-                #print "subName".ljust( justCnt ), ": ", self._subName
-                #print "typeName".ljust( justCnt ), ": ", self._typeName
-                #print "revString".ljust( justCnt ), ": ", self._revString
-                #print "verString".ljust( justCnt ), ": ", self._verString
-                #print "userInitials".ljust( justCnt ), ": ", self._userInitials
-                #print "parent sequence".ljust( justCnt ), ": ", self._parentSequence.getName()
-                #print "parent project".ljust( justCnt ), ": ", self._parentProject.getName()
-                #raise
-            
-            self._path = os.path.join( seqFullPath, typeFolder)
-            self._path = os.path.join( self._path, self._baseName )
-            
-            # if it has full info update the rest of the variables
-            if self._hasFullInfo:
-                
-                self._fileName = self.getFileName()
-                self._fullPath = os.path.join( self._path, self._fileName )
-                
-                self.updateExistancy()
-    
-    
-    
-    #----------------------------------------------------------------------
-    def setExtension(self, extension):
-        """sets the extension of the asset object
-        """
-        
-        #assert(isinstance(extension,str))
-        
-        # remove any extension separetors at from the input extension
-        finalExtension = extension.split( os.path.extsep )[-1]
-        
-        self._extension = finalExtension
-        self.setPathVariables()
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getFullPath(self):
+    @property
+    def fullPath(self):
         """returns the fullPath of the asset
         """
         return self._fullPath
@@ -290,7 +238,8 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getParentSequence(self):
+    @property
+    def parentSequence(self):
         """returns the parent sequence
         """
         #from oyProjectManager.dataModels import projectModel
@@ -300,7 +249,8 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getPath(self):
+    @property
+    def path(self):
         """retrurns the path of the asset
         """
         return self._path
@@ -308,7 +258,7 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getExtension(self):
+    def _getExtension(self):
         """returns the extension
         """
         return self._extension
@@ -316,11 +266,28 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getFileName(self):
+    def _setExtension(self, extension):
+        """sets the extension of the asset object
+        """
+        
+        #assert(isinstance(extension,str))
+        
+        # remove any extension separetors at from the input extension
+        finalExtension = extension.split( os.path.extsep )[-1]
+        
+        self._extension = finalExtension
+        self._initPathVariables()
+    
+    extension = property( _getExtension, _setExtension )
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def fileName(self):
         """gathers the info variables to a fileName
         """
         
-        fileName = self.getFileNameWithoutExtension()
+        fileName = self.fileNameWithoutExtension
         
         if self._extension != None and self._extension != '':
             fileName = fileName + os.extsep + self._extension
@@ -330,11 +297,12 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getFileNameWithoutExtension(self):
+    @property
+    def fileNameWithoutExtension(self):
         """returns the file name without extension
         """
         
-        if not self.isValidAsset():
+        if not self.isValidAsset:
             return None
         
         parts = [] * 0
@@ -343,7 +311,7 @@ class Asset(object):
         if not self._parentSequence._noSubNameField:
             parts.append( self._subName )
         
-        parts.append( self._type.getName() )
+        parts.append( self._type.name )
         parts.append( self._revString )
         parts.append( self._verString )
         parts.append( self._userInitials )
@@ -359,18 +327,59 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getPathVariables(self):
+    @property
+    def pathVariables(self):
         """returns the path variables which are
         fullPath
         path
         fileName
         """
-        return self.getFullPath(), self.getPath(), self.getFileName()
+        return self.fullPath, self.path, self.fileName
     
     
     
     #----------------------------------------------------------------------
-    def getAllVersions(self):
+    def _initPathVariables(self):
+        """sets path variables
+        needs the info variables to be set before
+        """
+        
+        # if it has just the base info update some of the variables
+        if self._hasBaseInfo:
+            seqFullPath = self._parentSequence.fullPath
+            
+            typeFolder = self._type.path
+            #try:
+                #typeFolder = self._type.path
+            #except AttributeError:
+                #justCnt = 20
+                #print "fileName".ljust( justCnt ), ": ", self._fileName
+                #print "baseName".ljust( justCnt ), ": ", self._baseName
+                #print "subName".ljust( justCnt ), ": ", self._subName
+                #print "typeName".ljust( justCnt ), ": ", self._typeName
+                #print "revString".ljust( justCnt ), ": ", self._revString
+                #print "verString".ljust( justCnt ), ": ", self._verString
+                #print "userInitials".ljust( justCnt ), ": ", self._userInitials
+                #print "parent sequence".ljust( justCnt ), ": ", self._parentSequence.name
+                #print "parent project".ljust( justCnt ), ": ", self._parentProject.name
+                #raise
+            
+            self._path = os.path.join( seqFullPath, typeFolder)
+            self._path = os.path.join( self._path, self._baseName )
+            
+            # if it has full info update the rest of the variables
+            if self._hasFullInfo:
+                
+                self._fileName = self.fileName
+                self._fullPath = os.path.join( self._path, self._fileName )
+                
+                self.updateExistancy()
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def allVersions(self):
         """returns all versions as a list of asset objects
         """
         # return if we can't even get some little information
@@ -385,7 +394,7 @@ class Asset(object):
         sSeq = self._parentSequence
         #assert(isinstance(selfseq,projectModel.Sequence))
         
-        assetVersionNames = self.getAllVersionNames()
+        assetVersionNames = self.allVersionNames
         
         sProjList = [sProj] * len(assetVersionNames)
         sSeqList = [sSeq] * len(assetVersionNames)
@@ -395,7 +404,8 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getAllVersionNames(self):
+    @property
+    def allVersionNames(self):
         """returns all version names for that asset as a list of string
         """
         
@@ -439,12 +449,13 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getSequenceFullPath(self):
+    @property
+    def sequenceFullPath(self):
         """returns the parent sequence full path
         """
         #from oyProjectManager.dataModels import projectModel
         #assert(isinstance(self._parentSequence, projectModel.Sequence))
-        return self._parentSequence.getFullPath()
+        return self._parentSequence.fullPath
     
     
     
@@ -456,12 +467,13 @@ class Asset(object):
         #"""
         #from oyProjectManager.dataModels import projectModel
         #assert(isinstance(self._parentProject, projectModel.Project))
-        #return self._parentProject.getFullPath()
+        #return self._parentProject.fullPath
     
     
     
     #----------------------------------------------------------------------
-    def getLatestVersion(self):
+    @property
+    def latestVersion(self):
         """returns the lastest version of an asset as an asset object and the number as an integer
         if the asset file doesn't exists yet it returns None, None
         """
@@ -469,7 +481,7 @@ class Asset(object):
         if not self._baseExists:
             return None, None
         
-        allVersions = self.getAllVersions()
+        allVersions = self.allVersions
         
         if len(allVersions) == 0:
             return None, None
@@ -479,7 +491,7 @@ class Asset(object):
         maxVerAsset = self
         
         for asset in allVersions:
-            currentVerNumber = asset.getVersionNumber()
+            currentVerNumber = asset.versionNumber
             
             if currentVerNumber > maxVerNumber:
                 maxVerNumber = currentVerNumber
@@ -490,7 +502,8 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getLatestVersion2(self):
+    @property
+    def latestVersion2(self):
         """the second version of the older one, it uses file names instead of
         asset objects.
         
@@ -502,7 +515,7 @@ class Asset(object):
             return None, None
         
         # get all version names
-        allVersionNames = self.getAllVersionNames()
+        allVersionNames = self.allVersionNames
         
         # return the last one as an asset
         if len(allVersionNames) > 0:
@@ -510,12 +523,13 @@ class Asset(object):
         else:
             return None, None
         
-        return assetObj, assetObj.getVersionNumber()
+        return assetObj, assetObj.versionNumber
     
     
     
     #----------------------------------------------------------------------
-    def getLatestRevision(self):
+    @property
+    def latestRevision(self):
         """returns the latest revision of an asset as an asset object and the number as an integer
         if the asset doesn't exists yet it returns None, None
         """
@@ -523,7 +537,7 @@ class Asset(object):
         if not self._baseExists:
             return None, None
         
-        allVersions = self.getAllVersions()
+        allVersions = self.allVersions
         
         if len(allVersions) == 0:
             return None, None
@@ -533,7 +547,7 @@ class Asset(object):
         maxRevAsset = self
         
         for asset in allVersions:
-            currentRevNumber = asset.getRevisionNumber()
+            currentRevNumber = asset.revisionNumber
             
             if currentRevNumber > maxRevNumber:
                 maxRevNumber = currentRevNumber
@@ -544,7 +558,8 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getLatestRevision2(self):
+    @property
+    def latestRevision2(self):
         """the second version of the older one, it uses file names instead of
         asset objects.
         
@@ -556,12 +571,12 @@ class Asset(object):
             return None, None
         
         # get all version names
-        allVersionNames = self.getAllVersionNames()
+        allVersionNames = self.allVersionNames
         
         # return the last one as an asset
         assetObj = Asset( self._parentProject, self._parentSequence, allVersionNames[-1] )
         
-        return assetObj, assetObj.getRevisionNumber()
+        return assetObj, assetObj.revisionNumber
     
     
     
@@ -574,10 +589,10 @@ class Asset(object):
         if not self._baseExists:
             return True
         
-        latestAssetObject, latestVersionNumber = self.getLatestVersion2()
+        latestAssetObject, latestVersionNumber = self.latestVersion2
         
         # return True if it is the last in the list
-        if self.getVersionNumber() < latestVersionNumber:
+        if self.versionNumber < latestVersionNumber:
             return False
         
         return True
@@ -592,9 +607,9 @@ class Asset(object):
         if not self._baseExists:
             return True
         
-        latestAssetObject, latestVersionNumber = self.getLatestVersion2()
+        latestAssetObject, latestVersionNumber = self.latestVersion2
         
-        if self.getVersionNumber() <= latestVersionNumber:
+        if self.versionNumber <= latestVersionNumber:
             return False
         
         return True
@@ -610,10 +625,10 @@ class Asset(object):
         if not self._baseExists:
             return True
         
-        latestAssetObject, latestRevisionNumber = self.getLatestRevision2()
+        latestAssetObject, latestRevisionNumber = self.latestRevision2
         
         # return True if it is the last in the list
-        if self.getRevisionNumber() < latestRevisionNumber:
+        if self.revisionNumber < latestRevisionNumber:
             return False
         
         return True
@@ -629,9 +644,9 @@ class Asset(object):
         if not self._baseExists:
             return True
         
-        latestAssetObject, latestRevisionNumber = self.getLatestRevision2()
+        latestAssetObject, latestRevisionNumber = self.latestRevision2
         
-        if self.getRevisionNumber() <= latestRevisionNumber:
+        if self.revisionNumber <= latestRevisionNumber:
             return False
         
         return True
@@ -643,10 +658,10 @@ class Asset(object):
         """sets the version number to the latest number + 1
         """
         
-        latestAsset, latestVersionNumber = self.getLatestVersion2()
+        latestAsset, latestVersionNumber = self.latestVersion2
         self._ver = latestVersionNumber + 1
         self._verString = self._parentSequence.convertToVerString( self._ver )
-        self.setPathVariables()
+        self._initPathVariables()
     
     
     
@@ -655,10 +670,10 @@ class Asset(object):
         """sets the revision number to the latest number
         """
         
-        latestAsset, latestRevisionNumber = self.getLatestRevision2()
+        latestAsset, latestRevisionNumber = self.latestRevision2
         self._rev = latestRevisionNumber
         self._revString = self._parentSequence.convertToRevString( self._rev )
-        self.setPathVariables()
+        self._initPathVariables()
     
     
     
@@ -668,7 +683,7 @@ class Asset(object):
         """
         self._ver += 1
         self._verString = self._parentSequence.convertToVerString( self._ver )
-        self.setPathVariables()
+        self._initPathVariables()
     
     
     
@@ -678,19 +693,21 @@ class Asset(object):
         """
         self._rev += 1
         self._revString = self._parentSequence.convertToRevString( self._rev )
-        self.setPathVariables()
+        self._initPathVariables()
     
     
     
     #----------------------------------------------------------------------
+    @property
     def isShotDependent(self):
         """returns True if the asset is shot dependent
         """
-        return self._type.isShotDependent()
+        return self.type.isShotDependent
     
     
     
     #----------------------------------------------------------------------
+    @property
     def isValidAsset(self):
         """returns True if this file is an Asset False otherwise
         """
@@ -773,7 +790,8 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getVersionNumber(self):
+    @property
+    def versionNumber(self):
         """returns the version number of the asset
         """
         return self._ver
@@ -781,24 +799,27 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getRevisionNumber(self):
+    @property
+    def revisionNumber(self):
         """returns the revsion number of the asset
         """
         return self._rev
     
     
     #----------------------------------------------------------------------
-    def getShotNumber(self):
+    @property
+    def shotNumber(self):
         """returns the shot number of the asset if the asset is shot dependent
         """
         
-        if self.isShotDependent():
+        if self.isShotDependent:
             return self._parentSequence.convertToShotNumber( self._baseName )
     
     
     
     #----------------------------------------------------------------------
-    def getVersionString(self):
+    @property
+    def versionString(self):
         """returns the version string of the asset
         """
         return self._verString
@@ -806,7 +827,8 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getRevisionString(self):
+    @property
+    def revisionString(self):
         """returns the revision string of the asset
         """
         return self._revString
@@ -814,18 +836,11 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getType(self):
+    @property
+    def type(self):
         """returns the asset type as an assetType object
         """
         return self._type
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getTypeName(self):
-        """returns asset type
-        """
-        return self._type.getName()
     
     
     
@@ -846,7 +861,8 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getUserInitials(self):
+    @property
+    def userInitials(self):
         """returns user initials
         """
         return self._userInitials
@@ -854,14 +870,16 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getBaseName(self):
+    @property
+    def baseName(self):
         """returns the base name of the asset
         """
         return self._baseName
     
     
     #----------------------------------------------------------------------
-    def getSubName(self):
+    @property
+    def subName(self):
         """returns the sub name of the asset
         """
         return self._subName
@@ -869,7 +887,8 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
-    def getNotes(self):
+    @property
+    def notes(self):
         """returns 
         """
         return self._notes
@@ -952,7 +971,7 @@ class AssetType(object):
     
     
     #----------------------------------------------------------------------
-    def getName(self):
+    def _getName(self):
         """return AssetType name
         """
         return self._name
@@ -960,7 +979,17 @@ class AssetType(object):
     
     
     #----------------------------------------------------------------------
-    def getPath(self):
+    def _setName(self, name):
+        """sets asset type name
+        """
+        self._name = name
+    
+    name = property( _getName, _setName )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getPath(self):
         """returns AssetType path
         """
         return self._path
@@ -968,15 +997,18 @@ class AssetType(object):
     
     
     #----------------------------------------------------------------------
-    def isShotDependent(self):
-        """returns True or False depending on to the shot dependency
+    def _setPath(self, path):
+        """sets asset type path
         """
-        return self._shotDependency
+        self._path = path
+    
+    path = property( _getPath, _setPath )
     
     
     
     #----------------------------------------------------------------------
-    def getPlayblastFolder(self):
+    @property
+    def playblastFolder(self):
         """returns playblast folder of that asset type
         """
         return self._playblastFolder
@@ -984,7 +1016,7 @@ class AssetType(object):
     
     
     #----------------------------------------------------------------------
-    def getEnvironments(self):
+    def _getEnvironments(self):
         """returns the environments that this type is available to as a list of string
         """
         return self._environments
@@ -992,34 +1024,29 @@ class AssetType(object):
     
     
     #----------------------------------------------------------------------
-    def setName(self, name):
-        """sets asset type name
+    def _setEnvironments(self, environments):
+        """sets the environment that this asset type is available to
         """
-        self._name = name
+        self._environments = environments
+    
+    environments = property( _getEnvironments, _setEnvironments )
     
     
     
     #----------------------------------------------------------------------
-    def setPath(self, path):
-        """sets asset type path
+    def _isShotDependent(self):
+        """returns True or False depending on to the shot dependency
         """
-        self._path = path
-    
-    
+        return self._shotDependency
+        
     
     #----------------------------------------------------------------------
-    def setShotDependency(self, shotDependency):
+    def _setShotDependency(self, shotDependency):
         """sets shot dependency of that asset type
         """
         self._shotDependency = shotDependency
     
-    
-    
-    #----------------------------------------------------------------------
-    def setEnvironment(self, environments):
-        """sets the environment that this asset type is available to
-        """
-        self._environments = environments
+    isShotDependent = property( _isShotDependent, _setShotDependency )
 
 
 

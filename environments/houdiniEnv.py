@@ -19,7 +19,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.1.5"
+__version__ = "10.1.28"
 
 
 
@@ -37,15 +37,15 @@ class HoudiniEnvironment(abstractClasses.Environment):
         """
         
         # set the extension to hip
-        self._asset.setExtension('hip')
+        self._asset.extension = 'hip'
         
         # create the folder if it doesn't exists
-        oyAux.createFolder( self._asset.getPath() )
+        oyAux.createFolder( self._asset.path )
         
         # houdini uses / instead of \ under windows
         # lets fix it
         
-        fullPath = self._asset.getFullPath()
+        fullPath = self._asset.fullPath
         fullPath = fullPath.replace('\\','/')
         
         # houdini accepts only strings as file name, no unicode support as I see
@@ -66,7 +66,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         if hou.hipFile.hasUnsavedChanges() and not force:
             raise RuntimeError
         
-        fullPath = self._asset.getFullPath()
+        fullPath = self._asset.fullPath
         fullPath = fullPath.replace('\\','/')
         
         hou.hipFile.load( file_name = str(fullPath) , suppress_save_prompt=True )
@@ -83,7 +83,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         """the import action for houdini environment
         """
         
-        fullPath = self._asset.getFullPath()
+        fullPath = self._asset.fullPath
         fullPath = fullPath.replace('\\','/')
         
         hou.hipFile.merge( str(fullPath) )
@@ -127,9 +127,9 @@ class HoudiniEnvironment(abstractClasses.Environment):
                 #fileName = os.path.basename( fullPath )
             #else:
                 #path = None
-            if testAsset.isValidAsset():
-                fileName = testAsset.getFileName()
-                path = testAsset.getPath()
+            if testAsset.isValidAsset:
+                fileName = testAsset.fileName
+                path = testAsset.path
                 readRecentFile = False
         
         if readRecentFile:
@@ -154,8 +154,8 @@ class HoudiniEnvironment(abstractClasses.Environment):
                     
                     testAsset = assetModel.Asset( proj, seq, fileName )
                     
-                    if testAsset.isValidAsset():
-                        path = testAsset.getPath()
+                    if testAsset.isValidAsset:
+                        path = testAsset.path
                         foundValidAsset = True
                         break
             
@@ -192,7 +192,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         """sets the environment variables according to the given assetObject
         """
         # set the $JOB variable to the sequence root
-        os.environ['JOB'] = str( self._asset.getSequenceFullPath()).replace('\\','/')
+        os.environ['JOB'] = str( self._asset.sequenceFullPath ).replace('\\','/')
     
     
     

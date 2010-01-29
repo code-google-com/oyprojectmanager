@@ -1,4 +1,4 @@
-__version__ = "9.10.2"
+__version__ = "10.1.28"
 
 
 
@@ -19,7 +19,7 @@ class User(object):
     
     
     #----------------------------------------------------------------------
-    def getName(self):
+    def _getName(self):
         """returns the user name
         """
         return self._name
@@ -27,7 +27,16 @@ class User(object):
     
     
     #----------------------------------------------------------------------
-    def getInitials(self):
+    def _setName(self, name):
+        """sets the user name
+        """
+        self._name = name
+    
+    name = property( _getName, _setName )
+    
+    
+    #----------------------------------------------------------------------
+    def _getInitials(self):
         """returns the user initials
         """
         return self._initials
@@ -35,19 +44,12 @@ class User(object):
     
     
     #----------------------------------------------------------------------
-    def setName(self, name):
-        """sets the user name
-        """
-        self._name = name
-    
-    
-    
-    #----------------------------------------------------------------------
-    def setInitials(self, initials):
+    def _setInitials(self, initials):
         """sets the user initials
         """
         self._initials = initials
     
+    initials = property( _getInitials, _setInitials )
     
     
     

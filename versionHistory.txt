@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.1.28
+- all the get methods (or most of them) turned to properties in most of the
+  modules
+
 v10.1.26
 - assetManager: the frame range warning was a little bit cumbersome, it is
   fixed now

@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel, repositoryMode
 
 
 
-__version__ = "10.1.23"
+__version__ = "10.1.28"
 
 
 
@@ -27,10 +27,10 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         # set the extension to ma by default
-        self._asset.setExtension( 'ma' )
+        self._asset.extension = 'ma'
         
         # set the project to the current environment
-        pm.workspace.open( self._asset.getSequenceFullPath() )
+        pm.workspace.open( self._asset.sequenceFullPath )
         
         # set the render file name and version
         self.setRenderFileName()
@@ -39,13 +39,13 @@ class MayaEnvironment(abstractClasses.Environment):
         self.setPlayblastFileName()
         
         # create the folder if it doesn't exists
-        oyAux.createFolder( self._asset.getPath() )
+        oyAux.createFolder( self._asset.path )
         
         # save the file
-        pm.saveAs( self._asset.getFullPath(), type='mayaAscii' )
+        pm.saveAs( self._asset.fullPath, type='mayaAscii' )
         
         # append it to the recent file list
-        self.appendToRecentFiles( self._asset.getFullPath() )
+        self.appendToRecentFiles( self._asset.fullPath )
         
         return True
     
@@ -62,13 +62,13 @@ class MayaEnvironment(abstractClasses.Environment):
             return False
         
         # set the extension to ma by default
-        self._asset.setExtension( 'ma' )
+        self._asset.extension = 'ma'
         
         # create the folder if it doesn't exists
-        oyAux.createFolder( self._asset.getPath() )
+        oyAux.createFolder( self._asset.path )
         
         # export the file
-        pm.exportSelected( self._asset.getFullPath(), type='mayaAscii' )
+        pm.exportSelected( self._asset.fullPath, type='mayaAscii' )
         
         return True
     
@@ -82,12 +82,12 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         # check for unsaved changes
-        assetFullPath = self._asset.getFullPath()
+        assetFullPath = self._asset.fullPath
         
         pm.openFile( assetFullPath, f=force )
         
         # set the project
-        pm.workspace.open( self._asset.getSequenceFullPath() )
+        pm.workspace.open( self._asset.sequenceFullPath )
         
         # set the playblast folder
         self.setPlayblastFileName()
@@ -105,7 +105,7 @@ class MayaEnvironment(abstractClasses.Environment):
     def import_(self):
         """the import action for maya environment
         """
-        pm.importFile( self._asset.getFullPath() )
+        pm.importFile( self._asset.fullPath )
         
         return True
     
@@ -117,9 +117,9 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         # use the file name without extension as the namespace
-        nameSpace = self._asset.getFileNameWithoutExtension()
+        nameSpace = self._asset.fileNameWithoutExtension
         
-        pm.createReference( self._asset.getFullPath(), gl=True, loadReferenceDepth='all', namespace=nameSpace, options='v=0')
+        pm.createReference( self._asset.fullPath, gl=True, loadReferenceDepth='all', namespace=nameSpace, options='v=0')
         
         return True
     
@@ -153,9 +153,9 @@ class MayaEnvironment(abstractClasses.Environment):
             
             testAsset = assetModel.Asset( proj, seq, fileName )
             
-            if testAsset.isValidAsset():
-                fileName = testAsset.getFileName()
-                path = testAsset.getPath()
+            if testAsset.isValidAsset:
+                fileName = testAsset.fileName
+                path = testAsset.path
                 readRecentFile = False
         
         if readRecentFile:
@@ -174,8 +174,8 @@ class MayaEnvironment(abstractClasses.Environment):
                     seq = projectModel.Sequence( proj, seqName )
                     
                     testAsset = assetModel.Asset( proj, seq, fileName )
-                    if testAsset.isValidAsset():
-                        path = testAsset.getPath()
+                    if testAsset.isValidAsset:
+                        path = testAsset.path
                         foundValidAsset = True
                         break
             
@@ -207,28 +207,28 @@ class MayaEnvironment(abstractClasses.Environment):
         """sets the render file name
         """
         
-        parentSeq = self._asset.getParentSequence()
+        parentSeq = self._asset.parentSequence
         
-        renderOutputFolder = parentSeq.getStructure().getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS
+        renderOutputFolder = parentSeq.structure.getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS
         
         # image folder from the workspace.mel
         imageFolderFromWS = pm.workspace.fileRules['image'] # _RENDERED_IMAGES_/
         
         shotFolder = renderOutputFolder[ len(imageFolderFromWS):] # SHOTS
         
-        assetBaseName = self._asset.getBaseName()
+        assetBaseName = self._asset.baseName
         
         renderFileName = ''
         if parentSeq.noSubNameField():
             renderFileName = shotFolder + "/" + assetBaseName + "/<Layer>/" + assetBaseName + "_<Layer>_<RenderPass>_<Version>"
         else: # remove later when the support for old project is over
-            assetSubName = self._asset.getSubName()
+            assetSubName = self._asset.subName
             renderFileName = shotFolder + "/" + assetBaseName + "/<Layer>/" + assetBaseName + "_" + assetSubName + "_<Layer>_<RenderPass>_<Version>"
         
         # defaultRenderGlobals
         dRG = pm.PyNode('defaultRenderGlobals')
         dRG.setAttr('imageFilePrefix', renderFileName)
-        dRG.setAttr('renderVersion', self._asset.getVersionString() )
+        dRG.setAttr('renderVersion', self._asset.versionString )
         dRG.setAttr('animation', 1)
         dRG.setAttr('outFormatControl', 0 )
         dRG.setAttr('extensionPadding', 3 )
@@ -241,18 +241,18 @@ class MayaEnvironment(abstractClasses.Environment):
         """sets the playblast file name
         """
         
-        playblastFolderPath = self._asset.getType().getPlayblastFolder()
+        playblastFolderPath = self._asset.type.playblastFolder
         
         if os.name == 'nt':
             playblastFolderPath = playblastFolderPath.replace('/','\\')
         
         assert(isinstance(self._asset, assetModel.Asset))
         
-        seqFullPath = self._asset.getParentSequence().getFullPath()
+        seqFullPath = self._asset.parentSequence.fullPath
         
-        baseName = self._asset.getBaseName()
+        baseName = self._asset.baseName
         
-        playblastFullPath = os.path.join( seqFullPath, playblastFolderPath, baseName, self._asset.getFileNameWithoutExtension() ) + '.avi'
+        playblastFullPath = os.path.join( seqFullPath, playblastFolderPath, baseName, self._asset.fileNameWithoutExtension ) + '.avi'
         
         pm.optionVar['playblastFile'] = playblastFullPath
     
@@ -361,7 +361,7 @@ class MayaEnvironment(abstractClasses.Environment):
             
             tempAsset = assetModel.Asset( proj, seq, tempAssetPath )
             
-            if tempAsset.isValidAsset():
+            if tempAsset.isValidAsset:
                 validAssets.append( (tempAsset, ref) )
         
         return validAssets
@@ -381,9 +381,9 @@ class MayaEnvironment(abstractClasses.Environment):
             #assert(isinstance(asset, assetModel.Asset))
             #assert(isinstance(ref, pm.FileReference))
             
-            latestAsset = asset.getLatestVersion2()[0]
+            latestAsset = asset.latestVersion2[0]
             
-            ref.replaceWith( latestAsset.getFullPath() )
+            ref.replaceWith( latestAsset.fullPath )
     
     
     

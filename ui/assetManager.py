@@ -10,7 +10,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.1.26"
+__version__ = "10.1.28"
 
 
 
@@ -277,17 +277,17 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         assetObj = assetModel.Asset( currentProject, currentSequence, self.fileName )
         
-        if not assetObj.isValidAsset():
+        if not assetObj.isValidAsset:
             return
         
-        assetType = assetObj.getTypeName()
-        shotNumber = assetObj.getShotNumber()
-        baseName = assetObj.getBaseName()
-        subName = assetObj.getSubName()
-        revNumber = assetObj.getRevisionNumber()
-        verNumber = assetObj.getVersionNumber()
-        userInitials = assetObj.getUserInitials()
-        notes = assetObj.getNotes()
+        assetType = assetObj.type.name
+        shotNumber = assetObj.shotNumber
+        baseName = assetObj.baseName
+        subName = assetObj.subName
+        revNumber = assetObj.revisionNumber
+        verNumber = assetObj.versionNumber
+        userInitials = assetObj.userInitials
+        notes = assetObj.notes
         
         # fill the fields
         # assetType
@@ -296,7 +296,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # ----------------------------------------------------------------------
         # shotNumber and baseName
-        if assetObj.isShotDependent():
+        if assetObj.isShotDependent:
             element = self.shot_comboBox1
             element.setCurrentIndex( element.findText( shotNumber) )
             
@@ -370,7 +370,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # create a project and ask the child sequences
         self.sequence_comboBox.clear()
-        sequences = currentProjet.getSequenceNames()
+        sequences = currentProjet.sequenceNames()
         
         self.sequence_comboBox.addItems( sequences )
         
@@ -390,7 +390,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # get asset types
         assetTypes = currentSequence.getAssetTypes( self._environment.name )
         
-        assetTypeNames = [ assetType.getName() for assetType in assetTypes ]
+        assetTypeNames = [ assetType.name for assetType in assetTypes ]
         
         
         # clear and update the comboBoxes
@@ -411,14 +411,10 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """
         
         self._updateSequenceObject()
-        currentSequence = self._sequence
-        
-        # get shot list
-        shotList = currentSequence.getShotList()
         
         # clear and update the list
         self.shot_comboBox1.clear()
-        self.shot_comboBox1.addItems( shotList )
+        self.shot_comboBox1.addItems( self._sequence.shotList )
     
     
     
@@ -441,7 +437,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         currentType = currentSequence.getAssetTypeWithName( currentTypeName )
         
-        if currentType == None or currentType.isShotDependent():
+        if currentType == None or currentType.isShotDependent:
             # do nothing
             return
         
@@ -499,7 +495,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             self.subName_listWidget.clear()
             return
         
-        if assetTypeObj.isShotDependent():
+        if assetTypeObj.isShotDependent:
             currentBaseName = currentSequence.convertToShotString( self.getCurrentShotString() )
         else:
             currentBaseName = self.getCurrentBaseName()
@@ -583,7 +579,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         if assetType != None:
             # enable the shot if the asset type is shot dependent
-            isShotDependent = assetType.isShotDependent()
+            isShotDependent = assetType.isShotDependent
             self.shot_comboBox1.setEnabled( isShotDependent )
             
             self.baseName_listWidget.setEnabled( not isShotDependent )
@@ -608,7 +604,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             return
         
         # enable the shot if the asset type is shot dependent
-        isShotDependent = assetType.isShotDependent()
+        isShotDependent = assetType.isShotDependent
         self.shot_comboBox1.setEnabled( isShotDependent )
         
         self.baseName_listWidget.setEnabled( not isShotDependent )
@@ -634,7 +630,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # if the type is shot dependent get the shot number
         # if it is not use the baseName
-        if currentSequence.getAssetTypeWithName( typeName ).isShotDependent():
+        if currentSequence.getAssetTypeWithName( typeName ).isShotDependent:
             baseName = currentSequence.convertToShotString( self.getCurrentShotString() )
         else:
             baseName = self.getCurrentBaseName()
@@ -708,7 +704,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             
             asset = assetModel.Asset( self._project, self._sequence, assetFileName )
             
-            fileName = asset.getFileName()
+            fileName = asset.fileName
             dateUpdated = asset.dateUpdated
             
             if fileName == None or dateUpdated == None:
@@ -838,12 +834,12 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # get the asset object from fields
         self._createAssetObjectFromSaveFields()#'updateRevisionToLatest' )
         
-        #if asset == None or not asset.isValidAsset():
-        if self._asset == None or not self._asset.isValidAsset():
+        #if asset == None or not asset.isValidAsset:
+        if self._asset == None or not self._asset.isValidAsset:
             self.setRevisionNumberField( 0 )
             return
         
-        maxRevAsset, maxRevNumber = self._asset.getLatestRevision2()
+        maxRevAsset, maxRevNumber = self._asset.latestRevision2
         
         if maxRevNumber == None:
             maxRevNumber = 0
@@ -861,11 +857,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         # get the asset objet from fields
         self._createAssetObjectFromSaveFields()#'updateVersionToLatest' )
         
-        if self._asset == None or not self._asset.isValidAsset():
+        if self._asset == None or not self._asset.isValidAsset:
             self.setVersionNumberField( 1 )
             return
         
-        maxVerAsset, maxVerNumber = self._asset.getLatestVersion2()
+        maxVerAsset, maxVerNumber = self._asset.latestVersion2
         
         if maxVerNumber == None:
             maxVerNumber = 0
@@ -929,7 +925,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         if assetTypeObj == None:
             return
         
-        isShotDependent = assetTypeObj.isShotDependent()
+        isShotDependent = assetTypeObj.isShotDependent
         if isShotDependent:
             baseName = self._sequence.convertToShotString( self.getCurrentShotString() )
         else:
@@ -988,7 +984,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         if self._asset == None:
             return None, None
         
-        return self._asset.getPathVariables(), self._asset
+        return self._asset.pathVariables, self._asset
     
     
     
@@ -1014,7 +1010,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """
         
         # get the shot object from the sequence
-        shot = self._sequence.getShots()[ index ]
+        shot = self._sequence.shots[ index ]
         
         self.startFrame_spinBox.setValue( shot.startFrame )
         self.endFrame_spinBox.setValue( shot.endFrame )
@@ -1046,7 +1042,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         currentProjectName = self.getCurrentProjectName()
         
-        if self._project == None or self._project.getName() != currentProjectName or (currentProjectName != "" or currentProjectName != None ):
+        if self._project == None or self._project.name != currentProjectName or (currentProjectName != "" or currentProjectName != None ):
             self._project = projectModel.Project( currentProjectName )
     
     
@@ -1058,8 +1054,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         currentSequenceName = self.getCurrentSequenceName()
         
         #assert(isinstance(self._sequence,Sequence))
-        if self._sequence == None or self._sequence.getName() != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) or \
-           self._sequence.getProjectName() != self._project.getName():
+        if self._sequence == None or self._sequence.name != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) or \
+           self._sequence.projectName != self._project.name:
             self._updateProjectObject()
             newSeq = projectModel.Sequence( self._project, currentSequenceName )
             if newSeq._exists:
@@ -1178,7 +1174,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     def checkOutputAsset(self, assetObject):
         """check if the asset is a valid asset
         """
-        return assetObject.isValidAsset()
+        return assetObject.isValidAsset
     
     
     
@@ -1198,7 +1194,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             if answer == QtGui.QMessageBox.Yes:
                 assetObject.setVersionToNextAvailable()
                 
-                self.setVersionNumberField( assetObject.getVersionNumber() )
+                self.setVersionNumberField( assetObject.versionNumber )
                 
                 verStatus = True
         else:
@@ -1223,7 +1219,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             if answer == QtGui.QMessageBox.Yes:
                 assetObject.setRevisionToNextAvailable()
                 
-                self.setRevisionNumberField( assetObject.getRevisionNumber() )
+                self.setRevisionNumberField( assetObject.revisionNumber )
                 
                 revStatus = True
         else:
@@ -1285,7 +1281,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             # check the frame range
             # -----------------------------------------------------------------
             # check the range if and only if the asset is shot dependent
-            if self._asset.isShotDependent():
+            if self._asset.isShotDependent:
                 # get the frame range from environment
                 self.adjustFrameRange()
             # -----------------------------------------------------------------
@@ -1297,7 +1293,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             # if everything worked fine close the interface
             if envStatus:
                 # set the last user variable
-                self._repo.setLastUser( self._asset.getUserInitials() )
+                self._repo.setLastUser( self._asset.userInitials )
                 
                 #print info
                 if self._environment.name == 'MAYA':
@@ -1337,7 +1333,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 
                 # inform the user for successful operation
                 
-                QtGui.QMessageBox.information(self, 'Asset Export', 'Asset :\n\n'+ self._asset.getFileName() +'\n\nis exported successfuly', QtGui.QMessageBox.Ok)
+                QtGui.QMessageBox.information(self, 'Asset Export', 'Asset :\n\n'+ self._asset.fileName +'\n\nis exported successfuly', QtGui.QMessageBox.Ok)
                 
                 self.close()
     
@@ -1353,7 +1349,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self._createAssetObjectFromOpenFields()
         
         # check the file existancy
-        exists = os.path.exists( self._asset.getFullPath() )
+        exists = os.path.exists( self._asset.fullPath )
         
         envStatus = False
         
@@ -1373,7 +1369,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 
                 # check the toUpdateList to update old assets
                 if len(toUpdateList):
-                    assetNames = '<br>'.join( [ assetTuple[0].getFileName() for assetTuple in toUpdateList ] )
+                    assetNames = '<br>'.join( [ assetTuple[0].fileName for assetTuple in toUpdateList ] )
                     
                     # display the warning
                     answer = QtGui.QMessageBox.warning(self, 'AssetVersionError', "These assets has <b>newer versions</b><br><br>" + assetNames + "<br><br>Please <b>update</b> them!", QtGui.QMessageBox.Ok )
@@ -1408,7 +1404,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 # -----------------------------------------------------------------
                 # check the range if and only if the asset is shot dependent
                 
-                if self._asset.isShotDependent() and self._environment.name != 'NUKE':
+                if self._asset.isShotDependent and self._environment.name != 'NUKE':
                     # get the frame range from environment
                     self.adjustFrameRange()
                 # -----------------------------------------------------------------
@@ -1416,7 +1412,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         else:
             # warn the user for non existing asset files
-            answer = QtGui.QMessageBox.question(self, 'File Error', assetObject.getFullPath() + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
+            answer = QtGui.QMessageBox.question(self, 'File Error', self._asset.fullPath + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
     
     
     
@@ -1430,7 +1426,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self._createAssetObjectFromOpenFields()
         
         # check the file existancy
-        exists = os.path.exists( self._asset.getFullPath() )
+        exists = os.path.exists( self._asset.fullPath )
         
         envStatus = False
         
@@ -1440,11 +1436,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             
             if envStatus:
                 #self.close()
-                QtGui.QMessageBox.information(self, 'Asset Import', 'Asset :\n\n'+ self._asset.getFileName() +'\n\nis imported successfuly', QtGui.QMessageBox.Ok)
+                QtGui.QMessageBox.information(self, 'Asset Import', 'Asset :\n\n'+ self._asset.fileName +'\n\nis imported successfuly', QtGui.QMessageBox.Ok)
         
         else:
             # warn the user for non existing asset files
-            answer = QtGui.QMessageBox.question(self, 'File Error', self._asset.getFullPath() + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
+            answer = QtGui.QMessageBox.question(self, 'File Error', self._asset.fullPath + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
     
     
     
@@ -1460,7 +1456,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self._createAssetObjectFromOpenFields()
         
         # check the file existancy
-        exists = os.path.exists( self._asset.getFullPath() )
+        exists = os.path.exists( self._asset.fullPath )
         
         envStatus = False
         
@@ -1469,11 +1465,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             envStatus = self._environment.reference()
             
             if envStatus:
-                QtGui.QMessageBox.information(self, 'Asset Reference', 'Asset :\n\n'+ self._asset.getFileName() +'\n\nis referenced successfuly', QtGui.QMessageBox.Ok)
+                QtGui.QMessageBox.information(self, 'Asset Reference', 'Asset :\n\n'+ self._asset.fileName +'\n\nis referenced successfuly', QtGui.QMessageBox.Ok)
         
         else:
             # warn the user for non existing asset files
-            answer = QtGui.QMessageBox.question(self, 'File Error', self._asset.getFullPath() + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
+            answer = QtGui.QMessageBox.question(self, 'File Error', self._asset.fullPath + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
     
     
     
@@ -1484,7 +1480,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         print "-----------------------------------"
         print "AssetManager " + __version__
-        print assetObject.getFileName()
+        print assetObject.fileName
         print actionName + " succesfully"
     
     
@@ -1498,9 +1494,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         envStart, envEnd = self._environment.getFrameRange()
         
         # get the frame range from the sequence settings
-        seq = self._asset.getParentSequence()
+        seq = self._asset.parentSequence
         #assert(isinstance(seq, projectModel.Sequence))
-        shot = seq.getShot( self._asset.getShotNumber() )
+        shot = seq.getShot( self._asset.shotNumber )
         
         if shot != None and envStart != None and envEnd != None:
             shotStart = shot.startFrame

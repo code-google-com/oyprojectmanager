@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import userModel, abstractClasses
 
 
 
-__version__ = "9.12.27"
+__version__ = "10.1.28"
 
 
 
@@ -157,7 +157,7 @@ class Repository( abstractClasses.Singleton ):
             # get sequences of that project
             projObj = projectModel.Project(projName)
             
-            seqList = projObj.getSequences()
+            seqList = projObj.sequences()
             
             for seq in seqList:
                 
@@ -185,7 +185,7 @@ class Repository( abstractClasses.Singleton ):
         """
         names = [] * 0
         for user in self._users:
-            names.append( user.getName() )
+            names.append( user.name )
         
         return names
     
@@ -198,7 +198,7 @@ class Repository( abstractClasses.Singleton ):
         initials = [] * 0
         for user in self._users:
             #assert(isinstance(user,User))
-            initials.append( user.getInitials() )
+            initials.append( user.initials )
         
         return sorted(initials)
     

@@ -9,7 +9,7 @@ from oyProjectManager.tools import rangeTools
 
 
 
-__version__ = "10.1.16"
+__version__ = "10.1.28"
 
 
 
@@ -245,15 +245,18 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         s3Text = self.sequence_comboBox3.currentText()
         s4Text = self.sequence_comboBox4.currentText()
         
+        
         # sequence_comboBox3
         project = projectModel.Project( unicode( self.project_comboBox3.currentText() ) )
+        sequenceNames = sorted( project.sequenceNames() )
+        
         self.sequence_comboBox3.clear()
-        self.sequence_comboBox3.addItems( sorted(project.getSequenceNames()) )
+        self.sequence_comboBox3.addItems( sequenceNames )
         
         # sequence_comboBox4
         project = projectModel.Project( unicode( self.project_comboBox4.currentText() ) )
         self.sequence_comboBox4.clear()
-        self.sequence_comboBox4.addItems( sorted(project.getSequenceNames()) )
+        self.sequence_comboBox4.addItems( sequenceNames )
         
         # restore selections
         s3Index = self.sequence_comboBox3.findText( s3Text )
@@ -280,14 +283,12 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         project = projectModel.Project( projectName )
         sequence = projectModel.Sequence( project, sequenceName )
         
-        shotList = sequence.getShotList()
-        
         # try to keep the current selection
         s4Text = self.shotNumber_comboBox4.currentText()
         
         # remove the current items and update the list
         self.shotNumber_comboBox4.clear()
-        self.shotNumber_comboBox4.addItems( shotList )
+        self.shotNumber_comboBox4.addItems( sequence.shotList )
         
         # restore selection
         s4Index = self.shotNumber_comboBox4.findText( s4Text )
