@@ -68,6 +68,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self._project = None
         self._sequence = None
         self._versionListBuffer = []
+        self._lastValidShotSelection = None
         
         # create the environment object
         self._setEnvironment( environmentName )
@@ -300,6 +301,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             element = self.shot_comboBox1
             element.setCurrentIndex( element.findText( shotNumber) )
             
+            # update self._lastValidShotSelection
+            self._lastValidShotSelection = shotNumber
+        
         else:
             
             itemIndex = self.findListItemWithText( self.baseName_listWidget, baseName )
@@ -412,9 +416,30 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         self._updateSequenceObject()
         
+        # try to keep the selection
+        lastSelectedShot = self.shot_comboBox1.currentText()
+        
         # clear and update the list
         self.shot_comboBox1.clear()
+<<<<<<< local
+        self.shot_comboBox1.addItems( shotList )
+        
+        index = -1
+        
+        if lastSelectedShot != "" and lastSelectedShot != None:
+            self._lastValidShotSelection = lastSelectedShot
+        
+        print self._lastValidShotSelection
+        
+        
+        if self._lastValidShotSelection != "" and self._lastValidShotSelection != None:
+            index = self.assetType_comboBox1.findText( self._lastValidShotSelection )
+            
+        if index != -1:
+            self.shot_comboBox1.setCurrentIndex( index )
+=======
         self.shot_comboBox1.addItems( self._sequence.shotList )
+>>>>>>> other
     
     
     
@@ -563,6 +588,8 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     
+<<<<<<< local
+=======
     
     #----------------------------------------------------------------------
     def updateShotDependentFields(self):
@@ -587,6 +614,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     
+>>>>>>> other
     #----------------------------------------------------------------------
     def updateShotDependentFields(self):
         """updates shot dependent fields like the shotList and baseName
