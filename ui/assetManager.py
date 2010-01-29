@@ -421,7 +421,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # clear and update the list
         self.shot_comboBox1.clear()
-<<<<<<< local
+        
         self.shot_comboBox1.addItems( shotList )
         
         index = -1
@@ -429,17 +429,14 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         if lastSelectedShot != "" and lastSelectedShot != None:
             self._lastValidShotSelection = lastSelectedShot
         
-        print self._lastValidShotSelection
-        
+        # print self._lastValidShotSelection
         
         if self._lastValidShotSelection != "" and self._lastValidShotSelection != None:
             index = self.assetType_comboBox1.findText( self._lastValidShotSelection )
             
         if index != -1:
             self.shot_comboBox1.setCurrentIndex( index )
-=======
         self.shot_comboBox1.addItems( self._sequence.shotList )
->>>>>>> other
     
     
     
@@ -588,33 +585,6 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     
     
-<<<<<<< local
-=======
-    
-    #----------------------------------------------------------------------
-    def updateShotDependentFields(self):
-        """updates shot dependent fields like the shotList and basName
-        """
-        
-        self._updateSequenceObject()
-        currentSequence = self._sequence
-        
-        # get selected asset type name
-        assetTypeName = self.getCurrentAssetType()
-        
-        assetType = currentSequence.getAssetTypeWithName( assetTypeName )
-        
-        if assetType != None:
-            # enable the shot if the asset type is shot dependent
-            isShotDependent = assetType.isShotDependent
-            self.shot_comboBox1.setEnabled( isShotDependent )
-            
-            self.baseName_listWidget.setEnabled( not isShotDependent )
-            self.baseName_lineEdit.setEnabled( not isShotDependent )
-    
-    
-    
->>>>>>> other
     #----------------------------------------------------------------------
     def updateShotDependentFields(self):
         """updates shot dependent fields like the shotList and baseName
