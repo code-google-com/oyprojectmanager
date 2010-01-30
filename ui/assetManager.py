@@ -421,22 +421,18 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         
         # clear and update the list
         self.shot_comboBox1.clear()
-        
-        self.shot_comboBox1.addItems( shotList )
+        self.shot_comboBox1.addItems( self._sequence.shotList )
         
         index = -1
-        
-        if lastSelectedShot != "" and lastSelectedShot != None:
-            self._lastValidShotSelection = lastSelectedShot
-        
-        # print self._lastValidShotSelection
         
         if self._lastValidShotSelection != "" and self._lastValidShotSelection != None:
             index = self.assetType_comboBox1.findText( self._lastValidShotSelection )
             
-        if index != -1:
-            self.shot_comboBox1.setCurrentIndex( index )
-        self.shot_comboBox1.addItems( self._sequence.shotList )
+            if index != -1:
+                self.shot_comboBox1.setCurrentIndex( index )
+            
+        else:
+            self._lastValidShotSelection = self.assetType_comboBox1.currentText()
     
     
     
