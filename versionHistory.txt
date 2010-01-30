@@ -2,6 +2,8 @@ Version History :
 -----------------
 v10.1.30
 - shotEditor: fixed shotEditor not displaying under houdini
+- projectModel: sequence class now keeps only the most recent 5 backups of the
+  settings
 
 v10.1.28
 - all the get methods (or most of them) turned to properties in most of the

@@ -6,7 +6,7 @@ from oyProjectManager.dataModels import assetModel, userModel, repositoryModel
 
 
 
-__version__ = "10.1.28"
+__version__ = "10.1.30"
 
 
 
@@ -631,7 +631,8 @@ class Sequence(object):
         
         try:
             # if there is a settings file backit up
-            oyAux.backupFile( self._settingsFileFullPath )
+            # keep maximum of 5 backups
+            oyAux.backupFile( self._settingsFileFullPath, 5 )
             settingsFile = open( self._settingsFileFullPath, 'w' )
         except IOError:
             #print "couldn't open the settings file"
