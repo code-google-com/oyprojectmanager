@@ -9,7 +9,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.1.28"
+__version__ = "10.1.30"
 
 
 
@@ -140,8 +140,8 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
             if self._environment.name != None and self._environment.name != '':
                 fileName, path = self._environment.getPathVariables()
                 
-                print "fileName : ", fileName
-                print "path : ", path
+                #print "fileName : ", fileName
+                #print "path : ", path
                 
                 # update the interface
                 projName, seqName = self.repo.getProjectAndSequenceNameFromFilePath( path )
@@ -374,8 +374,6 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
             endFrame = str(item[2].text())
             description = unicode(item[4].text())
             
-            # for now just print them
-            #print shotName, startFrame, endFrame, description
             if startFrame != '':
                 shots[i].startFrame = int(startFrame)
             
