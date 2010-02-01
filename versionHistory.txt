@@ -1,5 +1,10 @@
 Version History :
 -----------------
+v10.1.31
+- projectManager: the projectManager was not able to add alternative shots
+- projectModel: defaults introduced to shot models init
+- projectModel: fixed alternative shot creation
+
 v10.1.30
 - shotEditor: fixed shotEditor not displaying under houdini
 - projectModel: sequence class now keeps only the most recent 5 backups of the

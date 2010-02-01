@@ -456,11 +456,11 @@ class Sequence(object):
                 endFrame = 0
             
             # create shot objects with the data
-            newShot = Shot()
-            newShot.startFrame = startFrame
-            newShot.endFrame = endFrame
-            newShot.name = name
-            newShot.description = description
+            newShot = Shot( name, self, startFrame, endFrame,  description )
+            #newShot.startFrame = startFrame
+            #newShot.endFrame = endFrame
+            #newShot.name = name
+            #newShot.description = description
             
             # append the shot to the self._shots
             self._shots.append( newShot )
@@ -750,6 +750,8 @@ class Sequence(object):
         """adds a new alternative to the given shot
         
         you need to invoke self.createShots to make the changes permanent
+        
+        returns the alternative shot number
         """
         
         # shotNumber could be an int convert it to str
@@ -759,16 +761,22 @@ class Sequence(object):
         shotNumber = oyAux.embedded_numbers( shotNumberAsString )[1]
         
         # get the next available alternative shot number for that shot
-        alternativeShotNumber = self.getNextAlternateShotNumber( shotNumber )
+        alternativeShotName = self.getNextAlternateShotName( shotNumber )
         
         # add that alternative shot to the shot list
-        if alternativeShotNumber != None:
-            self._shotList.append( alternativeShotNumber )
+        if alternativeShotName != None:
+            self._shotList.append( alternativeShotName )
+            
+            # create a new shot object
+            alternativeShot = Shot( alternativeShotName, self )
+            self._shots.append( alternativeShot )
+            
+        return alternativeShotName
     
     
     
     #----------------------------------------------------------------------
-    def getNextAlternateShotNumber(self, shot):
+    def getNextAlternateShotName(self, shot):
         """returns the next alternate shot number for the given shot number
         """
         
@@ -808,7 +816,7 @@ class Sequence(object):
                 oyAux.createFolder( shotFullPath )
         
         # update settings
-        self.saveSettings()
+        #self.saveSettings()
     
     
     
@@ -1928,15 +1936,14 @@ class Shot(object):
     """
 
     #----------------------------------------------------------------------
-    def __init__(self):
-        """Constructor"""
-        self._name = ''
-        self._duration = 0
-        self._startFrame = 1
-        self._endFrame = 1
-        self._description = ''
+    def __init__(self, name , parentSequence=None, startFrame=1, endFrame=1, description=''):
+        self._name = name
+        self._duration = 1
+        self._startFrame = startFrame
+        self._endFrame = endFrame
+        self._description = description
+        self._parentSequence = parentSequence
         #self._cutSummary = ''
-        self._parentSequence = None
     
     
     

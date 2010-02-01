@@ -316,11 +316,16 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         sequence = projectModel.Sequence( project, sequenceName )
         
         # invoke sequence objects add alternate shot method with the given shot number
-        sequence.addAlternativeShot( shotNumber )
+        alternativeShotName = sequence.addAlternativeShot( shotNumber )
+        
+        #print "projectManager -> adding alternative shot to shot %s" % shotNumber
         
         # create and save
         sequence.createShots()
-        #sequence.saveSettings()
+        sequence.saveSettings()
         
         # update the fields
         self.updateShotLists()
+        
+        # inform the user if it is created
+        QtGui.QMessageBox.information( self, 'Alternative Shots Added', 'Alternative shot added:<br><br>%s' % alternativeShotName)
