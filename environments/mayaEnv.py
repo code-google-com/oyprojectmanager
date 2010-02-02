@@ -207,6 +207,9 @@ class MayaEnvironment(abstractClasses.Environment):
         """sets the render file name
         """
         
+        # check/load Mentalray
+        #if pm.pluginInfo(
+        
         parentSeq = self._asset.parentSequence
         
         renderOutputFolder = parentSeq.structure.getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS

@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.1.2
+- projectModel: Sequence class now sorts the shots list properly whenever it
+  reads or saves the settings
+
 v10.1.31
 - projectManager: the projectManager was not able to add alternative shots
 - projectModel: defaults introduced to shot models init

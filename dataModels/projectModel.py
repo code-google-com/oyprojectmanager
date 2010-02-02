@@ -6,7 +6,7 @@ from oyProjectManager.dataModels import assetModel, userModel, repositoryModel
 
 
 
-__version__ = "10.1.30"
+__version__ = "10.2.1"
 
 
 
@@ -469,8 +469,7 @@ class Sequence(object):
             self._shotList.append( name )
         
         # sort the shot list
-        self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
-        
+        self._sortShots()
         
     
     
@@ -546,10 +545,8 @@ class Sequence(object):
         # SHOT DATA
         #----------------------------------------------------------------------
         
-        ## create shot list text data
-        ## sort the shotList
-        #self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
-        ##shotListNodeText.data = '\n'.join( self._shotList )
+        # sort the list before saving
+        self._sortShots()
         
         # create the new type of shotData nodes
         for shot in self._shots:
@@ -814,9 +811,6 @@ class Sequence(object):
                 
                 #self._repository._create_folder( shotFullPath )
                 oyAux.createFolder( shotFullPath )
-        
-        # update settings
-        #self.saveSettings()
     
     
     
@@ -838,6 +832,14 @@ class Sequence(object):
         """returns the shot objects as a list
         """
         return self._shots
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _sortShots(self):
+        """sorts the internal shot list
+        """
+        self._shots = sorted( self._shots, key = oyAux.embedded_numbers )
     
     
     
@@ -1952,6 +1954,13 @@ class Shot(object):
         """returns the string representation of the object
         """
         return self._name
+    
+    
+    
+    #def __repr__(self):
+        #"""returns the representation of the class
+        #"""
+        #return "< oyProjectManager.dataModels.projectModel.Shot object: " + self._name + ">"
     
     
     
