@@ -6,7 +6,7 @@ from oyProjectManager.dataModels import assetModel, userModel, repositoryModel
 
 
 
-__version__ = "10.2.1"
+__version__ = "10.2.2"
 
 
 
@@ -42,7 +42,7 @@ class Project(object):
     
     #----------------------------------------------------------------------
     def _initPathVariables(self):
-        self._path = self._repository._projectsFolderFullPath
+        self._path = self._repository.projectsFullPath
         self._fullPath = os.path.join( self._path, self._name)
     
     
@@ -673,7 +673,7 @@ class Sequence(object):
             exists = oyAux.createFolder( self._fullPath )
             
             # copy the settings file to the root of the sequence
-            shutil.copy( self._repository._defaultSettingsFullPath, self._settingsFileFullPath )
+            shutil.copy( self._repository.defaultSettingsFileFullPath, self._settingsFileFullPath )
         
         # just read the structure from the XML
         self.readSettings()
@@ -686,7 +686,8 @@ class Sequence(object):
         
         # copy any file to the sequence
         # (like workspace.mel)
-        for _fileInfo in self._repository.getDefaultFiles():
+        
+        for _fileInfo in self._repository.defaultFiles:
             sourcePath = os.path.join( _fileInfo[2], _fileInfo[0] )
             targetPath = os.path.join( self._fullPath, _fileInfo[1], _fileInfo[0] )
             
@@ -809,7 +810,6 @@ class Sequence(object):
                 # create the folder with that name
                 shotFullPath = os.path.join ( self._fullPath, folder, shotString )
                 
-                #self._repository._create_folder( shotFullPath )
                 oyAux.createFolder( shotFullPath )
     
     

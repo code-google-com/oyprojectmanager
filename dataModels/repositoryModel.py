@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import userModel, abstractClasses
 
 
 
-__version__ = "10.1.28"
+__version__ = "10.2.2"
 
 
 
@@ -23,30 +23,42 @@ class Repository( abstractClasses.Singleton ):
     def __init__(self):
         
         # initialize default variables
-        self._repositorySettingsFileName = 'repositorySettings.xml'
         
+        # find where am I installed
+        self._packagePath = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        
+        
+        # Repository Settings File ( repositorySettings.xml )
+        self._repositorySettingsFileName = 'repositorySettings.xml'
+        self._repositorySettingsFilePath = os.path.join( self._packagePath, 'settings' )
+        self._repositorySettingsFileFullPath = os.path.join( self._repositorySettingsFilePath, self._repositorySettingsFileName )
+        
+        # Default Settings File ( defaultSettings.xml )
+        self._defaultSettingsFileName = 'defaultProjectSettings.xml'
+        self._defaultSettingsFilePath = os.path.join( self._packagePath, 'settings' )
+        self._defaultSettingsFileFullPath = os.path.join( self._defaultSettingsFilePath, self._defaultSettingsFileName )
+        
+        # Default Files Folder Path ( _defaultFiles_ )
+        self._defaultFilesFolderFullPath = os.path.join( self._packagePath, 'settings', '_defaultFiles_' )
+        
+        # JOBs folder settings ( M:\, JOBs )
         self._serverPath = ''
         self._projectsFolderName = ''
-        
-        self._projectManagerFolderName = ''
-        self._projectManagerFolderPath = ''
-        self._projectManagerFolderFullPath = ''
-
         self._projectsFolderFullPath = ''
-        self._defaultSettingsFileName = 'defaultProjectSettings.xml'
-        self._defaultSettingsFullPath = ''
         
+        # Last User File
         self._lastUserFileName = '.lastUser'
-        self._lastUserFilePath = self.getHomePath()
+        self._lastUserFilePath = self.homePath
         self._lastUserFileFullPath = os.path.join( self._lastUserFilePath, self._lastUserFileName )
         
         #self._localSettingsFileName = '.localSettings.xml'
         #self._localSettingsPath = self.getHomePath()
         #self._localSettingsFullPath = os.path( self._localSettingsPath, self._localSettingsFileName )
         
-        # users
+        # Users Settings File
         self._usersFileName = 'users.xml'
-        self._usersFileFullPath = ''
+        self._usersFilePath = os.path.join( self._packagePath, 'settings' )
+        self._usersFileFullPath = os.path.join( self._usersFilePath, self._usersFileName )
         self._users = [] * 0
         
         self._projects = [] * 0
@@ -54,24 +66,18 @@ class Repository( abstractClasses.Singleton ):
         
         #self._readLocalSettings()
         self._readSettings()
-        self._updatePathVariables()
+        self._readUsers()
+        #self._updatePathVariables()
     
     
     
     #----------------------------------------------------------------------
     def _readSettings(self):
-        """reads the settings from the xml file at the project root
+        """reads the repository settings from the xml file at the project root
         """
         
-        # get the module root path
-        import oyProjectManager
-        settingsFilePath = oyProjectManager.__path__[0]
-        
-        # then the repository settings full path
-        settingsFileFullPath = os.path.join( settingsFilePath, self._repositorySettingsFileName )
-        
-        # open the file
-        xmlFile = minidom.parse( settingsFileFullPath )
+        # open the repository settings file
+        xmlFile = minidom.parse( self._repositorySettingsFileFullPath )
         
         rootNode = xmlFile.childNodes[0]
         
@@ -88,49 +94,30 @@ class Repository( abstractClasses.Singleton ):
         # -----------------------------------------------------
         # read the server settings
         # for now just assume one server
-        self._serverPath = serverNodes[0].getAttribute('serverPath')
+        
         self._projectsFolderName = serverNodes[0].getAttribute('projectsFolderName')
+        self.serverPath = serverNodes[0].getAttribute('serverPath')
         
         
-        # read the project manager folder path
-        self._projectManagerFolderPath = settingsNode.getAttribute('projectManagerFolderPath')
-        self._projectManagerFolderName = settingsNode.getAttribute('projectManagerFolderName')
-        self._projectManagerFolderFullPath = os.path.join( self._projectManagerFolderPath, self._projectManagerFolderName )
-        
-        defaultFilesFolderFullPath = os.path.join( self._projectManagerFolderFullPath, "_defaultFiles_" )
         # read and create the default files list
         for fileNode in defaultFilesNode.getElementsByTagName('file'):
             #assert(isinstance(fileNode, minidom.Element))
-            #                                    fileName                          projectRelativePath                       sourcePath
-            self._defaultFilesList.append( (fileNode.getAttribute('name'), fileNode.getAttribute('projectRelativePath') , defaultFilesFolderFullPath) )
+            #                                           fileName                          projectRelativePath                         sourcePath
+            self._defaultFilesList.append( (fileNode.getAttribute('name'), fileNode.getAttribute('projectRelativePath') , self._defaultFilesFolderFullPath) )
     
     
     
-    #----------------------------------------------------------------------
-    def _updatePathVariables(self):
-        """updates path variables
-        """
-        self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
-        self._projectManagerFolderFullPath = os.path.join( self._projectManagerFolderPath, self._projectManagerFolderName )
-        self._defaultSettingsFullPath = os.path.join( self._projectManagerFolderFullPath, self._defaultSettingsFileName )
-        self._usersFileFullPath = os.path.join( self._projectManagerFolderFullPath, self._usersFileName )
-        
-        self._users = [] * 0
-        self._readUsers()
-        
-        self._projects = [] * 0
-        self.updateProjectList()
-        
-        # udpate the default files lists third element : the source path
-        defaultFilesFolderFullPath = os.path.join( self._projectManagerFolderFullPath, "_defaultFiles_" )
-        for fileNode in self._defaultFilesList:
-            fileNode = ( fileNode[0], fileNode[1], defaultFilesFolderFullPath )
+    ##----------------------------------------------------------------------
+    #def _updatePathVariables(self):
+        #"""updates path variables
+        #"""
     
     
     
     #----------------------------------------------------------------------
     #@cache.CachedMethod
-    def getProjects(self):
+    @property
+    def projects(self):
         """returns projects names as a list
         """
         self.updateProjectList()
@@ -140,7 +127,8 @@ class Repository( abstractClasses.Singleton ):
     
     #----------------------------------------------------------------------
     @cache.CachedMethod
-    def getValidProjects(self):
+    @property
+    def validProjects(self):
         """returns the projectNames only if they are valid projects.
         A project is only valid if there are some valid sequences under it
         """
@@ -172,7 +160,8 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def getUsers(self):
+    @property
+    def users(self):
         """returns users as a list of User objects
         """
         return self._users
@@ -180,7 +169,8 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def getUserNames(self):
+    @property
+    def userNames(self):
         """returns the user names
         """
         names = [] * 0
@@ -192,7 +182,8 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def getUserInitials(self):
+    @property
+    def userInitials(self):
         """returns the user intials
         """
         initials = [] * 0
@@ -231,17 +222,20 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def updateProjectList(self):
+    def _updateProjectList(self):
         """updates the project list variable
         """
         
-        if os.path.exists( self._projectsFolderFullPath ):
+        try:
             self._projects = os.listdir( self._projectsFolderFullPath )
+        except IOError:
+            print "server path doesn't exists, %s" % self._projectsFolderFullPath
     
     
     
     #----------------------------------------------------------------------
-    def getProjectsFullPath(self):
+    @property
+    def projectsFullPath(self):
         """returns the projects folder full path
         
         ex : M:/JOBs
@@ -252,7 +246,7 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def getServerPath(self):
+    def _getServerPath(self):
         """gets the server path
         """
         return self._serverPath
@@ -260,12 +254,21 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def setServerPath(self, serverPath):
+    def _setServerPath(self, serverPath):
         """sets the server path
         """
-        self._serverPath = serverPath + os.path.sep
+        # add a trailing separator
+        # in any cases os.path.join adds a trailing seperator
+        self._serverPath = os.path.join( serverPath, '' )
         
-        self._updatePathVariables()
+        #self._updatePathVariables()
+        self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
+        
+        self._projects = [] * 0
+        
+        self.updateProjectList()
+    
+    serverPath = property( _getServerPath, _setServerPath )
     
     
     
@@ -286,7 +289,8 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def getDefaultFiles(self):
+    @property
+    def defaultFiles(self):
         """returns the default files list as list of tuples, the first element contains
         the file name, the second the project relative path, the third the source path
         
@@ -299,7 +303,17 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def getHomePath(self):
+    @property
+    def defaultSettingsFileFullPath(self):
+        """returns the default settings file full path
+        """
+        return self._defaultSettingsFileFullPath
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def homePath(self):
         """returns the homePath environment variable
         it is :
         /home/userName/ for linux
@@ -313,8 +327,7 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    @cache.CachedMethod
-    def getLastUser(self):
+    def _getLastUser(self):
         """returns the last user initials if the lastUserFile file exists
         otherwise returns None
         """
@@ -334,7 +347,7 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def setLastUser(self, userInitials):
+    def _setLastUser(self, userInitials):
         """saves the last user initials to the lastUserFile
         """
         
@@ -345,6 +358,8 @@ class Repository( abstractClasses.Singleton ):
         else:
             lastUserFile.write( userInitials )
             lastUserFile.close()
+    
+    lastUser = cache.CachedMethod( property( _getLastUser, _setLastUser ) )
     
     
     

@@ -1,6 +1,16 @@
 Version History :
 -----------------
-v10.1.2
+v10.2.2
+- the dependency to outer sources are eliminated by adding the
+  defaultProjectSettings.xml, users.xml, and _defaultFiles_ folder to the
+  package folder
+- repositoryModel: Repository class is updated to reflect the changes in the
+  settings file paths
+- cahce: CachedMethod now supports chaching of property methods
+- repositoryModel: all suitable get methods converted to properties, and some
+  of them are now cached
+
+v10.2.1
 - projectModel: Sequence class now sorts the shots list properly whenever it
   reads or saves the settings
 

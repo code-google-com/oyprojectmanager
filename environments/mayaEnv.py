@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel, repositoryMode
 
 
 
-__version__ = "10.1.28"
+__version__ = "10.2.2"
 
 
 
@@ -267,7 +267,7 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         repo = repositoryModel.Repository()
         
-        mayaProjectPath = os.path.join( repo.getProjectsFullPath(), projectName, sequenceName )
+        mayaProjectPath = os.path.join( repo.projectsFullPath, projectName, sequenceName )
         
         pm.workspace.open(mayaProjectPath)
     

@@ -9,7 +9,7 @@ from oyProjectManager.tools import rangeTools
 
 
 
-__version__ = "10.1.28"
+__version__ = "10.2.2"
 
 
 
@@ -94,7 +94,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         
         # fill the server comboBox
         self.servers_comboBox.clear()
-        self.servers_comboBox.addItem ( self.repo.getServerPath() )
+        self.servers_comboBox.addItem ( self.repo.serverPath )
     
     
     
@@ -203,7 +203,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
     def updateProjectLists(self):
         """updates the project comboBoxes
         """
-        projects = self.repo.getProjects()
+        projects = self.repo.validProjects
         sortedProjects = sorted( projects )
         
         # clear all the items in the current combo boxes

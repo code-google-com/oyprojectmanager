@@ -9,7 +9,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.1.30"
+__version__ = "10.2.2"
 
 
 
@@ -117,7 +117,7 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         
         # fill the server comboBox
         self.servers_comboBox.clear()
-        self.servers_comboBox.addItem ( self.repo.getServerPath() )
+        self.servers_comboBox.addItem ( self.repo.serverPath )
     
     
     
@@ -161,7 +161,7 @@ class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
         """updates the projects combobox
         """
         
-        projects = self.repo.getProjects()
+        projects = self.repo.validProjects
         sortedProjects = sorted( projects )
         
         # clear all the items in the current combo boxes
