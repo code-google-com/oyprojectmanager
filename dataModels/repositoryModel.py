@@ -222,7 +222,7 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def _updateProjectList(self):
+    def updateProjectList(self):
         """updates the project list variable
         """
         
