@@ -1,5 +1,11 @@
 Version History :
 -----------------
+v10.2.3
+- projectManager: in the last update the projectManager is updated to list
+  valid projects only, but this made the newly created empty projects
+  unreachable in sequence creation tab, it is now fixed by getting the projects
+  instead of validProjects
+
 v10.2.2
 - the dependency to outer sources are eliminated by adding the
   defaultProjectSettings.xml, users.xml, and _defaultFiles_ folder to the

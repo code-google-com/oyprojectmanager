@@ -9,7 +9,7 @@ from oyProjectManager.tools import rangeTools
 
 
 
-__version__ = "10.2.2"
+__version__ = "10.2.3"
 
 
 
@@ -203,7 +203,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
     def updateProjectLists(self):
         """updates the project comboBoxes
         """
-        projects = self.repo.validProjects
+        projects = self.repo.projects
         sortedProjects = sorted( projects )
         
         # clear all the items in the current combo boxes

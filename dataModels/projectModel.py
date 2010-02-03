@@ -729,9 +729,7 @@ class Sequence(object):
         # description empty, it will be edited later
         newShotObjects = []
         for shotName in newShotsList:
-            shot = Shot()
-            shot.name = shotName
-            
+            shot = Shot( shotName, self )
             newShotObjects.append( shot )
         
         # add the new shot objects to the existing ones
