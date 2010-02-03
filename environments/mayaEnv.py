@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel, repositoryMode
 
 
 
-__version__ = "10.1.28"
+__version__ = "10.2.2"
 
 
 
@@ -207,6 +207,9 @@ class MayaEnvironment(abstractClasses.Environment):
         """sets the render file name
         """
         
+        # check/load Mentalray
+        #if pm.pluginInfo(
+        
         parentSeq = self._asset.parentSequence
         
         renderOutputFolder = parentSeq.structure.getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS
@@ -264,7 +267,7 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         repo = repositoryModel.Repository()
         
-        mayaProjectPath = os.path.join( repo.getProjectsFullPath(), projectName, sequenceName )
+        mayaProjectPath = os.path.join( repo.projectsFullPath, projectName, sequenceName )
         
         pm.workspace.open(mayaProjectPath)
     

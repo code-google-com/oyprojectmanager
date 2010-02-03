@@ -2,7 +2,7 @@ import time
 
 
 
-__version__ = "9.12.28"
+__version__ = "10.2.2"
 
 
 
@@ -21,19 +21,30 @@ class CachedMethod(object):
         # record the unbound-method and the name
         #print "running __init__ in CachcedMethod"
         
-        self._method = method
-        self._name = method.__name__
+        if not isinstance( method, property ):
+            self._method = method
+            self._name = method.__name__
+            self._isProperty = False
+        else:
+            self._method = method.fget
+            self._name = method.fget.__name__
+            self._isProperty = True
+        
         self._obj = None
     
     
     
     #----------------------------------------------------------------------
     def __get__(self, inst, cls):
-        """use __get__ just to get the instance object
+        """use __get__ to get the instance object
+        and create the attributes
+        
+        if it is  a property call __call__
         """
         #print "running __get__ in CachcedMethod"
         
         self._obj = inst
+        
         if not hasattr( self._obj, self._name + "._data"):
             #print "creating the data"
             setattr ( self._obj, self._name + "._data", None )
@@ -41,7 +52,10 @@ class CachedMethod(object):
             setattr ( self._obj, self._name + "._maxTimeDelta", 60 )
             #print "finished creating data"
         
-        return self
+        if self._isProperty:
+            return self.__call__()
+        else:
+            return self
     
     
     

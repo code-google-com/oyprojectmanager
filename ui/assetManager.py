@@ -10,7 +10,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.1.28"
+__version__ = "10.2.2"
 
 
 
@@ -224,13 +224,13 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         self.subName_listWidget.addItem( "MAIN" )
         
         # append the users to the users list
-        userInits = self._repo.getUserInitials()
+        userInits = self._repo.userInitials
         
         self.user_comboBox1.clear()
         self.user_comboBox1.addItems( userInits )
         
         # update the user with the last selected user
-        lastUser = self._repo.getLastUser()
+        lastUser = self._repo.lastUser
         
         userIndex = -1
         if lastUser != '' and lastUser != None:
@@ -351,10 +351,9 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """updates projects list
         """
         
-        serverPath = self._repo.getServerPath()
+        serverPath = self._repo.serverPath
         
-        #projectsList = self._repo.getProjects()
-        projectsList = self._repo.getValidProjects()
+        projectsList = self._repo.validProjects
         projectsList.sort()
         
         self.server_comboBox.clear()
@@ -1287,7 +1286,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
             # if everything worked fine close the interface
             if envStatus:
                 # set the last user variable
-                self._repo.setLastUser( self._asset.userInitials )
+                self._repo.lastUser = self._asset.userInitials
                 
                 #print info
                 if self._environment.name == 'MAYA':

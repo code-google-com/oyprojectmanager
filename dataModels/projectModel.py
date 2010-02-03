@@ -6,7 +6,7 @@ from oyProjectManager.dataModels import assetModel, userModel, repositoryModel
 
 
 
-__version__ = "10.1.30"
+__version__ = "10.2.2"
 
 
 
@@ -42,7 +42,7 @@ class Project(object):
     
     #----------------------------------------------------------------------
     def _initPathVariables(self):
-        self._path = self._repository._projectsFolderFullPath
+        self._path = self._repository.projectsFullPath
         self._fullPath = os.path.join( self._path, self._name)
     
     
@@ -469,8 +469,7 @@ class Sequence(object):
             self._shotList.append( name )
         
         # sort the shot list
-        self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
-        
+        self._sortShots()
         
     
     
@@ -546,10 +545,8 @@ class Sequence(object):
         # SHOT DATA
         #----------------------------------------------------------------------
         
-        ## create shot list text data
-        ## sort the shotList
-        #self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
-        ##shotListNodeText.data = '\n'.join( self._shotList )
+        # sort the list before saving
+        self._sortShots()
         
         # create the new type of shotData nodes
         for shot in self._shots:
@@ -676,7 +673,7 @@ class Sequence(object):
             exists = oyAux.createFolder( self._fullPath )
             
             # copy the settings file to the root of the sequence
-            shutil.copy( self._repository._defaultSettingsFullPath, self._settingsFileFullPath )
+            shutil.copy( self._repository.defaultSettingsFileFullPath, self._settingsFileFullPath )
         
         # just read the structure from the XML
         self.readSettings()
@@ -689,7 +686,8 @@ class Sequence(object):
         
         # copy any file to the sequence
         # (like workspace.mel)
-        for _fileInfo in self._repository.getDefaultFiles():
+        
+        for _fileInfo in self._repository.defaultFiles:
             sourcePath = os.path.join( _fileInfo[2], _fileInfo[0] )
             targetPath = os.path.join( self._fullPath, _fileInfo[1], _fileInfo[0] )
             
@@ -731,9 +729,7 @@ class Sequence(object):
         # description empty, it will be edited later
         newShotObjects = []
         for shotName in newShotsList:
-            shot = Shot()
-            shot.name = shotName
-            
+            shot = Shot( shotName, self )
             newShotObjects.append( shot )
         
         # add the new shot objects to the existing ones
@@ -812,11 +808,7 @@ class Sequence(object):
                 # create the folder with that name
                 shotFullPath = os.path.join ( self._fullPath, folder, shotString )
                 
-                #self._repository._create_folder( shotFullPath )
                 oyAux.createFolder( shotFullPath )
-        
-        # update settings
-        #self.saveSettings()
     
     
     
@@ -838,6 +830,14 @@ class Sequence(object):
         """returns the shot objects as a list
         """
         return self._shots
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _sortShots(self):
+        """sorts the internal shot list
+        """
+        self._shots = sorted( self._shots, key = oyAux.embedded_numbers )
     
     
     
@@ -1952,6 +1952,13 @@ class Shot(object):
         """returns the string representation of the object
         """
         return self._name
+    
+    
+    
+    #def __repr__(self):
+        #"""returns the representation of the class
+        #"""
+        #return "< oyProjectManager.dataModels.projectModel.Shot object: " + self._name + ">"
     
     
     

@@ -1,5 +1,9 @@
 TODO List :
 -----------
+
+- set the default maya renderer to mentralray and use 32-bit exr as the default
+  output type
+
 - save a local copy of the asset to not to carry all the eggs in the same
   basket
 
@@ -78,6 +82,8 @@ TODO List :
 
 FIXED & DONE :
 --------------
++ the shot editor should list the shots in alphabetical order
+
 + some suggestions to the system name:
   * DeepImpact
   * Raptor

@@ -1,5 +1,25 @@
 Version History :
 -----------------
+v10.2.3
+- projectManager: in the last update the projectManager is updated to list
+  valid projects only, but this made the newly created empty projects
+  unreachable in sequence creation tab, it is now fixed by getting the projects
+  instead of validProjects
+
+v10.2.2
+- the dependency to outer sources are eliminated by adding the
+  defaultProjectSettings.xml, users.xml, and _defaultFiles_ folder to the
+  package folder
+- repositoryModel: Repository class is updated to reflect the changes in the
+  settings file paths
+- cahce: CachedMethod now supports chaching of property methods
+- repositoryModel: all suitable get methods converted to properties, and some
+  of them are now cached
+
+v10.2.1
+- projectModel: Sequence class now sorts the shots list properly whenever it
+  reads or saves the settings
+
 v10.1.31
 - projectManager: the projectManager was not able to add alternative shots
 - projectModel: defaults introduced to shot models init

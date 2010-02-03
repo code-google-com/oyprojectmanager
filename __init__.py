@@ -7,16 +7,17 @@ The oyProjectManager is created to manage our animation studios own projects,
 within a predefined project structure. It is also a simple asset management
 system. The main purpose of this system is to create projects, sequences and
 to allow users to save their files in correct folders with correct names. So
-anyone can find their files by using this system. But again it is not a
-complete Project Asset Management System.
+anyone can find their files later on by using this system. But again it is not
+a complete Project Asset Management System.
 
 This system uses a repository, and extracts the information from the folder and
 file names. And because it uses a consistent structure while creating both the
-projects, sequences and assets, it works very fine.
+projects, sequences and assets, it works very fine for small groups of artists.
 
 Another aim of this code is to prevent the user to use the OSes own file
 manager (ie. Windows Explorer on Windows ) to define the name and placement of
-the asset file.
+the asset file. In normal circumstances the user is not allowed to defien the
+file name.
 
 While working for a project, everytime we create an asset the files can
 generally be grouped with the aim of that file. For example we create files for
@@ -81,17 +82,44 @@ Asset names consists from these parts:
 
 BaseName     : The base name that specifies the asset, for shot dependent asset
                types it is the ShotString ( e.g. SH010 ), for shot independent
-               assets it is user dependent
+               assets it is user dependent. It always starts with capital
+               letter, numbers are not allowed in the begginging
 
 SubName      : For assets that doesn't have a subName it is MAIN, for other
-               assets it is user dependent
+               assets it is user dependent. The main purpose of SubName field
+               is to distinguish asset parts that merges in to a much bigger
+               asset. The best example is the Animation type: every character
+               in a shot ( SH001 for example ) saved with different SubNames
+               but same BaseName ( the shot name ). For example:
+               
+               SH001_Kopil_ANIMATION_r00_v100_hg.ma
+               SH001_Muslum_ANIMATION_r00_v045_ec.ma
+               SH001_Selin_ANIMATION_r00_v076_kk.ma
+               
+               all of these can be combined to gather in:
+               SH001_MAIN_ANIMATION_r00_v001_oy.ma
+               
+               so all of them kept under the same folder ( _ANIMATIONS_/SH001 )
+               because they are the sub assets of the main animation asset of
+               shot 1...
 
 TypeName     : The asset types are defined in the sequence settings, and the
                typeName takes its string representation from that settings
                file. There is no default value, it can completely be changed
                from project to project, examples to asset type names are MODEL,
-               ANIMATION, RENDER, PREVIS etc. for more information about asset
-               types look to the documentation of Sequence class
+               ANIMATION, RENDER, PREVIS etc.
+               
+               Basically the asset type defines two things:
+               * the place it needs to be saved under
+               * desides whether to show the asset to the current environment
+                 ( the application itself, MAYA, NUKE, HOUDINI etc. ) or not
+               
+               The second feature exists to prevent the applications to try to
+               open wrong types of assets ( MAYA opening NUKE files or vice
+               versa )
+               
+               For more information about asset types look to the documentation
+               of Sequence class
 
 RevString    : The revision string represents a number that is usually
                increased when the director or the client has commented the
@@ -118,15 +146,20 @@ Notes        : The notes about the asset can be hold here. Although it
 
 
 
-Assets are placed under:
+When an assets is saved, it is placed under:
 
 {projectsPath}/{projectName}/{sequenceName}/{typeFolder}/{baseName}/
-{assetFileName}
+{assetFileName}.{extension}
 
+So, by following that format one can easily find all the asset file under the
+given project path.
 
 
 Command Line Options :
 ----------------------
+
+The system can be used under shell ( command line in Windows ) with this flags,
+without runnning the python interpreter exclusively.
 
 -e, --environment    specifies the working environment, currently it accepts
                      values like:
@@ -152,4 +185,4 @@ Command Line Options :
 
 
 
-__version__ = "10.1.30"
+__version__ = "10.2.3"
