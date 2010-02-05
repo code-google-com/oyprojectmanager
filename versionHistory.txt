@@ -1,5 +1,8 @@
 Version History :
 -----------------
+v10.2.5
+- projectManager: added calls to Sequence.saveSettings in necessary places
+
 v10.2.3
 - projectManager: in the last update the projectManager is updated to list
   valid projects only, but this made the newly created empty projects

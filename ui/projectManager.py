@@ -9,7 +9,7 @@ from oyProjectManager.tools import rangeTools
 
 
 
-__version__ = "10.2.3"
+__version__ = "10.2.5"
 
 
 
@@ -173,6 +173,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         newSeq = projectModel.Sequence( projectModel.Project( projectName ) , sequenceName )
         newSeq.addShots( shotRange )
         newSeq.create()
+        newSeq.saveSettings()
         
         # inform the user if it is created
         QtGui.QMessageBox.information( self, 'Sequence Created', sequenceName + '\n\nSequence is successfuly created' )
@@ -193,6 +194,7 @@ class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
         
         seq.addShots( shotRange )
         seq.createShots()
+        seq.saveSettings()
         
         # inform the user if it is created
         QtGui.QMessageBox.information( self, 'Shots Added', 'Shots are successfuly added!' )
