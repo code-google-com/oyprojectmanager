@@ -728,9 +728,16 @@ class Sequence(object):
         # just create shot objects with shot name and leave the start and end frame and
         # description empty, it will be edited later
         newShotObjects = []
+        
+        
+        # create a shot names buffer
+        shotNamesBuffer = [ shot.name for shot in self.shots ]
+        
         for shotName in newShotsList:
-            shot = Shot( shotName, self )
-            newShotObjects.append( shot )
+            # check if the shot allready exists
+            if shotName not in shotNamesBuffer:
+                shot = Shot( shotName, self )
+                newShotObjects.append( shot )
         
         # add the new shot objects to the existing ones
         self._shots = oyAux.unique( oyAux.concatenateLists( self._shots, newShotObjects ) )
