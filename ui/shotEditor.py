@@ -9,22 +9,19 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.2.2"
-
-
-
+__version__ = "10.2.5"
 
 
 
 #----------------------------------------------------------------------
 def UI(environmentName=''):
-    """the UI
+    """the UI to call the dialog by itself
     """
     global app
-    global mainWindow
+    global mainDialog
     app = singletonQapplication.QApplication(sys.argv)
-    mainWindow = MainWindow(environmentName)
-    mainWindow.show()
+    mainDialog = MainDialog( environmentName )
+    mainDialog.show()
     app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
@@ -35,15 +32,16 @@ def UI(environmentName=''):
 
 
 #######################################################################
-class MainWindow(QtGui.QMainWindow, shotEditor_UI.Ui_MainWindow):
-    """a tool to edit shot ranges and descriptions for a project
+class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
+    """the main dialog of a tool to edit shot ranges and descriptions for a
+    project
     """
     
     
     
     #----------------------------------------------------------------------
     def __init__(self, environmentName=None, parent=None):
-        QtGui.QMainWindow.__init__(self, parent)
+        super(MainDialog,self).__init__(parent)
         self.setupUi(self)
         
         self.repo = repositoryModel.Repository()

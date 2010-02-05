@@ -10,20 +10,19 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.2.2"
+__version__ = "10.2.5"
 
 
 
 #----------------------------------------------------------------------
-def UI(environmentName=None, parent=None):
-    """the UI
+def UI( environmentName=None ):
+    """the UI to call the dialog by itself
     """
     global app
-    global mainWindow
+    global mainDialog
     app = singletonQapplication.QApplication(sys.argv)
-    
-    mainWindow = MainWindow(environmentName, parent)
-    mainWindow.show()
+    mainDialog = MainDialog( environmentName )
+    mainDialog.show()
     app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
@@ -34,7 +33,7 @@ def UI(environmentName=None, parent=None):
 
 
 ########################################################################
-class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
+class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     """the main dialog of the system
     """
     
@@ -42,7 +41,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
     
     #----------------------------------------------------------------------
     def __init__(self, environmentName=None, parent=None):
-        QtGui.QMainWindow.__init__(self, parent)
+        super(MainDialog,self).__init__(parent)
         self.setupUi(self)
         
         # change the window title
@@ -94,7 +93,7 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
         """sets the environment object from the environemnt name
         """
         self._environment = environmentFactory.EnvironmentFactory.create( self._asset, environmentName )
-        
+    
     
     
     #----------------------------------------------------------------------
@@ -1362,22 +1361,11 @@ class MainWindow(QtGui.QMainWindow, assetManager_UI.Ui_MainWindow):
                 
                 # check the toUpdateList to update old assets
                 if len(toUpdateList):
-                    assetNames = '<br>'.join( [ assetTuple[0].fileName for assetTuple in toUpdateList ] )
-                    
-                    # display the warning
-                    answer = QtGui.QMessageBox.warning(self, 'AssetVersionError', "These assets has <b>newer versions</b><br><br>" + assetNames + "<br><br>Please <b>update</b> them!", QtGui.QMessageBox.Ok )
-                    
-                    # print the text version
-                    print "\n"
-                    print "These assets has newer versions:"
-                    print "--------------------------------"
-                    print "\n"
-                    print assetNames
-                    print "\n"
-                    print "Please update them!"
-                    
-                    ## invoke the assetUpdater for this scene
-                    #assetUpdater.UI( self._environmentName, self )
+                    # invoke the assetUpdater for this scene
+                    assetUpdaterMainDialog = assetUpdater.MainDialog( self._environment.name, self )
+                    assetUpdaterMainDialog.exec_()
+                
+                
                 
             elif self._environment.name == 'NUKE':
                 envStatus = self._environment.open_()

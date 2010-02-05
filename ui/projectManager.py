@@ -6,7 +6,7 @@ import projectManager_UI
 import oyProjectManager
 from oyProjectManager.dataModels import projectModel, repositoryModel
 from oyProjectManager.tools import rangeTools
-
+from oyProjectManager.ui import singletonQapplication
 
 
 __version__ = "10.2.5"
@@ -15,13 +15,14 @@ __version__ = "10.2.5"
 
 #----------------------------------------------------------------------
 def UI():
-    """the UI
+    """the UI to call the dialog by itself
     """
     global app
-    global mainWindow
-    app = QtGui.QApplication(sys.argv)
-    mainWindow = MainWindow()
-    returnValue = mainWindow.show()
+    global mainDialog
+    #app = QtGui.QApplication( sys.argv )
+    app = singletonQapplication.QApplication(sys.argv)
+    mainDialog = MainDialog()
+    mainDialog.show()
     app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
@@ -32,16 +33,15 @@ def UI():
 
 
 ########################################################################
-class MainWindow(QtGui.QMainWindow, projectManager_UI.Ui_MainWindow):
-    """the main window of the system
+class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
+    """the main dialog of the system
     """
     
     
     
     #----------------------------------------------------------------------
-    def __init__(self):
-        #super(MainWindow).__init__(self)
-        QtGui.QMainWindow.__init__(self)
+    def __init__(self, parent=None):
+        super(MainDialog,self).__init__(parent)
         self.setupUi(self)
         
         # change the window title

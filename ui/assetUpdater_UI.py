@@ -2,30 +2,23 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetUpdater.ui'
 #
-# Created: Tue Dec 29 13:48:55 2009
+# Created: Fri Feb  5 21:59:31 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(439, 442)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
-        MainWindow.setSizePolicy(sizePolicy)
-        self.centralwidget = QtGui.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout_2 = QtGui.QVBoxLayout(self.centralwidget)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.label = QtGui.QLabel(self.centralwidget)
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(437, 442)
+        self.verticalLayout = QtGui.QVBoxLayout(Dialog)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.label = QtGui.QLabel(Dialog)
         self.label.setObjectName("label")
-        self.verticalLayout_2.addWidget(self.label)
-        self.assetList_tableWidget = QtGui.QTableWidget(self.centralwidget)
+        self.verticalLayout.addWidget(self.label)
+        self.assetList_tableWidget = QtGui.QTableWidget(Dialog)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -40,8 +33,8 @@ class Ui_MainWindow(object):
         self.assetList_tableWidget.setRowCount(0)
         self.assetList_tableWidget.horizontalHeader().setVisible(True)
         self.assetList_tableWidget.horizontalHeader().setStretchLastSection(True)
-        self.verticalLayout_2.addWidget(self.assetList_tableWidget)
-        self.horizontalWidget = QtGui.QWidget(self.centralwidget)
+        self.verticalLayout.addWidget(self.assetList_tableWidget)
+        self.horizontalWidget = QtGui.QWidget(Dialog)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -64,20 +57,16 @@ class Ui_MainWindow(object):
         self.cancel_pushButton = QtGui.QPushButton(self.horizontalWidget)
         self.cancel_pushButton.setObjectName("cancel_pushButton")
         self.horizontalLayout.addWidget(self.cancel_pushButton)
-        self.verticalLayout_2.addWidget(self.horizontalWidget)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtGui.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        self.verticalLayout.addWidget(self.horizontalWidget)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Asset Updater", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("MainWindow", "Please check the Assets that needs to be updated", None, QtGui.QApplication.UnicodeUTF8))
-        self.selectNone_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Select None", None, QtGui.QApplication.UnicodeUTF8))
-        self.selectAll_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Select All", None, QtGui.QApplication.UnicodeUTF8))
-        self.update_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Update", None, QtGui.QApplication.UnicodeUTF8))
-        self.cancel_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
+    def retranslateUi(self, Dialog):
+        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Asset Updater", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("Dialog", "Please check the Assets that needs to be updated", None, QtGui.QApplication.UnicodeUTF8))
+        self.selectNone_pushButton.setText(QtGui.QApplication.translate("Dialog", "Select None", None, QtGui.QApplication.UnicodeUTF8))
+        self.selectAll_pushButton.setText(QtGui.QApplication.translate("Dialog", "Select All", None, QtGui.QApplication.UnicodeUTF8))
+        self.update_pushButton.setText(QtGui.QApplication.translate("Dialog", "Update", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_pushButton.setText(QtGui.QApplication.translate("Dialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
 

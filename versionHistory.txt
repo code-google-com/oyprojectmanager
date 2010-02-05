@@ -2,7 +2,14 @@ Version History :
 -----------------
 v10.2.5
 - projectManager: added calls to Sequence.saveSettings in necessary places
-- projectModel: fixed creation of multiple shots with same name in sequence
+- projectModel: fixed accidently creation of multiple shots with same name in
+  sequence
+- projectSetter: the oySetProject.py script is moved inside the
+  oyProjectManager package, and its functionalities has been generalized by
+  supporting the Environment concept
+- projectManager: all the ui elements converted from MainWindow to Dialog
+- assetManager, assetUpdater: assetManager now can call assetUpdater properly
+  upon file load, without any crash... (congrats to my self :) )
 
 v10.2.3
 - projectManager: in the last update the projectManager is updated to list

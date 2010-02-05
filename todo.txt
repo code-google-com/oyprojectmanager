@@ -1,5 +1,14 @@
 TODO List :
 -----------
+- dataModels should be renamed to models, and every module under it should not
+  contain Model in their names, for example:
+  
+  dataModels/assetModel.py   --> models/asset.py
+  dataModels/projectModel.py --> models/project.py
+  etc.
+
+- the environments folder should be moved under dataModels (will be renamed to
+  models), to have a consistant structure
 
 - set the default maya renderer to mentralray and use 32-bit exr as the default
   output type
@@ -9,7 +18,8 @@ TODO List :
 
 - shotEditor is not working in Houdini
 
-- for non-asset files, nuke could not open the assetManager interface
+- while working with non-asset files, nuke could not bring up the assetManager
+  interface
 
 - add a UserType class, save the default user types in an xml file
 
@@ -75,13 +85,16 @@ TODO List :
 - programs should not list the files those they can not open, for example
   houdini shouldn't list ma files, and maya should not list hip files
 
-- for environments supporting referencing, check the references for new
-  versions while opening the asset (this is partially done)
+
+
 
 
 
 FIXED & DONE :
 --------------
++ for environments supporting referencing, check the references for new
+  versions while opening the asset ( properly done for maya )
+
 + the shot editor should list the shots in alphabetical order
 
 + some suggestions to the system name:

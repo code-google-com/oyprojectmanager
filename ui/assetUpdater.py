@@ -8,22 +8,24 @@ from oyProjectManager.dataModels import assetModel, projectModel, repositoryMode
 from oyProjectManager.ui import singletonQapplication
 
 
-__version__ = "10.1.28"
+
+__version__ = "10.2.5"
 
 
 
 #----------------------------------------------------------------------
-def UI( environmentName=None, parent=None ):
-    """the UI
+def UI( environmentName=None ):
+    """the UI to call the dialog by itself
     """
     global app
-    global mainWindow
+    global mainDialog
     app = singletonQapplication.QApplication(sys.argv)
-    mainWindow = MainWindow( environmentName, parent )
-    mainWindow.show()
+    mainDialog = MainDialog( environmentName )
+    mainDialog.show()
     app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
+    
 
 
 
@@ -31,7 +33,7 @@ def UI( environmentName=None, parent=None ):
 
 
 #######################################################################
-class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
+class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     """the main dialog of the asset updater system
     
     the assetTuple list consist of an asset object and a reference object
@@ -44,7 +46,7 @@ class MainWindow(QtGui.QMainWindow, assetUpdater_UI.Ui_MainWindow):
     
     #----------------------------------------------------------------------
     def __init__(self, environmentName=None, parent=None):
-        QtGui.QMainWindow.__init__(self, parent)
+        super(MainDialog,self).__init__(parent)
         self.setupUi(self)
         
         # change the window title

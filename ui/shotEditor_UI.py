@@ -2,22 +2,20 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/shotEditor.ui'
 #
-# Created: Mon Jan 11 15:25:07 2010
+# Created: Fri Feb  5 22:24:49 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(717, 859)
-        self.centralwidget = QtGui.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(714, 858)
+        self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.gridWidget = QtGui.QWidget(self.centralwidget)
+        self.gridWidget = QtGui.QWidget(Dialog)
         self.gridWidget.setMinimumSize(QtCore.QSize(0, 100))
         self.gridWidget.setObjectName("gridWidget")
         self.gridLayout = QtGui.QGridLayout(self.gridWidget)
@@ -51,7 +49,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.servers_comboBox, 0, 1, 1, 1)
         self.gridLayout.setColumnStretch(1, 1)
         self.verticalLayout.addWidget(self.gridWidget)
-        self.shotData_tableWidget = QtGui.QTableWidget(self.centralwidget)
+        self.shotData_tableWidget = QtGui.QTableWidget(Dialog)
         self.shotData_tableWidget.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked)
         self.shotData_tableWidget.setAlternatingRowColors(True)
         self.shotData_tableWidget.setColumnCount(5)
@@ -60,7 +58,7 @@ class Ui_MainWindow(object):
         self.shotData_tableWidget.setRowCount(0)
         self.shotData_tableWidget.horizontalHeader().setStretchLastSection(True)
         self.verticalLayout.addWidget(self.shotData_tableWidget)
-        self.horizontalWidget = QtGui.QWidget(self.centralwidget)
+        self.horizontalWidget = QtGui.QWidget(Dialog)
         self.horizontalWidget.setObjectName("horizontalWidget")
         self.horizontalLayout = QtGui.QHBoxLayout(self.horizontalWidget)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -73,19 +71,15 @@ class Ui_MainWindow(object):
         self.close_pushButton.setObjectName("close_pushButton")
         self.horizontalLayout.addWidget(self.close_pushButton)
         self.verticalLayout.addWidget(self.horizontalWidget)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtGui.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Shot Editor", None, QtGui.QApplication.UnicodeUTF8))
-        self.project_label3.setText(QtGui.QApplication.translate("MainWindow", "Project", None, QtGui.QApplication.UnicodeUTF8))
-        self.sequence_label3.setText(QtGui.QApplication.translate("MainWindow", "Sequence", None, QtGui.QApplication.UnicodeUTF8))
-        self.servers_label.setText(QtGui.QApplication.translate("MainWindow", "server", None, QtGui.QApplication.UnicodeUTF8))
-        self.save_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.close_pushButton.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
+    def retranslateUi(self, Dialog):
+        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Shot Editor", None, QtGui.QApplication.UnicodeUTF8))
+        self.project_label3.setText(QtGui.QApplication.translate("Dialog", "Project", None, QtGui.QApplication.UnicodeUTF8))
+        self.sequence_label3.setText(QtGui.QApplication.translate("Dialog", "Sequence", None, QtGui.QApplication.UnicodeUTF8))
+        self.servers_label.setText(QtGui.QApplication.translate("Dialog", "server", None, QtGui.QApplication.UnicodeUTF8))
+        self.save_pushButton.setText(QtGui.QApplication.translate("Dialog", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.close_pushButton.setText(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
 

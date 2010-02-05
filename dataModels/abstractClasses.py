@@ -1,7 +1,7 @@
 
 
 
-__version__ = "10.1.14"
+__version__ = "10.2.5"
 
 
 
@@ -29,10 +29,13 @@ class Environment(object):
     """
     
     #----------------------------------------------------------------------
-    def __init__(self, asset=None, name=''):
+    def __init__(self, asset=None, name='', extensions=None):
         
         self._name = name
         self._asset = asset
+        self._extensions = extensions
+        self._project = None
+        self._sequence = None
     
     
     
@@ -129,8 +132,33 @@ class Environment(object):
     
     
     #----------------------------------------------------------------------
+    def getProject(self):
+        """returns the current project from environment
+        """
+        pass
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setProject(self, projectName, sequenceName):
+        """sets the project and sequence names, thus the working environment
+        of the current environment
+        """
+        pass
+    
+    
+    
+    #----------------------------------------------------------------------
     def setOutputFileName(self):
         """sets the output file names
+        """
+        pass
+    
+    
+    
+    #----------------------------------------------------------------------
+    def appendToRecentFiles(self, path):
+        """appends the given path to the recent files list
         """
         pass
     
@@ -177,4 +205,24 @@ class Environment(object):
         """sets the frame range in the environment
         """
         pass
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getExtensions(self):
+        """returns the extensions of environment
+        """
+        return self._extensions
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setExtensions(self, extensions):
+        """sets the extensions
+        """
+        self._extensions = extensions
+    
+    extensions = property(_getExtensions, _setExtensions)
+    
+    
     
