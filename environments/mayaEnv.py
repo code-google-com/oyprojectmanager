@@ -255,7 +255,7 @@ class MayaEnvironment(abstractClasses.Environment):
         
         baseName = self._asset.baseName
         
-        playblastFullPath = os.path.join( seqFullPath, playblastFolderPath, baseName, self._asset.fileNameWithoutExtension ) + '.avi'
+        playblastFullPath = os.path.join( seqFullPath, playblastFolderPath, baseName, self._asset.fileNameWithoutExtension ) + '.mov'
         
         pm.optionVar['playblastFile'] = playblastFullPath
     
