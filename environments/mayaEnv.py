@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel, repositoryMode
 
 
 
-__version__ = "10.2.2"
+__version__ = "10.2.15"
 
 
 
@@ -255,7 +255,7 @@ class MayaEnvironment(abstractClasses.Environment):
         
         baseName = self._asset.baseName
         
-        playblastFullPath = os.path.join( seqFullPath, playblastFolderPath, baseName, self._asset.fileNameWithoutExtension ) + '.mov'
+        playblastFullPath = os.path.join( seqFullPath, playblastFolderPath, baseName, self._asset.fileNameWithoutExtension )
         
         pm.optionVar['playblastFile'] = playblastFullPath
     

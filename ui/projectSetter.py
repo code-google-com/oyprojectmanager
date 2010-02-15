@@ -3,11 +3,10 @@ from oyProjectManager.ui import singletonQapplication, projectSetter_UI
 from oyProjectManager.dataModels import projectModel, repositoryModel
 from oyProjectManager.environments import environmentFactory
 import sys
-import pymel as pm
 
 
 
-__version__ = '10.2.5'
+__version__ = '10.2.15'
 
 
 
@@ -78,24 +77,12 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         """fills the default values
         """
         
-        # get the server from database object
-        
-        servers = self._repo.projectsFullPath
-        
-        projects = self._repo.projects
-        
-        # fill the server and projects comboBoxes
-        
-        self.server_comboBox.clear()
-        self.server_comboBox.addItem( servers )
-        
-        self.project_comboBox.clear()
-        self.project_comboBox.addItems( sorted(projects) )
+        # update servers and projects
+        self.updateServerList()
+        self.updateProjectList()
         
         # get the current project
-        #currentProjectPath = pm.workspace.name
         # get it from the environment
-        #currentProjectPath = self._environment.getPathVariables()
         fileName, filePath = self._environment.getPathVariables()
         
         currentProjectName, currentSequenceName = self._repo.getProjectAndSequenceNameFromFilePath( filePath )
@@ -107,6 +94,32 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         
         # set the sequence
         self.sequence_comboBox.setCurrentIndex( self.sequence_comboBox.findText(currentSequenceName) )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def updateServerList(self):
+        """updates the server list
+        """
+        # get the server from database object
+        servers = self._repo.projectsFullPath
+        
+        # fill the server comboBoxes
+        self.server_comboBox.clear()
+        self.server_comboBox.addItem( servers )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def updateProjectList(self):
+        """updates the project list
+        """
+        
+        # get the valid projects
+        projects = self._repo.validProjects
+        
+        self.project_comboBox.clear()
+        self.project_comboBox.addItems( sorted(projects) )
     
     
     

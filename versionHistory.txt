@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.2.15
+- projectSetter: projectSetter now lists only valid projects and sequences
+- mayaEnv: removed the mov extension from playblast file names
+
 v10.2.6
 - mayaEnv: changed the playblast file extension from avi to mov
 
