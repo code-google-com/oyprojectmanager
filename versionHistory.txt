@@ -1,5 +1,10 @@
 Version History :
 -----------------
+v10.2.17
+- assetModel: fixed a bug, causes the assetManager to mulfunction, which is
+  caused by files named by hand which has a matching file name format to our
+  internal file name format, but doesn't have any matching assetType
+
 v10.2.15
 - projectSetter: projectSetter now lists only valid projects and sequences
 - mayaEnv: removed the mov extension from playblast file names

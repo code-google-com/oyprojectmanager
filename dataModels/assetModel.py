@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.1.28"
+__version__ = "10.2.17"
 
 
 
@@ -212,6 +212,11 @@ class Asset(object):
         
         # get the type object
         self._type = self._parentSequence.getAssetTypeWithName( self._typeName )
+        
+        # sometimes the file name matches the format but it is not neccessarly
+        # an asset file if the type is None
+        if self._type is None:
+            return
         
         try:
             self._rev = self._parentSequence.convertToRevNumber( self._revString )
