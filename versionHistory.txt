@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.2.18
+- projectSetter: fixed an issue preventing the system not to start properly, on
+  systems never set a project before
+
 v10.2.17
 - assetModel: fixed a bug, causes the assetManager to mulfunction, which is
   caused by files named by hand which has a matching file name format to our

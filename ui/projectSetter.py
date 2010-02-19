@@ -87,13 +87,15 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         
         currentProjectName, currentSequenceName = self._repo.getProjectAndSequenceNameFromFilePath( filePath )
         
-        self.project_comboBox.setCurrentIndex( self.project_comboBox.findText(currentProjectName) )
+        if currentProjectName is not None:
+            self.project_comboBox.setCurrentIndex( self.project_comboBox.findText(currentProjectName) )
         
         # update the sequence list
         self.updateSequenceList()
         
         # set the sequence
-        self.sequence_comboBox.setCurrentIndex( self.sequence_comboBox.findText(currentSequenceName) )
+        if currentSequenceName is not None:
+            self.sequence_comboBox.setCurrentIndex( self.sequence_comboBox.findText(currentSequenceName) )
     
     
     
