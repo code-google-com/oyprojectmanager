@@ -704,7 +704,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 continue
             
             #print fileName, dateUpdated
-            data.append( ( asset, fileName, dateUpdated ) )
+            data.append( ( asset, fileName, fileSize, dateUpdated ) )
             
             # ------------------------------------
             # asset fileName
