@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.2.23
+- assetModel: assetModel now holds information about the asset file size
+- assetManager: assetManager now displays the file size info as megabytes
+
 v10.2.18
 - projectSetter: fixed an issue preventing the system not to start properly, on
   systems never set a project before

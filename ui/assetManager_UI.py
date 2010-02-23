@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Fri Feb  5 22:06:10 2010
+# Created: Tue Feb 23 11:55:22 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(884, 877)
+        Dialog.resize(1002, 877)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.main_horizontalWidget = QtGui.QWidget(Dialog)
@@ -357,9 +357,9 @@ class Ui_Dialog(object):
         self.assets_tableWidget1.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.assets_tableWidget1.setShowGrid(False)
         self.assets_tableWidget1.setGridStyle(QtCore.Qt.NoPen)
-        self.assets_tableWidget1.setColumnCount(2)
+        self.assets_tableWidget1.setColumnCount(3)
         self.assets_tableWidget1.setObjectName("assets_tableWidget1")
-        self.assets_tableWidget1.setColumnCount(2)
+        self.assets_tableWidget1.setColumnCount(3)
         self.assets_tableWidget1.setRowCount(0)
         self.assets_tableWidget1.horizontalHeader().setStretchLastSection(True)
         self.assets_tableWidget1.verticalHeader().setVisible(False)

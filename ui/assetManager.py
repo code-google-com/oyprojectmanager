@@ -10,7 +10,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.2.5"
+__version__ = "10.2.23"
 
 
 
@@ -241,7 +241,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.user_comboBox1.setCurrentIndex( userIndex )
         
         # add the assets_tableWidget1 horizontal header labels
-        self._horizontalLabels = [ 'Asset FileName', 'Date Updated' ]
+        self._horizontalLabels = [ 'Asset FileName', 'File Size', 'Date Updated' ]
         self.assets_tableWidget1.setHorizontalHeaderLabels( self._horizontalLabels )
     
     
@@ -697,6 +697,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             asset = assetModel.Asset( self._project, self._sequence, assetFileName )
             
             fileName = asset.fileName
+            fileSize = asset.fileSizeFormated
             dateUpdated = asset.dateUpdated
             
             if fileName == None or dateUpdated == None:
@@ -714,11 +715,19 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             # ------------------------------------
             
             # ------------------------------------
+            # asset fileSize
+            assetFileSize_tableWI = QtGui.QTableWidgetItem( fileSize )
+            # align to center and verticle center
+            assetFileSize_tableWI.setTextAlignment( 0x0002 | 0x0080  )
+            self.assets_tableWidget1.setItem( i, 1, assetFileSize_tableWI )
+            # ------------------------------------
+            
+            # ------------------------------------
             # asset dateUpdated
             assetDateUpdated_tableWI = QtGui.QTableWidgetItem( dateUpdated )
             # align to left and verticle center
             assetDateUpdated_tableWI.setTextAlignment( 0x0004 | 0x0080  )
-            self.assets_tableWidget1.setItem( i, 1, assetDateUpdated_tableWI )
+            self.assets_tableWidget1.setItem( i, 2, assetDateUpdated_tableWI )
             # ------------------------------------
         
         # check and create the table data attr

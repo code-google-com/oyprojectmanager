@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.2.17"
+__version__ = "10.2.23"
 
 
 
@@ -41,6 +41,9 @@ class Asset(object):
         self._extension = u''
         self._dateCreated = None
         self._dateUpdated = None
+        self._fileSize = None
+        self._fileSizeString = None
+        self._fileSizeFormat = "%.2f MB"
         
         # path variables
         self._fileName = None #os.path.splitext(fileName)[0] # remove the extension
@@ -229,6 +232,7 @@ class Asset(object):
         
         self._initPathVariables()
         
+        self._updateFileSizes()
         self._updateFileDates()
     
     
@@ -328,6 +332,24 @@ class Asset(object):
         fileName = self._dataSeparator.join(parts)
         
         return fileName
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def fileSize(self):
+        """returns the fileSize as a float
+        """
+        return self._fileSize
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def fileSizeFormated(self):
+        """returns the fileSize as a formatted string
+        """
+        return self._fileSizeString
     
     
     
@@ -786,6 +808,21 @@ class Asset(object):
     
     
     
+    #----------------------------------------------------------------------
+    def _updateFileSizes(self):
+        """updates the file sizes as megabytes
+        """
+        
+        # get the file dates
+        try:
+            self._fileSize = os.path.getsize( self._fullPath )
+            self._fileSizeString = self._fileSizeFormat % ( self._fileSize * 9.5367431640625e-07 )
+        except OSError:
+            pass
+        
+    
+    
+    
     ##----------------------------------------------------------------------
     #def _validateExtension(self):
         #"""check if the extension is in the ignore list in the parent
@@ -926,6 +963,7 @@ class Asset(object):
             if self._hasFullInfo:
                 self._exists = os.path.exists( self._fullPath )
                 
+                self._updateFileSizes()
                 self._updateFileDates()
         
         else:
