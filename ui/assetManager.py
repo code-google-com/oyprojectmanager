@@ -700,7 +700,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             fileSize = asset.fileSizeFormated
             dateUpdated = asset.dateUpdated
             
-            if fileName == None or dateUpdated == None:
+            if fileName is None or dateUpdated is None or fileSize is None:
                 continue
             
             #print fileName, dateUpdated
