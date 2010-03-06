@@ -9,7 +9,7 @@ from oyProjectManager.tools import rangeTools
 from oyProjectManager.ui import singletonQapplication
 
 
-__version__ = "10.2.5"
+__version__ = "10.3.6"
 
 
 
@@ -257,6 +257,8 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         # sequence_comboBox4
         project = projectModel.Project( unicode( self.project_comboBox4.currentText() ) )
+        sequenceNames = sorted( project.sequenceNames() )
+        
         self.sequence_comboBox4.clear()
         self.sequence_comboBox4.addItems( sequenceNames )
         

@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.3.6
+- projectManager: the sequence combo box under add alternative shot tab was not
+  updating the sequence list, it is fixed now
+
 v10.2.23
 - assetModel: assetModel now holds information about the asset file size
 - assetManager: assetManager now displays the file size info as megabytes
