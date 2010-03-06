@@ -483,8 +483,8 @@ class Sequence(object):
         # the shotList
         
         for shotName in self._shotList:
-            newShot = Shot()
-            newShot.name = shotName
+            newShot = Shot( shotName, self )
+            #newShot.name = shotName
             self._shots.append( newShot )
     
     
