@@ -10,7 +10,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.2.23"
+__version__ = "10.3.8"
 
 
 
@@ -243,6 +243,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # add the assets_tableWidget1 horizontal header labels
         self._horizontalLabels = [ 'Asset FileName', 'File Size', 'Date Updated' ]
         self.assets_tableWidget1.setHorizontalHeaderLabels( self._horizontalLabels )
+        
+        # set spinbox default value to 10
+        self.numberOfEntry_spinBox.setValue(10)
     
     
     

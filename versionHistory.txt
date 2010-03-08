@@ -1,5 +1,11 @@
 Version History :
 -----------------
+v10.3.8
+- assetManager: under windows xp 32-bit the ui was complaining about
+  numberOfEntry_spinBox because of a compability issue between Qt versions, it
+  is fixed now by setting the value in the class instead of setting the default
+  value in the UI file
+
 v10.3.6
 - projectManager: the sequence combo box under add alternative shot tab was not
   updating the sequence list, it is fixed now

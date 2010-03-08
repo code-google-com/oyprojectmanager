@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Tue Feb 23 11:55:22 2010
+# Created: Mon Mar  8 16:24:12 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -341,7 +341,6 @@ class Ui_Dialog(object):
         self.numberOfEntry_spinBox = QtGui.QSpinBox(self.horizontalWidget_2)
         self.numberOfEntry_spinBox.setMinimum(1)
         self.numberOfEntry_spinBox.setMaximum(9999999)
-        self.numberOfEntry_spinBox.setProperty("value", 10)
         self.numberOfEntry_spinBox.setObjectName("numberOfEntry_spinBox")
         self.horizontalLayout.addWidget(self.numberOfEntry_spinBox)
         self.label = QtGui.QLabel(self.horizontalWidget_2)
