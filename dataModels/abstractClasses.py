@@ -29,7 +29,7 @@ class Environment(object):
     """
     
     #----------------------------------------------------------------------
-    def __init__(self, asset=None, name='', extensions=None):
+    def __init__(self, asset=None, name='', extensions=[]):
         
         self._name = name
         self._asset = asset
@@ -236,6 +236,9 @@ class Environment(object):
         - a filen name with extension or not
         - an extension with a dot on the start or not
         """
+        
+        if fileName is None:
+            return False
         
         if fileName.split('.')[-1].lower() in self._extensions:
             return True

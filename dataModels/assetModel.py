@@ -1099,7 +1099,7 @@ class AssetType(object):
 ########################################################################
 class SuperAsset(object):
     '''this is a new class, which actually should be named as "Asset". But
-    because the name is reserved by the previous designs Asset class it is
+    because the name is reserved by the previous designs Asset class, it is
     named as SuperAsset.
     
     In the previous design, the Asset objects were only pointing to and giving

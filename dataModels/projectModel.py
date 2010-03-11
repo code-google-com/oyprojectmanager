@@ -6,7 +6,7 @@ from oyProjectManager.dataModels import assetModel, userModel, repositoryModel
 
 
 
-__version__ = "10.2.2"
+__version__ = "10.3.11"
 
 
 
@@ -219,7 +219,7 @@ class Sequence(object):
         self._verPrefix = 'v' # version number prefix
         self._verPadding = 3
         
-        self._extensionsToIgnore = [] * 0
+        #self._extensionsToIgnore = [] * 0
         self._noSubNameField = False # to support the old types of projects
         
         self._environment = None # the working environment
@@ -327,8 +327,8 @@ class Sequence(object):
         self._verPrefix = sequenceDataNode.getAttribute('verPrefix')
         self._verPadding = sequenceDataNode.getAttribute('verPadding')
         
-        if sequenceDataNode.hasAttribute('extensionsToIgnore'):
-            self._extensionsToIgnore = sequenceDataNode.getAttribute('extensionsToIgnore').split(',')
+        #if sequenceDataNode.hasAttribute('extensionsToIgnore'):
+            #self._extensionsToIgnore = sequenceDataNode.getAttribute('extensionsToIgnore').split(',')
         
         if sequenceDataNode.hasAttribute('noSubNameField'):
             self._noSubNameField = bool( eval( sequenceDataNode.getAttribute('noSubNameField') ) )
@@ -522,7 +522,7 @@ class Sequence(object):
         sequenceDataNode.setAttribute('revPadding', unicode( self._revPadding ) )
         sequenceDataNode.setAttribute('verPrefix', self._verPrefix)
         sequenceDataNode.setAttribute('verPadding', unicode( self._verPadding ) )
-        sequenceDataNode.setAttribute('extensionsToIgnore', unicode( ','.join(self._extensionsToIgnore)) )
+        #sequenceDataNode.setAttribute('extensionsToIgnore', unicode( ','.join(self._extensionsToIgnore)) )
         
         if self._noSubNameField:
             sequenceDataNode.setAttribute('noSubNameField', unicode( self._noSubNameField ) )
@@ -1259,7 +1259,7 @@ class Sequence(object):
         # if a file starts with the folder name
         # mark it as an asset
         
-        assetFiles = [] * 0
+        assetFiles = []
         
         # get the asset folders
         aType = self.getAssetTypeWithName( typeName )
@@ -1300,7 +1300,9 @@ class Sequence(object):
             matchedFileCount = len( matchedFiles )
             
             if matchedFileCount > 0:
-                [ assetFilesAppend(matchedFile) for matchedFile in matchedFiles if self.isValidExtension( os.path.splitext(matchedFile)[1].split('.')[1] ) ]
+                #[ assetFilesAppend(matchedFile) for matchedFile in matchedFiles if self.isValidExtension( os.path.splitext(matchedFile)[1].split('.')[1] ) ]
+                #map( assetFilesAppend, matchedFiles )
+                assetFiles.extend( matchedFiles )
         
         assetFiles = map( os.path.basename, assetFiles )
         
@@ -1484,7 +1486,6 @@ class Sequence(object):
         infoVars['subName'] = ''
         infoVars['typeName'] = ''
         
-        
         if not self._noSubNameField:
             if len(splits) > 3:
                 infoVars['baseName'] = splits[0]
@@ -1510,31 +1511,31 @@ class Sequence(object):
     
     
     
-    #----------------------------------------------------------------------
-    @property
-    def invalidExtensions(self):
-        """returns invalid extensions for the sequence
-        """
-        return self._extensionsToIgnore
+    ##----------------------------------------------------------------------
+    #@property
+    #def invalidExtensions(self):
+        #"""returns invalid extensions for the sequence
+        #"""
+        #return self._extensionsToIgnore
     
     
     
-    #----------------------------------------------------------------------
-    @cache.InputBasedCachedMethod
-    def isValidExtension(self, extensionString):
-        """checks if the given extension is in extensionsToIgnore list
-        """
+    ##----------------------------------------------------------------------
+    #@cache.InputBasedCachedMethod
+    #def isValidExtension(self, extensionString):
+        #"""checks if the given extension is in extensionsToIgnore list
+        #"""
         
-        if len(self._extensionsToIgnore) == 0 :
-            # no extensions to ignore
-            return True
+        #if len(self._extensionsToIgnore) == 0 :
+            ## no extensions to ignore
+            #return True
         
-        #assert(isinstance(extensionString,str))
+        ##assert(isinstance(extensionString,str))
         
-        if extensionString.lower() in self._extensionsToIgnore:
-            return False
+        #if extensionString.lower() in self._extensionsToIgnore:
+            #return False
         
-        return True
+        #return True
     
     
     #----------------------------------------------------------------------
@@ -1553,25 +1554,25 @@ class Sequence(object):
     
     
     
-    #----------------------------------------------------------------------
-    def addExtensionToIgnoreList(self, extension):
-        """adds new extension to ignore list
+    ##----------------------------------------------------------------------
+    #def addExtensionToIgnoreList(self, extension):
+        #"""adds new extension to ignore list
         
-        you need to invoke self.saveSettings to make the changes permenant
-        """
-        self._extensionsToIgnore.append( extension )
+        #you need to invoke self.saveSettings to make the changes permenant
+        #"""
+        #self._extensionsToIgnore.append( extension )
     
     
     
-    #----------------------------------------------------------------------
-    def removeExtensionFromIgnoreList(self, extension):
-        """remove the extension from the ignroe list
+    ##----------------------------------------------------------------------
+    #def removeExtensionFromIgnoreList(self, extension):
+        #"""remove the extension from the ignroe list
         
-        you need to invoke self.saveSettings to make the changes permenant
-        """
+        #you need to invoke self.saveSettings to make the changes permenant
+        #"""
         
-        if extension in self._extensionsToIgnore:
-            self._extensionsToIgnore.remove( extension )
+        #if extension in self._extensionsToIgnore:
+            #self._extensionsToIgnore.remove( extension )
     
     
     

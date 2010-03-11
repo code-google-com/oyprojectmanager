@@ -10,7 +10,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.3.10"
+__version__ = "10.3.11"
 
 
 
@@ -655,9 +655,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
         
         if len(allVersionsList) > 0:
-            #self._versionListBuffer = sorted(allVersionsList)
-            #self._versionListBuffer = sorted( aVersion for aVersion in allVersionsList if self._environment.isValidExtension( os.path.splitext(aVersion)[1][1:] ) )
-            self._versionListBuffer = sorted( filter( self._environment.hasValidExtension, allVersionsList))
+            self._versionListBuffer = sorted( filter( self._environment.hasValidExtension, allVersionsList ) )
         else:
             self._versionListBuffer = []
     

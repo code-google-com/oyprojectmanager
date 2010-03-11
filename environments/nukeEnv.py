@@ -5,7 +5,7 @@ from oyProjectManager.dataModels import assetModel, projectModel, abstractClasse
 
 
 
-__version__ = "10.1.28"
+__version__ = "10.3.11"
 
 
 
@@ -20,12 +20,11 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, asset=None, name=''):
+    def __init__(self, asset=None, name='', extensions=None ):
         """nuke spesific init
         """
         # call the supers __init__
-        super(NukeEnvironment, self).__init__( asset, name )
-        #abstractClasses.Environment.__init__(self)
+        super(NukeEnvironment, self).__init__( asset, name, extensions )
         
         # and add you own modifications to __init__
         # get the root node

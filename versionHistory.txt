@@ -1,5 +1,12 @@
 Version History :
 -----------------
+v10.3.11
+- projectModel: Sequence classes isValidExtension, addExtensionToIgnoreList,
+  removeExtensionFromIgnoreList methods and parsing of the invalid extensions
+  have been removed, due to the move of the extension validation to the
+  environment classes
+- nukeEnv: updated the NukeEnvironment class to use extensions
+
 v10.3.10
 - environmentFactory: the environment settings are now being red from an xml
   settings file, with this new system, environments will be able to filter
@@ -659,7 +666,7 @@ v0.0.6
   None
 
 v0.0.5
-- added an PyQt4 interface
+- added a PyQt4 interface
 - added CachedMethod function decorator to cache functions return values
   over a period of time
 
