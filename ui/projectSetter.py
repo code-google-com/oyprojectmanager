@@ -27,7 +27,9 @@ def setProject(environmentName, insist=False):
         projectName = mainDialog.getCurrentProjectName()
         sequenceName = mainDialog.getCurrentSequenceName()
         
-        environment = environmentFactory.EnvironmentFactory.create( None, environmentName )
+        envFactory = environmentFactory.EnvironmentFactory()
+        #environment = environmentFactory.EnvironmentFactory.create( None, environmentName )
+        environment = envFactory.create( None, environmentName )
         environment.setProject( projectName, sequenceName )
 
 
@@ -62,7 +64,9 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         
         self._repo = repositoryModel.Repository()
         
-        self._environment = environmentFactory.EnvironmentFactory.create( None, environmentName )
+        self._envFactory = environmentFactory.EnvironmentFactory()
+        
+        self._environment = self._envFactory.create( None, environmentName )
         
         # SIGNALS
         QtCore.QObject.connect( self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSequenceList )

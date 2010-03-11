@@ -226,3 +226,19 @@ class Environment(object):
     
     
     
+    #----------------------------------------------------------------------
+    def hasValidExtension(self, fileName):
+        """returns true if the given fileNames extension is in the extensions
+        list false otherwise
+        
+        accepts:
+        - a full path with extension or not
+        - a filen name with extension or not
+        - an extension with a dot on the start or not
+        """
+        
+        if fileName.split('.')[-1].lower() in self._extensions:
+            return True
+        
+        return False
+    

@@ -10,7 +10,7 @@ from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.3.8"
+__version__ = "10.3.10"
 
 
 
@@ -48,6 +48,8 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         environmentTitle = ''
         if environmentName != None:
             environmentTitle = environmentName
+        
+        self._environmentFactory = environmentFactory.EnvironmentFactory()
         
         self.setWindowTitle( environmentTitle + ' | ' + self.windowTitle() + ' v' + __version__ + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
         
@@ -92,7 +94,8 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     def _setEnvironment(self, environmentName):
         """sets the environment object from the environemnt name
         """
-        self._environment = environmentFactory.EnvironmentFactory.create( self._asset, environmentName )
+        #self._environment = environmentFactory.EnvironmentFactory.create( self._asset, environmentName )
+        self._environment = self._environmentFactory.create( self._asset, environmentName )
     
     
     
@@ -652,7 +655,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
         
         if len(allVersionsList) > 0:
-            self._versionListBuffer = sorted(allVersionsList)
+            #self._versionListBuffer = sorted(allVersionsList)
+            #self._versionListBuffer = sorted( aVersion for aVersion in allVersionsList if self._environment.isValidExtension( os.path.splitext(aVersion)[1][1:] ) )
+            self._versionListBuffer = sorted( filter( self._environment.hasValidExtension, allVersionsList))
         else:
             self._versionListBuffer = []
     

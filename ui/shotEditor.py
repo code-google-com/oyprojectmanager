@@ -46,6 +46,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         
         self.repo = repositoryModel.Repository()
         
+        self._envFactory = environmentFactory.EnvironmentFactory()
         self._environment = None
         self._createEnvironment( environmentName )
         
@@ -126,7 +127,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     def _createEnvironment(self, environmentName):
         """creates the environment object
         """
-        self._environment = environmentFactory.EnvironmentFactory.create( environmentName=environmentName )
+        self._environment = self._envFactory.create( environmentName=environmentName )
     
     
     

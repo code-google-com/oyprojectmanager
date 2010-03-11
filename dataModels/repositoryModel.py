@@ -1,11 +1,12 @@
 import os, shutil
+import oyAuxiliaryFunctions as oyAux
 from xml.dom import minidom
 from oyProjectManager.tools import cache
 from oyProjectManager.dataModels import userModel, abstractClasses
 
 
 
-__version__ = "10.2.2"
+__version__ = "10.3.10"
 
 
 
@@ -26,22 +27,23 @@ class Repository( abstractClasses.Singleton ):
         
         # find where am I installed
         self._packagePath = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        self._settingsDirPath = os.path.join( self._packagePath, 'settings' )
         
         
         # Repository Settings File ( repositorySettings.xml )
         self._repositorySettingsFileName = 'repositorySettings.xml'
-        self._repositorySettingsFilePath = os.path.join( self._packagePath, 'settings' )
+        self._repositorySettingsFilePath = self._settingsDirPath
         self._repositorySettingsFileFullPath = os.path.join( self._repositorySettingsFilePath, self._repositorySettingsFileName )
         
         # Default Settings File ( defaultSettings.xml )
         self._defaultSettingsFileName = 'defaultProjectSettings.xml'
-        self._defaultSettingsFilePath = os.path.join( self._packagePath, 'settings' )
+        self._defaultSettingsFilePath = self._settingsDirPath
         self._defaultSettingsFileFullPath = os.path.join( self._defaultSettingsFilePath, self._defaultSettingsFileName )
         
         # Default Files Folder Path ( _defaultFiles_ )
-        self._defaultFilesFolderFullPath = os.path.join( self._packagePath, 'settings', '_defaultFiles_' )
+        self._defaultFilesFolderFullPath = os.path.join( self._settingsDirPath, '_defaultFiles_' )
         
-        # JOBs folder settings ( M:\, JOBs )
+        # JOBs folder settings ( M:/, JOBs )
         self._serverPath = ''
         self._projectsFolderName = ''
         self._projectsFolderFullPath = ''
@@ -57,7 +59,7 @@ class Repository( abstractClasses.Singleton ):
         
         # Users Settings File
         self._usersFileName = 'users.xml'
-        self._usersFilePath = os.path.join( self._packagePath, 'settings' )
+        self._usersFilePath = self._settingsDirPath
         self._usersFileFullPath = os.path.join( self._usersFilePath, self._usersFileName )
         self._users = [] * 0
         
@@ -104,6 +106,10 @@ class Repository( abstractClasses.Singleton ):
             #assert(isinstance(fileNode, minidom.Element))
             #                                           fileName                          projectRelativePath                         sourcePath
             self._defaultFilesList.append( (fileNode.getAttribute('name'), fileNode.getAttribute('projectRelativePath') , self._defaultFilesFolderFullPath) )
+        
+        # -----------------------------------------------------
+        # read the environment settings
+        
     
     
     
@@ -227,7 +233,7 @@ class Repository( abstractClasses.Singleton ):
         """
         
         try:
-            self._projects = os.listdir( self._projectsFolderFullPath )
+            self._projects = oyAux.getChildFolders( self._projectsFolderFullPath )
         except IOError:
             print "server path doesn't exists, %s" % self._projectsFolderFullPath
     
@@ -378,6 +384,15 @@ class Repository( abstractClasses.Singleton ):
         parts = residual.split(os.path.sep)
         
         return parts[0], parts[1]
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def settingsDirPath(self):
+        """returns the settings dir path
+        """
+        return self._settingsDirPath
     
     
     

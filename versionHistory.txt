@@ -1,5 +1,21 @@
 Version History :
 -----------------
+v10.3.10
+- environmentFactory: the environment settings are now being red from an xml
+  settings file, with this new system, environments will be able to filter
+  files that they can not open etc.
+- environmentFactory: environmentFactory is no more using class methods to
+  create environments, so from now on an instance is needed to create
+  environments, this is done mainly to be able to have settings for different
+  environments
+- environmentFactory: virtualEnvironment class is added, to help to store the
+  parsed environment settings data before creating the real environment object
+- assetManager: the ui now lists files only with valid extension to the
+  enviroment
+- repositoryModel: now, repository lists only folders as projects (this
+  update introduced a dependency to oyAuxiliaryFunctions but at the same time
+  reduced the code duplication or increased reuse)
+
 v10.3.8
 - assetManager: under windows xp 32-bit the ui was complaining about
   numberOfEntry_spinBox because of a compability issue between Qt versions, it

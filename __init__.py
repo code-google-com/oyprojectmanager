@@ -1,5 +1,5 @@
 """
-oyProjectManager by Erkan Ozgur Yilmaz (c) 2009
+oyProjectManager by Erkan Ozgur Yilmaz (c) 2009-2010
 
 Description :
 -------------
@@ -185,4 +185,4 @@ without runnning the python interpreter exclusively.
 
 
 
-__version__ = "10.3.8"
+__version__ = "10.3.10"
