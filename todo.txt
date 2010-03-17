@@ -1,5 +1,9 @@
 TODO List :
 -----------
+- exports to formats other than the native format of the environment should be
+  placed under a folder, lets say a folder named "_exports_" under the asset
+  folder
+
 - dataModels should be renamed to models, and every module under it should not
   contain Model in their names, for example:
   
