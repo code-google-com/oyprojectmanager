@@ -14,12 +14,12 @@ has commands to save, open and import houdini files
 import os
 import hou
 import re
-from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel, abstractClasses
+from oyProjectManager.models import asset, project, repository, abstractClasses
 import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.1.28"
+__version__ = "10.3.17"
 
 
 
@@ -101,8 +101,8 @@ class HoudiniEnvironment(abstractClasses.Environment):
         readRecentFile = True
         fileName = path = None
         
-        #db = projectModel.Database()
-        repo = repositoryModel.Repository()
+        #db = project.Database()
+        repo = repository.Repository()
         
         fullPath = hou.hipFile.name()
         
@@ -118,10 +118,10 @@ class HoudiniEnvironment(abstractClasses.Environment):
             # try to create an asset with that info
             projName, seqName = repo.getProjectAndSequenceNameFromFilePath( fullPath )
             
-            proj = projectModel.Project( projName )
-            seq = projectModel.Sequence( proj, seqName )
+            proj = project.Project( projName )
+            seq = project.Sequence( proj, seqName )
             
-            testAsset = assetModel.Asset( proj, seq, fileName )
+            testAsset = asset.Asset( proj, seq, fileName )
             
             #if path != '':
                 #fileName = os.path.basename( fullPath )
@@ -149,10 +149,10 @@ class HoudiniEnvironment(abstractClasses.Environment):
                 
                 if projName != None and seqName != None:
                     
-                    proj = projectModel.Project( projName )
-                    seq = projectModel.Sequence( proj, seqName )
+                    proj = project.Project( projName )
+                    seq = project.Sequence( proj, seqName )
                     
-                    testAsset = assetModel.Asset( proj, seq, fileName )
+                    testAsset = asset.Asset( proj, seq, fileName )
                     
                     if testAsset.isValidAsset:
                         path = testAsset.path

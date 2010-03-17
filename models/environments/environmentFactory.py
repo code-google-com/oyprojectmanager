@@ -1,10 +1,10 @@
 import os
 from xml.dom import minidom
-from oyProjectManager.dataModels import abstractClasses, repositoryModel
+from oyProjectManager.models import abstractClasses, repository
 
 
 
-__version__ = "10.3.10"
+__version__ = "10.3.17"
 
 
 
@@ -22,7 +22,7 @@ class EnvironmentFactory( abstractClasses.Singleton ):
     def __init__(self):
         
         # create the repository and then delete it
-        self._repo = repositoryModel.Repository()
+        self._repo = repository.Repository()
         
         # we should know where the settings file is
         # get the settings dir path
@@ -73,18 +73,15 @@ class EnvironmentFactory( abstractClasses.Singleton ):
         env = None
         
         if environmentName == 'MAYA':
-            from oyProjectManager.environments import mayaEnv
-            #env = mayaEnv.MayaEnvironment( asset, environmentName )
+            from oyProjectManager.models.environments import mayaEnv
             envClass = mayaEnv.MayaEnvironment
             
         elif environmentName == 'NUKE':
-            from oyProjectManager.environments import nukeEnv
-            #env = nukeEnv.NukeEnvironment( asset, environmentName )
+            from oyProjectManager.models.environments import nukeEnv
             envClass = nukeEnv.NukeEnvironment
             
         elif environmentName == 'HOUDINI':
-            from oyProjectManager.environments import houdiniEnv
-            #env = houdiniEnv.HoudiniEnvironment( asset, environmentName )
+            from oyProjectManager.models.environments import houdiniEnv
             envClass = houdiniEnv.HoudiniEnvironment
         
         # create the environment if the envClass is not None

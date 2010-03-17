@@ -4,12 +4,12 @@ from PyQt4 import QtGui, QtCore
 import assetUpdater_UI
 
 import oyProjectManager
-from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel
+from oyProjectManager.models import asset, project, repository
 from oyProjectManager.ui import singletonQapplication
 
 
 
-__version__ = "10.2.5"
+__version__ = "10.3.17"
 
 
 
@@ -154,15 +154,15 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
         self._environmentName = environmentName
         
         if self._environmentName == 'MAYA':
-            from oyProjectManager.environments import mayaEnv
+            from oyProjectManager.models.environments import mayaEnv
             self.setEnvironment( mayaEnv.MayaEnvironment() )
         
         elif self._environmentName == 'HOUDINI':
-            from oyProjectManager.environments import houdiniEnv
+            from oyProjectManager.models.environments import houdiniEnv
             self.setEnvironment( houdiniEnv.HoudiniEnvironment() )
         
         elif self._environmentName == 'NUKE':
-            from oyProjectManager.environments import nukeEnv
+            from oyProjectManager.models.environments import nukeEnv
             self.setEnvironment(  nukeEnv.NukeEnvironment() )
     
     environmentName = property( getEnvironmentName, setEnvironmentName )
@@ -195,16 +195,16 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
         ## create a project a sequence and get some assets
         #assetCount = 10
         
-        #repo = repositoryModel.Repository()
-        #proj = projectModel.Project( 'ETI_TOPKEK' )
-        #seq = projectModel.Sequence( proj, '_CHARACTER_SETUP_' )
+        #repo = repository.Repository()
+        #proj = project.Project( 'ETI_TOPKEK' )
+        #seq = project.Sequence( proj, '_CHARACTER_SETUP_' )
         
         #assetFileNames = seq.getAllAssetFileNamesForType('RIG')
         
         ## fill the data
         #self._assetTupleList = []
         #for i in range(assetCount):
-            #self._assetTupleList.append( (assetModel.Asset( proj, seq, assetFileNames[i] ), None) )
+            #self._assetTupleList.append( (asset.Asset( proj, seq, assetFileNames[i] ), None) )
     
     
     
@@ -217,13 +217,13 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
         self.assetList_tableWidget.setRowCount( self._numOfAssets)
         
         for i,assetTuple in enumerate(self._assetTupleList):
-            #assert(isinstance(asset, assetModel.Asset) )
+            #assert(isinstance(assetObj, asset.Asset) )
             
-            asset = assetTuple[0]
+            assetObj = assetTuple[0]
             
             # ------------------------------------
             # the critique name
-            assetName_tableWI = QtGui.QTableWidgetItem( asset._getCritiqueName() )
+            assetName_tableWI = QtGui.QTableWidgetItem( assetObj._getCritiqueName() )
             # align to left and vertical center
             assetName_tableWI.setTextAlignment( 0x0001 | 0x0080  )
             self.assetList_tableWidget.setItem( i, 0, assetName_tableWI )
@@ -232,7 +232,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
             
             # ------------------------------------
             # current version
-            currentVersionNumber = str( asset.versionNumber )
+            currentVersionNumber = str( assetObj.versionNumber )
             currentVersion_tableWI = QtGui.QTableWidgetItem( currentVersionNumber )
             # align to horizontal and vertical center
             currentVersion_tableWI.setTextAlignment( 0x0004 | 0x0080  )
@@ -242,7 +242,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
             
             # ------------------------------------
             # last version
-            lastVersionNumber = str( asset.latestVersion2[1] )
+            lastVersionNumber = str( assetObj.latestVersion2[1] )
             lastVersion_tableWI = QtGui.QTableWidgetItem( lastVersionNumber )
             # align to horizontal and vertical center
             lastVersion_tableWI.setTextAlignment( 0x0004 | 0x0080 )

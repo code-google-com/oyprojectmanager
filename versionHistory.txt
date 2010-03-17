@@ -1,5 +1,17 @@
 Version History :
 -----------------
+v10.3.17
+- oyProjectManager: dataModels renamed to models, and removed the "Models" from
+  names of all the scripts under it, and updated all the scripts importing them
+- oyProjectManager: environments directory is moved under models directory
+- project: getAllAssetFileNamesForType, getAllAssetsForTypeAndBaseName methods
+  are updated, now it searches for files starting with "baseName + '_*'", to
+  make them more robust
+- shotEditor: shotEditor is now working under Houdini
+- mayaEnv: in maya (for now), the references are not loaded until the version
+  check is done. This leads to much more quicker scene loads in case of lots of
+  updates to referenced assets
+
 v10.3.11
 - projectModel: Sequence classes isValidExtension, addExtensionToIgnoreList,
   removeExtensionFromIgnoreList methods and parsing of the invalid extensions

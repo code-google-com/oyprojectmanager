@@ -1,29 +1,18 @@
 TODO List :
 -----------
+- create a ticket system ( probably wiht Django )
+
+- add take support
+
 - exports to formats other than the native format of the environment should be
   placed under a folder, lets say a folder named "_exports_" under the asset
   folder
-
-- dataModels should be renamed to models, and every module under it should not
-  contain Model in their names, for example:
-  
-  dataModels/assetModel.py   --> models/asset.py
-  dataModels/projectModel.py --> models/project.py
-  etc.
-
-- the environments folder should be moved under dataModels (will be renamed to
-  models), to have a consistant structure
 
 - set the default maya renderer to mentralray and use 32-bit exr as the default
   output type
 
 - save a local copy of the asset to not to carry all the eggs in the same
   basket
-
-- shotEditor is not working in Houdini
-
-- while working with non-asset files, nuke could not bring up the assetManager
-  interface
 
 - add a UserType class, save the default user types in an xml file
 
@@ -34,11 +23,6 @@ TODO List :
   appropriate codes on return, so the assetManager now if it should warn the
   user for data loos on premature exit, or should ask the user for info about
   the asset updates...
-
-- in maya environment the references should not be loaded until the version
-  check is done, and then it should be loaded or not loaded according to the
-  user preferences. This should give us a gain in performance while replacing
-  new versions of assets
 
 - Deep reference update: create interfaces for the users to make them be able
   to easily open and edit referenced assets. The interface should give
@@ -54,7 +38,8 @@ TODO List :
 - store recent files list in repository do not trust to the applications recent
   files
 
-- convert the system to a full featured Production Asset Management System
+- convert the system to a full featured Production Asset Management System by
+  using Django as the database framework
 
 - add a user login window
 
@@ -86,8 +71,7 @@ TODO List :
   revisions and any subNames of the same asset, so the group of the files
   should be counted as one asset with multi versions
 
-- programs should not list the files those they can not open, for example
-  houdini shouldn't list ma files, and maya should not list hip files
+
 
 
 
@@ -96,6 +80,29 @@ TODO List :
 
 FIXED & DONE :
 --------------
++ programs should not list the files those they can not open, for example
+  houdini shouldn't list ma files, and maya should not list hip files
+
++ in maya environment the references should not be loaded until the version
+  check is done, and then it should be loaded or not loaded according to the
+  user preferences. This should give us a gain in performance while replacing
+  new versions of assets
+
++ (COULD NOT OBSERVE THE PROBLEM) while working with non-asset files, nuke
+  could not bring up the assetManager interface
+
++ shotEditor is not working in Houdini
+
++ the environments folder should be moved under dataModels (will be renamed to
+  models), to have a consistant structure
+
++ dataModels should be renamed to models, and every module under it should not
+  contain Model in their names, for example:
+  
+  dataModels/assetModel.py   --> models/asset.py
+  dataModels/projectModel.py --> models/project.py
+  etc.
+
 + for environments supporting referencing, check the references for new
   versions while opening the asset ( properly done for maya )
 

@@ -1,11 +1,11 @@
 import os
 import nuke
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.dataModels import assetModel, projectModel, abstractClasses
+from oyProjectManager.models import asset, project, abstractClasses
 
 
 
-__version__ = "10.3.11"
+__version__ = "10.3.17"
 
 
 

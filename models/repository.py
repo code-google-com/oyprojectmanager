@@ -2,11 +2,11 @@ import os, shutil
 import oyAuxiliaryFunctions as oyAux
 from xml.dom import minidom
 from oyProjectManager.tools import cache
-from oyProjectManager.dataModels import userModel, abstractClasses
+from oyProjectManager.models import user, abstractClasses
 
 
 
-__version__ = "10.3.10"
+__version__ = "10.3.17"
 
 
 
@@ -142,14 +142,14 @@ class Repository( abstractClasses.Singleton ):
         # get all projects and filter them
         self.updateProjectList()
         
-        from oyProjectManager.dataModels import projectModel
+        from oyProjectManager.models import project
         
         validProjectList = [] * 0
         
         for projName in self._projects:
             
             # get sequences of that project
-            projObj = projectModel.Project(projName)
+            projObj = project.Project(projName)
             
             seqList = projObj.sequences()
             
@@ -180,8 +180,8 @@ class Repository( abstractClasses.Singleton ):
         """returns the user names
         """
         names = [] * 0
-        for user in self._users:
-            names.append( user.name )
+        for userObj in self._users:
+            names.append( userObj.name )
         
         return names
     
@@ -193,9 +193,9 @@ class Repository( abstractClasses.Singleton ):
         """returns the user intials
         """
         initials = [] * 0
-        for user in self._users:
+        for userObj in self._users:
             #assert(isinstance(user,User))
-            initials.append( user.initials )
+            initials.append( userObj.initials )
         
         return sorted(initials)
     
@@ -223,7 +223,7 @@ class Repository( abstractClasses.Singleton ):
         for node in userNodes:
             name = node.getAttribute('name')
             initials = node.getAttribute('initials')
-            self._users.append( userModel.User(name, initials) )
+            self._users.append( user.User(name, initials) )
     
     
     
@@ -376,8 +376,11 @@ class Repository( abstractClasses.Singleton ):
         
         #assert(isinstance(filePath, (str, unicode)))
         
+        if filePath is None:
+            return None, None
+        
         if not filePath.startswith( self._projectsFolderFullPath ):
-            return None,None
+            return None, None
         
         residual = filePath[ len(self._projectsFolderFullPath)+1 : ]
         

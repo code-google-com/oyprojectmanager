@@ -4,12 +4,12 @@ from PyQt4 import QtGui, QtCore
 import projectManager_UI
 
 import oyProjectManager
-from oyProjectManager.dataModels import projectModel, repositoryModel
+from oyProjectManager.models import project, repository
 from oyProjectManager.tools import rangeTools
 from oyProjectManager.ui import singletonQapplication
 
 
-__version__ = "10.3.6"
+__version__ = "10.3.17"
 
 
 
@@ -68,7 +68,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         QtCore.QObject.connect(self.addAlternativeShot_pushButton, QtCore.SIGNAL("clicked()"), self.addAlternativeShot )
         
-        self.repo = repositoryModel.Repository()
+        self.repo = repository.Repository()
         
         # fill defaults
         self.setDefaults()
@@ -145,7 +145,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         projectName = oyAux.file_name_conditioner( projectName )
         
         # create the project
-        proj = projectModel.Project( projectName )
+        proj = project.Project( projectName )
         proj.create()
         
         # inform the user if it is created
@@ -170,7 +170,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         shotRange = unicode( self.shotRange_lineEdit2.text() )
         
         # create the sequence object
-        newSeq = projectModel.Sequence( projectModel.Project( projectName ) , sequenceName )
+        newSeq = project.Sequence( project.Project( projectName ) , sequenceName )
         newSeq.addShots( shotRange )
         newSeq.create()
         newSeq.saveSettings()
@@ -188,7 +188,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         # create the sequence object
         projectName = unicode( self.project_comboBox3.currentText() )
         sequenceName = unicode( self.sequence_comboBox3.currentText() )
-        seq = projectModel.Sequence( projectModel.Project(projectName), sequenceName )
+        seq = project.Sequence( project.Project(projectName), sequenceName )
         
         shotRange = unicode( self.shotRange_lineEdit3.text() )
         
@@ -249,15 +249,15 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         
         # sequence_comboBox3
-        project = projectModel.Project( unicode( self.project_comboBox3.currentText() ) )
-        sequenceNames = sorted( project.sequenceNames() )
+        projectObj = project.Project( unicode( self.project_comboBox3.currentText() ) )
+        sequenceNames = sorted( projectObj.sequenceNames() )
         
         self.sequence_comboBox3.clear()
         self.sequence_comboBox3.addItems( sequenceNames )
         
         # sequence_comboBox4
-        project = projectModel.Project( unicode( self.project_comboBox4.currentText() ) )
-        sequenceNames = sorted( project.sequenceNames() )
+        projectObj = project.Project( unicode( self.project_comboBox4.currentText() ) )
+        sequenceNames = sorted( projectObj.sequenceNames() )
         
         self.sequence_comboBox4.clear()
         self.sequence_comboBox4.addItems( sequenceNames )
@@ -284,15 +284,15 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         # get the sequenceName
         sequenceName = unicode( self.sequence_comboBox4.currentText() )
         
-        project = projectModel.Project( projectName )
-        sequence = projectModel.Sequence( project, sequenceName )
+        projectObj = project.Project( projectName )
+        sequenceObj = project.Sequence( projectObj, sequenceName )
         
         # try to keep the current selection
         s4Text = self.shotNumber_comboBox4.currentText()
         
         # remove the current items and update the list
         self.shotNumber_comboBox4.clear()
-        self.shotNumber_comboBox4.addItems( sequence.shotList )
+        self.shotNumber_comboBox4.addItems( sequenceObj.shotList )
         
         # restore selection
         s4Index = self.shotNumber_comboBox4.findText( s4Text )
@@ -316,8 +316,8 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         shotNumber = self.shotNumber_comboBox4.currentText()
         
         # create the project and sequence objects
-        project = projectModel.Project( projectName )
-        sequence = projectModel.Sequence( project, sequenceName )
+        projectObj = project.Project( projectName )
+        sequenceObj = project.Sequence( project, sequenceName )
         
         # invoke sequence objects add alternate shot method with the given shot number
         alternativeShotName = sequence.addAlternativeShot( shotNumber )
@@ -325,8 +325,8 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         #print "projectManager -> adding alternative shot to shot %s" % shotNumber
         
         # create and save
-        sequence.createShots()
-        sequence.saveSettings()
+        sequenceObj.createShots()
+        sequenceObj.saveSettings()
         
         # update the fields
         self.updateShotLists()

@@ -1,12 +1,12 @@
 from PyQt4 import QtGui, QtCore
 from oyProjectManager.ui import singletonQapplication, projectSetter_UI
-from oyProjectManager.dataModels import projectModel, repositoryModel
-from oyProjectManager.environments import environmentFactory
+from oyProjectManager.models import project, repository
+from oyProjectManager.models.environments import environmentFactory
 import sys
 
 
 
-__version__ = '10.2.15'
+__version__ = '10.3.17'
 
 
 
@@ -62,7 +62,7 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         super(MainDialog, self).__init__( parent )
         self.setupUi(self)
         
-        self._repo = repositoryModel.Repository()
+        self._repo = repository.Repository()
         
         self._envFactory = environmentFactory.EnvironmentFactory()
         
@@ -136,7 +136,7 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         currentProjectName = self.getCurrentProjectName()
         
         # create the project object
-        currentProject = projectModel.Project( currentProjectName )
+        currentProject = project.Project( currentProjectName )
         
         seqList = currentProject.sequenceNames()
         

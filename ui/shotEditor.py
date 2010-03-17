@@ -3,9 +3,9 @@ from PyQt4 import QtGui, QtCore
 import shotEditor_UI
 
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.dataModels import projectModel, repositoryModel
+from oyProjectManager.models import project, repository
 from oyProjectManager.ui import singletonQapplication
-from oyProjectManager.environments import environmentFactory
+from oyProjectManager.models.environments import environmentFactory
 
 
 
@@ -44,7 +44,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         super(MainDialog,self).__init__(parent)
         self.setupUi(self)
         
-        self.repo = repositoryModel.Repository()
+        self.repo = repository.Repository()
         
         self._envFactory = environmentFactory.EnvironmentFactory()
         self._environment = None
@@ -148,10 +148,12 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
                 # select them in the interface
                 
                 # project
-                self.project_comboBox1.setCurrentIndex( self.project_comboBox1.findText( projName ) )
+                if projName is not None:
+                    self.project_comboBox1.setCurrentIndex( self.project_comboBox1.findText( projName ) )
                 
                 # sequence
-                self.sequence_comboBox1.setCurrentIndex( self.sequence_comboBox1.findText( seqName ) )
+                if seqName is not None:
+                    self.sequence_comboBox1.setCurrentIndex( self.sequence_comboBox1.findText( seqName ) )
     
     
     
@@ -189,9 +191,9 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         sText = self.sequence_comboBox1.currentText()
         
         # sequence_comboBox1
-        project = projectModel.Project( unicode( self.project_comboBox1.currentText() ) )
+        projectObj = project.Project( unicode( self.project_comboBox1.currentText() ) )
         self.sequence_comboBox1.clear()
-        self.sequence_comboBox1.addItems( sorted(project.sequenceNames()) )
+        self.sequence_comboBox1.addItems( sorted(projectObj.sequenceNames()) )
         
         # restore selections
         sIndex = self.sequence_comboBox1.findText( sText )
@@ -222,8 +224,8 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         projName = self.getCurrentProjectName()
         seqName = self.getCurrentSequenceName()
         
-        proj = projectModel.Project( projName )
-        seq = projectModel.Sequence( proj, seqName )
+        proj = project.Project( projName )
+        seq = project.Sequence( proj, seqName )
         
         # set the project and sequence variables of the table
         self.shotData_tableWidget.project = proj
@@ -244,7 +246,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         self.shotData_tableWidget.setHorizontalHeaderLabels( self._horizontalLabels )
         
         for i,shot in enumerate(shots):
-            #assert(isinstance(shot, projectModel.Shot) )
+            #assert(isinstance(shot, project.Shot) )
             
             name = shot.name
             startFrame = str( shot.startFrame )

@@ -1,11 +1,11 @@
 import os
 import pymel as pm
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel, abstractClasses
+from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.2.15"
+__version__ = "10.3.17"
 
 
 
@@ -84,7 +84,7 @@ class MayaEnvironment(abstractClasses.Environment):
         # check for unsaved changes
         assetFullPath = self._asset.fullPath
         
-        pm.openFile( assetFullPath, f=force )
+        pm.openFile( assetFullPath, f=force, loadReferenceDepth='none' )
         
         # set the project
         pm.workspace.open( self._asset.sequenceFullPath )
@@ -134,7 +134,7 @@ class MayaEnvironment(abstractClasses.Environment):
         readRecentFile = True
         fileName = path = None
         
-        repo = repositoryModel.Repository()
+        repo = repository.Repository()
         
         fullPath = pm.env.sceneName()
         if os.name == 'nt':
@@ -148,10 +148,10 @@ class MayaEnvironment(abstractClasses.Environment):
             # try to create an asset with that info
             projName, seqName = repo.getProjectAndSequenceNameFromFilePath( fullPath )
             
-            proj = projectModel.Project( projName )
-            seq = projectModel.Sequence( proj, seqName )
+            proj = project.Project( projName )
+            seq = project.Sequence( proj, seqName )
             
-            testAsset = assetModel.Asset( proj, seq, fileName )
+            testAsset = asset.Asset( proj, seq, fileName )
             
             if testAsset.isValidAsset:
                 fileName = testAsset.fileName
@@ -170,10 +170,10 @@ class MayaEnvironment(abstractClasses.Environment):
                 
                 if projName != None and seqName != None:
                 
-                    proj = projectModel.Project( projName )
-                    seq = projectModel.Sequence( proj, seqName )
+                    proj = project.Project( projName )
+                    seq = project.Sequence( proj, seqName )
                     
-                    testAsset = assetModel.Asset( proj, seq, fileName )
+                    testAsset = asset.Asset( proj, seq, fileName )
                     if testAsset.isValidAsset:
                         path = testAsset.path
                         foundValidAsset = True
@@ -249,7 +249,7 @@ class MayaEnvironment(abstractClasses.Environment):
         if os.name == 'nt':
             playblastFolderPath = playblastFolderPath.replace('/','\\')
         
-        assert(isinstance(self._asset, assetModel.Asset))
+        assert(isinstance(self._asset, asset.Asset))
         
         seqFullPath = self._asset.parentSequence.fullPath
         
@@ -265,7 +265,7 @@ class MayaEnvironment(abstractClasses.Environment):
     def setProject(self, projectName, sequenceName ):
         """sets the project
         """
-        repo = repositoryModel.Repository()
+        repo = repository.Repository()
         
         mayaProjectPath = os.path.join( repo.projectsFullPath, projectName, sequenceName )
         
@@ -316,7 +316,7 @@ class MayaEnvironment(abstractClasses.Environment):
         updateList = []
         
         for assetTuple in assetTupleList:
-            #assert(isinstance(asset, assetModel.Asset))
+            #assert(isinstance(asset, asset.Asset))
             
             asset = assetTuple[0]
             
@@ -342,7 +342,7 @@ class MayaEnvironment(abstractClasses.Environment):
         allReferences = pm.listReferences()
         
         # create a repository object
-        repo = repositoryModel.Repository()
+        repo = repository.Repository()
         
         # iterate over them to find valid assets
         for ref in allReferences:
@@ -359,10 +359,10 @@ class MayaEnvironment(abstractClasses.Environment):
             #print "tempAssetPath".ljust(25), ":", tempAssetPath
             
             projName, seqName = repo.getProjectAndSequenceNameFromFilePath( tempAssetFullPath )
-            proj = projectModel.Project( projName )
-            seq = projectModel.Sequence( proj, seqName )
+            proj = project.Project( projName )
+            seq = project.Sequence( proj, seqName )
             
-            tempAsset = assetModel.Asset( proj, seq, tempAssetPath )
+            tempAsset = asset.Asset( proj, seq, tempAssetPath )
             
             if tempAsset.isValidAsset:
                 validAssets.append( (tempAsset, ref) )
@@ -381,7 +381,7 @@ class MayaEnvironment(abstractClasses.Environment):
             asset = assetTuple[0]
             ref = assetTuple[1]
             
-            #assert(isinstance(asset, assetModel.Asset))
+            #assert(isinstance(asset, asset.Asset))
             #assert(isinstance(ref, pm.FileReference))
             
             latestAsset = asset.latestVersion2[0]
@@ -412,4 +412,16 @@ class MayaEnvironment(abstractClasses.Environment):
         dRG = pm.PyNode('defaultRenderGlobals')
         dRG.setAttr('startFrame', startFrame )
         dRG.setAttr('endFrame', endFrame )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def loadReferences(self):
+        """loads all the references
+        """
         
+        # get all the references
+        allReferences = pm.listReferences()
+        
+        for reference in allReferences:
+            reference.load()

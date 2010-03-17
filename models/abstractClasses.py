@@ -245,3 +245,12 @@ class Environment(object):
         
         return False
     
+    
+    
+    #----------------------------------------------------------------------
+    def loadReferences(self):
+        """loads all the references
+        """
+        pass
+        
+    

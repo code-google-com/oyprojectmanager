@@ -2,11 +2,11 @@ import os, re, shutil, glob
 from xml.dom import minidom
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.tools import cache, rangeTools
-from oyProjectManager.dataModels import assetModel, userModel, repositoryModel
+from oyProjectManager.models import asset, user, repository
 
 
 
-__version__ = "10.3.11"
+__version__ = "10.3.17"
 
 
 
@@ -24,7 +24,7 @@ class Project(object):
     def __init__(self, projectName, repositoryObj = None):
         
         if repositoryObj == None:
-            self._repository = repositoryModel.Repository()
+            self._repository = repository.Repository()
         else:
             self._repository = repositoryObj
         
@@ -208,7 +208,7 @@ class Sequence(object):
         self._settingsFileExists = False
         
         self._structure = Structure()
-        self._assetTypes = [ assetModel.AssetType() ] * 0
+        self._assetTypes = [ asset.AssetType() ] * 0
         self._shotList = [] * 0 # should be a string
         self._shots = [] # the new shot objects
         
@@ -408,7 +408,7 @@ class Sequence(object):
                 path = oyAux.fixWindowsPath( path )
                 playblastFolder = oyAux.fixWindowsPath( playblastFolder )
             
-            self._assetTypes.append( assetModel.AssetType( name, path, shotDependency, playblastFolder, environments) )
+            self._assetTypes.append( asset.AssetType( name, path, shotDependency, playblastFolder, environments) )
     
     
     
@@ -578,7 +578,7 @@ class Sequence(object):
         
         # create asset types
         for aType in self._assetTypes:
-            #assert( isinstance( aType, assetModel.AssetType ) )
+            #assert( isinstance( aType, asset.AssetType ) )
             typeNode = minidom.Element('type')
             typeNode.setAttribute( 'name', aType.name )
             typeNode.setAttribute( 'path', aType.path.replace('\\','/') )
@@ -1029,7 +1029,7 @@ class Sequence(object):
             aTypesList = [] * 0
             
             for aType in self._assetTypes:
-                #assert(isinstance(aType, assetModel.AssetType) )
+                #assert(isinstance(aType, asset.AssetType) )
                 if environment in aType.environments:
                     aTypesList.append( aType )
             
@@ -1131,7 +1131,7 @@ class Sequence(object):
         osPathBaseName = os.path.basename
         osPathIsDir = os.path.isdir
         globGlob = glob.glob
-        assetModelAsset = assetModel.Asset
+        assetAsset = asset.Asset
         assetsAppend = assets.append
         selfFullPath = self._fullPath
         selfProject = self.project
@@ -1167,7 +1167,7 @@ class Sequence(object):
                     # there should be some files matching the pattern
                     # check if they are valid assets
                     
-                    matchedAssets = map( assetModelAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
+                    matchedAssets = map( assetAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
                     
                     # append them to the main assets list
                     [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset ]
@@ -1195,7 +1195,7 @@ class Sequence(object):
         
         aType = self.getAssetTypeWithName( typeName )
         
-        #assert(isinstance(aType,assetModel.AssetType))
+        #assert(isinstance(aType,asset.AssetType))
         assetFolder = aType.path
         
         # optimization variables
@@ -1205,7 +1205,7 @@ class Sequence(object):
         oyAuxGetChildFolders = oyAux.getChildFolders
         osPathBaseName = os.path.basename
         globGlob = glob.glob
-        assetModelAsset = assetModel.Asset
+        assetAsset = asset.Asset
         assetsAppend = assets.append
         selfFullPath = self._fullPath
         selfProject = self.project
@@ -1239,7 +1239,7 @@ class Sequence(object):
                 # there should be some files matching the pattern
                 # check if they are valid assets
                 
-                matchedAssets = map( assetModelAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
+                matchedAssets = map( assetAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
                 
                 # append them to the main assets list
                 [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset ]
@@ -1264,7 +1264,7 @@ class Sequence(object):
         # get the asset folders
         aType = self.getAssetTypeWithName( typeName )
         
-        #assert(isinstance(aType,assetModel.AssetType))
+        #assert(isinstance(aType,asset.AssetType))
         assetFolder = aType.path
         
         # optimization variables
@@ -1293,7 +1293,7 @@ class Sequence(object):
         childFolders = oyAux.getChildFolders( fullPath, True )
         
         for folder in childFolders:
-            pattern = osPathBaseName( folder ) + '*'
+            pattern = osPathBaseName( folder ) + '_*'
             
             matchedFiles = [ file_ for file_ in globGlob( osPathJoin( folder, pattern ) ) if not osPathIsDir(file_) ]
             
@@ -1352,7 +1352,7 @@ class Sequence(object):
         osPathExists = os.path.exists
         osPathIsDir = os.path.isdir
         selfFullPath = self._fullPath
-        assetModelAsset = assetModel.Asset
+        assetAsset = asset.Asset
         selfProject = self._parentProject
         assetsAppend = assets.append
         
@@ -1377,7 +1377,7 @@ class Sequence(object):
         # use glob instead of doing it by hand
         
         # get possible asset files directly by using glob
-        pattern = osPathBaseName( baseName ) + '*'
+        pattern = osPathBaseName( baseName ) + '_*'
         
         # files are in fullpath format
         matchedFiles = [ file_ for file_ in globGlob( osPathJoin( childFolderFullPath, pattern ) ) if not osPathIsDir(file_) ]
@@ -1388,7 +1388,7 @@ class Sequence(object):
             # there should be some files matching the pattern
             # check if they are valid assets
             
-            matchedAssets = map( assetModelAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
+            matchedAssets = map( assetAsset, [selfProject] * matchedFileCount, [self] * matchedFileCount, map(osPathBaseName, matchedFiles) )
             
             # append them to the main assets list
             [ assetsAppend(matchedAsset) for matchedAsset in matchedAssets if matchedAsset.isValidAsset ]
@@ -1404,7 +1404,7 @@ class Sequence(object):
         
         #aType = self.getAssetTypeWithName( typeName )
         
-        ##assert(isinstance(aType,assetModel.AssetType))
+        ##assert(isinstance(aType,asset.AssetType))
         
         #typeFolder = aType.path
         
@@ -1438,13 +1438,13 @@ class Sequence(object):
                 newKwargs[k] = kwargs[k]
         
         # get all the info variables of the assets
-        assetInfos = map( assetModel.Asset.infoVariables, assetList )
+        assetInfos = map( asset.Asset.infoVariables, assetList )
         
         filteredAssetInfos = self.aFilter( assetInfos, **kwargs)
         
         # recreate assets and return
         # TODO: return without recreating the assets
-        return [ assetModel.Asset(self._parentProject, self, x['fileName']) for x in filteredAssetInfos ]
+        return [ asset.Asset(self._parentProject, self, x['fileName']) for x in filteredAssetInfos ]
     
     
     
@@ -1610,7 +1610,7 @@ class Sequence(object):
         
         if name.upper() not in assetTypeName:
             # create the assetType object with the input
-            newAType = assetModel.AssetType( name, path, shotDependent, playblastFolder, environments )
+            newAType = asset.AssetType( name, path, shotDependent, playblastFolder, environments )
             
             # add it to the list
             self._assetTypes.append( newAType )
@@ -1966,7 +1966,7 @@ class Shot(object):
     #def __repr__(self):
         #"""returns the representation of the class
         #"""
-        #return "< oyProjectManager.dataModels.projectModel.Shot object: " + self._name + ">"
+        #return "< oyProjectManager.models.project.Shot object: " + self._name + ">"
     
     
     

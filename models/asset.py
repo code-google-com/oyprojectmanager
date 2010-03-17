@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.2.23"
+__version__ = "10.3.17"
 
 
 
@@ -251,8 +251,8 @@ class Asset(object):
     def parentSequence(self):
         """returns the parent sequence
         """
-        #from oyProjectManager.dataModels import projectModel
-        #assert(isinstance(self._parentSequence, projectModel.Sequence ) )
+        #from oyProjectManager.models import project
+        #assert(isinstance(self._parentSequence, project.Sequence ) )
         return self._parentSequence
     
     
@@ -416,10 +416,10 @@ class Asset(object):
         # use the Sequence object instead of letting the Asset object to dive in to the
         # file system to get other versions
         
-        #import projectModel
+        #import project
         sProj = self._parentProject
         sSeq = self._parentSequence
-        #assert(isinstance(selfseq,projectModel.Sequence))
+        #assert(isinstance(selfseq,project.Sequence))
         
         assetVersionNames = self.allVersionNames
         
@@ -480,8 +480,8 @@ class Asset(object):
     def sequenceFullPath(self):
         """returns the parent sequence full path
         """
-        #from oyProjectManager.dataModels import projectModel
-        #assert(isinstance(self._parentSequence, projectModel.Sequence))
+        #from oyProjectManager.models import project
+        #assert(isinstance(self._parentSequence, project.Sequence))
         return self._parentSequence.fullPath
     
     
@@ -492,8 +492,8 @@ class Asset(object):
         
         #beware that it is the project path not the sequence path
         #"""
-        #from oyProjectManager.dataModels import projectModel
-        #assert(isinstance(self._parentProject, projectModel.Project))
+        #from oyProjectManager.models import project
+        #assert(isinstance(self._parentProject, project.Project))
         #return self._parentProject.fullPath
     
     
@@ -1161,8 +1161,8 @@ class SuperAsset(object):
     #def findAllVersions(self):
         #""" finds all the asset versions of the super asset
         #"""
-        #import dataModels.projectModel as projectModel
-        #assert( isinstance(self._parentSequence, projectModel.Sequence) )
+        #import models.project as project
+        #assert( isinstance(self._parentSequence, project.Sequence) )
         
         ## search the path for the baseName + subName
         

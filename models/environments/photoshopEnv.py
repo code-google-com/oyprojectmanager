@@ -20,11 +20,11 @@ http://sourceforge.net/projects/comtypes/
 
 from comtypes import client
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel, abstractClasses
+from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.1.5"
+__version__ = "10.3.17"
 
 
 

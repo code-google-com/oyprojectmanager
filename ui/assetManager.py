@@ -4,13 +4,13 @@ from PyQt4 import QtGui, QtCore
 import assetManager_UI
 
 import oyProjectManager
-from oyProjectManager.dataModels import assetModel, projectModel, repositoryModel
+from oyProjectManager.models import asset, project, repository
+from oyProjectManager.models.environments import environmentFactory
 from oyProjectManager.ui import assetUpdater, singletonQapplication
-from oyProjectManager.environments import environmentFactory
 
 
 
-__version__ = "10.3.11"
+__version__ = "10.3.17"
 
 
 
@@ -61,7 +61,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self._setupValidators()
         
         # create a repository object
-        self._repo = repositoryModel.Repository()
+        self._repo = repository.Repository()
         
         # fill them later
         self._asset = None
@@ -267,8 +267,8 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         if projectName == None or projectName == '' or sequenceName == None or sequenceName == '':
             return
         
-        currentProject = projectModel.Project( projectName )
-        currentSequence = projectModel.Sequence( currentProject, sequenceName )
+        currentProject = project.Project( projectName )
+        currentSequence = project.Sequence( currentProject, sequenceName )
         
         # set the project and sequence
         self.setProjectName( projectName )
@@ -281,7 +281,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # fill the fields with those info
         # create an asset with the file name and get the information from that asset object
         
-        assetObj = assetModel.Asset( currentProject, currentSequence, self.fileName )
+        assetObj = asset.Asset( currentProject, currentSequence, self.fileName )
         
         if not assetObj.isValidAsset:
             return
@@ -654,10 +654,10 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         currSGFIV = currentSequence.generateFakeInfoVariables
         allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
         
+        self._versionListBuffer = []
+        
         if len(allVersionsList) > 0:
             self._versionListBuffer = sorted( filter( self._environment.hasValidExtension, allVersionsList ) )
-        else:
-            self._versionListBuffer = []
     
     
     
@@ -689,6 +689,8 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         assetCount = len(assetFileNames)
         
+        #print assetFileNames
+        
         self.assets_tableWidget1.clear()
         self.assets_tableWidget1.setRowCount( assetCount )
         
@@ -698,19 +700,19 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         data = []
         
         for i,assetFileName in enumerate(assetFileNames):
-            #assert( isinstance(asset, assetModel.Asset))
+            #assert( isinstance(asset, asset.Asset))
             
-            asset = assetModel.Asset( self._project, self._sequence, assetFileName )
+            assetObj = asset.Asset( self._project, self._sequence, assetFileName )
             
-            fileName = asset.fileName
-            fileSize = asset.fileSizeFormated
-            dateUpdated = asset.dateUpdated
+            fileName = assetObj.fileName
+            fileSize = assetObj.fileSizeFormated
+            dateUpdated = assetObj.dateUpdated
             
             if fileName is None or dateUpdated is None or fileSize is None:
                 continue
             
             #print fileName, dateUpdated
-            data.append( ( asset, fileName, fileSize, dateUpdated ) )
+            data.append( ( assetObj, fileName, fileSize, dateUpdated ) )
             
             # ------------------------------------
             # asset fileName
@@ -841,7 +843,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # get the asset object from fields
         self._createAssetObjectFromSaveFields()#'updateRevisionToLatest' )
         
-        #if asset == None or not asset.isValidAsset:
+        #if assetObj == None or not asset.isValidAsset:
         if self._asset == None or not self._asset.isValidAsset:
             self.setRevisionNumberField( 0 )
             return
@@ -922,7 +924,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         if self._project == None or self._sequence == None:
             return None
         
-        assetObj = assetModel.Asset( self._project, self._sequence )
+        assetObj = asset.Asset( self._project, self._sequence )
         
         # gather information
         typeName = self.getCurrentAssetType()
@@ -976,7 +978,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         index = self.assets_tableWidget1.currentIndex().row()
         assetFileName = unicode(self.assets_tableWidget1.tableData[index][1])
-        self._asset = assetModel.Asset( self._project, self._sequence, assetFileName )
+        self._asset = asset.Asset( self._project, self._sequence, assetFileName )
         self._environment.asset = self._asset
     
     
@@ -1050,7 +1052,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         currentProjectName = self.getCurrentProjectName()
         
         if self._project == None or self._project.name != currentProjectName or (currentProjectName != "" or currentProjectName != None ):
-            self._project = projectModel.Project( currentProjectName )
+            self._project = project.Project( currentProjectName )
     
     
     #----------------------------------------------------------------------
@@ -1064,7 +1066,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         if self._sequence == None or self._sequence.name != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) or \
            self._sequence.projectName != self._project.name:
             self._updateProjectObject()
-            newSeq = projectModel.Sequence( self._project, currentSequenceName )
+            newSeq = project.Sequence( self._project, currentSequenceName )
             if newSeq._exists:
                 self._sequence = newSeq
     
@@ -1379,6 +1381,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                     # invoke the assetUpdater for this scene
                     assetUpdaterMainDialog = assetUpdater.MainDialog( self._environment.name, self )
                     assetUpdaterMainDialog.exec_()
+                    
+                    # load references (Maya Only - for now)
+                    self._environment.loadReferences()
                 
                 
                 
@@ -1491,7 +1496,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         # get the frame range from the sequence settings
         seq = self._asset.parentSequence
-        #assert(isinstance(seq, projectModel.Sequence))
+        #assert(isinstance(seq, project.Sequence))
         shot = seq.getShot( self._asset.shotNumber )
         
         if shot != None and envStart != None and envEnd != None:
