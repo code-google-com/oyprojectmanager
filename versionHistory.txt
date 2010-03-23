@@ -6,7 +6,7 @@ v10.3.23
 - mayaEnv: maya environment now uses smart reference checks. Instead of
   checking every reference one by one, it now skips reference checks for same
   asset file. So if there are a lot of references of the same file, it will be
-  replaced with the latest version
+  replaced with the latest version much more quicker
 
 v10.3.17
 - oyProjectManager: dataModels renamed to models, and removed the "Models" from

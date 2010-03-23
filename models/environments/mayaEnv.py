@@ -347,30 +347,52 @@ class MayaEnvironment(abstractClasses.Environment):
         # create a repository object
         repo = repository.Repository()
         
+        osName = os.name
+        
+        refsAndPaths = []
         # iterate over them to find valid assets
         for ref in allReferences:
             # it is a dictionary
             
             #assert(isinstance(ref, pm.FileReference))
             tempAssetFullPath = ref.path
-            if os.name == 'nt':
+            if osName == 'nt':
                 tempAssetFullPath = tempAssetFullPath.replace('/','\\')
-            
-            tempAssetPath = os.path.basename( tempAssetFullPath )
-            
-            #print "tempAssetFullPath".ljust(25), ":", tempAssetFullPath
-            #print "tempAssetPath".ljust(25), ":", tempAssetPath
-            
-            projName, seqName = repo.getProjectAndSequenceNameFromFilePath( tempAssetFullPath )
-            proj = project.Project( projName )
-            seq = project.Sequence( proj, seqName )
-            
-            tempAsset = asset.Asset( proj, seq, tempAssetPath )
-            
-            if tempAsset.isValidAsset:
-                validAssets.append( (tempAsset, ref, tempAssetFullPath) )
+             
+            refsAndPaths.append( (ref, tempAssetFullPath) )
         
-        return validAssets
+        # sort them according to path
+        # to make same paths togather
+        
+        refsAndPaths = sorted( refsAndPaths, None, lambda x: x[1])
+        
+        prevAsset = None
+        prevFullPath = ''
+        
+        for ref, fullPath in refsAndPaths:
+            
+            if fullPath == prevFullPath:
+                # directly append the asset to the list
+                validAssets.append( (prevAsset, ref, prevFullPath ) )
+            else:
+                projName, seqName = repo.getProjectAndSequenceNameFromFilePath( fullPath )
+                
+                proj = project.Project( projName )
+                seq = project.Sequence( proj, seqName )
+                
+                tempAssetPath = os.path.basename( fullPath )
+                tempAsset = asset.Asset( proj, seq, tempAssetPath )
+                
+                if tempAsset.isValidAsset:
+                    validAssets.append( (tempAsset, ref, fullPath) )
+                    
+                    prevAsset = tempAsset
+                    prevFullPath = fullPath
+        
+        # return a sorted list
+        #return validAssets
+        return sorted( validAssets, None, lambda x: x[2] )
+        
     
     
     
