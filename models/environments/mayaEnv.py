@@ -5,7 +5,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.3.17"
+__version__ = "10.3.23"
 
 
 
@@ -324,7 +324,10 @@ class MayaEnvironment(abstractClasses.Environment):
                 # add asset to the update list
                 updateList.append( assetTuple )
         
-        return updateList
+        #return updateList
+        
+        # sort the list according to assetFilepath
+        return sorted( updateList, None, lambda x: x[2] )
     
     
     
@@ -333,7 +336,7 @@ class MayaEnvironment(abstractClasses.Environment):
         """returns the valid assets those been referenced to the current scene
         
         returns asset objects and the corresponding reference object as a
-        tupple in a list
+        tupple in a list, and a string showing the path of the reference
         """
         
         validAssets = []
@@ -365,7 +368,7 @@ class MayaEnvironment(abstractClasses.Environment):
             tempAsset = asset.Asset( proj, seq, tempAssetPath )
             
             if tempAsset.isValidAsset:
-                validAssets.append( (tempAsset, ref) )
+                validAssets.append( (tempAsset, ref, tempAssetFullPath) )
         
         return validAssets
     
@@ -373,18 +376,23 @@ class MayaEnvironment(abstractClasses.Environment):
     
     #----------------------------------------------------------------------
     def updateAssets(self, assetTupleList):
-        """update assets to the lates version
+        """update assets to the latest version
         """
+        
+        previousAssetPath = ''
         
         for assetTuple in assetTupleList:
             
             asset = assetTuple[0]
             ref = assetTuple[1]
+            assetPath =  assetTuple[2]
             
             #assert(isinstance(asset, asset.Asset))
             #assert(isinstance(ref, pm.FileReference))
             
-            latestAsset = asset.latestVersion2[0]
+            if assetPath != previousAssetPath:
+                latestAsset = asset.latestVersion2[0]
+                previousAssetPath = assetPath
             
             ref.replaceWith( latestAsset.fullPath )
     

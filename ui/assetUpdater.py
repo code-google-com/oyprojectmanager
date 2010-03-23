@@ -5,11 +5,12 @@ import assetUpdater_UI
 
 import oyProjectManager
 from oyProjectManager.models import asset, project, repository
+from oyProjectManager.models.environments import environmentFactory
 from oyProjectManager.ui import singletonQapplication
 
 
 
-__version__ = "10.3.17"
+__version__ = "10.3.23"
 
 
 
@@ -153,17 +154,9 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
         """
         self._environmentName = environmentName
         
-        if self._environmentName == 'MAYA':
-            from oyProjectManager.models.environments import mayaEnv
-            self.setEnvironment( mayaEnv.MayaEnvironment() )
+        envFactory = environmentFactory.EnvironmentFactory()
+        self._environment = envFactory.create( None, self._environmentName )
         
-        elif self._environmentName == 'HOUDINI':
-            from oyProjectManager.models.environments import houdiniEnv
-            self.setEnvironment( houdiniEnv.HoudiniEnvironment() )
-        
-        elif self._environmentName == 'NUKE':
-            from oyProjectManager.models.environments import nukeEnv
-            self.setEnvironment(  nukeEnv.NukeEnvironment() )
     
     environmentName = property( getEnvironmentName, setEnvironmentName )
     
@@ -181,7 +174,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     def setEnvironment(self, environment):
         """sets the environment
         """
-        self._environment = environment
+        self._environmentName = environment
     
     environment = property( getEnvironment, setEnvironment )
     
