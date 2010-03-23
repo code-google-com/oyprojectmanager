@@ -50,11 +50,12 @@ class User(object):
         self._initials = initials
     
     initials = property( _getInitials, _setInitials )
-    
-    
-    
-    
-    
+
+
+
+
+
+
 ########################################################################
 class UserType(object):
     """a class for managing user types

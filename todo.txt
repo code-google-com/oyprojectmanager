@@ -16,7 +16,7 @@ TODO List :
 
 - add a UserType class, save the default user types in an xml file
 
-- add the UserType id to the users.xml  
+- add the UserType id to the users.xml
 
 - the relation and interaction between the assetManager and the environments
   should be more universal and organized. The environments should return
