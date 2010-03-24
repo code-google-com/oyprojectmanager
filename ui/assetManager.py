@@ -10,7 +10,7 @@ from oyProjectManager.ui import assetUpdater, singletonQapplication
 
 
 
-__version__ = "10.3.17"
+__version__ = "10.3.24"
 
 
 
@@ -1382,10 +1382,8 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                     assetUpdaterMainDialog = assetUpdater.MainDialog( self._environment.name, self )
                     assetUpdaterMainDialog.exec_()
                     
-                    # load references (Maya Only - for now)
-                    self._environment.loadReferences()
-                
-                
+                # load references (Maya Only - for now)
+                self._environment.loadReferences()
                 
             elif self._environment.name == 'NUKE':
                 envStatus = self._environment.open_()

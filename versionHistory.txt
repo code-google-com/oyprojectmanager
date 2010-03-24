@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.3.24
+- assetManager: fixed a little bug that causes Maya to not to load any
+  references when there are no updates necessary
+
 v10.3.23
 - assetUpdater: replaced the hardcoded environment creation with
   environmentFactory's create method
