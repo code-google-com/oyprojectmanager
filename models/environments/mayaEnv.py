@@ -390,7 +390,6 @@ class MayaEnvironment(abstractClasses.Environment):
                     prevFullPath = fullPath
         
         # return a sorted list
-        #return validAssets
         return sorted( validAssets, None, lambda x: x[2] )
         
     

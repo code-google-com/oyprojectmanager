@@ -85,7 +85,6 @@ class EnvironmentFactory( abstractClasses.Singleton ):
             envClass = houdiniEnv.HoudiniEnvironment
         
         # create the environment if the envClass is not None
-        
         if envClass is not None:
             # get the virtual environment and set variables
             extensions = self._virtualEnvironments[ environmentName ].extensions
