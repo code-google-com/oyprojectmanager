@@ -2,6 +2,8 @@ Version History :
 -----------------
 v10.4.4
 - repository: fixed home path retriaval of the user under windows 7
+- repository: removed cache from _getLastUser, there is a problem on using
+  cache class in property methods with setter, this will be fixed later
 - assetManager: fixed invalid calls to asset objects without fileNames while
   updating the assetsListWidget
 

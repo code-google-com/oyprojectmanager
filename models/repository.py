@@ -369,7 +369,8 @@ class Repository( abstractClasses.Singleton ):
             lastUserFile.write( userInitials )
             lastUserFile.close()
     
-    lastUser = cache.CachedMethod( property( _getLastUser, _setLastUser ) )
+    #lastUser = cache.CachedMethod( property( _getLastUser, _setLastUser ) )
+    lastUser = property( _getLastUser, _setLastUser )
     
     
     
