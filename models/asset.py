@@ -298,7 +298,7 @@ class Asset(object):
         
         fileName = self.fileNameWithoutExtension
         
-        if self._extension != None and self._extension != '':
+        if self._extension is not None and self._extension != '' and fileName is not None:
             fileName = fileName + os.extsep + self._extension
         
         return fileName

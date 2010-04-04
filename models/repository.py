@@ -6,7 +6,7 @@ from oyProjectManager.models import user, abstractClasses
 
 
 
-__version__ = "10.3.17"
+__version__ = "10.4.4"
 
 
 
@@ -324,11 +324,15 @@ class Repository( abstractClasses.Singleton ):
         it is :
         /home/userName/ for linux
         C:\Documents and Settings\userName\My Documents for Windows
+        C:/Users/userName/Documents for Windows 7 (be careful about the slashes)
         """
         
-        homePath = os.environ.get('HOME')
+        homePathAsStr = os.environ.get('HOME')
         
-        return homePath
+        if os.name == 'nt':
+            homePathAsStr = homePathAsStr.replace('/','\\')
+        
+        return homePathAsStr
     
     
     

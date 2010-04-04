@@ -1,5 +1,8 @@
 Version History :
 -----------------
+v10.4.4
+- repository: fixed home path retriaval of the user under windows 7
+
 v10.3.24
 - assetManager: fixed a little bug that causes Maya to not to load any
   references when there are no updates necessary

@@ -678,6 +678,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         else:
             _buffer = self._versionListBuffer 
         
+        #print "printing buffer"
+        #print _buffer
+        
         self.fillAssetsTableWidget( _buffer )
     
     
@@ -688,6 +691,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """
         
         assetCount = len(assetFileNames)
+        
+        if assetCount == 0 :
+            return
         
         #print assetFileNames
         
@@ -701,6 +707,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         for i,assetFileName in enumerate(assetFileNames):
             #assert( isinstance(asset, asset.Asset))
+            
+            if assetFileName is None:
+                continue
             
             assetObj = asset.Asset( self._project, self._sequence, assetFileName )
             
