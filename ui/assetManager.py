@@ -10,7 +10,7 @@ from oyProjectManager.ui import assetUpdater, singletonQapplication
 
 
 
-__version__ = "10.3.24"
+__version__ = "10.4.4"
 
 
 
@@ -676,10 +676,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             _buffer = self._versionListBuffer[-numOfEntry:]
             
         else:
-            _buffer = self._versionListBuffer 
-        
-        #print "printing buffer"
-        #print _buffer
+            _buffer = self._versionListBuffer
         
         self.fillAssetsTableWidget( _buffer )
     
@@ -692,10 +689,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         assetCount = len(assetFileNames)
         
-        if assetCount == 0 :
-            return
-        
-        #print assetFileNames
         
         self.assets_tableWidget1.clear()
         self.assets_tableWidget1.setRowCount( assetCount )
@@ -704,6 +697,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.assets_tableWidget1.setHorizontalHeaderLabels( self._horizontalLabels )
         
         data = []
+        
+        if assetCount == 0 :
+            return
         
         for i,assetFileName in enumerate(assetFileNames):
             #assert( isinstance(asset, asset.Asset))
