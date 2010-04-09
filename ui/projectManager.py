@@ -320,7 +320,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         sequenceObj = project.Sequence( projectObj, sequenceName )
         
         # invoke sequence objects add alternate shot method with the given shot number
-        alternativeShotName = sequence.addAlternativeShot( shotNumber )
+        alternativeShotName = sequenceObj.addAlternativeShot( shotNumber )
         
         #print "projectManager -> adding alternative shot to shot %s" % shotNumber
         
