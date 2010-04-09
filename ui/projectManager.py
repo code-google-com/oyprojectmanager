@@ -9,7 +9,7 @@ from oyProjectManager.tools import rangeTools
 from oyProjectManager.ui import singletonQapplication
 
 
-__version__ = "10.3.17"
+__version__ = "10.4.9"
 
 
 
@@ -317,7 +317,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         # create the project and sequence objects
         projectObj = project.Project( projectName )
-        sequenceObj = project.Sequence( project, sequenceName )
+        sequenceObj = project.Sequence( projectObj, sequenceName )
         
         # invoke sequence objects add alternate shot method with the given shot number
         alternativeShotName = sequence.addAlternativeShot( shotNumber )
