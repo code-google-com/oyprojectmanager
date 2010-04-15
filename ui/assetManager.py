@@ -1378,6 +1378,8 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 except RuntimeError:
                     answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There are <b>unsaved changes</b> in the current scene<br><br>Do you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
                     
+                    envStatus = False
+                    
                     if answer== QtGui.QMessageBox.Yes:
                         envStatus, toUpdateList = self._environment.open_( True )
                 
