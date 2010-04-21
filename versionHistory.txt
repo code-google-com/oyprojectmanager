@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.4.21
+- assetManager: assetManager now sets the render frame range in any case (not
+  true )
+
 v10.4.9
 - projectManager: fixed error in addAlternativeShot method (typo)
 

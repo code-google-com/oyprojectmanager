@@ -10,7 +10,7 @@ from oyProjectManager.ui import assetUpdater, singletonQapplication
 
 
 
-__version__ = "10.4.4"
+__version__ = "10.4.21"
 
 
 
@@ -1516,6 +1516,8 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 
                 if answer == QtGui.QMessageBox.Yes:
                     self._environment.setFrameRange( shotStart, shotEnd )
+            else: # set it incase the render frames are wrong
+                self._environment.setFrameRange( shotStart, shotEnd )
 
 
 
