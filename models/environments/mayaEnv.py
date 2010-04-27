@@ -153,7 +153,7 @@ class MayaEnvironment(abstractClasses.Environment):
             
             testAsset = asset.Asset( proj, seq, fileName )
             
-            if testAsset.isValidAsset:
+            if testAsset.isValidAsset and testAsset.exists:
                 fileName = testAsset.fileName
                 path = testAsset.path
                 readRecentFile = False
