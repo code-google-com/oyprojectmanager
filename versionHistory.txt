@@ -1,5 +1,8 @@
 Version History :
 -----------------
+v10.4.27
+- mayaEnv: fixed asset validation by adding file existancy checks
+
 v10.4.21
 - assetManager: assetManager now sets the render frame range in any case (not
   true )

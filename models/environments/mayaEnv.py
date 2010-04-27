@@ -5,7 +5,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.3.23"
+__version__ = "10.4.27"
 
 
 
@@ -174,7 +174,7 @@ class MayaEnvironment(abstractClasses.Environment):
                     seq = project.Sequence( proj, seqName )
                     
                     testAsset = asset.Asset( proj, seq, fileName )
-                    if testAsset.isValidAsset:
+                    if testAsset.isValidAsset and testAsset.exists:
                         path = testAsset.path
                         foundValidAsset = True
                         break

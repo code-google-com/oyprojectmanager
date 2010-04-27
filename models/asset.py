@@ -737,6 +737,9 @@ class Asset(object):
     @property
     def isValidAsset(self):
         """returns True if this file is an Asset False otherwise
+        
+        being a valid asset doesn't neccessarly mean the asset file exists
+        
         """
         # if it has a baseName, subName, typeName, revString, verString and a userInitial string
         # and the parent folder for the asset starts with assets baseName
@@ -938,6 +941,7 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
+    @property
     def exists(self):
         """returns True if the asset file exists
         """
