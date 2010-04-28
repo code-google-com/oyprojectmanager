@@ -1251,7 +1251,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         overwriteStatus = False
         
         # check for overwrites
-        if assetObject.exists():
+        if assetObject.exists:
             answer = QtGui.QMessageBox.question(self, 'File Error', 'owerwrite?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
             if answer == QtGui.QMessageBox.Yes:
                 overwriteStatus = True
