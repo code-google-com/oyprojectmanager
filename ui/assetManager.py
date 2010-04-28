@@ -1297,7 +1297,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             # check the range if and only if the asset is shot dependent
             if self._asset.isShotDependent:
                 # get the frame range from environment
-                self.adjustFrameRange()
+                returnStat = self.adjustFrameRange()
+                if returnStat == -1:
+                    return
             # -----------------------------------------------------------------
             
             
@@ -1497,8 +1499,14 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     #----------------------------------------------------------------------
     def adjustFrameRange(self):
         """adjusts the frame range to match the shot settings
+        
+        returns
+        -1 : Cancel
+         0 : No
+         1 : Yes
         """
         
+        returnStat = 1
         # get the frame range from environment
         envStart, envEnd = self._environment.getFrameRange()
         
@@ -1515,12 +1523,17 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 answer = QtGui.QMessageBox.question(self, 'FrameRange Error', "The current frame range is:<br><b>" + \
                                                     str(envStart) + "-" + str(envEnd) + "</b><br><br>The frame range of shot <b>" + shot.name + "</b> is:<br><b>" + \
                                                     str(shotStart) + "-" + str(shotEnd) + "</b><br><br>should your frame range be adjusted?", \
-                                                    QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
+                                                    QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.Cancel )
                 
                 if answer == QtGui.QMessageBox.Yes:
                     self._environment.setFrameRange( shotStart, shotEnd )
+                    return 1
+                if answer == QtGui.QMessageBox.Cancel:
+                    # do nothing
+                    return -1
             else: # set it incase the render frames are wrong
                 self._environment.setFrameRange( shotStart, shotEnd )
+                return 1
     
     
     

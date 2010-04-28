@@ -486,7 +486,8 @@ class MayaEnvironment(abstractClasses.Environment):
         
         # update the playback ranges
         pm.currentTime( currentTime )
-        pm.playbackOptions( min=pMin, max=pMax, ast=pAst, aet=pAet)
+        pm.playbackOptions( ast=pAst, aet=pAet )
+        pm.playbackOptions( min=pMin, max=pMax )
     
     
     

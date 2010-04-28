@@ -5,6 +5,8 @@ v10.4.28
   should called properly
 - oyProjectManager: added timeUnit support
 - defaultSettings.xml: removed the databaseData node
+- assetManager: assetManager now allows the user to cancel the saving of the
+  asset file if there is a frame range misadjustment
 
 v10.4.27
 - mayaEnv: fixed asset validation by adding file existancy checks
