@@ -1,7 +1,6 @@
 <?xml version="1.0" ?>
 <root>
-	<databaseData shotPrefix="SH" shotPadding="3" revPrefix="r" revPadding="2" verPrefix="v" verPadding="3" extensionsToIgnore="smr,txt,autosave,nk~,bak"/>
-	<sequenceData>
+	<sequenceData shotPrefix="SH" shotPadding="3" revPrefix="r" revPadding="2" verPrefix="v" verPadding="3" timeUnit="pal">
 		<structure>
 			<shotDependent>
 				_ANIMATIONS_

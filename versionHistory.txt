@@ -2,7 +2,9 @@ Version History :
 -----------------
 v10.4.28
 - assetManager: fixed asset.exists calls, because it is a property now, it
-  should called different than before
+  should called properly
+- oyProjectManager: added timeUnit support
+- defaultSettings.xml: removed the databaseData node
 
 v10.4.27
 - mayaEnv: fixed asset validation by adding file existancy checks

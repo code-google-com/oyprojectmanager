@@ -6,7 +6,7 @@ from oyProjectManager.models import user, abstractClasses
 
 
 
-__version__ = "10.4.4"
+__version__ = "10.4.28"
 
 
 
@@ -48,7 +48,9 @@ class Repository( abstractClasses.Singleton ):
         self._projectsFolderName = ''
         self._projectsFolderFullPath = ''
         
+        # ---------------------------------------------------
         # Last User File
+        # ---------------------------------------------------
         self._lastUserFileName = '.lastUser'
         self._lastUserFilePath = self.homePath
         self._lastUserFileFullPath = os.path.join( self._lastUserFilePath, self._lastUserFileName )
@@ -57,7 +59,9 @@ class Repository( abstractClasses.Singleton ):
         #self._localSettingsPath = self.getHomePath()
         #self._localSettingsFullPath = os.path( self._localSettingsPath, self._localSettingsFileName )
         
+        # ---------------------------------------------------
         # Users Settings File
+        # ---------------------------------------------------
         self._usersFileName = 'users.xml'
         self._usersFilePath = self._settingsDirPath
         self._usersFileFullPath = os.path.join( self._usersFilePath, self._usersFileName )
@@ -65,6 +69,19 @@ class Repository( abstractClasses.Singleton ):
         
         self._projects = [] * 0
         self._defaultFilesList = [] * 0
+        
+        # ---------------------------------------------------
+        # UNITS
+        # ---------------------------------------------------
+        # 
+        # Only time units are implemented for now,
+        # the rest will be added when they are first needed
+        # 
+        self._timeUnits = {}
+        #self._linearUnits = {}
+        #self._angularUnits = {}
+        
+        # ---------------------------------------------------
         
         #self._readLocalSettings()
         self._readSettings()
@@ -92,6 +109,12 @@ class Repository( abstractClasses.Singleton ):
         #assert(isinstance(settingsNode, minidom.Element))
         #assert(isinstance(defaultFilesNode, minidom.Element))
         
+        timeNodes = rootNode.getElementsByTagName('time')
+        
+        for timeNode in timeNodes:
+            name = timeNode.getAttribute('name')
+            fps = timeNode.getAttribute('fps')
+            self._timeUnits[ name ] = fps
         
         # -----------------------------------------------------
         # read the server settings
@@ -402,6 +425,13 @@ class Repository( abstractClasses.Singleton ):
         """
         return self._settingsDirPath
     
+    
+    #----------------------------------------------------------------------
+    @property
+    def timeUnits(self):
+        """returns timeUnits as a dictionary
+        """
+        return self._timeUnits
     
     
     ##----------------------------------------------------------------------

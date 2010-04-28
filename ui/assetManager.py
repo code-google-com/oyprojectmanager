@@ -10,7 +10,7 @@ from oyProjectManager.ui import assetUpdater, singletonQapplication
 
 
 
-__version__ = "10.4.21"
+__version__ = "10.4.28"
 
 
 
@@ -1299,7 +1299,10 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 # get the frame range from environment
                 self.adjustFrameRange()
             # -----------------------------------------------------------------
-
+            
+            
+            # check the timeUnit
+            self.adjustTimeUnit()
             
             #everything is ok now save in the host application
             envStatus = self._environment.save()
@@ -1518,6 +1521,33 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                     self._environment.setFrameRange( shotStart, shotEnd )
             else: # set it incase the render frames are wrong
                 self._environment.setFrameRange( shotStart, shotEnd )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def adjustTimeUnit(self):
+        """adjusts the timeUnit to match the settings
+        """
+        
+        # get the timeUnit of the environment
+        timeUnit = self._environment.getTimeUnit()
+        
+        # get the timeUnit of the sequence
+        seq = self._asset.parentSequence
+        
+        assert(isinstance(seq, project.Sequence))
+        
+        seqTimeUnit = seq.timeUnit
+        
+        if seq.timeUnit != timeUnit:
+            answer = QtGui.QMessageBox.question(self, 'TimeUnit Error', "The current time unit is:<br><b>" + \
+                                                timeUnit + \
+                                                "</b><br><br>The time unit of the sequence is :<br><b>" + \
+                                                seqTimeUnit + \
+                                                "</b><br><br>should your time unit be adjusted?", \
+                                                QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
+            if answer == QtGui.QMessageBox.Yes:
+                self._environment.setTimeUnit( seqTimeUnit )
 
 
 

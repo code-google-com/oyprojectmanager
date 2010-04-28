@@ -5,7 +5,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.4.27"
+__version__ = "10.4.28"
 
 
 
@@ -270,6 +270,12 @@ class MayaEnvironment(abstractClasses.Environment):
         mayaProjectPath = os.path.join( repo.projectsFullPath, projectName, sequenceName )
         
         pm.workspace.open(mayaProjectPath)
+        
+        proj = project.Project( projectName )
+        seq = project.Sequence( proj, sequenceName )
+        
+        # set the current timeUnit to match with the environments
+        self.setTimeUnit( seq.timeUnit )
     
     
     
@@ -441,6 +447,46 @@ class MayaEnvironment(abstractClasses.Environment):
         dRG = pm.PyNode('defaultRenderGlobals')
         dRG.setAttr('startFrame', startFrame )
         dRG.setAttr('endFrame', endFrame )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getTimeUnit(self):
+        """returns the timeUnit of the environment
+        """
+        
+        # return directly from maya, it uses the same format
+        return (pm.currentUnit(q=1, t=1)).lower()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setTimeUnit(self, timeUnit='pal'):
+        """sets the timeUnit of the environment
+        """
+        
+        # check if the given unit is in repository
+        repo = repository.Repository()
+        
+        if not repo.timeUnits.has_key( timeUnit ):
+            raise KeyError(timeUnit)
+        
+        # get the current time, current playback min and max ( because maya
+        # changes them, try to restore the limits )
+        
+        currentTime = pm.currentTime(q=1)
+        pMin = pm.playbackOptions(q=1, min=1)
+        pMax = pm.playbackOptions(q=1, max=1)
+        pAst = pm.playbackOptions(q=1, ast=1)
+        pAet = pm.playbackOptions(q=1, aet=1)
+        
+        # set the time unit, do not change the keyframe times
+        # use the timeUnit as it is
+        pm.currentUnit(t=timeUnit, ua=0 )
+        
+        # update the playback ranges
+        pm.currentTime( currentTime )
+        pm.playbackOptions( min=pMin, max=pMax, ast=pAst, aet=pAet)
     
     
     

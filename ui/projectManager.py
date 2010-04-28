@@ -9,7 +9,7 @@ from oyProjectManager.tools import rangeTools
 from oyProjectManager.ui import singletonQapplication
 
 
-__version__ = "10.4.9"
+__version__ = "10.4.28"
 
 
 
@@ -70,6 +70,8 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         self.repo = repository.Repository()
         
+        self._timeFpsDivider = ' - '
+        
         # fill defaults
         self.setDefaults()
         
@@ -95,6 +97,24 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         # fill the server comboBox
         self.servers_comboBox.clear()
         self.servers_comboBox.addItem ( self.repo.serverPath )
+        
+        
+        # --------------------------------
+        # fill fps comboBox
+        # --------------------------------
+        self.fps_comboBox.clear()
+        
+        timeUnits = self.repo.timeUnits
+        fpsList = []
+        for timeUnitName in timeUnits.keys():
+            fpsList.append( timeUnitName + self._timeFpsDivider + timeUnits[timeUnitName] )
+        
+        fpsList = sorted( fpsList, None, lambda x: x.split( self._timeFpsDivider )[1] )
+        
+        self.fps_comboBox.addItems( fpsList )
+        
+        # by default select 25 / ugly patch
+        self.fps_comboBox.setCurrentIndex( 2 )
     
     
     
@@ -169,10 +189,14 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         # get the shot range
         shotRange = unicode( self.shotRange_lineEdit2.text() )
         
+        # get the timeUnit name
+        timeUnit = unicode( self.fps_comboBox.currentText().split( self._timeFpsDivider )[0] )
+        
         # create the sequence object
         newSeq = project.Sequence( project.Project( projectName ) , sequenceName )
         newSeq.addShots( shotRange )
         newSeq.create()
+        newSeq.timeUnit = timeUnit
         newSeq.saveSettings()
         
         # inform the user if it is created

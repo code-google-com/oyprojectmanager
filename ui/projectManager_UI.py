@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager.ui'
 #
-# Created: Fri Feb  5 22:09:30 2010
+# Created: Thu Apr 29 01:19:23 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(583, 323)
+        Dialog.resize(583, 326)
         self.verticalLayout_2 = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.horizontalWidget_9 = QtGui.QWidget(Dialog)
@@ -171,6 +171,13 @@ class Ui_Dialog(object):
         self.shotRange_lineEdit2 = QtGui.QLineEdit(self.gridWidget_2)
         self.shotRange_lineEdit2.setObjectName("shotRange_lineEdit2")
         self.gridLayout_3.addWidget(self.shotRange_lineEdit2, 2, 1, 1, 1)
+        self.fps_label = QtGui.QLabel(self.gridWidget_2)
+        self.fps_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.fps_label.setObjectName("fps_label")
+        self.gridLayout_3.addWidget(self.fps_label, 3, 0, 1, 1)
+        self.fps_comboBox = QtGui.QComboBox(self.gridWidget_2)
+        self.fps_comboBox.setObjectName("fps_comboBox")
+        self.gridLayout_3.addWidget(self.fps_comboBox, 3, 1, 1, 1)
         self.gridLayout_3.setColumnMinimumWidth(0, 100)
         self.gridLayout_3.setColumnStretch(1, 1)
         self.horizontalLayout_4.addWidget(self.gridWidget_2)
@@ -370,6 +377,7 @@ class Ui_Dialog(object):
         self.project_label2.setText(QtGui.QApplication.translate("Dialog", "Project", None, QtGui.QApplication.UnicodeUTF8))
         self.sequence_label2.setText(QtGui.QApplication.translate("Dialog", "Sequence", None, QtGui.QApplication.UnicodeUTF8))
         self.shotRange_label2.setText(QtGui.QApplication.translate("Dialog", "Shot Range", None, QtGui.QApplication.UnicodeUTF8))
+        self.fps_label.setText(QtGui.QApplication.translate("Dialog", "Time Unit", None, QtGui.QApplication.UnicodeUTF8))
         self.createSequence_pushButton.setText(QtGui.QApplication.translate("Dialog", "Create Sequence", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.createSequenceTab), QtGui.QApplication.translate("Dialog", "Create Sequence", None, QtGui.QApplication.UnicodeUTF8))
         self.project_label3.setText(QtGui.QApplication.translate("Dialog", "Project", None, QtGui.QApplication.UnicodeUTF8))

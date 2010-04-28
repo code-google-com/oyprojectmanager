@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>583</width>
-    <height>323</height>
+    <height>326</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -282,6 +282,19 @@
                 </item>
                 <item row="2" column="1">
                  <widget class="QLineEdit" name="shotRange_lineEdit2"/>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="fps_label">
+                  <property name="text">
+                   <string>Time Unit</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QComboBox" name="fps_comboBox"/>
                 </item>
                </layout>
               </widget>

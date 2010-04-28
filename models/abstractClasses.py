@@ -1,7 +1,7 @@
 
 
 
-__version__ = "10.2.5"
+__version__ = "10.4.28"
 
 
 
@@ -206,6 +206,22 @@ class Environment(object):
         """
         pass
     
+    
+    
+    #----------------------------------------------------------------------
+    def getTimeUnit(self):
+        """returns the time unit of the environment
+        """
+        pass
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setTimeUnit(self, timeUnit='pal' ):
+        """sets the frame rate of the environment
+        """
+        pass
+        
     
     
     #----------------------------------------------------------------------

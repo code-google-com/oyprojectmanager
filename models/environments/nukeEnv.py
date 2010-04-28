@@ -160,3 +160,5 @@ class NukeEnvironment(abstractClasses.Environment):
         self._root.knob('first_frame').setValue(startFrame)
         self._root.knob('last_frame').setValue(endFrame)
     
+    
+    

@@ -6,7 +6,7 @@ from oyProjectManager.models import asset, user, repository
 
 
 
-__version__ = "10.3.17"
+__version__ = "10.4.28"
 
 
 
@@ -222,7 +222,7 @@ class Sequence(object):
         #self._extensionsToIgnore = [] * 0
         self._noSubNameField = False # to support the old types of projects
         
-        self._fps = 25 # by default set it to 25
+        self._timeUnit = 'pal' # by default set it to pal - ugly default settings
         
         self._environment = None # the working environment
         
@@ -265,19 +265,18 @@ class Sequence(object):
             
             # parse the databaseData nodes attributes as if it is a
             # sequenceDataNode
-            self._parseSequenceDataNodesAttributes( databaseDataNode[0] )
+            self._parseSequenceDataNode( databaseDataNode[0] )
         
         sequenceDataNode = rootNode.getElementsByTagName('sequenceData')[0]
         
         if not doRemoveDatabaseDataNode:
-            self._parseSequenceDataNodesAttributes( sequenceDataNode ) 
+            self._parseSequenceDataNode( sequenceDataNode ) 
         
         # -----------------------------------------------------
         # get sequence nodes
         structureNode = sequenceDataNode.getElementsByTagName('structure')[0]
         assetTypesNode = sequenceDataNode.getElementsByTagName('assetTypes')[0]
         shotDataNodes = sequenceDataNode.getElementsByTagName('shotData')
-        
         
         doConvertionToShotData = False
         
@@ -316,7 +315,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def _parseSequenceDataNodesAttributes(self, sequenceDataNode ):
+    def _parseSequenceDataNode(self, sequenceDataNode ):
         """parses sequenceDataNode nodes attributes
         """
         
@@ -334,6 +333,9 @@ class Sequence(object):
         
         if sequenceDataNode.hasAttribute('noSubNameField'):
             self._noSubNameField = bool( eval( sequenceDataNode.getAttribute('noSubNameField') ) )
+        
+        if sequenceDataNode.hasAttribute('timeUnit'):
+            self._timeUnit = sequenceDataNode.getAttribute('timeUnit')
     
     
     
@@ -524,7 +526,7 @@ class Sequence(object):
         sequenceDataNode.setAttribute('revPadding', unicode( self._revPadding ) )
         sequenceDataNode.setAttribute('verPrefix', self._verPrefix)
         sequenceDataNode.setAttribute('verPadding', unicode( self._verPadding ) )
-        #sequenceDataNode.setAttribute('extensionsToIgnore', unicode( ','.join(self._extensionsToIgnore)) )
+        sequenceDataNode.setAttribute('timeUnit', self._timeUnit )
         
         if self._noSubNameField:
             sequenceDataNode.setAttribute('noSubNameField', unicode( self._noSubNameField ) )
@@ -1469,6 +1471,29 @@ class Sequence(object):
         filteredAssetFileNames = self.aFilter( assetInfos, **kwargs )
         
         return [ info['fileName'] for info in filteredAssetFileNames ]
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _getTimeUnit(self):
+        """returns the time unit of the sequence
+        """
+        return self._timeUnit
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _setTimeUnit(self, timeUnit):
+        """sets the time unit of the sequence
+        """
+        # check if the given timeUnit is in repository settings
+        if self._repository.timeUnits.has_key(timeUnit):
+            # set it
+            self._timeUnit = timeUnit
+        else:
+            raise KeyError(timeUnit)
+    
+    timeUnit = property(_getTimeUnit, _setTimeUnit)
     
     
     
