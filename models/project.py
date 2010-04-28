@@ -222,6 +222,8 @@ class Sequence(object):
         #self._extensionsToIgnore = [] * 0
         self._noSubNameField = False # to support the old types of projects
         
+        self._fps = 25 # by default set it to 25
+        
         self._environment = None # the working environment
         
         self._exists = False
