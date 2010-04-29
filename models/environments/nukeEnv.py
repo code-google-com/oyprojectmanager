@@ -161,4 +161,19 @@ class NukeEnvironment(abstractClasses.Environment):
         self._root.knob('last_frame').setValue(endFrame)
     
     
+    #----------------------------------------------------------------------
+    def setTimeUnit(self):
+        """sets the current time unit
+        """
+        pass
     
+    
+    
+    #----------------------------------------------------------------------
+    def getTimeUnit(self):
+        """returns the current time unit
+        """
+        # correct it later
+        return 'pal'
+        
+        
