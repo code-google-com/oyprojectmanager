@@ -1,11 +1,11 @@
 import os
 import nuke
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.models import asset, project, abstractClasses
+from oyProjectManager.models import asset, project, abstractClasses, repository
 
 
 
-__version__ = "10.3.17"
+__version__ = "10.4.29"
 
 
 
@@ -145,7 +145,7 @@ class NukeEnvironment(abstractClasses.Environment):
     def getFrameRange(self):
         """returns the current frame range
         """
-        self._root = self.getRootNode()
+        #self._root = self.getRootNode()
         startFrame = int(self._root.knob('first_frame').value())
         endFrame = int(self._root.knob('last_frame').value())
         return startFrame, endFrame
@@ -156,16 +156,26 @@ class NukeEnvironment(abstractClasses.Environment):
     def setFrameRange(self, startFrame=1, endFrame=100):
         """sets the start and end frame range
         """
-        self._root = self.getRootNode()
+        #self._root = self.getRootNode()
         self._root.knob('first_frame').setValue(startFrame)
         self._root.knob('last_frame').setValue(endFrame)
     
     
     #----------------------------------------------------------------------
-    def setTimeUnit(self):
+    def setTimeUnit(self, timeUnit='pal'):
         """sets the current time unit
         """
-        pass
+        
+        # get the fps value of the given time unit
+        repo = repository.Repository()
+        
+        try:
+            fps = repo.timeUnits[ timeUnit ]
+        except KeyError:
+            # set it to pal by default
+            fps = repo.timeUnits[ 'pal' ]
+        
+        self._root.knob('fps').setValue( float(fps) )
     
     
     
@@ -173,7 +183,19 @@ class NukeEnvironment(abstractClasses.Environment):
     def getTimeUnit(self):
         """returns the current time unit
         """
-        # correct it later
-        return 'pal'
         
+        currentFps = str(int(self._root.knob('fps').getValue()))
         
+        repo = repository.Repository()
+        timeUnits = repo.timeUnits
+        
+        # by default set it to pal
+        timeUnit = 'pal'
+        
+        for timeUnitName, timeUnitFps in timeUnits.iteritems():
+            if currentFps == timeUnitFps:
+                timeUnit = timeUnitName
+                break
+        
+        return timeUnit
+    

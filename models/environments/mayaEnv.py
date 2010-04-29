@@ -5,7 +5,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.4.28"
+__version__ = "10.4.29"
 
 
 
@@ -40,6 +40,10 @@ class MayaEnvironment(abstractClasses.Environment):
         
         # create the folder if it doesn't exists
         oyAux.createFolder( self._asset.path )
+        
+        # delete the unknown nodes
+        unknownNodes = pm.ls(type='unknown')
+        pm.delete( unknownNodes )
         
         # save the file
         pm.saveAs( self._asset.fullPath, type='mayaAscii' )
@@ -436,12 +440,15 @@ class MayaEnvironment(abstractClasses.Environment):
     
     
     #----------------------------------------------------------------------
-    def setFrameRange(self, startFrame=1, endFrame=100):
+    def setFrameRange(self, startFrame=1, endFrame=100, adjust_frame_range=False):
         """sets the start and end frame range
         """
         
         # set it in the playback
         pm.playbackOptions(ast=startFrame, aet=endFrame)
+        
+        if adjust_frame_range:
+            pm.playbackOptions( min=startFrame, max=endFrame )
         
         # set in the render range
         dRG = pm.PyNode('defaultRenderGlobals')
@@ -482,7 +489,7 @@ class MayaEnvironment(abstractClasses.Environment):
         
         # set the time unit, do not change the keyframe times
         # use the timeUnit as it is
-        pm.currentUnit(t=timeUnit, ua=0 )
+        pm.currentUnit( t=timeUnit, ua=0 )
         
         # update the playback ranges
         pm.currentTime( currentTime )

@@ -2,6 +2,8 @@ Version History :
 -----------------
 v10.4.29
 - assetManager: adjusting the time unit is now obligatory
+- nukeEnv: added support for time units in nuke
+- houdiniEnv: added support for time units in houdini
 
 v10.4.28
 - assetManager: fixed asset.exists calls, because it is a property now, it

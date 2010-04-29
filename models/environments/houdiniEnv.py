@@ -19,7 +19,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.3.17"
+__version__ = "10.4.29"
 
 
 
@@ -233,7 +233,6 @@ class HoudiniEnvironment(abstractClasses.Environment):
         """sets the frame range
         """
         
-        
         # --------------------------------------------
         # set the timeline
         currFrame = hou.frame()
@@ -244,7 +243,6 @@ class HoudiniEnvironment(abstractClasses.Environment):
         
         # for now use hscript, the python version is not implemented yet
         hou.hscript('tset `('+ str(startFrame) +'-1)/$FPS` `'+ str(endFrame)+'/$FPS`')
-        
         
         # --------------------------------------------
         # Set the render nodes frame ranges if any
@@ -257,7 +255,49 @@ class HoudiniEnvironment(abstractClasses.Environment):
         if len(outNodes):
             for outNode in outNodes:
                 outNode.setParms( {'trange':1,'f1':startFrame,'f2':endFrame,'f3':1})
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getTimeUnit(self):
+        """returns the current time unit
+        """
         
+        repo = repository.Repository()
+        timeUnits = repo.timeUnits
+        
+        currentFps = hou.fps()
+        
+        timeUnit = 'pal'
+        
+        for timeUnitName, timeUnitFps in timeUnits.iteritems():
+            if currentFps == timeUnitFps:
+                timeUnit = timeUnitName
+                break
+        
+        return timeUnit
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setTimeUnit(self, timeUnit='pal'):
+        """sets the time unit of the environment
+        """
+        
+        repo = repository.Repository()
+        
+        try:
+            timeUnitFps = float(repo.timeUnits[timeUnit])
+        except KeyError:
+            # set it to pal by default
+            timeUnit='pal'
+            timeUnitFps = float(repo.timeUnits[timeUnit])
+        
+        # keep the current start and end time of the time range
+        startFrame, endFrame = self.getFrameRange()
+        hou.setFps( timeUnitFps )
+        
+        self.setFrameRange( startFrame, endFrame)
 
 
 
