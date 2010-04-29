@@ -10,7 +10,7 @@ from oyProjectManager.ui import assetUpdater, singletonQapplication
 
 
 
-__version__ = "10.4.28"
+__version__ = "10.4.29"
 
 
 
@@ -1557,10 +1557,10 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                                                 timeUnit + \
                                                 "</b><br><br>The time unit of the sequence is :<br><b>" + \
                                                 seqTimeUnit + \
-                                                "</b><br><br>should your time unit be adjusted?", \
-                                                QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
-            if answer == QtGui.QMessageBox.Yes:
-                self._environment.setTimeUnit( seqTimeUnit )
+                                                "</b><br><br>your time unit will be adjusted!", \
+                                                QtGui.QMessageBox.Ok )
+            # adjust the time unit
+            self._environment.setTimeUnit( seqTimeUnit )
 
 
 

@@ -1,5 +1,8 @@
 Version History :
 -----------------
+v10.4.29
+- assetManager: adjusting the time unit is now obligatory
+
 v10.4.28
 - assetManager: fixed asset.exists calls, because it is a property now, it
   should called properly

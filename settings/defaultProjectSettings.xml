@@ -19,19 +19,12 @@
 				_COMPOSITING_
 				_EDIT_MOVIE_
 				_EDIT_MOVIE_/_EXPORT_
-				_EDIT_MOVIE_/_EXPORT_/_ANIMATIC_STORYBOARD_
-				_EDIT_MOVIE_/_EXPORT_/_PREVIZ_ANIMATIONS_
-				_EDIT_MOVIE_/_EXPORT_/_FINAL_ANIMATIONS_
-				_EDIT_MOVIE_/_EXPORT_/_FINAL_RENDER_
-				_EDIT_MOVIE_/_ANIMATIC_STORYBOARD_
-				_EDIT_MOVIE_/_PREVIZ_ANIMATIONS_
-				_EDIT_MOVIE_/_FINAL_ANIMATIONS_
-				_EDIT_MOVIE_/_FINAL_RENDER_
 				_ILLUSTRATION_
 				_ILLUSTRATION_/_CHARACTER_DESIGNS_
 				_MATTE_PAINT_
 				_MAKING_OF_
 				_MODELS_
+				_SHADING_
 				_OFFLINE_
 				_ONLINE_/wholeMovie
 				_OTHERS_
@@ -90,6 +83,7 @@
 			<type name="TEXTURE"       path="_TEXTURES_"                shotDependent="0"  environments="PHOTOSHOP"     playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
 			<type name="ILLUSTRATION"  path="_ILLUSTRATION_"            shotDependent="0"  environments="PHOTOSHOP"     playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
 			<type name="MATTE"         path="_MATTE_PAINT_"             shotDependent="0"  environments="PHOTOSHOP"     playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="SHADING"       path="_SHADING_"                 shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
 		</assetTypes>
 		<shotData>
 		</shotData>
