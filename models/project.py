@@ -6,7 +6,7 @@ from oyProjectManager.models import asset, user, repository
 
 
 
-__version__ = "10.4.28"
+__version__ = "10.5.3"
 
 
 

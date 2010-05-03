@@ -10,7 +10,7 @@ from oyProjectManager.ui import assetUpdater, singletonQapplication
 
 
 
-__version__ = "10.4.29"
+__version__ = "10.5.3"
 
 
 
@@ -268,7 +268,14 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             return
         
         currentProject = project.Project( projectName )
+        
+        if not currentProject.exists():
+            return
+        
         currentSequence = project.Sequence( currentProject, sequenceName )
+        
+        if not currentSequence.exists():
+            return
         
         # set the project and sequence
         self.setProjectName( projectName )
@@ -283,7 +290,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         assetObj = asset.Asset( currentProject, currentSequence, self.fileName )
         
-        if not assetObj.isValidAsset:
+        if not assetObj.isValidAsset and not assetObj.exists:
             return
         
         assetType = assetObj.type.name
