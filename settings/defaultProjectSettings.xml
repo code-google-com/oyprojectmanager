@@ -10,8 +10,8 @@
 				_LAYOUT_
 				_ONLINE_
 				_PLAYBLASTS_/_ANIMATION_PLAYBLASTS_
-				_PLAYBLASTS_/_PREVIS_ANIMATION_PLAYBLASTS_
-				_PREVIS_ANIMATIONS_
+				_PLAYBLASTS_/_PREVIS_PLAYBLASTS_
+				_PREVIS_
 				_RENDERED_IMAGES_/_SHOTS_
 				_RENDER_SCENES_
 			</shotDependent>
@@ -71,13 +71,13 @@
 			</outputFolders>
 		</structure>
 		<assetTypes>
-			<type name="ANIMATION"     path="_ANIMATIONS_"              shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_ANIMATION_PLAYBLASTS_"/>
+			<type name="ANIM"          path="_ANIMATIONS_"              shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_ANIMATION_PLAYBLASTS_"/>
 			<type name="CAMERA"        path="_CAMERAS_"                 shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
 			<type name="COMP"          path="_COMPOSITING_/_SHOTS_"     shotDependent="1"  environments="NUKE"          playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
 			<type name="LAYOUT"        path="_LAYOUT_"                  shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
 			<type name="MODEL"         path="_MODELS_"                  shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
 			<type name="OTHER"         path="_OTHERS_"                  shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
-			<type name="PREVIZANIM"    path="_PREVIS_ANIMATIONS_"       shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_PREVIS_ANIMATION_PLAYBLASTS_"/>
+			<type name="PREVIS"        path="_PREVIS_"                  shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_PREVIS_PLAYBLASTS_"/>
 			<type name="RENDER"        path="_RENDER_SCENES_"           shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
 			<type name="RIG"           path="_RIGS_"                    shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
 			<type name="TEXTURE"       path="_TEXTURES_"                shotDependent="0"  environments="PHOTOSHOP"     playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
