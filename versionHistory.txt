@@ -1,5 +1,10 @@
 Version History :
 -----------------
+v10.5.17
+- mayaEnv: updated the code for Maya 2011 and Pymel 1.0.2
+- assetManager, assetUpdater, projectManager, projectSetter, shotEditor scripts
+  are updated to not to change the style of the interface
+
 v10.5.3
 - assetManager: added checks for project and sequence existancy while filling
   fields from file info

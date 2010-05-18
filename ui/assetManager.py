@@ -10,7 +10,7 @@ from oyProjectManager.ui import assetUpdater, singletonQapplication
 
 
 
-__version__ = "10.5.3"
+__version__ = "10.5.17"
 
 
 
@@ -23,7 +23,7 @@ def UI( environmentName=None ):
     app = singletonQapplication.QApplication(sys.argv)
     mainDialog = MainDialog( environmentName )
     mainDialog.show()
-    app.setStyle('Plastique')
+    #app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
 

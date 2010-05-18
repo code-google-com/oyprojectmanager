@@ -1,11 +1,11 @@
 import os
-import pymel as pm
+import pymel.core as pm
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.4.29"
+__version__ = "10.5.17"
 
 
 
@@ -137,6 +137,7 @@ class MayaEnvironment(abstractClasses.Environment):
         foundValidAsset = False
         readRecentFile = True
         fileName = path = None
+        workspacePath = None
         
         repo = repository.Repository()
         
@@ -166,26 +167,32 @@ class MayaEnvironment(abstractClasses.Environment):
             # read the fileName from recent files list
             # try to get the a valid asset file from starting the last recent file
             
-            recentFiles = pm.optionVar['RecentFilesList']
-            for i in range(len(recentFiles)-1, -1,-1):
-                
-                fileName = os.path.basename( recentFiles[i] )
-                projName, seqName = repo.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
-                
-                if projName != None and seqName != None:
-                
-                    proj = project.Project( projName )
-                    seq = project.Sequence( proj, seqName )
-                    
-                    testAsset = asset.Asset( proj, seq, fileName )
-                    if testAsset.isValidAsset and testAsset.exists:
-                        path = testAsset.path
-                        foundValidAsset = True
-                        break
+            try:
+                recentFiles = pm.optionVar['RecentFilesList']
+            except KeyError:
+                print "no recent files"
+                recentFiles = None
             
-            # get the workscape path
-            workspacePath = self.getWorkspacePath()
-            returnWorkspace = False
+            if recentFiles is not None:
+                for i in range(len(recentFiles)-1, -1,-1):
+                    
+                    fileName = os.path.basename( recentFiles[i] )
+                    projName, seqName = repo.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
+                    
+                    if projName != None and seqName != None:
+                    
+                        proj = project.Project( projName )
+                        seq = project.Sequence( proj, seqName )
+                        
+                        testAsset = asset.Asset( proj, seq, fileName )
+                        if testAsset.isValidAsset and testAsset.exists:
+                            path = testAsset.path
+                            foundValidAsset = True
+                            break
+            
+                        # get the workscape path
+                        workspacePath = self.getWorkspacePath()
+                        returnWorkspace = False
             
             if foundValidAsset:
                 #print "found a valid asset with path", path
@@ -304,12 +311,16 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         # add the file to the recent file list
-        recentFiles = pm.optionVar['RecentFilesList']
+        try:
+            recentFiles = pm.optionVar['RecentFilesList']
+        except KeyError:
+            # there is no recent files list so create one
+            # normally it is Maya's job
+            # but somehow it is not working for new installations
+            recentFiles = pm.OptionVarList( [], 'RecentFilesList' )
         
         #assert(isinstance(recentFiles,pm.OptionVarList))
-        
         recentFiles.appendVar( path )
-        #pm.optionVar['RecentFilesList'] = recentFiles
     
     
     
@@ -490,6 +501,9 @@ class MayaEnvironment(abstractClasses.Environment):
         # set the time unit, do not change the keyframe times
         # use the timeUnit as it is
         pm.currentUnit( t=timeUnit, ua=0 )
+        # to be sure
+        pm.optionVar['workingUnitTime'] = timeUnit
+        
         
         # update the playback ranges
         pm.currentTime( currentTime )

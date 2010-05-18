@@ -6,7 +6,7 @@ import sys
 
 
 
-__version__ = '10.3.17'
+__version__ = '10.6.17'
 
 
 
@@ -42,7 +42,7 @@ def UI(environmentName=None):
     app = singletonQapplication.QApplication(sys.argv)
     mainDialog = MainDialog( environmentName )
 
-    app.setStyle('Plastique')
+    #app.setStyle('Plastique')
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
     
     return mainDialog.exec_(), mainDialog

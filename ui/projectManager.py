@@ -9,7 +9,7 @@ from oyProjectManager.tools import rangeTools
 from oyProjectManager.ui import singletonQapplication
 
 
-__version__ = "10.4.28"
+__version__ = "10.5.17"
 
 
 
@@ -23,7 +23,7 @@ def UI():
     app = singletonQapplication.QApplication(sys.argv)
     mainDialog = MainDialog()
     mainDialog.show()
-    app.setStyle('Plastique')
+    #app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
 

@@ -9,7 +9,7 @@ from oyProjectManager.models.environments import environmentFactory
 
 
 
-__version__ = "10.2.5"
+__version__ = "10.5.17"
 
 
 
@@ -22,7 +22,7 @@ def UI(environmentName=''):
     app = singletonQapplication.QApplication(sys.argv)
     mainDialog = MainDialog( environmentName )
     mainDialog.show()
-    app.setStyle('Plastique')
+    #app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
 
