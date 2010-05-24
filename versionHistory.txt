@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.5.24
+- mayaEnv: changed file format to mayaBinary, mayaAscii files were causing
+  problems under Maya 2011
+
 v10.5.17
 - mayaEnv: updated the code for Maya 2011 and Pymel 1.0.2
 - assetManager, assetUpdater, projectManager, projectSetter, shotEditor scripts

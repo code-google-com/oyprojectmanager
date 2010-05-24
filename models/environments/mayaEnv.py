@@ -5,7 +5,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.5.17"
+__version__ = "10.5.24"
 
 
 
@@ -27,7 +27,9 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         # set the extension to ma by default
-        self._asset.extension = 'ma'
+        #self._asset.extension = 'ma'
+        # we are having problems wiht maya ascii files under maya 2011
+        self._asset.extension = 'mb'
         
         # set the project to the current environment
         pm.workspace.open( self._asset.sequenceFullPath )
@@ -46,7 +48,9 @@ class MayaEnvironment(abstractClasses.Environment):
         pm.delete( unknownNodes )
         
         # save the file
-        pm.saveAs( self._asset.fullPath, type='mayaAscii' )
+        #pm.saveAs( self._asset.fullPath, type='mayaAscii' )
+        # we are having problems wiht maya ascii files under maya 2011
+        pm.saveAs( self._asset.fullPath, type='mayaBinary' )
         
         # append it to the recent file list
         self.appendToRecentFiles( self._asset.fullPath )
@@ -66,13 +70,16 @@ class MayaEnvironment(abstractClasses.Environment):
             return False
         
         # set the extension to ma by default
-        self._asset.extension = 'ma'
+        #self._asset.extension = 'ma'
+        self._asset.extension = 'mb'
         
         # create the folder if it doesn't exists
         oyAux.createFolder( self._asset.path )
         
         # export the file
-        pm.exportSelected( self._asset.fullPath, type='mayaAscii' )
+        #pm.exportSelected( self._asset.fullPath, type='mayaAscii' )
+        # we are having problems wiht maya ascii files under maya 2011
+        pm.exportSelected( self._asset.fullPath, type='mayaBinary' )
         
         return True
     
