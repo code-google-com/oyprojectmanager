@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-from oyProjectManager.ui import singletonQapplication, projectSetter_UI
+from oyProjectManager.ui import singletonQApplication, projectSetter_UI
 from oyProjectManager.models import project, repository
 from oyProjectManager.models.environments import environmentFactory
 import sys

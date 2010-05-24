@@ -1,5 +1,6 @@
-
 from PyQt4 import QtGui
+
+
 
 ########################################################################
 class QApplication( QtGui.QApplication ):
@@ -9,6 +10,8 @@ class QApplication( QtGui.QApplication ):
     #----------------------------------------------------------------------
     def __new__(cls, *args):
         if cls.instance() == None:
+            # create a QApplication
             QtGui.QApplication(*args)
         
+        # return the instance
         return cls.instance()

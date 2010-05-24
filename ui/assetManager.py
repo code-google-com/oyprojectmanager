@@ -6,7 +6,7 @@ import assetManager_UI
 import oyProjectManager
 from oyProjectManager.models import asset, project, repository
 from oyProjectManager.models.environments import environmentFactory
-from oyProjectManager.ui import assetUpdater, singletonQapplication
+from oyProjectManager.ui import assetUpdater, singletonQApplication
 
 
 

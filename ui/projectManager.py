@@ -6,7 +6,7 @@ import projectManager_UI
 import oyProjectManager
 from oyProjectManager.models import project, repository
 from oyProjectManager.tools import rangeTools
-from oyProjectManager.ui import singletonQapplication
+from oyProjectManager.ui import singletonQApplication
 
 
 __version__ = "10.5.17"

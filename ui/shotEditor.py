@@ -4,7 +4,7 @@ import shotEditor_UI
 
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.models import project, repository
-from oyProjectManager.ui import singletonQapplication
+from oyProjectManager.ui import singletonQApplication
 from oyProjectManager.models.environments import environmentFactory
 
 
