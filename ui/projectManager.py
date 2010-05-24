@@ -20,7 +20,7 @@ def UI():
     global app
     global mainDialog
     #app = QtGui.QApplication( sys.argv )
-    app = singletonQapplication.QApplication(sys.argv)
+    app = singletonQApplication.QApplication(sys.argv)
     mainDialog = MainDialog()
     mainDialog.show()
     #app.setStyle('Plastique')

@@ -39,7 +39,7 @@ def UI(environmentName=None):
     """
     global app
     global mainDialog
-    app = singletonQapplication.QApplication(sys.argv)
+    app = singletonQApplication.QApplication(sys.argv)
     mainDialog = MainDialog( environmentName )
 
     #app.setStyle('Plastique')
