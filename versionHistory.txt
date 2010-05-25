@@ -1,5 +1,8 @@
 Version History :
 -----------------
+v10.5.25
+- mayaEnv: reverting back to mayaAscii on all platforms
+
 v10.5.24
 - mayaEnv: changed file format to mayaBinary, mayaAscii files were causing
   problems under Maya 2011

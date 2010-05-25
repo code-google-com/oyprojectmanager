@@ -6,7 +6,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.5.24"
+__version__ = "10.5.25"
 
 
 
@@ -28,7 +28,7 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         # set asset extension
-        self.setAssetExtension()
+        self._asset.extension = 'ma'
         
         # set the project to the current environment
         pm.workspace.open( self._asset.sequenceFullPath )
@@ -47,11 +47,7 @@ class MayaEnvironment(abstractClasses.Environment):
         pm.delete( unknownNodes )
         
         # save the file
-        if versions.shortName() == '2009':
-            pm.saveAs( self._asset.fullPath, type='mayaAscii' )
-        elif versions.shortName() == '2011':
-            # we are having problems with maya ascii files under maya 2011
-            pm.saveAs( self._asset.fullPath, type='mayaBinary' )
+        pm.saveAs( self._asset.fullPath, type='mayaAscii' )
         
         # append it to the recent file list
         self.appendToRecentFiles( self._asset.fullPath )
@@ -71,19 +67,13 @@ class MayaEnvironment(abstractClasses.Environment):
             return False
         
         # set the extension to ma by default
-        #self._asset.extension = 'ma'
-        #self._asset.extension = 'mb'
-        self.setAssetExtension()
+        self._asset.extension = 'ma'
         
         # create the folder if it doesn't exists
         oyAux.createFolder( self._asset.path )
         
         # export the file
-        if versions.shortName() == '2009':
-            pm.exportSelected( self._asset.fullPath, type='mayaAscii' )
-        elif versions.shortName() == '2011':
-            # we are having problems with maya ascii files under maya 2011
-            pm.exportSelected( self._asset.fullPath, type='mayaBinary' )
+        pm.exportSelected( self._asset.fullPath, type='mayaAscii' )
         
         return True
     
@@ -533,19 +523,3 @@ class MayaEnvironment(abstractClasses.Environment):
         
         for reference in allReferences:
             reference.load()
-    
-    
-    
-    #----------------------------------------------------------------------
-    def setAssetExtension(self):
-        """sets the asset extension according to maya version... this method
-        will be removed as soon as Autodesk fixes 2011 mayaAscii issues
-        """
-        
-        # set the extension to ma by default
-        self._asset.extension = 'ma'
-        
-        if versions.shortName() == '2011':
-            # we are having problems with maya ascii files saved with 2009 and
-            # opened wit 2011 and then saved with 2011, so set it to mb
-            self._asset.extension == 'mb'
