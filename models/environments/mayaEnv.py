@@ -238,7 +238,9 @@ class MayaEnvironment(abstractClasses.Environment):
             renderFileName = shotFolder + "/" + assetBaseName + "/<Layer>/" + assetBaseName + "_<Layer>_<RenderPass>_<Version>"
         else: # remove later when the support for old project is over
             assetSubName = self._asset.subName
-            renderFileName = shotFolder + "/" + assetBaseName + "/<Layer>/" + assetBaseName + "_" + assetSubName + "_<Layer>_<RenderPass>_<Version>"
+            renderFileName = shotFolder + "/" + assetBaseName + "_" + assetSubName + "/<Layer>/" + assetBaseName + "_" + assetSubName + "_<Layer>_<RenderPass>_<Version>"
+        
+        # SHOTS/ToonShading_TestTransition/incidence/ToonShading_TestTransition_incidence_MasterPass_v050.####.iff
         
         # defaultRenderGlobals
         dRG = pm.PyNode('defaultRenderGlobals')
