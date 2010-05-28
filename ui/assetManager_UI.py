@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Mon Mar  8 16:24:12 2010
-#      by: PyQt4 UI code generator 4.6
+# Created: Thu May 27 23:36:13 2010
+#      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -61,6 +61,7 @@ class Ui_Dialog(object):
         self.version_horizontalLayout.setMargin(0)
         self.version_horizontalLayout.setObjectName("version_horizontalLayout")
         self.version_spinBox = QtGui.QSpinBox(self.version_horizontalWidget)
+        self.version_spinBox.setPrefix("")
         self.version_spinBox.setMinimum(1)
         self.version_spinBox.setMaximum(99999999)
         self.version_spinBox.setObjectName("version_spinBox")
@@ -122,6 +123,8 @@ class Ui_Dialog(object):
         self.revision_pushButton.setMinimumSize(QtCore.QSize(111, 0))
         self.revision_pushButton.setObjectName("revision_pushButton")
         self.revision_horizontalLayout.addWidget(self.revision_pushButton)
+        self.revision_horizontalLayout.setStretch(0, 1)
+        self.revision_horizontalLayout.setStretch(1, 1)
         self.gridLayout1.addWidget(self.revision_horizontalWidget, 16, 1, 1, 1)
         self.assetType_label1 = QtGui.QLabel(self.gridWidget1)
         self.assetType_label1.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
@@ -225,6 +228,13 @@ class Ui_Dialog(object):
         self.version_label1.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.version_label1.setObjectName("version_label1")
         self.gridLayout1.addWidget(self.version_label1, 17, 0, 1, 1)
+        self.formats_comboBox = QtGui.QComboBox(self.gridWidget1)
+        self.formats_comboBox.setObjectName("formats_comboBox")
+        self.gridLayout1.addWidget(self.formats_comboBox, 20, 1, 1, 1)
+        self.formats_label = QtGui.QLabel(self.gridWidget1)
+        self.formats_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.formats_label.setObjectName("formats_label")
+        self.gridLayout1.addWidget(self.formats_label, 20, 0, 1, 1)
         self.verticalLayout_3.addWidget(self.gridWidget1)
         self.saveButtons_horizontalWidget = QtGui.QWidget(self.saveAsset_groupBox)
         self.saveButtons_horizontalWidget.setObjectName("saveButtons_horizontalWidget")
@@ -236,6 +246,8 @@ class Ui_Dialog(object):
         self.export_button = QtGui.QPushButton(self.saveButtons_horizontalWidget)
         self.export_button.setObjectName("export_button")
         self.saveCanel_horizontalLayout.addWidget(self.export_button)
+        self.saveCanel_horizontalLayout.setStretch(0, 1)
+        self.saveCanel_horizontalLayout.setStretch(1, 1)
         self.verticalLayout_3.addWidget(self.saveButtons_horizontalWidget)
         self.verticalLayout1.addWidget(self.saveAsset_groupBox)
         self.main_horizontalLayout.addWidget(self.verticalWidget1)
@@ -364,6 +376,19 @@ class Ui_Dialog(object):
         self.assets_tableWidget1.verticalHeader().setVisible(False)
         self.assets_tableWidget1.verticalHeader().setDefaultSectionSize(19)
         self.verticalLayout_4.addWidget(self.assets_tableWidget1)
+        self.horizontalWidget1 = QtGui.QWidget(self.open_groupBox)
+        self.horizontalWidget1.setObjectName("horizontalWidget1")
+        self.horizontalLayout_3 = QtGui.QHBoxLayout(self.horizontalWidget1)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.loadSettings_label = QtGui.QLabel(self.horizontalWidget1)
+        self.loadSettings_label.setObjectName("loadSettings_label")
+        self.horizontalLayout_3.addWidget(self.loadSettings_label)
+        self.loadSettings_comboBox = QtGui.QComboBox(self.horizontalWidget1)
+        self.loadSettings_comboBox.setObjectName("loadSettings_comboBox")
+        self.horizontalLayout_3.addWidget(self.loadSettings_comboBox)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem1)
+        self.verticalLayout_4.addWidget(self.horizontalWidget1)
         self.openButtons_horizontalWidget = QtGui.QWidget(self.open_groupBox)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(1)
@@ -385,9 +410,14 @@ class Ui_Dialog(object):
         self.close_button = QtGui.QPushButton(self.openButtons_horizontalWidget)
         self.close_button.setObjectName("close_button")
         self.openButtons_horizontalLayout.addWidget(self.close_button)
+        self.openButtons_horizontalLayout.setStretch(0, 1)
+        self.openButtons_horizontalLayout.setStretch(1, 1)
+        self.openButtons_horizontalLayout.setStretch(2, 1)
+        self.openButtons_horizontalLayout.setStretch(3, 1)
         self.verticalLayout_4.addWidget(self.openButtons_horizontalWidget)
         self.verticalLayout2.addWidget(self.open_groupBox)
         self.main_horizontalLayout.addWidget(self.verticalWidget2)
+        self.main_horizontalLayout.setStretch(1, 1)
         self.verticalLayout.addWidget(self.main_horizontalWidget)
 
         self.retranslateUi(Dialog)
@@ -466,6 +496,7 @@ class Ui_Dialog(object):
 "Select your user initials from the list, so anybody can understand who created this version of the asset...", None, QtGui.QApplication.UnicodeUTF8))
         self.user_label1.setText(QtGui.QApplication.translate("Dialog", "User", None, QtGui.QApplication.UnicodeUTF8))
         self.version_label1.setText(QtGui.QApplication.translate("Dialog", "Version", None, QtGui.QApplication.UnicodeUTF8))
+        self.formats_label.setText(QtGui.QApplication.translate("Dialog", "Format", None, QtGui.QApplication.UnicodeUTF8))
         self.save_button.setToolTip(QtGui.QApplication.translate("Dialog", "Saves the asset to the server", None, QtGui.QApplication.UnicodeUTF8))
         self.save_button.setStatusTip(QtGui.QApplication.translate("Dialog", "Saves the asset to the server", None, QtGui.QApplication.UnicodeUTF8))
         self.save_button.setWhatsThis(QtGui.QApplication.translate("Dialog", "Save:\n"
@@ -490,6 +521,7 @@ class Ui_Dialog(object):
         self.numberOfEntry_spinBox.setStatusTip(QtGui.QApplication.translate("Dialog", "maximum number of entry to view", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setStatusTip(QtGui.QApplication.translate("Dialog", "maximum number of entry to view", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "entry", None, QtGui.QApplication.UnicodeUTF8))
+        self.loadSettings_label.setText(QtGui.QApplication.translate("Dialog", "Load Settings", None, QtGui.QApplication.UnicodeUTF8))
         self.open_button.setToolTip(QtGui.QApplication.translate("Dialog", "Opens the selected asset", None, QtGui.QApplication.UnicodeUTF8))
         self.open_button.setStatusTip(QtGui.QApplication.translate("Dialog", "Opens the selected asset", None, QtGui.QApplication.UnicodeUTF8))
         self.open_button.setWhatsThis(QtGui.QApplication.translate("Dialog", "Open:\n"

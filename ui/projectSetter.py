@@ -41,7 +41,7 @@ def UI(environmentName=None):
     global mainDialog
     app = singletonQApplication.QApplication(sys.argv)
     mainDialog = MainDialog( environmentName )
-
+    
     #app.setStyle('Plastique')
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
     
