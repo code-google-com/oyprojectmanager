@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<root>
+	<users>
+		<user initials="aa" name="atilgan asikuzun"/>
+		<user initials="bo" name="beril ozturk"/>
+		<user initials="cc" name="cihan cicekel"/>
+		<user initials="cg" name="cengizer gokce"/>
+		<user initials="ck" name="ceyhan kapusuz"/>
+		<user initials="co" name="cagatay ozkan"/>
+		<user initials="ec" name="emre camci"/>
+		<user initials="gg" name="goktug gurellier"/>
+		<user initials="hg" name="huseyin gulgen"/>
+		<user initials="jmb" name="jean michel bihorel"/>
+		<user initials="kk" name="kubilay kocaoglu"/>
+		<user initials="mk" name="murat kayran"/>
+		<user initials="oe" name="atilla ozgur ermutlu"/>
+		<user initials="ok" name="ozgur kilic"/>
+		<user initials="oy" name="erkan ozgur yilmaz"/>
+		<user initials="sh" name="serkan hamidov"/>
+		<user initials="ss" name="sinan seven"/>
+		<user initials="su" name="soner unlu"/>
+		<user initials="te" name="tankut erinc"/>
+		<user initials="ts" name="tuncer senturk"/>
+	</users>
+</root>

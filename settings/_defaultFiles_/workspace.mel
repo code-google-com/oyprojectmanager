@@ -1,0 +1,55 @@
+//Maya 2009 Project Definition
+
+workspace -fr "scene" "_OTHERS_/";
+workspace -fr "mayaAscii" "_OTHERS_/";
+workspace -fr "mayaBinary" "_OTHERS_/";
+
+workspace -fr "3dPaintTextures" "_TEXTURES_/";
+workspace -fr "textures" "_TEXTURES_/";
+
+workspace -fr "particles" "_OTHERS_/_particles/";
+workspace -fr "renderScenes" "_RENDER_SCENES_/";
+workspace -fr "lights" "_RENDER_SCENES_/renderData/shaders/";
+
+workspace -fr "diskCache" "_OTHERS_/_data/";
+
+workspace -fr "furShadowMap" "_OTHERS_/_fur/furShadowMap/";
+workspace -fr "furFiles" "_OTHERS_/_fur/furFiles/";
+workspace -fr "furAttrMap" "_OTHERS_/_fur/furAttrMap/";
+workspace -fr "furImages" "_OTHERS_/_fur/furImages/";
+workspace -fr "furEqualMap" "_OTHERS_/_fur/furEqualMap/";
+
+workspace -fr "image" "_RENDERED_IMAGES_/";
+workspace -fr "images" "_RENDERED_IMAGES_/";
+
+workspace -fr "mentalRay" "_RENDER_SCENES_/renderData/mentalRay/";
+workspace -fr "iprImages" "_RENDER_SCENES_/renderData/iprImages/";
+workspace -fr "depth" "_RENDER_SCENES_/renderData/depth/";
+
+workspace -fr "animImport" "_OTHERS_/_data/";
+workspace -fr "animExport" "_OTHERS_/_data/";
+workspace -fr "clips" "_OTHERS_/_clips/";
+
+workspace -fr "templates" "_OTHERS_/_assets/";
+
+workspace -fr "audio" "_SOUND_/";
+
+workspace -fr "sourceImages" "_TEXTURES_/";
+
+workspace -fr "mel" "_OTHERS_/_mel/";
+
+workspace -fr "Adobe(R) Illustrator(R)" "_OTHERS_/_data/";
+workspace -fr "aliasWire" "_OTHERS_/_data/";
+workspace -fr "DAE_FBX" "_OTHERS_/_data/";
+workspace -fr "DXF_FBX" "_OTHERS_/_data/";
+workspace -fr "DXFexport" "_OTHERS_/_data/";
+workspace -fr "DXF" "_OTHERS_/_data/";
+workspace -fr "EPS" "_OTHERS_/_data/";
+workspace -fr "Fbx" "_OTHERS_/_data/";
+workspace -fr "IGESexport" "_OTHERS_/_data/";
+workspace -fr "IGES" "_OTHERS_/_data/";
+workspace -fr "move" "_OTHERS_/_data/";
+workspace -fr "OBJ" "_OTHERS_/_data/";
+workspace -fr "OBJexport" "_OTHERS_/_data/";
+workspace -fr "RIBexport" "_OTHERS_/_data/";
+workspace -fr "RIB" "_OTHERS_/_data/";
