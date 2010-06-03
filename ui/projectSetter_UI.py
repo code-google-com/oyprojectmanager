@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectSetter.ui'
 #
-# Created: Fri Feb  5 22:30:54 2010
-#      by: PyQt4 UI code generator 4.6
+# Created: Thu Jun  3 09:26:08 2010
+#      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
 

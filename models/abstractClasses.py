@@ -268,5 +268,12 @@ class Environment(object):
         """loads all the references
         """
         pass
-        
+    
+    
+    
+    #----------------------------------------------------------------------
+    def replaceAssets(self, sourceAsset, targetAsset):
+        """replaces the source asset with the target asset
+        """
+        pass
     

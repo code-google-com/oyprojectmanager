@@ -23,7 +23,7 @@ class MayaEnvironment(abstractClasses.Environment):
     #----------------------------------------------------------------------
     def save(self):
         """the save action for maya environment
-        
+
         uses PyMel to save the file (not necessary but comfortable )
         """
         
@@ -164,6 +164,8 @@ class MayaEnvironment(abstractClasses.Environment):
                 path = testAsset.path
                 readRecentFile = False
         
+        
+        
         if readRecentFile:
             # read the fileName from recent files list
             # try to get the a valid asset file from starting the last recent file
@@ -175,25 +177,27 @@ class MayaEnvironment(abstractClasses.Environment):
                 recentFiles = None
             
             if recentFiles is not None:
+                
                 for i in range(len(recentFiles)-1, -1,-1):
                     
                     fileName = os.path.basename( recentFiles[i] )
                     projName, seqName = repo.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
                     
                     if projName != None and seqName != None:
-                    
+                        
                         proj = project.Project( projName )
                         seq = project.Sequence( proj, seqName )
                         
                         testAsset = asset.Asset( proj, seq, fileName )
+                        
                         if testAsset.isValidAsset and testAsset.exists:
                             path = testAsset.path
                             foundValidAsset = True
                             break
-            
-                        # get the workscape path
-                        workspacePath = self.getWorkspacePath()
-                        returnWorkspace = False
+                        
+            # get the workscape path
+            workspacePath = self.getWorkspacePath()
+            returnWorkspace = False
             
             if foundValidAsset:
                 #print "found a valid asset with path", path
@@ -204,16 +208,16 @@ class MayaEnvironment(abstractClasses.Environment):
             else:
                 # just get the path from workspace and return an empty fileName
                 returnWorkspace = True
-            
+                
             if returnWorkspace:
                 fileName = None
                 path = workspacePath
-    
-        
+                
+                
         return fileName, path
-    
-    
-    
+
+
+
     #----------------------------------------------------------------------
     def setRenderFileName(self):
         """sets the render file name
@@ -250,9 +254,9 @@ class MayaEnvironment(abstractClasses.Environment):
         dRG.setAttr('outFormatControl', 0 )
         dRG.setAttr('extensionPadding', 3 )
         dRG.setAttr('pff', 1)
-    
-    
-    
+
+
+
     #----------------------------------------------------------------------
     def setPlayblastFileName(self):
         """sets the playblast file name
@@ -321,12 +325,12 @@ class MayaEnvironment(abstractClasses.Environment):
             # normally it is Maya's job
             # but somehow it is not working for new installations
             recentFiles = pm.OptionVarList( [], 'RecentFilesList' )
-        
+            
         #assert(isinstance(recentFiles,pm.OptionVarList))
         recentFiles.appendVar( path )
-    
-    
-    
+
+
+
     #----------------------------------------------------------------------
     def checkReferenceVersions(self):
         """checks the referenced assets versions
@@ -335,7 +339,7 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         # get all the valid asset references
-        assetTupleList = self.getValidReferencedAssets()
+        assetTupleList = self.getReferencedAssets()
         
         updateList = []
         
@@ -347,16 +351,16 @@ class MayaEnvironment(abstractClasses.Environment):
             if not asset.isLatestVersion():
                 # add asset to the update list
                 updateList.append( assetTuple )
-        
+            
         #return updateList
         
         # sort the list according to assetFilepath
         return sorted( updateList, None, lambda x: x[2] )
-    
-    
-    
+
+
+
     #----------------------------------------------------------------------
-    def getValidReferencedAssets(self):
+    def getReferencedAssets(self):
         """returns the valid assets those been referenced to the current scene
         
         returns asset objects and the corresponding reference object as a
@@ -382,7 +386,7 @@ class MayaEnvironment(abstractClasses.Environment):
             tempAssetFullPath = ref.path
             if osName == 'nt':
                 tempAssetFullPath = tempAssetFullPath.replace('/','\\')
-             
+            
             refsAndPaths.append( (ref, tempAssetFullPath) )
         
         # sort them according to path
@@ -412,10 +416,10 @@ class MayaEnvironment(abstractClasses.Environment):
                     
                     prevAsset = tempAsset
                     prevFullPath = fullPath
-        
+                    
         # return a sorted list
         return sorted( validAssets, None, lambda x: x[2] )
-        
+    
     
     
     
@@ -512,9 +516,9 @@ class MayaEnvironment(abstractClasses.Environment):
         pm.currentTime( currentTime )
         pm.playbackOptions( ast=pAst, aet=pAet )
         pm.playbackOptions( min=pMin, max=pMax )
-    
-    
-    
+
+
+
     #----------------------------------------------------------------------
     def loadReferences(self):
         """loads all the references
@@ -525,3 +529,92 @@ class MayaEnvironment(abstractClasses.Environment):
         
         for reference in allReferences:
             reference.load()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def replaceAssets(self, sourceRef, targetFile):
+        """replaces the source asset with the target asset
+        
+        the sourceAsset may should be in maya reference node
+        """
+        
+        
+        #sourceRef = allRefs[4]
+        #targetFile = 'M:/JOBs/PRENSESIN_UYKUSU/_PROJECT_SETUP_/_SHADING_/AzizEv/AzizEv_MAIN_SHADING_r00_v001_jmb.ma'
+        
+        
+        
+        subRefs = []
+        sourceEdits = []
+        prevNS = ''
+        newNS = ''
+        
+        # get the edits of the given reference in the base file
+        sourceEdits = sourceEdits + sourceRef.getReferenceEdits()
+        
+        
+        # get the edits in the reference node for sub references
+        baseRefNode = sourceRef.refNode
+        
+        #subRefDatas = sourceRef.subReferences()
+        
+        
+        #for subRefData in subRefDatas.iteritems():
+            #refNode = subRefData[1]
+            #subRefs.append( refNode )
+        subRefs = self.getAllSubReferences( sourceRef )
+        
+        # get all the edits of these sub references in the parent references
+        # reference node
+        for subRef in subRefs:
+            sourceEdits = sourceEdits + pm.referenceQuery( subRef.refNode, es=1, orn=baseRefNode )
+        
+        
+        # get the base namespace
+        prevNS = sourceRef.fullNamespace
+        
+        # replace the reference
+        sourceRef.replaceWith( targetFile )
+        
+        subReferences = sourceRef.subReferences()
+        for subRefData in subReferences.iteritems():
+            refNode = subRefData[1]
+            newNS = refNode.fullNamespace
+        
+        # if the new namespace is different than the previous one
+        # also replace edits
+        if prevNS != newNS:
+            # in edits search for prevNS and replace them with newNS
+            # then evaluate the edits
+            
+            targetEdits = [ edit.replace( prevNS, newNS) for edit in sourceEdits ]
+            
+            
+            # execute the edits for new namespace
+            for command in targetEdits:
+                try:
+                    pm.mel.eval(command)
+                except pm.MelError:
+                    pass
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getAllSubReferences(self, ref):
+        """returns the recursive sub references as a list of FileReference
+        objects for the given file reference
+        """
+        
+        allRefs = []
+        subRefDict = ref.subReferences()
+        
+        if len(subRefDict) > 0:
+            for subRefData in subRefDict.iteritems():
+                
+                # first convert the sub ref dictionary to a normal ref object
+                subRef = subRefData[1]
+                allRefs.append( subRef )
+                allRefs += self.getAllSubReferences( subRef )
+        
+        return allRefs

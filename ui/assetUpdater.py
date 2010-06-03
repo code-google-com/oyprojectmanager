@@ -26,7 +26,6 @@ def UI( environmentName=None ):
     #app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
-    
 
 
 
@@ -207,7 +206,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
         """
         
         # set the row count
-        self.assetList_tableWidget.setRowCount( self._numOfAssets)
+        self.assetList_tableWidget.setRowCount( self._numOfAssets )
         
         for i,assetTuple in enumerate(self._assetTupleList):
             #assert(isinstance(assetObj, asset.Asset) )

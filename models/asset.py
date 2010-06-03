@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.3.17"
+__version__ = "10.6.2"
 
 
 
@@ -57,13 +57,13 @@ class Asset(object):
         
         self._timeFormat = '%d.%m.%Y %H:%M'
         
+        self._exists = False
+        self._baseExists = False
+        
         if fileName != None:
             self._fileName  = unicode( os.path.splitext(unicode(fileName))[0] ) # remove the extension
             self._extension = unicode( os.path.splitext(unicode(fileName))[1] ).split( os.path.extsep )[-1] # remove the . in extension
             self.guessInfoVariablesFromFileName()
-        
-        self._exists = False
-        self._baseExists = False
         
         self.updateExistancy()
     
@@ -232,8 +232,8 @@ class Asset(object):
         
         self._initPathVariables()
         
-        self._updateFileSizes()
-        self._updateFileDates()
+        #self._updateFileSizes()
+        #self._updateFileDates()
     
     
     
@@ -953,6 +953,7 @@ class Asset(object):
     def updateExistancy(self):
         """updates the self._exists variable
         """
+        
         if self._hasBaseInfo:
             if os.path.exists( self._path ):
                 files = os.listdir( self._path )
@@ -962,7 +963,7 @@ class Asset(object):
                 for _file in files:
                     if _file.startswith( critiquePart ):
                         self._baseExists = True
-                        return
+                        break
             
             if self._hasFullInfo:
                 self._exists = os.path.exists( self._fullPath )

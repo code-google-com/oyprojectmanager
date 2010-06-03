@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager.ui'
 #
-# Created: Thu Apr 29 01:19:23 2010
-#      by: PyQt4 UI code generator 4.6
+# Created: Thu Jun  3 09:26:08 2010
+#      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,6 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
+        Dialog.setWindowModality(QtCore.Qt.NonModal)
         Dialog.resize(583, 326)
         self.verticalLayout_2 = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -37,6 +38,7 @@ class Ui_Dialog(object):
         self.servers_comboBox.setSizePolicy(sizePolicy)
         self.servers_comboBox.setObjectName("servers_comboBox")
         self.horizontalLayout_13.addWidget(self.servers_comboBox)
+        self.horizontalLayout_13.setStretch(1, 1)
         self.verticalLayout_2.addWidget(self.horizontalWidget_9)
         self.tabWidget = QtGui.QTabWidget(Dialog)
         self.tabWidget.setEnabled(True)
@@ -109,9 +111,11 @@ class Ui_Dialog(object):
         self.createProject_pushButton.setMinimumSize(QtCore.QSize(200, 0))
         self.createProject_pushButton.setObjectName("createProject_pushButton")
         self.horizontalLayout_6.addWidget(self.createProject_pushButton)
+        self.horizontalLayout_6.setStretch(0, 1)
         self.verticalLayout.addWidget(self.horizontalWidget_2)
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem1)
+        self.verticalLayout.setStretch(2, 1)
         self.horizontalLayout_2.addWidget(self.verticalWidget)
         self.tabWidget.addTab(self.createProjectTab, "")
         self.createSequenceTab = QtGui.QWidget()
@@ -197,9 +201,11 @@ class Ui_Dialog(object):
         self.createSequence_pushButton.setMinimumSize(QtCore.QSize(200, 0))
         self.createSequence_pushButton.setObjectName("createSequence_pushButton")
         self.horizontalLayout_7.addWidget(self.createSequence_pushButton)
+        self.horizontalLayout_7.setStretch(0, 1)
         self.verticalLayout_3.addWidget(self.horizontalWidget_4)
         spacerItem3 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_3.addItem(spacerItem3)
+        self.verticalLayout_3.setStretch(2, 1)
         self.horizontalLayout_5.addWidget(self.verticalWidget_2)
         self.tabWidget.addTab(self.createSequenceTab, "")
         self.addShotsTab = QtGui.QWidget()
@@ -279,9 +285,11 @@ class Ui_Dialog(object):
         self.addShots_pushButton.setMinimumSize(QtCore.QSize(200, 0))
         self.addShots_pushButton.setObjectName("addShots_pushButton")
         self.horizontalLayout_9.addWidget(self.addShots_pushButton)
+        self.horizontalLayout_9.setStretch(0, 1)
         self.verticalLayout_4.addWidget(self.horizontalWidget_6)
         spacerItem5 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_4.addItem(spacerItem5)
+        self.verticalLayout_4.setStretch(2, 1)
         self.horizontalLayout_3.addWidget(self.verticalWidget_3)
         self.tabWidget.addTab(self.addShotsTab, "")
         self.addAlternativeShotsTab = QtGui.QWidget()
@@ -357,9 +365,11 @@ class Ui_Dialog(object):
         self.addAlternativeShot_pushButton.setMinimumSize(QtCore.QSize(200, 0))
         self.addAlternativeShot_pushButton.setObjectName("addAlternativeShot_pushButton")
         self.horizontalLayout_11.addWidget(self.addAlternativeShot_pushButton)
+        self.horizontalLayout_11.setStretch(0, 1)
         self.verticalLayout_6.addWidget(self.horizontalWidget_8)
         spacerItem7 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_6.addItem(spacerItem7)
+        self.verticalLayout_6.setStretch(2, 1)
         self.horizontalLayout_12.addWidget(self.verticalWidget_4)
         self.tabWidget.addTab(self.addAlternativeShotsTab, "")
         self.verticalLayout_2.addWidget(self.tabWidget)
