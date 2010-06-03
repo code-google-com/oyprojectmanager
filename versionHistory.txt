@@ -1,5 +1,24 @@
 Version History :
 -----------------
+v10.6.2
+- assetManager: canceling an open action is no more reloading refences
+  unnecessarily
+- asset: fixed a couple of bugs that results always getting False for asset
+  existancy checks
+- mayaEnv: fixed bug in getPathVariables method, previously it was not working
+  properly after the updates in version v10.4.27 and thus the assetManager
+  interface was not initializing the interface with info from recent files list
+- abstractClasses: environment abstact base class now has a replace reference
+  method to help replacing references
+- mayaEnv: the new replace reference method replaces the references and does
+  that with special care to reference edits. Thus, if a reference is replaced
+  with a file so that the reference edits are no more valid because of a change
+  in namespaces, the new replace reference method tries to find the new
+  namespace and apply the same edits to the objects
+- mayaEnv: getValidReferencedAssets method is renamed to getReferencedAssets,
+  which is actually the intended name in the abstract base class
+- assetReplacer: added a new script and interface to replace assets
+
 v10.5.25
 - mayaEnv: reverting back to mayaAscii on all platforms
 

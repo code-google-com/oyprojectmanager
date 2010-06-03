@@ -1,6 +1,6 @@
 from PyQt4 import uic, QtCore, QtGui
 
-version = '10.4.28'
+version = '10.6.3'
 
 global uicFile
 global pyFile
@@ -8,8 +8,8 @@ global pyFile
 uicFilePaths = []
 pyFilePaths = []
 
-uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui' )
-pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager_UI.py' )
+#uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui' )
+#pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager_UI.py' )
 
 #uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager.ui' )
 #pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager_UI.py' )
@@ -23,6 +23,8 @@ pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectM
 #uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectSetter.ui' )
 #pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectSetter_UI.py' )
 
+uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetReplacer.ui' )
+pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetReplacer_UI.py' )
 
 
 for i,uicFilePath in enumerate(uicFilePaths):

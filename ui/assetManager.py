@@ -10,7 +10,7 @@ from oyProjectManager.ui import assetUpdater, singletonQApplication
 
 
 
-__version__ = "10.5.17"
+__version__ = "10.6.2"
 
 
 
@@ -775,6 +775,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
+    #----------------------------------------------------------------------
     def getCurrentSequenceName(self):
         """returns the current sequence name
         """
@@ -1394,6 +1395,8 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                     
                     if answer== QtGui.QMessageBox.Yes:
                         envStatus, toUpdateList = self._environment.open_( True )
+                    else:
+                        return
                 
                 # check the toUpdateList to update old assets
                 if len(toUpdateList):
@@ -1568,29 +1571,3 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                                                 QtGui.QMessageBox.Ok )
             # adjust the time unit
             self._environment.setTimeUnit( seqTimeUnit )
-
-
-
-
-
-
-########################################################################
-class InterfaceRunner(QtCore.QThread):
-    """runs the other windows as another thread
-    """
-    
-    #----------------------------------------------------------------------
-    def __init__(self, parentA=None, interface=None, **interfaceArgs):
-        QtCore.QThread.__init__(self, parentA)
-        self._interface = interface
-        self._interfaceArgs = interfaceArgs
-    
-    
-    
-    #----------------------------------------------------------------------
-    def run(self):
-        """runs the thread, thus the interface
-        """
-        
-        if self._interface != None:
-            self._interface( **self._interfaceArgs )

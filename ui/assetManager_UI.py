@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Thu May 27 23:36:13 2010
+# Created: Thu Jun  3 09:26:08 2010
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,6 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
+        Dialog.setWindowModality(QtCore.Qt.ApplicationModal)
         Dialog.resize(1002, 877)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
