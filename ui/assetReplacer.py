@@ -512,3 +512,5 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
             if repData[1] == True:
                 self._environment.replaceAssets( repData[0], repData[2].fullPath )
         
+        # close the interface
+        self.close()
