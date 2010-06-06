@@ -1,4 +1,4 @@
-__version__ = "10.1.28"
+__version__ = "10.6.6"
 
 
 
@@ -17,39 +17,30 @@ class User(object):
         pass
     
     
-    
     #----------------------------------------------------------------------
-    def _getName(self):
-        """returns the user name
-        """
-        return self._name
+    def name():
+        def fget(self):
+            return self._name
+        
+        def fset(self, name):
+            self._name = name
+        
+        return locals()
     
-    
-    
-    #----------------------------------------------------------------------
-    def _setName(self, name):
-        """sets the user name
-        """
-        self._name = name
-    
-    name = property( _getName, _setName )
+    name = property( **name() )
     
     
     #----------------------------------------------------------------------
-    def _getInitials(self):
-        """returns the user initials
-        """
-        return self._initials
+    def initials():
+        def fget(self):
+            return self._initials
+        
+        def fset(self, initials):
+            self._initials = initials
+        
+        return locals()
     
-    
-    
-    #----------------------------------------------------------------------
-    def _setInitials(self, initials):
-        """sets the user initials
-        """
-        self._initials = initials
-    
-    initials = property( _getInitials, _setInitials )
+    initials = property( **initials() )
 
 
 

@@ -6,7 +6,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.5.25"
+__version__ = "10.6.6"
 
 
 
@@ -238,7 +238,7 @@ class MayaEnvironment(abstractClasses.Environment):
         assetBaseName = self._asset.baseName
         
         renderFileName = ''
-        if parentSeq.noSubNameField():
+        if parentSeq.noSubNameField:
             renderFileName = shotFolder + "/" + assetBaseName + "/<Layer>/" + assetBaseName + "_<Layer>_<RenderPass>_<Version>"
         else: # remove later when the support for old project is over
             assetSubName = self._asset.subName

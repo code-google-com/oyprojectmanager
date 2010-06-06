@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.6.2"
+__version__ = "10.6.6"
 
 
 
@@ -266,28 +266,30 @@ class Asset(object):
     
     
     
-    #----------------------------------------------------------------------
-    def _getExtension(self):
-        """returns the extension
+    def extension():
+        """the file extension
         """
-        return self._extension
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _setExtension(self, extension):
-        """sets the extension of the asset object
-        """
+        doc = "the file extension"
         
-        #assert(isinstance(extension,str))
+        def fget(self):
+            """returns the extension
+            """
+            return self._extension
         
-        # remove any extension separetors at from the input extension
-        finalExtension = extension.split( os.path.extsep )[-1]
+        def fset(self, extension):
+            """sets the extension of the asset object
+            """
+            #assert( isinstance(extension, str))
+            # remove any extension seperators from the input extension
+            finalExtension = extension.split( os.path.extsep )[-1]
+            
+            self._extension = finalExtension
+            self._initPathVariables()
         
-        self._extension = finalExtension
-        self._initPathVariables()
+        return locals()
     
-    extension = property( _getExtension, _setExtension )
+    extension = property( **extension() )
+    
     
     
     #----------------------------------------------------------------------
@@ -1019,38 +1021,38 @@ class AssetType(object):
     
     
     #----------------------------------------------------------------------
-    def _getName(self):
-        """return AssetType name
+    def name():
+        """the asset type name
         """
-        return self._name
+        
+        doc = "the asset type name"
+        
+        def fget(self):
+            return self._name
+        
+        def fset(self, name):
+            self._name = name
+        
+        return locals()
+    
+    name = property( **name() )
     
     
     
     #----------------------------------------------------------------------
-    def _setName(self, name):
-        """sets asset type name
-        """
-        self._name = name
+    def path():
+        
+        doc = "assets types path"
+        
+        def fget(self):
+            return self._path
+        
+        def fset(self, path):
+            self._path = path
+        
+        return locals()
     
-    name = property( _getName, _setName )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _getPath(self):
-        """returns AssetType path
-        """
-        return self._path
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _setPath(self, path):
-        """sets asset type path
-        """
-        self._path = path
-    
-    path = property( _getPath, _setPath )
+    path = property( **path() )
     
     
     
@@ -1064,37 +1066,36 @@ class AssetType(object):
     
     
     #----------------------------------------------------------------------
-    def _getEnvironments(self):
-        """returns the environments that this type is available to as a list of string
-        """
-        return self._environments
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _setEnvironments(self, environments):
-        """sets the environment that this asset type is available to
-        """
-        self._environments = environments
-    
-    environments = property( _getEnvironments, _setEnvironments )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _isShotDependent(self):
-        """returns True or False depending on to the shot dependency
-        """
-        return self._shotDependency
+    def environments():
         
+        doc = "the environments that this asset type is available for"
+        
+        def fget(self):
+            return self._environments
+        
+        def fset(self, environments):
+            self._environments = environments
+        
+        return locals()
+    
+    environments = property( **environments() )
+    
+    
     
     #----------------------------------------------------------------------
-    def _setShotDependency(self, shotDependency):
-        """sets shot dependency of that asset type
-        """
-        self._shotDependency = shotDependency
+    def isShotDependent():
+        
+        doc = "defines if the asset type is shot dependent or not"
+        
+        def fget(self):
+            return self._shotDependency
+        
+        def fset(self, shotDependency):
+            self._shotDependency = shotDependency
+        
+        return locals()
     
-    isShotDependent = property( _isShotDependent, _setShotDependency )
+    isShotDependent = property( **isShotDependent() )
 
 
 
