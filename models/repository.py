@@ -406,14 +406,12 @@ class Repository( abstractClasses.Singleton ):
         
         residual = filePath[ len(self._projectsFolderFullPath)+1 : ]
         
-        print "residual: ", residual
-        
         parts = residual.split(os.path.sep)
         
+        if len(parts) > 1:
+            return parts[0], parts[1]
         
-        print "parts: ",parts
-        
-        return parts[0], parts[1]
+        return None, None
     
     
     
