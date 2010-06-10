@@ -411,7 +411,7 @@ class Repository( abstractClasses.Singleton ):
         if len(parts) > 1:
             return parts[0], parts[1]
         
-        return None, None
+        return None, None    
     
     
     
