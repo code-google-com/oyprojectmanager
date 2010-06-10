@@ -5,7 +5,7 @@ import projectManager_UI
 
 import oyProjectManager
 from oyProjectManager.models import project, repository
-from oyProjectManager.tools import rangeTools
+from oyProjectManager.utils import rangeTools
 from oyProjectManager.ui import singletonQApplication
 
 
