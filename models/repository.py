@@ -1,12 +1,12 @@
 import os, shutil
 import oyAuxiliaryFunctions as oyAux
 from xml.dom import minidom
-from oyProjectManager.tools import cache
+from oyProjectManager.utils import cache
 from oyProjectManager.models import user, abstractClasses
 
 
 
-__version__ = "10.4.28"
+__version__ = "10.6.6"
 
 
 
@@ -273,31 +273,31 @@ class Repository( abstractClasses.Singleton ):
         return self._projectsFolderFullPath
     
     
-    
     #----------------------------------------------------------------------
-    def _getServerPath(self):
-        """gets the server path
-        """
-        return self._serverPath
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _setServerPath(self, serverPath):
-        """sets the server path
-        """
-        # add a trailing separator
-        # in any cases os.path.join adds a trailing seperator
-        self._serverPath = os.path.join( serverPath, '' )
+    def serverPath():
         
-        #self._updatePathVariables()
-        self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
+        doc = """the server path"""
         
-        self._projects = [] * 0
+        def fget(self):
+            return self._serverPath
         
-        self.updateProjectList()
+        def fset(self, serverPath):
+            """sets the server path
+            """
+            # add a trailing separator
+            # in any cases os.path.join adds a trailing seperator
+            self._serverPath = os.path.join( serverPath, '' )
+            
+            #self._updatePathVariables()
+            self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
+            
+            self._projects = [] * 0
+            
+            self.updateProjectList()
+        
+        return locals()
     
-    serverPath = property( _getServerPath, _setServerPath )
+    serverPath = property( **serverPath() )
     
     
     
@@ -360,40 +360,34 @@ class Repository( abstractClasses.Singleton ):
     
     
     #----------------------------------------------------------------------
-    def _getLastUser(self):
-        """returns the last user initials if the lastUserFile file exists
-        otherwise returns None
-        """
+    def lastUser():
+        doc = """returns and saves the last user initials if the lastUserFile file exists otherwise returns None"""
         
-        lastUserInitials = None
+        def fget(self):
+            lastUserInitials = None
+            
+            try:
+                lastUserFile = open( self._lastUserFileFullPath )
+            except IOError:
+                pass
+            else:
+                lastUserInitials = lastUserFile.readline().strip()
+                lastUserFile.close()
+            
+            return lastUserInitials
         
-        try:
-            lastUserFile = open( self._lastUserFileFullPath )
-        except IOError:
-            pass
-        else:
-            lastUserInitials = lastUserFile.readline().strip()
-            lastUserFile.close()
+        def fset(self, userInitials):
+            try:
+                lastUserFile = open( self._lastUserFileFullPath, 'w' )
+            except IOError:
+                pass
+            else:
+                lastUserFile.write( userInitials )
+                lastUserFile.close()
         
-        return lastUserInitials
+        return locals()
     
-    
-    
-    #----------------------------------------------------------------------
-    def _setLastUser(self, userInitials):
-        """saves the last user initials to the lastUserFile
-        """
-        
-        try:
-            lastUserFile = open( self._lastUserFileFullPath, 'w' )
-        except IOError:
-            pass
-        else:
-            lastUserFile.write( userInitials )
-            lastUserFile.close()
-    
-    #lastUser = cache.CachedMethod( property( _getLastUser, _setLastUser ) )
-    lastUser = property( _getLastUser, _setLastUser )
+    lastUser = property( **lastUser() )
     
     
     
@@ -414,7 +408,10 @@ class Repository( abstractClasses.Singleton ):
         
         parts = residual.split(os.path.sep)
         
-        return parts[0], parts[1]
+        if len(parts) > 1:
+            return parts[0], parts[1]
+        
+        return None, None
     
     
     

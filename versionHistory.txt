@@ -1,5 +1,10 @@
 Version History :
 -----------------
+v10.6.6
+- oyProjectManager: tools renamed to utils
+- oyProjectManager: switched to the new property idiom
+- mayaEnv: fixed calls for some methods which are now properties
+
 v10.6.2
 - assetManager: canceling an open action is no more reloading refences
   unnecessarily

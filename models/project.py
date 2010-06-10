@@ -1,12 +1,12 @@
 import os, re, shutil, glob
 from xml.dom import minidom
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.tools import cache, rangeTools
+from oyProjectManager.utils import cache, rangeTools
 from oyProjectManager.models import asset, user, repository
 
 
 
-__version__ = "10.5.3"
+__version__ = "10.6.6"
 
 
 
@@ -36,7 +36,7 @@ class Project(object):
         
         self._sequenceList = []
         
-        self._exists = self.exists()
+        self._exists = self.exists
     
     
     
@@ -53,7 +53,7 @@ class Project(object):
         """
         # check if the folder allready exists
         oyAux.createFolder( self._fullPath )
-        self._exists = self.exists()
+        self._exists = self.exists
     
     
     
@@ -137,32 +137,26 @@ class Project(object):
     
     
     #----------------------------------------------------------------------
-    def _getRepository(self):
-        """returns the current project repository object
-        """
-        return self._repository
+    def repository():
+        doc = "the repository object"
+        
+        def fget(self):
+            return self._repository
+        
+        def fset(self, repo):
+            self._repository = repo
+        
+        return locals()
+    
+    repository = property( **repository() )
     
     
     
     #----------------------------------------------------------------------
-    def _setRepository(self, repository ):
-        """sets the project repository object
-        """
-        
-        self._repository = repository
-        
-        # reset the path variables
-        self._initPathVariables
-    
-    repository = property( _getRepository, _setRepository )
-    
-    
-    
-    #----------------------------------------------------------------------
+    @property
     def exists(self):
         """returns True if the project folder exists
         """
-        
         return os.path.exists( self._fullPath )
     
     
@@ -1475,25 +1469,19 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def _getTimeUnit(self):
-        """returns the time unit of the sequence
-        """
-        return self._timeUnit
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _setTimeUnit(self, timeUnit):
-        """sets the time unit of the sequence
-        """
-        # check if the given timeUnit is in repository settings
-        if self._repository.timeUnits.has_key(timeUnit):
-            # set it
+    def timeUnit():
+        
+        doc = "the time unit of the sequence"
+        
+        def fget(self):
+            return self._timeUnit
+        
+        def fset(self, timeUnit):
             self._timeUnit = timeUnit
-        else:
-            raise KeyError(timeUnit)
+        
+        return locals()
     
-    timeUnit = property(_getTimeUnit, _setTimeUnit)
+    timeUnit = property( **timeUnit() )
     
     
     
@@ -1697,10 +1685,10 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @property
     def exists(self):
         """returns True if the sequence itself exists, False otherwise
         """
-        
         return self._exists
     
     
@@ -1715,10 +1703,10 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
+    @property
     def noSubNameField(self):
         """returns True if the sequence doesn't support subName fields (old-style)
         """
-        
         return self._noSubNameField
     
     
@@ -1830,58 +1818,53 @@ class Structure(object):
     
     
     #----------------------------------------------------------------------
-    def _getShotDependentFolders(self):
-        """returns shot dependent folders as list
-        """
-        return self._shotDependentFolders
+    def shotDependentFolders():
+        
+        doc = "the shot dependent folders"
+        
+        def fget(self):
+            return self._shotDependentFolders
+        
+        def fset(self, shotDependentFolders):
+            self._shotDependentFolders = shotDependentFolders
+        
+        return locals()
     
-    
-    #----------------------------------------------------------------------
-    def _setShotDependentFolders(self, folders):
-        """sets shot dependent folders
-        """
-        self._shotDependentFolders = folders
-    
-    shotDependentFolders = property( _getShotDependentFolders, _setShotDependentFolders )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _getShotIndependentFolders(self):
-        """returns shot independent folders as list
-        """
-        return self._shotIndependentFolders
+    shotDependentFolders = property( **shotDependentFolders() )
     
     
     
     #----------------------------------------------------------------------
-    def _setShotIndependentFolders(self, folders):
-        """sets shot independent folders
-        """
-        self._shotIndependentFolders = folders
+    def shotIndependentFolders():
+        
+        doc = "shot independent folders"
+        
+        def fget(self):
+            return self._shotIndependentFolders
+        
+        def fset(self, folders):
+            self._shotIndependentFolders = folders
+        
+        return locals()
     
-    shotIndependentFolders = property( _getShotIndependentFolders, _setShotIndependentFolders )
+    shotIndependentFolders = property( **shotIndependentFolders() )
     
     
     
     #----------------------------------------------------------------------
-    def _getOutputFolders(self):
-        """returns the output folders as a dictionary
-        """
-        return self._outputFolders
+    def outputFolders():
+        
+        doc = "the output folders"
+        
+        def fget(self):
+            return self._outputFolders
+        
+        def fset(self, folders):
+            self._outputFolders = folders
+        
+        return locals()
     
-    
-    
-    #----------------------------------------------------------------------
-    def _setOutputFolders(self, folders):
-        """sets the output folders from a dictionary
-        folders should be a list of tuples, the first element of the tuple
-        should contain the name and the second should contain the path of that
-        output folder
-        """
-        self._outputFolders = folders
-    
-    outputFolders = property( _getOutputFolders, _setOutputFolders )
+    outputFolders = property( **outputFolders() )
     
     
     
@@ -1998,42 +1981,40 @@ class Shot(object):
     
     
     #----------------------------------------------------------------------
-    def _getStartFrame(self):
-        """returns the start frame
-        """
-        return self._startFrame
+    def startFrame():
+        
+        doc = "the start frame of the shot"
+        
+        def fget(self):
+            return self._startFrame
+        
+        def fset(self, frame):
+            self._startFrame = frame
+            # update the duration
+            self._updateDuration()
+        
+        return locals()
+    
+    startFrame = property( **startFrame() )
     
     
     
     #----------------------------------------------------------------------
-    def _setStartFrame(self, frame):
-        """sets the start frame
-        """
-        self._startFrame = frame
-        # update the duration
-        self._updateDuration()
+    def endFrame():
+        
+        doc = "the end frame of the shot"
+        
+        def fget(self):
+            return self._endFrame
+        
+        def fset(self, frame):
+            self._endFrame = frame
+            # update the duration
+            self._updateDuration()
+        
+        return locals()
     
-    startFrame = property( _getStartFrame, _setStartFrame )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _getEndFrame(self):
-        """returns the end frame
-        """
-        return self._endFrame
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _setEndFrame(self, frame):
-        """sets the end frame
-        """
-        self._endFrame = frame
-        # update the duration
-        self._updateDuration()
-    
-    endFrame = property( _getEndFrame, _setEndFrame )
+    endFrame = property( **endFrame() )
     
     
     
@@ -2046,67 +2027,59 @@ class Shot(object):
     
     
     #----------------------------------------------------------------------
-    def _getDescription(self):
-        """returns the description
-        """
-        return self._description
+    def description():
+        
+        doc = "the shots description"
+        
+        def fget(self):
+            return self._description
+        
+        def fset(self, description):
+            self._description = description
+        
+        return locals()
+    
+    description = property( **description() )
     
     
     
     #----------------------------------------------------------------------
-    def _setDescription(self, description):
-        """sets the description
-        """
-        self._description = description
+    def parentSequence():
+        
+        def fget(self):
+            return self._parentSequence
+        
+        def fset(self, seq):
+            self._parentSequence = seq
+        
+        return locals()
     
-    description = property( _getDescription, _setDescription )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _getParentSequence(self):
-        """returns the parentSequence
-        """
-        return self._parentSequence
+    parentSequence = property( **parentSequence() )
     
     
     
     #----------------------------------------------------------------------
-    def _setParentSequence(self, seq):
-        """sets the parentSequence
-        """
-        self._parentSequence = seq
+    def name():
+        
+        def fget(self):
+            return self._name
+        
+        def fset(self, name):
+            self._name = name
+        
+        return locals()
     
-    parentSequence = property( _getParentSequence, _setParentSequence )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _getName(self):
-        """returns the name of the shot
-        """
-        return self._name
+    name = property( **name() )
     
     
     
     #----------------------------------------------------------------------
-    def _setName(self, name):
-        """sets the shot name
+    @property
+    def duration(self):
+        """the duration
         """
-        self._name = name
-    
-    name = property( _getName, _setName )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def _getDuration(self):
-        """returns the duration
-        """
-        self._updateDuration()
         return self._duration
-    
-    duration = property( _getDuration )
+        
 
 
 
