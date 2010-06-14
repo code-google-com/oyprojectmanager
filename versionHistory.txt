@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.6.14
+- assetReplacer: fixed a little bug, caused by changing the method
+  noSubNameField to a property in Sequence
+
 v10.6.6
 - oyProjectManager: tools renamed to utils
 - oyProjectManager: switched to the new property idiom

@@ -10,7 +10,7 @@ from oyProjectManager.ui import singletonQApplication
 
 
 
-__version__ = "10.6.2"
+__version__ = "10.6.14"
 
 
 
@@ -390,7 +390,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         baseName = self.getCurrentBaseName()
         
         
-        if not currentSequence.noSubNameField():
+        if not currentSequence.noSubNameField:
             subName = self.getCurrentSubName()
         else:
             subName = ''
