@@ -1,5 +1,12 @@
 Version History :
 -----------------
+v10.6.21
+- asset: possible fix to asset model
+
+v10.6.16
+- project: project models doesn't accept a repository object anymore
+- repository: repository class now has a createProject method
+
 v10.6.14
 - assetReplacer: fixed a little bug, caused by changing the method
   noSubNameField to a property in Sequence

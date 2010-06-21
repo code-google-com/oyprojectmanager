@@ -6,7 +6,7 @@ from oyProjectManager.models import asset, user, repository
 
 
 
-__version__ = "10.6.6"
+__version__ = "10.6.16"
 
 
 
@@ -21,12 +21,12 @@ class Project(object):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, projectName, repositoryObj = None):
+    def __init__(self, projectName):#, repositoryObj = None):
         
-        if repositoryObj == None:
-            self._repository = repository.Repository()
-        else:
-            self._repository = repositoryObj
+        #if repositoryObj == None:
+        self._repository = repository.Repository()
+        #else:
+            #self._repository = repositoryObj
         
         self._name = oyAux.stringConditioner( projectName, False, True, False, True, True, False )
         self._path = ''

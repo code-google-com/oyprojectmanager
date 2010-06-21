@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.6.6"
+__version__ = "10.6.21"
 
 
 
@@ -749,15 +749,24 @@ class Asset(object):
         
         if not self._parentSequence._noSubNameField:
             # check the fileName
-            validFileName = bool(self._baseName != '' and self._subName != '' and self._typeName != '' and self._revString != '' and \
-               self._verString != '' and self._userInitials != '' and self._validateRevString() and \
-               self._validateVerString())
+            validFileName = bool(
+                self._baseName != '' and self._baseName is not None and
+                self._subName != '' and self._subName is not None and
+                self._typeName != '' and self._typeName is not None and
+                self._revString != '' and self._revString is not None and
+                self._verString != '' and self._verString is not None and
+                self._userInitials != '' and self._userInitials is not None and
+                self._validateRevString() and self._validateVerString())
             
         else: # remove this block when the support for old version becomes obsolute
             # check the fileName
-            validFileName = bool(self._baseName != '' and self._typeName != '' and self._revString != '' and \
-               self._verString != '' and self._userInitials != '' and self._validateRevString() and \
-               self._validateVerString())
+            validFileName = bool(
+                self._baseName != '' and self._baseName is not None and
+                self._typeName != '' and self._typeName is not None and
+                self._revString != '' and self._revString is not None and
+                self._verString != '' and self._verString is not None and
+                self._userInitials != '' and self._userInitials is not None and
+                self._validateRevString() and self._validateVerString())
         
         return validFileName
     

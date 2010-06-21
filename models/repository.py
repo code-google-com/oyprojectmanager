@@ -6,7 +6,7 @@ from oyProjectManager.models import user, abstractClasses
 
 
 
-__version__ = "10.6.6"
+__version__ = "10.6.16"
 
 
 
@@ -314,6 +314,15 @@ class Repository( abstractClasses.Singleton ):
         #structureData.sort()
         
         #return structureData
+    
+    
+    
+    #----------------------------------------------------------------------
+    def createProject(self, projectName):
+        """creates a new project on the server with the given project name
+        """
+        from oyProjectManager.models import project
+        return project.Project( projectName )
     
     
     
