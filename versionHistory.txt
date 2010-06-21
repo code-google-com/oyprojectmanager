@@ -1,5 +1,8 @@
 Version History :
 -----------------
+v10.6.21
+- asset: possible fix to asset model
+
 v10.6.16
 - project: project models doesn't accept a repository object anymore
 - repository: repository class now has a createProject method
