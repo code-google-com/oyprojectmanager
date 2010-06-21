@@ -539,12 +539,6 @@ class MayaEnvironment(abstractClasses.Environment):
         the sourceAsset may should be in maya reference node
         """
         
-        
-        #sourceRef = allRefs[4]
-        #targetFile = 'M:/JOBs/PRENSESIN_UYKUSU/_PROJECT_SETUP_/_SHADING_/AzizEv/AzizEv_MAIN_SHADING_r00_v001_jmb.ma'
-        
-        
-        
         subRefs = []
         sourceEdits = []
         prevNS = ''
@@ -553,16 +547,9 @@ class MayaEnvironment(abstractClasses.Environment):
         # get the edits of the given reference in the base file
         sourceEdits = sourceEdits + sourceRef.getReferenceEdits()
         
-        
         # get the edits in the reference node for sub references
         baseRefNode = sourceRef.refNode
         
-        #subRefDatas = sourceRef.subReferences()
-        
-        
-        #for subRefData in subRefDatas.iteritems():
-            #refNode = subRefData[1]
-            #subRefs.append( refNode )
         subRefs = self.getAllSubReferences( sourceRef )
         
         # get all the edits of these sub references in the parent references
@@ -572,7 +559,8 @@ class MayaEnvironment(abstractClasses.Environment):
         
         
         # get the base namespace
-        prevNS = sourceRef.fullNamespace
+        #prevNS = sourceRef.fullNamespace
+        prevNS = self.getFullnamespaceFromNodeName( sourceRef.nodes()[0] )
         
         # replace the reference
         sourceRef.replaceWith( targetFile )
@@ -580,7 +568,8 @@ class MayaEnvironment(abstractClasses.Environment):
         subReferences = sourceRef.subReferences()
         for subRefData in subReferences.iteritems():
             refNode = subRefData[1]
-            newNS = refNode.fullNamespace
+            #newNS = refNode.fullNamespace
+            newNS = self.getFullnamespaceFromNodeName( refNode.nodes()[0] )
         
         # if the new namespace is different than the previous one
         # also replace edits
@@ -588,8 +577,36 @@ class MayaEnvironment(abstractClasses.Environment):
             # in edits search for prevNS and replace them with newNS
             # then evaluate the edits
             
+            # debug
+            #print "prevNS", prevNS
+            #print "newNS ", newNS
             targetEdits = [ edit.replace( prevNS, newNS) for edit in sourceEdits ]
             
+            #
+            #print "##################"
+            #print "RAW Source Edits:"
+            #print "##################"
+            #print sourceEdits
+            #
+            #print "##################"
+            #print "RAW Target Edits:"
+            #print "##################"
+            #print targetEdits
+            #
+            #print "-------------------------------------"
+            #
+            #print "##################"
+            #print "Source Edits:"
+            #print "##################"
+            #for edit in sourceEdits:
+            #    print edit
+            #
+            #
+            #print "##################"
+            #print "Target Edits:"
+            #print "##################"
+            #for edit in targetEdits:
+            #    print edit
             
             # execute the edits for new namespace
             for command in targetEdits:
@@ -618,3 +635,13 @@ class MayaEnvironment(abstractClasses.Environment):
                 allRefs += self.getAllSubReferences( subRef )
         
         return allRefs
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getFullnamespaceFromNodeName(self, node):
+        """dirty way of getting the namespace from node name
+        """
+        
+        return ':'.join( (node.name().split(':'))[:-1] )
+        

@@ -10,7 +10,7 @@ from oyProjectManager.ui import singletonQApplication
 
 
 
-__version__ = "10.6.14"
+__version__ = "10.6.21"
 
 
 
@@ -99,11 +99,15 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         # type change ---> fill baseName comboBox and update subName
         QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateBaseNameField )
         
+        # baseName change ---> full update subName
+        QtCore.QObject.connect(self.baseName_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
+        
         # subName change ---> full update assets_tableWidget1
         QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
         QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
         QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
         QtCore.QObject.connect(self.baseName_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
+        QtCore.QObject.connect(self.subName_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
         
         # grabAsset button ---> add it to the reference list
         QtCore.QObject.connect( self.grabAsset_pushButton, QtCore.SIGNAL("clicked()"), self.addAssetToReplaceList )
@@ -343,6 +347,68 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         
         # add the list
         self.baseName_comboBox.addItems( baseNamesList )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def updateSubNameField(self):
+        """updates the subName field with current asset subNames for selected
+        baseName, if the type is not shot dependent
+        """
+        
+        # if the current selected type is not shot dependent
+        # get all the assets of that type and get their baseNames
+        self._updateSequenceObject()
+        currentSequence = self._sequence
+        
+        # if the current sequence doesn't support subName field just return
+        if currentSequence.noSubNameField:
+            self.subName_comboBox.clear()
+            return
+        
+        currentAssetTypeName = self.getCurrentAssetType()
+        
+        assetTypeObj = currentSequence.getAssetTypeWithName( currentAssetTypeName )
+        
+        if assetTypeObj == None:
+            # clear the current subName field and return
+            self.subName_comboBox.clear()
+            return
+        
+        currentBaseName = self.getCurrentBaseName()
+        
+        self.subName_comboBox.clear()
+        
+        if currentAssetTypeName == None or currentBaseName == None:
+            return
+        
+        currentAssetType = currentSequence.getAssetTypeWithName( currentAssetTypeName )
+        
+        if currentAssetType == None:
+            # do nothing
+            return
+        
+        # get the asset files of that type
+        allAssetFileNames = currentSequence.getAllAssetFileNamesForType( currentAssetTypeName )
+        
+        # filter for base name
+        allAssetFileNamesFiltered = currentSequence.filterAssetNames( allAssetFileNames, baseName=currentBaseName, typeName=currentAssetTypeName )
+        
+        # get the subNames
+        curSGFIV = currentSequence.generateFakeInfoVariables
+        subNamesList = [ curSGFIV(assetFileName)['subName'] for assetFileName in allAssetFileNamesFiltered ]
+        
+        # add MAIN by default
+        subNamesList.append('MAIN')
+        
+        # remove duplicates
+        subNamesList = oyAux.unique( subNamesList )
+        
+        # add them to the baseName combobox
+        
+        # do not add an item for new items, the default should be MAIN
+        # add the list
+        self.subName_comboBox.addItems( sorted(subNamesList) )
     
     
     

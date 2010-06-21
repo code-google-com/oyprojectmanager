@@ -2,6 +2,9 @@ Version History :
 -----------------
 v10.6.21
 - asset: possible fix to asset model
+- mayaEnv: fixed a maya bug, where maya returns wrong namespaces after
+  replacing an asset
+- assetReplacer: fixed subName updates and relevant assetFile field updates
 
 v10.6.16
 - project: project models doesn't accept a repository object anymore
