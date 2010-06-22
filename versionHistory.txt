@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.6.22
+- mayaEnv: fixed asset replacement by changing to a new algorithm, which is now
+  working in the way it should be
+
 v10.6.21
 - asset: possible fix to asset model
 - mayaEnv: fixed a maya bug, where maya returns wrong namespaces after

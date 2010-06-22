@@ -6,7 +6,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.6.6"
+__version__ = "10.6.22"
 
 
 
@@ -544,76 +544,42 @@ class MayaEnvironment(abstractClasses.Environment):
         prevNS = ''
         newNS = ''
         
-        # get the edits of the given reference in the base file
-        sourceEdits = sourceEdits + sourceRef.getReferenceEdits()
-        
-        # get the edits in the reference node for sub references
+        # get the reference node
         baseRefNode = sourceRef.refNode
         
-        subRefs = self.getAllSubReferences( sourceRef )
-        
-        # get all the edits of these sub references in the parent references
-        # reference node
-        for subRef in subRefs:
-            sourceEdits = sourceEdits + pm.referenceQuery( subRef.refNode, es=1, orn=baseRefNode )
-        
-        
-        # get the base namespace
-        #prevNS = sourceRef.fullNamespace
+        # get the base namespace before replacing the reference
         prevNS = self.getFullnamespaceFromNodeName( sourceRef.nodes()[0] )
         
         # replace the reference
         sourceRef.replaceWith( targetFile )
         
+        # try to find the new namespace
         subReferences = sourceRef.subReferences()
         for subRefData in subReferences.iteritems():
             refNode = subRefData[1]
-            #newNS = refNode.fullNamespace
             newNS = self.getFullnamespaceFromNodeName( refNode.nodes()[0] )
         
         # if the new namespace is different than the previous one
-        # also replace edits
+        # also change the edit targets
         if prevNS != newNS:
-            # in edits search for prevNS and replace them with newNS
-            # then evaluate the edits
-            
             # debug
             #print "prevNS", prevNS
             #print "newNS ", newNS
-            targetEdits = [ edit.replace( prevNS, newNS) for edit in sourceEdits ]
             
-            #
-            #print "##################"
-            #print "RAW Source Edits:"
-            #print "##################"
-            #print sourceEdits
-            #
-            #print "##################"
-            #print "RAW Target Edits:"
-            #print "##################"
-            #print targetEdits
-            #
-            #print "-------------------------------------"
-            #
-            #print "##################"
-            #print "Source Edits:"
-            #print "##################"
-            #for edit in sourceEdits:
-            #    print edit
-            #
-            #
-            #print "##################"
-            #print "Target Edits:"
-            #print "##################"
-            #for edit in targetEdits:
-            #    print edit
+            # get the new sub references
+            for subRef in self.getAllSubReferences( sourceRef ):
+                
+                # for all the nodes in sub references
+                # change the edit targets with new namespace
+                for node in subRef.nodes():
+                    # use the long name -- suggested by maya help
+                    nodeNewName = node.longName()
+                    nodeOldName = nodeNewName.replace( newNS+':', prevNS+':')
+                    
+                    pm.referenceEdit( baseRefNode, changeEditTarget=( nodeOldName, nodeNewName) )
             
-            # execute the edits for new namespace
-            for command in targetEdits:
-                try:
-                    pm.mel.eval(command)
-                except pm.MelError:
-                    pass
+            # apply all the failed edits again
+            pm.referenceEdit( baseRefNode, applyFailedEdits=True )
     
     
     
