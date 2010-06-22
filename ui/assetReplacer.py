@@ -52,7 +52,9 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         
         self._environmentFactory = environmentFactory.EnvironmentFactory()
         
-        self.setWindowTitle( environmentTitle + ' | ' + self.windowTitle() +  'v' + __version__ + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
+        self.setWindowTitle( environmentTitle + ' | ' +
+                             self.windowTitle() +  'v' + __version__ + ' | ' +
+                             'oyProjectManager v' + oyProjectManager.__version__ )
         
         # center to the window
         self._centerWindow()
@@ -83,40 +85,95 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         # SIGNALS
         #---------
         # cancel button
-        QtCore.QObject.connect( self.cancel_pushButton, QtCore.SIGNAL("clicked()"), self.close )
+        QtCore.QObject.connect( self.cancel_pushButton,
+                                QtCore.SIGNAL("clicked()"),
+                                self.close )
         
         # project change ---> update sequence
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self._updateProjectObject )
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSequenceList)
+        QtCore.QObject.connect( self.project_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self._updateProjectObject )
+        
+        QtCore.QObject.connect( self.project_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateSequenceList )
         
         # sequence change ---> update _noSubNameField
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self._updateSequenceObject )
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateForNoSubName)
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self._updateSequenceObject )
+        
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateForNoSubName )
         
         # sequence change ---> update asset type
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetTypeList)
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateAssetTypeList )
         
         # type change ---> fill baseName comboBox and update subName
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateBaseNameField )
+        QtCore.QObject.connect( self.assetType_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateBaseNameField )
         
         # baseName change ---> full update subName
-        QtCore.QObject.connect(self.baseName_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
+        QtCore.QObject.connect( self.baseName_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateSubNameField )
         
-        # subName change ---> full update assets_tableWidget1
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
-        QtCore.QObject.connect(self.baseName_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
-        QtCore.QObject.connect(self.subName_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
+        # subName change ---> full update assetFile_comboBox
+        QtCore.QObject.connect( self.project_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.fullUpdateAssetFilesComboBox )
         
-        # grabAsset button ---> add it to the reference list
-        QtCore.QObject.connect( self.grabAsset_pushButton, QtCore.SIGNAL("clicked()"), self.addAssetToReplaceList )
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.fullUpdateAssetFilesComboBox )
+        
+        QtCore.QObject.connect( self.assetType_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.fullUpdateAssetFilesComboBox )
+        
+        QtCore.QObject.connect( self.baseName_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.fullUpdateAssetFilesComboBox )
+        
+        QtCore.QObject.connect( self.subName_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.fullUpdateAssetFilesComboBox )
         
         # replace button ---> do replace
-        QtCore.QObject.connect( self.replace_pushButton, QtCore.SIGNAL("clicked()"), self.replaceAssets )
+        QtCore.QObject.connect( self.replace_pushButton,
+                                QtCore.SIGNAL("clicked()"),
+                                self.replaceAssets )
+        
+        # remove replacement button --> remove replacement
+        QtCore.QObject.connect( self.removeReplacement_pushButton,
+                                QtCore.SIGNAL("clicked()"),
+                                self.removeReplacement )
+        
+        # assetList ---> double click update all fields
+        QtCore.QObject.connect( self.assetList_tableWidget,
+                                QtCore.SIGNAL("cellDoubleClicked(int,int)"),
+                                self.updateComboBoxesForAsset )
         
         self._fillUI()
         self.updateProjectList()
+        
+        if self._numOfRefs > 0:
+            # just act like the first asset has been double clicked
+            self.updateComboBoxesForAsset(0,0)
+        
+        
+        ## add a popup menu
+        #self._popupMenu = QtGui.QMenu( self )#.assetList_tableWidget )
+        #self._popupMenu.addSeparator()
+        
+        #QtCore.QObject.connect( self.assetList_tableWidget,
+                                #QtCore.SIGNAL("itemClicked(QTableWidgetItem*)"),
+                                #self._popupMenu.show )
+        ##self._popupMenu.show()
     
     
     
@@ -162,6 +219,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         self.assetList_tableWidget.setRowCount( self._numOfRefs )
         self.assetList_tableWidget.setHorizontalHeaderLabels( self._horizontalLabels )
         
+        
         # fill the assetList tableWidget
         for i, refData in enumerate(self._refDatas):
             
@@ -176,8 +234,10 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
             self.assetList_tableWidget.setItem( i, 0, assetName_tableWI )
             # ------------------------------------
             
+            
             # append the reference object to the assetsToReplaceList
-            self._assetsToReplaceList.append( [refData[1], False, None] )
+            #self._assetsToReplaceList.append( [refData[1], False, None] )
+            self._assetsToReplaceList.append( [refData, False, None] )
         
         # resize the columns
         self.assetList_tableWidget.resizeColumnToContents(0)
@@ -186,8 +246,6 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         # set sub name to MAIN by default
         self.subName_comboBox.clear()
         self.subName_comboBox.addItem( "MAIN" )
-        
-        
     
     
     
@@ -484,16 +542,16 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
     
     
     #----------------------------------------------------------------------
-    def fullUpdateAssetsTableWidget(self):
-        """invokes a version list buffer update and a assets list widget update
+    def fullUpdateAssetFilesComboBox(self):
+        """invokes a version list buffer update and a assets files comboBox update
         """
         self.updateVersionListBuffer()
-        self.partialUpdateAssetsTableWidget()
+        self.partialUpdateAssetFilesComboBox()
     
     
     
     #----------------------------------------------------------------------
-    def partialUpdateAssetsTableWidget(self):
+    def partialUpdateAssetFilesComboBox(self):
         """just updates if the number of maximum displayable entry is changed
         """
         
@@ -561,11 +619,26 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
     def _createAssetObjectFromOpenFields(self):
         """retriewes the file name from the open asset fields
         """
-        
         assetFileName = unicode(self.assetFile_comboBox.currentText())
         self._asset = asset.Asset( self._project, self._sequence, assetFileName )
         self._environment.asset = self._asset
     
+    
+    
+    #----------------------------------------------------------------------
+    def removeReplacement(self):
+        """removes the selected replacement
+        """
+        
+        # first get the selection index from the asset list table
+        index = self.assetList_tableWidget.currentIndex().row()
+        
+        # set the update to field
+        tableItem = self.addItemToIndex( self.assetList_tableWidget, index, 1, '' )
+        
+        # add the data
+        self._assetsToReplaceList[index][1] = False
+        self._assetsToReplaceList[index][2] = None
     
     
     #----------------------------------------------------------------------
@@ -576,7 +649,49 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         # iterate over the _assetsToReplaceList
         for repData in self._assetsToReplaceList:
             if repData[1] == True:
-                self._environment.replaceAssets( repData[0], repData[2].fullPath )
+                self._environment.replaceAssets( repData[0][1], repData[2].fullPath )
         
         # close the interface
         self.close()
+    
+    
+    
+    #----------------------------------------------------------------------
+    def updateComboBoxesForAsset(self, cellRowId, cellColoumnId):
+        """updates the comboboxes according to double clicked cell
+        """
+        #print cellRowId, cellColoumnId
+        if cellColoumnId == 0:
+            assetObj = self._assetsToReplaceList[cellRowId][0][0]
+            
+            assert(isinstance(assetObj, asset.Asset))
+            
+            projectName = assetObj.sequence.project.name
+            sequenceName = assetObj.sequence.name
+            baseName = assetObj.baseName
+            subName = assetObj.subName
+            typeName = assetObj.typeName
+            fileName = assetObj.fileName
+            
+            # update the fields
+            # project
+            self.project_comboBox.setCurrentIndex( self.project_comboBox.findText( projectName ) )
+            
+            # sequence
+            self.sequence_comboBox.setCurrentIndex( self.sequence_comboBox.findText( sequenceName ) )
+            
+            # typeName
+            self.assetType_comboBox1.setCurrentIndex( self.assetType_comboBox1.findText( typeName ) )
+            
+            # baseName
+            self.baseName_comboBox.setCurrentIndex( self.baseName_comboBox.findText( baseName ) )
+            
+            # subName
+            self.subName_comboBox.setCurrentIndex( self.subName_comboBox.findText( subName ) )
+            
+            # assetFile
+            self.assetFile_comboBox.setCurrentIndex( self.assetFile_comboBox.findText( fileName ) )
+        elif cellColoumnId == 1:
+            self.addAssetToReplaceList()
+        
+    

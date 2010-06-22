@@ -3,6 +3,22 @@ Version History :
 v10.6.22
 - mayaEnv: fixed asset replacement by changing to a new algorithm, which is now
   working in the way it should be
+- asset:
+  - parent sequence is now reached by sequence attributes instead of
+    parentSequence, asset object now also have an project attribute that holds
+    the project object
+  - asset objects now has a typeName property
+- project: sequence objects parentProject attribute is renamed to project
+- assetReplacer:
+  - double clicking to the referenced asset files lists first columns now
+    updates the comboBoxes, and double clicking to the second column will fill
+    the asset information from the combo boxes
+  - the grab asset button has been removed
+  - added remove replacement button to allow the user to remove the unwanted
+    replacements from the list
+- assetManager:
+  - double clicking to the assetList_tableWidget now opens the double clicked
+    asset file
 
 v10.6.21
 - asset: possible fix to asset model

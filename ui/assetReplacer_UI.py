@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetReplacer.ui'
 #
-# Created: Thu Jun  3 10:20:12 2010
+# Created: Tue Jun 22 22:29:31 2010
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -169,9 +169,9 @@ class Ui_Dialog(object):
         self.line_5.setObjectName("line_5")
         self.gridLayout1.addWidget(self.line_5, 10, 0, 1, 2)
         self.verticalLayout_2.addWidget(self.gridWidget1)
-        self.grabAsset_pushButton = QtGui.QPushButton(self.verticalWidget1)
-        self.grabAsset_pushButton.setObjectName("grabAsset_pushButton")
-        self.verticalLayout_2.addWidget(self.grabAsset_pushButton)
+        self.removeReplacement_pushButton = QtGui.QPushButton(self.verticalWidget1)
+        self.removeReplacement_pushButton.setObjectName("removeReplacement_pushButton")
+        self.verticalLayout_2.addWidget(self.removeReplacement_pushButton)
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_2.addItem(spacerItem)
         self.horizontalWidget = QtGui.QWidget(self.verticalWidget1)
@@ -237,7 +237,7 @@ class Ui_Dialog(object):
         self.assetFile_comboBox.setWhatsThis(QtGui.QApplication.translate("Dialog", "Shot:\n"
 "\n"
 "If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc. ). So, shot and base name comboBoxes are actually showing the base name of the asset, but it lets the user to separate the shot dependent asset types from shot independent types.", None, QtGui.QApplication.UnicodeUTF8))
-        self.grabAsset_pushButton.setText(QtGui.QApplication.translate("Dialog", "Grab Asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.removeReplacement_pushButton.setText(QtGui.QApplication.translate("Dialog", "Remove Replacement", None, QtGui.QApplication.UnicodeUTF8))
         self.replace_pushButton.setText(QtGui.QApplication.translate("Dialog", "Replace", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_pushButton.setText(QtGui.QApplication.translate("Dialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
 

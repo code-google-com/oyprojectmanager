@@ -226,7 +226,7 @@ class MayaEnvironment(abstractClasses.Environment):
         # check/load Mentalray
         #if pm.pluginInfo(
         
-        parentSeq = self._asset.parentSequence
+        parentSeq = self._asset.sequence
         
         renderOutputFolder = parentSeq.structure.getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS
         
@@ -269,7 +269,7 @@ class MayaEnvironment(abstractClasses.Environment):
         
         assert(isinstance(self._asset, asset.Asset))
         
-        seqFullPath = self._asset.parentSequence.fullPath
+        seqFullPath = self._asset.sequence.fullPath
         
         baseName = self._asset.baseName
         

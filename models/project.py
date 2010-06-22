@@ -188,12 +188,12 @@ class Sequence(object):
         
         assert(isinstance(project, Project) )
         
-        self._parentProject = project
-        self._repository = self._parentProject.repository
+        self._project = project
+        self._repository = self._project.repository
         
         self._name = oyAux.stringConditioner( sequenceName, False, True, False, True, True, False )
         
-        self._path = self._parentProject.fullPath
+        self._path = self._project.fullPath
         self._fullPath = os.path.join( self._path, self._name )
         
         self._settingsFile = ".settings.xml"
@@ -1073,7 +1073,7 @@ class Sequence(object):
     def project(self):
         """returns the parent project
         """
-        return self._parentProject
+        return self._project
     
     
     
@@ -1082,7 +1082,7 @@ class Sequence(object):
     def projectName(self):
         """returns the parent projects name
         """
-        return self._parentProject.name
+        return self._project.name
     
     
     
@@ -1351,7 +1351,7 @@ class Sequence(object):
         osPathIsDir = os.path.isdir
         selfFullPath = self._fullPath
         assetAsset = asset.Asset
-        selfProject = self._parentProject
+        selfProject = self._project
         assetsAppend = assets.append
         
         osPathBaseName = os.path.basename
@@ -1442,7 +1442,7 @@ class Sequence(object):
         
         # recreate assets and return
         # TODO: return without recreating the assets
-        return [ asset.Asset(self._parentProject, self, x['fileName']) for x in filteredAssetInfos ]
+        return [ asset.Asset(self._project, self, x['fileName']) for x in filteredAssetInfos ]
     
     
     
@@ -1954,13 +1954,13 @@ class Shot(object):
     """
 
     #----------------------------------------------------------------------
-    def __init__(self, name , parentSequence=None, startFrame=1, endFrame=1, description=''):
+    def __init__(self, name , sequence=None, startFrame=1, endFrame=1, description=''):
         self._name = name
         self._duration = 1
         self._startFrame = startFrame
         self._endFrame = endFrame
         self._description = description
-        self._parentSequence = parentSequence
+        self._sequence = sequence
         #self._cutSummary = ''
     
     
@@ -2044,17 +2044,17 @@ class Shot(object):
     
     
     #----------------------------------------------------------------------
-    def parentSequence():
+    def sequence():
         
         def fget(self):
-            return self._parentSequence
+            return self._sequence
         
         def fset(self, seq):
-            self._parentSequence = seq
+            self._sequence = seq
         
         return locals()
     
-    parentSequence = property( **parentSequence() )
+    sequence = property( **sequence() )
     
     
     

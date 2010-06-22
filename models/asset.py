@@ -3,7 +3,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.6.21"
+__version__ = "10.6.22"
 
 
 
@@ -21,8 +21,8 @@ class Asset(object):
     #----------------------------------------------------------------------
     def __init__(self, project, sequence, fileName=None):
         
-        self._parentProject = project
-        self._parentSequence = sequence
+        self._project = project
+        self._sequence = sequence
         
         # asset metadata
         # info variables
@@ -118,22 +118,22 @@ class Asset(object):
         
         if keys.has_key('typeName'):
             self._typeName = keys['typeName']
-            self._type = self._parentSequence.getAssetTypeWithName( self._typeName )
+            self._type = self._sequence.getAssetTypeWithName( self._typeName )
         
         # convert revision and version strings to number
         if keys.has_key('revString'):
             self._revString = keys['revString']
-            self._rev = self._parentSequence.convertToRevNumber( self._revString )
+            self._rev = self._sequence.convertToRevNumber( self._revString )
         elif keys.has_key('rev'):
             self._rev = int( keys['rev'] )
-            self._revString = self._parentSequence.convertToRevString( self._rev )
+            self._revString = self._sequence.convertToRevString( self._rev )
         
         if keys.has_key('verString'):
             self._verString = keys['verString']
-            self._ver = self._parentSequence.convertToVerNumber( self._verString )
+            self._ver = self._sequence.convertToVerNumber( self._verString )
         elif keys.has_key('ver'):
             self._ver = int( keys['ver'])
-            self._verString = self._parentSequence.convertToVerString( self._ver )
+            self._verString = self._sequence.convertToVerString( self._ver )
         
         if keys.has_key('userInitials'):
             self._userInitials = keys['userInitials']
@@ -144,7 +144,7 @@ class Asset(object):
         if keys.has_key('extension'):
             self._extension = keys['extension']
         
-        if not self._parentSequence._noSubNameField:
+        if not self._sequence._noSubNameField:
             if self._baseName != None and self._subName != None and self._type != None and \
                self._baseName != '' and self._subName != '' and self._type != '':
                 self._hasBaseInfo = True
@@ -171,12 +171,12 @@ class Asset(object):
         """
         
         # check if there is a valid project
-        if self._parentProject == None or self._parentSequence == None:
+        if self._project == None or self._sequence == None:
             return
         
         parts = self._fileName.split( self._dataSeparator )
         
-        if not self._parentSequence._noSubNameField:
+        if not self._sequence._noSubNameField:
             if len(parts) < 5:
                 return
             
@@ -214,7 +214,7 @@ class Asset(object):
                 self._notes = ""
         
         # get the type object
-        self._type = self._parentSequence.getAssetTypeWithName( self._typeName )
+        self._type = self._sequence.getAssetTypeWithName( self._typeName )
         
         # sometimes the file name matches the format but it is not neccessarly
         # an asset file if the type is None
@@ -222,8 +222,8 @@ class Asset(object):
             return
         
         try:
-            self._rev = self._parentSequence.convertToRevNumber( self._revString )
-            self._ver = self._parentSequence.convertToVerNumber( self._verString )
+            self._rev = self._sequence.convertToRevNumber( self._revString )
+            self._ver = self._sequence.convertToVerNumber( self._verString )
         except ValueError:
             # the pattern is not compatible with the current project
             return
@@ -248,12 +248,12 @@ class Asset(object):
     
     #----------------------------------------------------------------------
     @property
-    def parentSequence(self):
+    def sequence(self):
         """returns the parent sequence
         """
         #from oyProjectManager.models import project
-        #assert(isinstance(self._parentSequence, project.Sequence ) )
-        return self._parentSequence
+        #assert(isinstance(self._sequence, project.Sequence ) )
+        return self._sequence
     
     
     
@@ -319,7 +319,7 @@ class Asset(object):
         parts = [] * 0
         parts.append( self._baseName )
         
-        if not self._parentSequence._noSubNameField:
+        if not self._sequence._noSubNameField:
             parts.append( self._subName )
         
         parts.append( self._type.name )
@@ -368,6 +368,15 @@ class Asset(object):
     
     
     #----------------------------------------------------------------------
+    @property
+    def project(self):
+        """returns the project of the asset
+        """
+        return self._project
+    
+    
+    
+    #----------------------------------------------------------------------
     def _initPathVariables(self):
         """sets path variables
         needs the info variables to be set before
@@ -375,7 +384,7 @@ class Asset(object):
         
         # if it has just the base info update some of the variables
         if self._hasBaseInfo:
-            seqFullPath = self._parentSequence.fullPath
+            seqFullPath = self._sequence.fullPath
             
             typeFolder = self._type.path
             #try:
@@ -389,8 +398,8 @@ class Asset(object):
                 #print "revString".ljust( justCnt ), ": ", self._revString
                 #print "verString".ljust( justCnt ), ": ", self._verString
                 #print "userInitials".ljust( justCnt ), ": ", self._userInitials
-                #print "parent sequence".ljust( justCnt ), ": ", self._parentSequence.name
-                #print "parent project".ljust( justCnt ), ": ", self._parentProject.name
+                #print "parent sequence".ljust( justCnt ), ": ", self._sequence.name
+                #print "parent project".ljust( justCnt ), ": ", self._project.name
                 #raise
             
             self._path = os.path.join( seqFullPath, typeFolder)
@@ -419,8 +428,8 @@ class Asset(object):
         # file system to get other versions
         
         #import project
-        sProj = self._parentProject
-        sSeq = self._parentSequence
+        sProj = self._project
+        sSeq = self._sequence
         #assert(isinstance(selfseq,project.Sequence))
         
         assetVersionNames = self.allVersionNames
@@ -441,7 +450,7 @@ class Asset(object):
         if not self._baseExists and not self._hasBaseInfo:
             return []
         
-        sSeq = self._parentSequence
+        sSeq = self._sequence
         
         sSeqFAN = sSeq.filterAssetNames
         sSeqGAAFNFT = sSeq.getAllAssetFileNamesForType
@@ -450,7 +459,7 @@ class Asset(object):
         baseName = self._baseName
         subName = self._subName
         
-        if not self._parentSequence._noSubNameField:
+        if not self._sequence._noSubNameField:
             return sorted([ assetFileName for assetFileName in sSeqFAN( sSeqGAAFNFT( typeName ), baseName=baseName, subName=subName ) ])
         else:
             return sorted([ assetFileName for assetFileName in sSeqFAN( sSeqGAAFNFT( typeName ), baseName=baseName ) ] )
@@ -463,7 +472,7 @@ class Asset(object):
         BaseName_SubName_TypeName
         """
         
-        if not self._parentSequence._noSubNameField:
+        if not self._sequence._noSubNameField:
             if self._baseName == None or self._subName == None or self._typeName == None:
                 return None
             
@@ -483,8 +492,8 @@ class Asset(object):
         """returns the parent sequence full path
         """
         #from oyProjectManager.models import project
-        #assert(isinstance(self._parentSequence, project.Sequence))
-        return self._parentSequence.fullPath
+        #assert(isinstance(self._sequence, project.Sequence))
+        return self._sequence.fullPath
     
     
     
@@ -495,8 +504,8 @@ class Asset(object):
         #beware that it is the project path not the sequence path
         #"""
         #from oyProjectManager.models import project
-        #assert(isinstance(self._parentProject, project.Project))
-        #return self._parentProject.fullPath
+        #assert(isinstance(self._project, project.Project))
+        #return self._project.fullPath
     
     
     
@@ -548,7 +557,7 @@ class Asset(object):
         
         # return the last one as an asset
         if len(allVersionNames) > 0:
-            assetObj = Asset( self._parentProject, self._parentSequence, allVersionNames[-1] )
+            assetObj = Asset( self._project, self._sequence, allVersionNames[-1] )
         else:
             return None, None
         
@@ -603,7 +612,7 @@ class Asset(object):
         allVersionNames = self.allVersionNames
         
         # return the last one as an asset
-        assetObj = Asset( self._parentProject, self._parentSequence, allVersionNames[-1] )
+        assetObj = Asset( self._project, self._sequence, allVersionNames[-1] )
         
         return assetObj, assetObj.revisionNumber
     
@@ -689,7 +698,7 @@ class Asset(object):
         
         latestAsset, latestVersionNumber = self.latestVersion2
         self._ver = latestVersionNumber + 1
-        self._verString = self._parentSequence.convertToVerString( self._ver )
+        self._verString = self._sequence.convertToVerString( self._ver )
         self._initPathVariables()
     
     
@@ -701,7 +710,7 @@ class Asset(object):
         
         latestAsset, latestRevisionNumber = self.latestRevision2
         self._rev = latestRevisionNumber
-        self._revString = self._parentSequence.convertToRevString( self._rev )
+        self._revString = self._sequence.convertToRevString( self._rev )
         self._initPathVariables()
     
     
@@ -711,7 +720,7 @@ class Asset(object):
         """increases the version by 1
         """
         self._ver += 1
-        self._verString = self._parentSequence.convertToVerString( self._ver )
+        self._verString = self._sequence.convertToVerString( self._ver )
         self._initPathVariables()
     
     
@@ -721,7 +730,7 @@ class Asset(object):
         """increases the revision by 1
         """
         self._rev += 1
-        self._revString = self._parentSequence.convertToRevString( self._rev )
+        self._revString = self._sequence.convertToRevString( self._rev )
         self._initPathVariables()
     
     
@@ -747,7 +756,7 @@ class Asset(object):
         # and the parent folder for the asset starts with assets baseName
         # then it is considered as a valid asset
         
-        if not self._parentSequence._noSubNameField:
+        if not self._sequence._noSubNameField:
             # check the fileName
             validFileName = bool(
                 self._baseName != '' and self._baseName is not None and
@@ -779,7 +788,7 @@ class Asset(object):
         if self._revString == None or self._revString =='':
             return False
         
-        revPrefix = self._parentSequence._revPrefix
+        revPrefix = self._sequence._revPrefix
         
         matchObj = re.match( revPrefix+'[0-9]+', self._revString )
         
@@ -797,7 +806,7 @@ class Asset(object):
         if self._verString == None or self._verString == '':
             return False
         
-        verPrefix = self._parentSequence._verPrefix
+        verPrefix = self._sequence._verPrefix
         
         matchObj = re.match( verPrefix+'[0-9]+', self._verString )
         
@@ -869,7 +878,7 @@ class Asset(object):
         """
         
         if self.isShotDependent:
-            return self._parentSequence.convertToShotNumber( self._baseName )
+            return self._sequence.convertToShotNumber( self._baseName )
     
     
     
@@ -897,6 +906,14 @@ class Asset(object):
         """returns the asset type as an assetType object
         """
         return self._type
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def typeName(self):
+        """returns the asset type name
+        """
+        return self._typeName
     
     
     
@@ -1154,8 +1171,8 @@ class SuperAsset(object):
     #def __init__(self, project, sequence, typeName, baseName ): #, subName):
     def __init__(self):
         
-        self._parentProject = None
-        self._parentSequence = None
+        self._project = None
+        self._sequence = None
         
         self._baseName = ''
         self._subName = ''
@@ -1177,7 +1194,7 @@ class SuperAsset(object):
         #""" finds all the asset versions of the super asset
         #"""
         #import models.project as project
-        #assert( isinstance(self._parentSequence, project.Sequence) )
+        #assert( isinstance(self._sequence, project.Sequence) )
         
         ## search the path for the baseName + subName
         

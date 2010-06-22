@@ -10,7 +10,7 @@ from oyProjectManager.ui import assetUpdater, singletonQApplication
 
 
 
-__version__ = "10.6.6"
+__version__ = "10.6.22"
 
 
 
@@ -105,86 +105,195 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """
         
         # connect SIGNALs
-        # SAVE Asset
-        QtCore.QObject.connect(self.save_button, QtCore.SIGNAL("clicked()"), self.saveAsset )
-        QtCore.QObject.connect(self.export_button, QtCore.SIGNAL("clicked()"), self.exportAsset )
-        QtCore.QObject.connect(self.open_button, QtCore.SIGNAL("clicked()"), self.openAsset )
-        QtCore.QObject.connect(self.reference_button, QtCore.SIGNAL("clicked()"), self.referenceAsset )
-        QtCore.QObject.connect(self.import_button, QtCore.SIGNAL("clicked()"), self.importAsset )
+        # SAVE
+        QtCore.QObject.connect( self.save_button,
+                                QtCore.SIGNAL("clicked()"),
+                                self.saveAsset )
+        
+        # EXPORT
+        QtCore.QObject.connect( self.export_button,
+                                QtCore.SIGNAL("clicked()"),
+                                self.exportAsset )
+        
+        # OPEN
+        QtCore.QObject.connect( self.open_button,
+                                QtCore.SIGNAL("clicked()"),
+                                self.openAsset )
+        # add double clicking to assetList too
+        QtCore.QObject.connect( self.assets_tableWidget1,
+                                QtCore.SIGNAL("cellDoubleClicked(int,int)"),
+                                self.openAsset )
+        
+        # REFERENCE
+        QtCore.QObject.connect( self.reference_button,
+                                QtCore.SIGNAL("clicked()"),
+                                self.referenceAsset )
+        
+        # IMPORT
+        QtCore.QObject.connect( self.import_button,
+                                QtCore.SIGNAL("clicked()"),
+                                self.importAsset )
         
         # validate input texts
-        #QtCore.QObject.connect(self.note_lineEdit1, QtCore.SIGNAL("textChanged(QString)"), self.validateNotes )
+        #QtCore.QObject.connect( self.note_lineEdit1,
+                                #QtCore.SIGNAL("textChanged(QString)"),
+                                #self.validateNotes )
         
         # close button
-        QtCore.QObject.connect(self.close_button, QtCore.SIGNAL("clicked()"), self.close )
+        QtCore.QObject.connect( self.close_button,
+                                QtCore.SIGNAL("clicked()"),
+                                self.close )
         
         # project change ---> update sequence
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self._updateProjectObject )
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSequenceList)
+        QtCore.QObject.connect( self.project_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self._updateProjectObject )
+        
+        QtCore.QObject.connect( self.project_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateSequenceList )
         
         # sequence change ---> update noSubNameField
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self._updateSequenceObject )
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateForNoSubName)
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self._updateSequenceObject )
+        
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateForNoSubName )
         
         # sequence change ---> update asset type
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateAssetTypeList)
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateAssetTypeList )
         
         # sequence change ---> update shot lists
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotList )
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateShotList )
         
         # type change ---> base and shot enable disable
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotDependentFields )
+        QtCore.QObject.connect( self.assetType_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateShotDependentFields )
         
         # type change ---> fill baseName comboBox and update subName
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateBaseNameField )
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
+        QtCore.QObject.connect( self.assetType_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateBaseNameField )
+        
+        QtCore.QObject.connect( self.assetType_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateSubNameField )
         
         # shotName change ---> update frame ranges
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateShotDataFields )
+        QtCore.QObject.connect( self.shot_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateShotDataFields )
         
         # shotName or baseName change ---> fill subName comboBox
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSubNameField )
-        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateSubNameField )
+        QtCore.QObject.connect( self.shot_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateSubNameField )
+        
+        QtCore.QObject.connect( self.baseName_lineEdit,
+                                QtCore.SIGNAL("textChanged(QString)"),
+                                self.updateSubNameField )
         
         # subName change ---> full update assets_tableWidget1
-        QtCore.QObject.connect(self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.fullUpdateAssetsTableWidget )
+        QtCore.QObject.connect( self.project_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.fullUpdateAssetsTableWidget )
         
-        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.fullUpdateAssetsTableWidget )
-        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.fullUpdateAssetsTableWidget )
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.fullUpdateAssetsTableWidget )
+        
+        QtCore.QObject.connect( self.assetType_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.fullUpdateAssetsTableWidget )
+        
+        QtCore.QObject.connect( self.shot_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.fullUpdateAssetsTableWidget )
+        
+        QtCore.QObject.connect( self.baseName_lineEdit,
+                                QtCore.SIGNAL("textChanged(QString)"),
+                                self.fullUpdateAssetsTableWidget )
+        
+        QtCore.QObject.connect( self.subName_lineEdit,
+                                QtCore.SIGNAL("textChanged(QString)"),
+                                self.fullUpdateAssetsTableWidget )
         
         # get latest revision --> revision
-        QtCore.QObject.connect(self.revision_pushButton, QtCore.SIGNAL("clicked()"), self.updateRevisionToLatest )
+        QtCore.QObject.connect( self.revision_pushButton,
+                                QtCore.SIGNAL("clicked()"),
+                                self.updateRevisionToLatest )
         
         # get latest version --> version
-        QtCore.QObject.connect(self.version_pushButton, QtCore.SIGNAL("clicked()"), self.updateVersionToLatest )
+        QtCore.QObject.connect( self.version_pushButton,
+                                QtCore.SIGNAL("clicked()"),
+                                self.updateVersionToLatest )
         
         # sequence, type, shotName, baseName or subName change --> revision + version
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.sequence_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateRevisionToLatest )
         
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.assetType_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
+        QtCore.QObject.connect( self.sequence_comboBox,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateVersionToLatest )
         
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.shot_comboBox1, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateVersionToLatest )
+        QtCore.QObject.connect( self.assetType_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateRevisionToLatest )
         
-        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateVersionToLatest )
+        QtCore.QObject.connect( self.assetType_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateVersionToLatest )
         
-        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateRevisionToLatest )
-        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.updateVersionToLatest )
+        QtCore.QObject.connect( self.shot_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateRevisionToLatest )
+        
+        QtCore.QObject.connect( self.shot_comboBox1,
+                                QtCore.SIGNAL("currentIndexChanged(int)"),
+                                self.updateVersionToLatest )
+        
+        QtCore.QObject.connect( self.baseName_lineEdit,
+                                QtCore.SIGNAL("textChanged(QString)"),
+                                self.updateRevisionToLatest )
+        
+        QtCore.QObject.connect( self.baseName_lineEdit,
+                                QtCore.SIGNAL("textChanged(QString)"),
+                                self.updateVersionToLatest )
+        
+        QtCore.QObject.connect( self.subName_lineEdit,
+                                QtCore.SIGNAL("textChanged(QString)"),
+                                self.updateRevisionToLatest )
+        
+        QtCore.QObject.connect( self.subName_lineEdit,
+                                QtCore.SIGNAL("textChanged(QString)"),
+                                self.updateVersionToLatest )
         
         # showLastNEntry_checkbox or numberOfEntry change -> partial update assets_tableWidget1
-        QtCore.QObject.connect(self.showLastNEntry_checkBox, QtCore.SIGNAL("stateChanged(int)"), self.partialUpdateAssetsTableWidget )
-        QtCore.QObject.connect(self.numberOfEntry_spinBox, QtCore.SIGNAL("valueChanged(int)"), self.partialUpdateAssetsTableWidget )
+        QtCore.QObject.connect( self.showLastNEntry_checkBox,
+                                QtCore.SIGNAL("stateChanged(int)"),
+                                self.partialUpdateAssetsTableWidget )
+        
+        QtCore.QObject.connect( self.numberOfEntry_spinBox,
+                                QtCore.SIGNAL("valueChanged(int)"),
+                                self.partialUpdateAssetsTableWidget )
         
         # baseName_listWidget -> baseName_lineEdit
         # subName_listWidget -> subName_lineEdit
-        QtCore.QObject.connect( self.baseName_listWidget, QtCore.SIGNAL("currentTextChanged(QString)"), self.updateBaseNameLineEdit )
-        QtCore.QObject.connect( self.subName_listWidget, QtCore.SIGNAL("currentTextChanged(QString)"), self.updateSubNameLineEdit )
+        QtCore.QObject.connect( self.baseName_listWidget,
+                                QtCore.SIGNAL("currentTextChanged(QString)"),
+                                self.updateBaseNameLineEdit )
+        
+        QtCore.QObject.connect( self.subName_listWidget,
+                                QtCore.SIGNAL("currentTextChanged(QString)"),
+                                self.updateSubNameLineEdit )
         
         
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -200,8 +309,13 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         #QtCore.QObject.connect(self.baseName_listWidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"), self.addNewListItem )
         
         # attach validators
-        QtCore.QObject.connect(self.baseName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.validateBaseName )
-        QtCore.QObject.connect(self.subName_lineEdit, QtCore.SIGNAL("textChanged(QString)"), self.validateSubName )
+        QtCore.QObject.connect( self.baseName_lineEdit,
+                                QtCore.SIGNAL("textChanged(QString)"),
+                                self.validateBaseName )
+        
+        QtCore.QObject.connect( self.subName_lineEdit,
+                                QtCore.SIGNAL("textChanged(QString)"),
+                                self.validateSubName )
     
     
     
@@ -1521,7 +1635,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         envStart, envEnd = self._environment.getFrameRange()
         
         # get the frame range from the sequence settings
-        seq = self._asset.parentSequence
+        seq = self._asset.sequence
         #assert(isinstance(seq, project.Sequence))
         shot = seq.getShot( self._asset.shotNumber )
         
@@ -1556,7 +1670,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         timeUnit = self._environment.getTimeUnit()
         
         # get the timeUnit of the sequence
-        seq = self._asset.parentSequence
+        seq = self._asset.sequence
         
         assert(isinstance(seq, project.Sequence))
         

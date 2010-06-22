@@ -352,9 +352,9 @@ If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc.
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="grabAsset_pushButton">
+       <widget class="QPushButton" name="removeReplacement_pushButton">
         <property name="text">
-         <string>Grab Asset</string>
+         <string>Remove Replacement</string>
         </property>
        </widget>
       </item>
