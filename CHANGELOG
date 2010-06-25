@@ -4,6 +4,13 @@ v10.6.25
 - mayaEnv: playblasts are now saved in the correct directory without opening
   the playblast settings window
 
+v10.6.23
+- project:
+  - changed the creation of the project object, now it doesn't need a project
+    name to be specified, but checks if it has a name before creating it self
+  - changed the behaviour of exists property
+  - changed the project structure a little bit
+
 v10.6.22
 - mayaEnv: fixed asset replacement by changing to a new algorithm, which is now
   working in the way it should be

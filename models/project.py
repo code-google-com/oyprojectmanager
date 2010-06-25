@@ -6,7 +6,7 @@ from oyProjectManager.models import asset, user, repository
 
 
 
-__version__ = "10.6.16"
+__version__ = "10.6.23"
 
 
 
@@ -21,29 +21,37 @@ class Project(object):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, projectName):#, repositoryObj = None):
+    def __init__(self, projectName=None):
         
-        #if repositoryObj == None:
         self._repository = repository.Repository()
-        #else:
-            #self._repository = repositoryObj
         
-        self._name = oyAux.stringConditioner( projectName, False, True, False, True, True, False )
+        self._name = None
         self._path = ''
         self._fullPath = ''
         
-        self._initPathVariables()
+        if projectName is not None:
+            self.name = oyAux.stringConditioner( projectName, False, True, False, True, True, False )
         
         self._sequenceList = []
         
-        self._exists = self.exists
+        self._exists = None
+    
+    
+    
+    #----------------------------------------------------------------------
+    def __str__(self):
+        """the string representation of the project
+        """
+        return self.name
     
     
     
     #----------------------------------------------------------------------
     def _initPathVariables(self):
+        
         self._path = self._repository.projectsFullPath
-        self._fullPath = os.path.join( self._path, self._name)
+        if self._name != '' or self._name is not None:
+            self._fullPath = os.path.join( self._path, self._name)
     
     
     
@@ -51,9 +59,12 @@ class Project(object):
     def create(self):
         """creates the project
         """
+        # check if the project object has a name
+        if self._name is None:
+            raise RuntimeError('please give a name to the project')
+        
         # check if the folder allready exists
-        oyAux.createFolder( self._fullPath )
-        self._exists = self.exists
+        self._exists = not oyAux.createFolder( self._fullPath )
     
     
     
@@ -128,11 +139,20 @@ class Project(object):
     
     
     #----------------------------------------------------------------------
-    @property
-    def name(self):
-        """returnns the name
+    def name():
+        """the name property
         """
-        return self._name
+        
+        def fget(self):
+            return self._name
+        
+        def fset(self, name):
+            self._name = name
+            self._initPathVariables()
+        
+        return locals()
+    
+    name = property( **name() )
     
     
     
@@ -157,16 +177,10 @@ class Project(object):
     def exists(self):
         """returns True if the project folder exists
         """
-        return os.path.exists( self._fullPath )
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def setProject(self, projectName):
-        #"""renews the object to a new project
-        #"""
+        if self._exists is None:
+            self._exists = os.path.exists( self._fullPath )
         
-        #self = Project( projectName )
+        return self._exists
 
 
 

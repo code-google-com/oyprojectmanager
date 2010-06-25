@@ -236,7 +236,6 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
             
             
             # append the reference object to the assetsToReplaceList
-            #self._assetsToReplaceList.append( [refData[1], False, None] )
             self._assetsToReplaceList.append( [refData, False, None] )
         
         # resize the columns
