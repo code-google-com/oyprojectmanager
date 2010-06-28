@@ -1,12 +1,13 @@
 import os
 from pymel import versions
 from pymel import core as pm
+import maya.cmds as mc
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.6.25"
+__version__ = "10.6.28"
 
 
 
@@ -546,47 +547,83 @@ class MayaEnvironment(abstractClasses.Environment):
         the sourceAsset may should be in maya reference node
         """
         
-        subRefs = []
-        sourceEdits = []
-        prevNS = ''
-        newNS = ''
-        
         # get the reference node
         baseRefNode = sourceRef.refNode
         
         # get the base namespace before replacing the reference
-        prevNS = self.getFullnamespaceFromNodeName( sourceRef.nodes()[0] )
+        prevNS = self.getFullNamespaceFromNodeName( sourceRef.nodes()[0] )
         
-        # replace the reference
-        sourceRef.replaceWith( targetFile )
-        
-        # try to find the new namespace
-        subReferences = sourceRef.subReferences()
-        for subRefData in subReferences.iteritems():
-            refNode = subRefData[1]
-            newNS = self.getFullnamespaceFromNodeName( refNode.nodes()[0] )
-        
-        # if the new namespace is different than the previous one
-        # also change the edit targets
-        if prevNS != newNS:
-            # debug
-            #print "prevNS", prevNS
-            #print "newNS ", newNS
+        # if the sourceRef has referenced files do a dirty edit
+        # by applying all the edits to the referenced node (the old way of
+        # replacing references )
+        subReferences = self.getAllSubReferences( sourceRef )
+        if len(subReferences) > 0:
+            # for all subReferences get the editString and apply it to the
+            # replaced file with new namespace
+            allEdits = []
+            for subRef in subReferences:
+                allEdits += subRef.getReferenceEdits( orn= baseRefNode )
             
-            # get the new sub references
-            for subRef in self.getAllSubReferences( sourceRef ):
+            # replace the reference
+            sourceRef.replaceWith( targetFile )
+            
+            # try to find the new namespace
+            subReferences = self.getAllSubReferences( sourceRef )
+            newNS = self.getFullNamespaceFromNodeName( subReferences[0].nodes()[0] ) # possible bug here, fix it later
+            
+            # replace the old namespace with the new namespace in all the edits
+            allEdits = [ edit.replace( prevNS+":", newNS+":") for edit in allEdits ] 
+            
+            # apply all the edits
+            for edit in allEdits:
+                try:
+                    pm.mel.eval( edit )
+                except pm.MelError:
+                    pass
+            
+        else:
+            
+            # replace the reference
+            sourceRef.replaceWith( targetFile )
+            
+            # try to find the new namespace
+            subReferences = self.getAllSubReferences( sourceRef )
+            newNS = self.getFullNamespaceFromNodeName( subReferences[0].nodes()[0] ) # possible bug here, fix it later
+            
+            
+            #subReferences = sourceRef.subReferences()
+            #for subRefData in subReferences.iteritems():
+                #refNode = subRefData[1]
+                #newNS = self.getFullNamespaceFromNodeName( refNode.nodes()[0] )
+            
+            # if the new namespace is different than the previous one
+            # also change the edit targets
+            if prevNS != newNS:
+                # debug
+                print "prevNS", prevNS
+                print "newNS ", newNS
                 
-                # for all the nodes in sub references
-                # change the edit targets with new namespace
-                for node in subRef.nodes():
-                    # use the long name -- suggested by maya help
-                    nodeNewName = node.longName()
-                    nodeOldName = nodeNewName.replace( newNS+':', prevNS+':')
+                # get the new sub references
+                for subRef in self.getAllSubReferences( sourceRef ):
+                    # for all the nodes in sub references
+                    # change the edit targets with new namespace
+                    for node in subRef.nodes():
+                        # use the long name -- suggested by maya help
+                        nodeNewName = node.longName()
+                        nodeOldName = nodeNewName.replace( newNS+':', prevNS+':')
+                        
+                        pm.referenceEdit( baseRefNode, changeEditTarget=( nodeOldName, nodeNewName) )
+                        #pm.referenceEdit( baseRefNode, orn=baseRefNode, changeEditTarget=( nodeOldName, nodeNewName) )
+                        #pm.referenceEdit( subRef, orn=baseRefNode, changeEditTarget=( nodeOldName, nodeNewName ) )
+                        #for aRefNode in pm.ls(type='reference'):
+                            #if len(aRefNode.attr('sharedReference').listConnections(s=0,d=1)) == 0: # not a shared reference
+                                #pm.referenceEdit( aRefNode, orn=baseRefNode, changeEditTarget=( nodeOldName, nodeNewName), scs=1, fld=1 )
+                                ##pm.referenceEdit( aRefNode, applyFailedEdits=True )
+                    #pm.referenceEdit( subRef, applyFailedEdits=True )
                     
-                    pm.referenceEdit( baseRefNode, changeEditTarget=( nodeOldName, nodeNewName) )
-            
-            # apply all the failed edits again
-            pm.referenceEdit( baseRefNode, applyFailedEdits=True )
+                    
+                # apply all the failed edits again
+                pm.referenceEdit( baseRefNode, applyFailedEdits=True )
     
     
     
@@ -612,7 +649,7 @@ class MayaEnvironment(abstractClasses.Environment):
     
     
     #----------------------------------------------------------------------
-    def getFullnamespaceFromNodeName(self, node):
+    def getFullNamespaceFromNodeName(self, node):
         """dirty way of getting the namespace from node name
         """
         

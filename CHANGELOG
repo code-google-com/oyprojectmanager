@@ -1,5 +1,11 @@
 Version History :
 -----------------
+v10.6.28
+- mayaEnv: did a dirty edit to fix the replacing the referenced reference edits
+  problem. I do not have any other solution for now than just applying the MEL
+  commands from the edits (which causes other problems if the referenced
+  reference file has parenting commands)
+
 v10.6.25
 - mayaEnv: playblasts are now saved in the correct directory without opening
   the playblast settings window
