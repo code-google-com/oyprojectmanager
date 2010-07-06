@@ -19,7 +19,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.4.29"
+__version__ = "10.7.6"
 
 
 
@@ -266,7 +266,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         repo = repository.Repository()
         timeUnits = repo.timeUnits
         
-        currentFps = hou.fps()
+        currentFps = str(hou.fps())
         
         timeUnit = 'pal'
         

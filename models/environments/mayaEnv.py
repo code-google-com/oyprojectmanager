@@ -557,6 +557,8 @@ class MayaEnvironment(abstractClasses.Environment):
         # by applying all the edits to the referenced node (the old way of
         # replacing references )
         subReferences = self.getAllSubReferences( sourceRef )
+        print "subReferences count:",len(subReferences)
+        
         if len(subReferences) > 0:
             # for all subReferences get the editString and apply it to the
             # replaced file with new namespace
