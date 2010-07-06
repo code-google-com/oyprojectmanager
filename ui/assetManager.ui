@@ -945,6 +945,37 @@ Just quits the application without doing anything</string>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>server_comboBox</tabstop>
+  <tabstop>project_comboBox</tabstop>
+  <tabstop>sequence_comboBox</tabstop>
+  <tabstop>assetType_comboBox1</tabstop>
+  <tabstop>shot_comboBox1</tabstop>
+  <tabstop>baseName_listWidget</tabstop>
+  <tabstop>baseName_lineEdit</tabstop>
+  <tabstop>subName_listWidget</tabstop>
+  <tabstop>subName_lineEdit</tabstop>
+  <tabstop>revision_spinBox</tabstop>
+  <tabstop>revision_pushButton</tabstop>
+  <tabstop>version_spinBox</tabstop>
+  <tabstop>version_pushButton</tabstop>
+  <tabstop>user_comboBox1</tabstop>
+  <tabstop>note_lineEdit1</tabstop>
+  <tabstop>formats_comboBox</tabstop>
+  <tabstop>save_button</tabstop>
+  <tabstop>export_button</tabstop>
+  <tabstop>startFrame_spinBox</tabstop>
+  <tabstop>endFrame_spinBox</tabstop>
+  <tabstop>shotDescription_textEdit</tabstop>
+  <tabstop>showLastNEntry_checkBox</tabstop>
+  <tabstop>numberOfEntry_spinBox</tabstop>
+  <tabstop>assets_tableWidget1</tabstop>
+  <tabstop>loadSettings_comboBox</tabstop>
+  <tabstop>open_button</tabstop>
+  <tabstop>reference_button</tabstop>
+  <tabstop>import_button</tabstop>
+  <tabstop>close_button</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

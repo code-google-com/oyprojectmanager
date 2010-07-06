@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui'
 #
-# Created: Thu Jun  3 09:26:08 2010
+# Created: Tue Jun 29 16:22:37 2010
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -423,6 +423,34 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
+        Dialog.setTabOrder(self.server_comboBox, self.project_comboBox)
+        Dialog.setTabOrder(self.project_comboBox, self.sequence_comboBox)
+        Dialog.setTabOrder(self.sequence_comboBox, self.assetType_comboBox1)
+        Dialog.setTabOrder(self.assetType_comboBox1, self.shot_comboBox1)
+        Dialog.setTabOrder(self.shot_comboBox1, self.baseName_listWidget)
+        Dialog.setTabOrder(self.baseName_listWidget, self.baseName_lineEdit)
+        Dialog.setTabOrder(self.baseName_lineEdit, self.subName_listWidget)
+        Dialog.setTabOrder(self.subName_listWidget, self.subName_lineEdit)
+        Dialog.setTabOrder(self.subName_lineEdit, self.revision_spinBox)
+        Dialog.setTabOrder(self.revision_spinBox, self.revision_pushButton)
+        Dialog.setTabOrder(self.revision_pushButton, self.version_spinBox)
+        Dialog.setTabOrder(self.version_spinBox, self.version_pushButton)
+        Dialog.setTabOrder(self.version_pushButton, self.user_comboBox1)
+        Dialog.setTabOrder(self.user_comboBox1, self.note_lineEdit1)
+        Dialog.setTabOrder(self.note_lineEdit1, self.formats_comboBox)
+        Dialog.setTabOrder(self.formats_comboBox, self.save_button)
+        Dialog.setTabOrder(self.save_button, self.export_button)
+        Dialog.setTabOrder(self.export_button, self.startFrame_spinBox)
+        Dialog.setTabOrder(self.startFrame_spinBox, self.endFrame_spinBox)
+        Dialog.setTabOrder(self.endFrame_spinBox, self.shotDescription_textEdit)
+        Dialog.setTabOrder(self.shotDescription_textEdit, self.showLastNEntry_checkBox)
+        Dialog.setTabOrder(self.showLastNEntry_checkBox, self.numberOfEntry_spinBox)
+        Dialog.setTabOrder(self.numberOfEntry_spinBox, self.assets_tableWidget1)
+        Dialog.setTabOrder(self.assets_tableWidget1, self.loadSettings_comboBox)
+        Dialog.setTabOrder(self.loadSettings_comboBox, self.open_button)
+        Dialog.setTabOrder(self.open_button, self.reference_button)
+        Dialog.setTabOrder(self.reference_button, self.import_button)
+        Dialog.setTabOrder(self.import_button, self.close_button)
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Asset Manager", None, QtGui.QApplication.UnicodeUTF8))

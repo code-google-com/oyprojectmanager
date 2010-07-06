@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 oyProjectManager by Erkan Ozgur Yilmaz (c) 2009-2010
 
