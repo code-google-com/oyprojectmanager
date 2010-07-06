@@ -266,7 +266,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         repo = repository.Repository()
         timeUnits = repo.timeUnits
         
-        currentFps = str(hou.fps())
+        currentFps = str(int(hou.fps()))
         
         timeUnit = 'pal'
         
