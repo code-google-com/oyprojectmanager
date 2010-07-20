@@ -19,7 +19,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.7.6"
+__version__ = "10.7.20"
 
 
 
@@ -47,6 +47,9 @@ class HoudiniEnvironment(abstractClasses.Environment):
         
         fullPath = self._asset.fullPath
         fullPath = fullPath.replace('\\','/')
+        
+        # set the render file name
+        self.setRenderFileName()
         
         # houdini accepts only strings as file name, no unicode support as I see
         hou.hipFile.save( file_name = str(fullPath) )
@@ -158,30 +161,6 @@ class HoudiniEnvironment(abstractClasses.Environment):
                         path = testAsset.path
                         foundValidAsset = True
                         break
-            
-    ##        # get the workspace path
-    ##        workspacePath = os.getenv('JOB')
-    ##        returnWorkspace = False
-    ##        
-    ##        workspaceIsValid = False
-    ##        
-    ##        if workspacePath != '' and workspacePath != None:
-    ##            workspaceIsValid = True
-    ##        
-    ##        if foundValidAsset:
-    ##            #print "found a valid asset with path", path
-    ##            
-    ##            # check if teh recent files path matches the current workspace
-    ##            if not path.startswith( workspacePath ) and workspaceIsValid:
-    ##                # use the workspacePath
-    ##                returnWorkspace = True
-    ##        else:
-    ##            # just get the path from workspace and return an empty fileName
-    ##            returnWorkspace = True
-    ##        
-    ##        if returnWorkspace and workspaceIsValid:
-    ##            fileName = None
-    ##            path = workspacePath
         
         return fileName, path
     
@@ -247,14 +226,23 @@ class HoudiniEnvironment(abstractClasses.Environment):
         # --------------------------------------------
         # Set the render nodes frame ranges if any
         # get the out nodes
+        outNodes = self.getOutputNodes()
+        
+        for outNode in outNodes:
+            outNode.setParms( {'trange':1,'f1':startFrame,'f2':endFrame,'f3':1})
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getOutputNodes(self):
+        """returns the rop nodes in the scene
+        """
         ropContext = hou.node('/out')
         
         # get the children
         outNodes = ropContext.children()
         
-        if len(outNodes):
-            for outNode in outNodes:
-                outNode.setParms( {'trange':1,'f1':startFrame,'f2':endFrame,'f3':1})
+        return outNodes
     
     
     
@@ -276,6 +264,33 @@ class HoudiniEnvironment(abstractClasses.Environment):
                 break
         
         return timeUnit
+    
+    
+    
+    #----------------------------------------------------------------------
+    def setRenderFileName(self):
+        """sets the render file name
+        """
+        # M:/JOBs/PRENSESIN_UYKUSU/SC_008/_RENDERED_IMAGES_/_SHOTS_/SH008/MasalKusu/`$OS`/SH008_MasalKusu_`$OS`_v006_oy.$F4.exr
+        
+        seq = self._asset.sequence
+        renderOutputFolder = seq.fullPath + '/' +seq.structure.getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS
+        assetBaseName = self._asset.baseName
+        assetSubName = self._asset.subName
+        versionString = self._asset.versionString
+        userInitials = self._asset.userInitials
+        outputFileName = renderOutputFolder + "/" + assetBaseName + "/" + \
+                       assetSubName + "/`$OS`/" + assetBaseName + "_" + \
+                       assetSubName + "_`$OS`_" + versionString + "_" + \
+                       userInitials + ".$F4.exr"
+        outputFileName = outputFileName.replace('\\','/')
+        
+        outputNodes = self.getOutputNodes()
+        for outputNode in outputNodes:
+            # get only the ifd nodes for now
+            if outputNode.type().name() == 'ifd':
+                # set the file name
+                outputNode.setParms({'vm_picture': str(outputFileName)})
     
     
     

@@ -1,9 +1,5 @@
 TODO List :
 -----------
-- create a ticket system ( probably wiht Django )
-
-- add take support
-
 - exports to formats other than the native format of the environment should be
   placed under a folder, lets say a folder named "_exports_" under the asset
   folder
@@ -32,14 +28,11 @@ TODO List :
   automatically check and update references inside other references
   (deep reference update)
 
-- for houdini set the render output picture path and name if there is an output
-  node, if there is no output node, by default create one
-
 - store recent files list in repository do not trust to the applications recent
   files
 
 - convert the system to a full featured Production Asset Management System by
-  using Django as the database framework
+  using SQLAlchemy/Elixir as the database framework and ORM
 
 - add a user login window
 
@@ -80,6 +73,11 @@ TODO List :
 
 FIXED & DONE :
 --------------
++ for houdini set the render output picture path and name if there is an output
+  node, if there is no output node, by default create one
+
++ create a ticket system ( probably wiht Django ) (done with Trac)
+
 + programs should not list the files those they can not open, for example
   houdini shouldn't list ma files, and maya should not list hip files
 

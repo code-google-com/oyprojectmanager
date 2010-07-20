@@ -186,4 +186,4 @@ without runnning the python interpreter exclusively.
 
 
 
-__version__ = "10.7.17"
+__version__ = "10.7.20"

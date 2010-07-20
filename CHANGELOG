@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.7.20
+- houdiniEnv: houdiniEnv now sets the output file names of the ifd nodes like
+  it is set in mayaEnv
+
 v10.7.17
 - mayaEnv: the fileformat for the render output is forced to be iff from now on
 - started to move the asset selection part of the interface in to a
