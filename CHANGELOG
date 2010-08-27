@@ -1,5 +1,15 @@
 Version History :
 -----------------
+v10.8.27
+- houdiniEnv: when saving the asset, if there are any ifd (output) nodes, the
+  output folders are also created in the server while setting the render image
+  file name
+
+v10.8.12
+- houdiniEnv: saving the file now doesn't change the render range to "render
+  frame range" instead it changes it to "render any frame" but sets the start
+  and end frame
+
 v10.7.20
 - houdiniEnv: houdiniEnv now sets the output file names of the ifd nodes like
   it is set in mayaEnv

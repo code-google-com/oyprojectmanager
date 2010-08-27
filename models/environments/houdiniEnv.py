@@ -19,7 +19,7 @@ import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.7.20"
+__version__ = "10.8.27"
 
 
 
@@ -229,7 +229,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         outNodes = self.getOutputNodes()
         
         for outNode in outNodes:
-            outNode.setParms( {'trange':1,'f1':startFrame,'f2':endFrame,'f3':1})
+            outNode.setParms( {'trange':0,'f1':startFrame,'f2':endFrame,'f3':1})
     
     
     
@@ -279,6 +279,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         assetSubName = self._asset.subName
         versionString = self._asset.versionString
         userInitials = self._asset.userInitials
+        
         outputFileName = renderOutputFolder + "/" + assetBaseName + "/" + \
                        assetSubName + "/`$OS`/" + assetBaseName + "_" + \
                        assetSubName + "_`$OS`_" + versionString + "_" + \
@@ -291,6 +292,11 @@ class HoudiniEnvironment(abstractClasses.Environment):
             if outputNode.type().name() == 'ifd':
                 # set the file name
                 outputNode.setParms({'vm_picture': str(outputFileName)})
+                
+                # also create the folders
+                outputFileFullPath = outputNode.evalParm( 'vm_picture' )
+                outputFilePath = os.path.dirname( outputFileFullPath )
+                oyAux.createFolder( outputFilePath )
     
     
     
