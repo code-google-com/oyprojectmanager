@@ -260,9 +260,14 @@ class MayaEnvironment(abstractClasses.Environment):
             dRG.setAttr('imageFormat', 51)
             dRG.setAttr('imfkey','exr')
             
+            # if the renderer is not registered this causes a _objectError
             # and the frame buffer to 16bit half
-            miDF = pm.PyNode('miDefaultFramebuffer')
-            miDF.setAttr('datatype', 16)
+            try:
+                miDF = pm.PyNode('miDefaultFramebuffer')
+                miDF.setAttr('datatype', 16)
+            except pm._objectError:
+                # just don't do anything
+                pass
         
 
 
