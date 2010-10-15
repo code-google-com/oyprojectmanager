@@ -7,7 +7,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.7.17"
+__version__ = "10.10.15"
 
 
 
@@ -224,9 +224,6 @@ class MayaEnvironment(abstractClasses.Environment):
         """sets the render file name
         """
         
-        # check/load Mentalray
-        #if pm.pluginInfo(
-        
         parentSeq = self._asset.sequence
         
         renderOutputFolder = parentSeq.structure.getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS
@@ -256,6 +253,17 @@ class MayaEnvironment(abstractClasses.Environment):
         dRG.setAttr('extensionPadding', 3 )
         dRG.setAttr('imageFormat', 7 ) # force the format to iff
         dRG.setAttr('pff', 1)
+        
+        # check if Mentalray is loaded
+        if pm.pluginInfo('Mayatomr', q=1, l=1):
+            # set the render output to OpenEXR
+            dRG.setAttr('imageFormat', 51)
+            dRG.setAttr('imfkey','exr')
+            
+            # and the frame buffer to 16bit half
+            miDF = pm.PyNode('miDefaultFramebuffer')
+            miDF.setAttr('datatype', 16)
+        
 
 
 

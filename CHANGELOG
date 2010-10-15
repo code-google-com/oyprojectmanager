@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.10.15
+- mayaEnv: the frame buffer and output format is forced to 16-bit half float
+  OpenEXR if mentalray is selected as the renderer
+
 v10.8.27
 - houdiniEnv: when saving the asset, if there are any ifd (output) nodes, the
   output folders are also created in the server while setting the render image
