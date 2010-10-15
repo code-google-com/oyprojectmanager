@@ -265,7 +265,7 @@ class MayaEnvironment(abstractClasses.Environment):
             try:
                 miDF = pm.PyNode('miDefaultFramebuffer')
                 miDF.setAttr('datatype', 16)
-            except pm._objectError:
+            except pm.general.MayaNodeError():
                 # just don't do anything
                 pass
         
