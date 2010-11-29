@@ -1,5 +1,10 @@
 Version History :
 -----------------
+v10.11.20
+- repository: the repository settings now can be read from another folder which
+  is directed by the OYPROJECTMANAGER_PATH environment variable, also added
+  tests for this change
+
 v10.10.15
 - mayaEnv: the frame buffer and output format is forced to 16-bit half float
   OpenEXR if mentalray is selected as the renderer

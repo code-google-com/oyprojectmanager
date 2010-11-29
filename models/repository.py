@@ -1,3 +1,16 @@
+#!/usr/bin/env python
+#coding:utf-8
+# Author:  Erkan OZgur Yilmaz
+# Purpose: 
+# Created: 11/21/2010
+
+import sys
+import unittest
+
+
+
+if __name__=='__main__':
+    unittest.main()
 import os, shutil
 import oyAuxiliaryFunctions as oyAux
 from xml.dom import minidom
@@ -6,7 +19,7 @@ from oyProjectManager.models import user, abstractClasses
 
 
 
-__version__ = "10.6.16"
+__version__ = "10.11.21"
 
 
 
@@ -15,7 +28,186 @@ __version__ = "10.6.16"
 
 ########################################################################
 class Repository( abstractClasses.Singleton ):
-    """Repository class gives informations about the servers, projects, users etc.
+    """Repository class gives informations about the servers, projects, users
+    etc.
+    
+    =============
+    Settings File
+    =============
+    
+    oyProjectManager uses the OYPROJECTMANAGER_PATH environment variable to
+    track the settings, if there is no OYPROJECTMANAGER_PATH variable in your
+    current environment, the system will use the default settings, which
+    probably will not work in your studio. You can set OYPROJECTMANAGER_PATH to
+    a shared folder in your fileserver where all the users can access.
+    
+    oyProjectManager will look for these files in the OYPROJECTMANAGER_PATH:
+    
+     * defaultProjectSettings.xml
+     * environmentSettings.xml
+     * repositorySettings.xml
+     * users.xml
+    
+    You can just duplicate the XML files under the settings folder of the
+    package root to your own OYPROJECTMANAGER_PATH and modify them.
+    
+    These are the xml files that the oyProjectManager searches for:
+    * defaultProjectSettings.xml:
+      This file explains the default project settings for oyProjectManager. It
+      is an XML file with these elements.
+     
+      * sequenceData:
+        attributes:
+        * shotPrefix: default is "SH", it is the prefix to be added before the
+          shot number
+        * shotPadding: default is 3, it is the number of padding going to be
+          applied to find the string representation of the shot number. If the
+          shot number is 5 and the shotPadding is set to 3 and the shotPrefix
+          is "SH" then the final shot name will be SH005
+        * revPrefix: default is "r", it is the revision variable prefix
+        * revPadding: default is 2, it is the revision number padding, again
+          for revision 3 the default values will output a string of "r03" for
+          the revision string variable
+        * verPrefix: default is "v", it is the version variable prefix
+        * verPadding: default is 3, it is the version number padding and again
+          for default values a file version of 14 will output a string of
+          "v014" for the version string variable
+        * timeUnit: default is pal, it is the time unit for the project,
+          possible values are "pal, film, ntsc, game". This variable follows
+          the Maya's time unit format
+        
+        children elements:
+        * structure: it is the child of sequenceData. Structure element holds
+          the project structure information. Every project will be created by
+          using this project structure. There are two possible child elements:
+          
+          * shotDependent: shows the shot dependent folders. A shot dependent
+            folder will contain shot folders. For example a folder called
+            ANIMATION could be defined under shotDependent folders, then
+            oyProjectManager will automatically place folders for every shot of
+            the project. So if the project has three shots with shot numbers
+            10, 14, 21 then the structure of the ANIMATION folder will be like:
+              
+              ANIMATION\
+                SH010\
+                SH014\
+                SH021\
+            
+          * shotIndependent: shows the shot independent folder, or the rest of
+            the project structure. So any other folder which doesn't have a
+            direct relation with shots can be placed here. For example you can
+            place folders for MODELS, RIGS, OUTGOING_FILES etc.
+        
+          * outputFolders: this is the object that holds OUTPUT elements
+            
+            * output: and output element shows the output folder of one
+              spesific asset type. For example you can set the render output
+              folder by setting the output folder of the RENDER asset type to a
+              spesific folder relative to the project root. (This element
+              should be a child of asset types, it is a bad desing)
+          
+        * assetTypes: This element contains information about asset types.
+          attributes: None
+          children:
+            * type: this is an asset type
+              attributes:
+                * name: the name of the type
+                * path: the project relative path for the asset files in this
+                  type
+                * shotDependent: it is a boolean value that specifies if this
+                  asset type is shot dependent
+                * environments: this attribute lists the environment names
+                  where this asset type is valid through. It should list the
+                  environment names in a comma separated value (CSV) format
+                * playblastFolder: this is the attribute that shows the default
+                  playblast/flipbook path for this kind of assets
+        
+        * shotData: This is the element that shows the current projects shot
+          information
+          
+          children:
+            * shot: the shot it self
+              attributes:
+                * name: this is the name of the shot, it just shows the number
+                  and alternate letter part of the shot name, so for a shot
+                  named "SH001A" the name attribute is "1A"
+                * start: this is the global start frame of the shot
+                * end: this is the global end frame of the shot
+              
+              children:
+                * description: this is the text element that has the
+                  description of the current shot. You can place any amount of
+                  text inside this text element.
+    
+    * environmentSettings.xml:
+      Shows the general environment settings. An environment in
+      oyProjectManager terminology is a host application like Maya, Houdini,
+      Nuke or Photoshop.
+      
+      Structure of the XML file:
+      
+      * environments: this node holds the environment objects and doesn't have
+        any attribute
+        
+        children:
+          * environment: this is a specific environment and has these
+            attributes:
+              * name: the name of the environment. It should be all upper case
+              * extensions: the list of native file format extensions for the
+                environment. For example, for Maya it should be "ma,mb", for
+                Nuke it should be "nk", for Houdini it should be "hip" etc.
+    
+    * repositorySettings.xml: holds the fileserver and general unit information
+      structure:
+        * settings:
+          children:
+            * server: defines a file server, so you can use multiple servers in
+              your studio and oyProjectManager will be able to manage the
+              projects in different servers. (omitted for now)
+              
+              attributes:
+                * name: the name of the server
+                * serverPath: the path of the project folder in this server
+                * projectFoldersName: the project folder name in this server
+            
+            * units: holds the default units for the system
+              children:
+                * timeUnits:
+                  children:
+                    * time:
+                      attributes:
+                        * name: the name of the unit
+                        * fps: the corresponding FPS value for this unit
+                * linearUnits:
+                  children:
+                    * linear:
+                      attributes:
+                        * name: the name of the unit, like centimeters
+                        * short: the short name of the unit, like cm for
+                          centimeters
+                * angularUnits:
+                  children:
+                  * angle:
+                    attributes:
+                      * name: the name of the unit
+                      * short: the short name of the unit
+        * defaultFiles: this shows the 
+          children:
+            * file:
+              attributes:
+              * name: the name of the file with the extension
+              * projectRelativePath: the project relative path of the file
+    
+    * users.xml: this file holds the user data
+      nodes:
+        * users: holds user nodes
+        
+          children:
+          * user: a user node
+          
+            attributes:
+              * initials: the initials of the user
+              * name: the full name of the user
     """
     
     
@@ -26,8 +218,8 @@ class Repository( abstractClasses.Singleton ):
         # initialize default variables
         
         # find where am I installed
-        self._packagePath = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-        self._settingsDirPath = os.path.join( self._packagePath, 'settings' )
+        self._env_key = 'OYPROJECTMANAGER_PATH'
+        self._settingsDirPath = self.getSettingsPath()
         
         
         # Repository Settings File ( repositorySettings.xml )
@@ -45,8 +237,8 @@ class Repository( abstractClasses.Singleton ):
         
         # JOBs folder settings ( M:/, JOBs )
         self._serverPath = ''
-        self._projectsFolderName = ''
-        self._projectsFolderFullPath = ''
+        #self._projectsFolderName = ''
+        #self._projectsFolderFullPath = ''
         
         # ---------------------------------------------------
         # Last User File
@@ -120,7 +312,7 @@ class Repository( abstractClasses.Singleton ):
         # read the server settings
         # for now just assume one server
         
-        self._projectsFolderName = serverNodes[0].getAttribute('projectsFolderName')
+        #self._projectsFolderName = serverNodes[0].getAttribute('projectsFolderName')
         self.serverPath = serverNodes[0].getAttribute('serverPath')
         
         
@@ -202,11 +394,7 @@ class Repository( abstractClasses.Singleton ):
     def userNames(self):
         """returns the user names
         """
-        names = [] * 0
-        for userObj in self._users:
-            names.append( userObj.name )
-        
-        return names
+        return [ userObj.name for userObj in self._users ]
     
     
     
@@ -215,12 +403,7 @@ class Repository( abstractClasses.Singleton ):
     def userInitials(self):
         """returns the user intials
         """
-        initials = [] * 0
-        for userObj in self._users:
-            #assert(isinstance(user,User))
-            initials.append( userObj.initials )
-        
-        return sorted(initials)
+        return sorted([userObj.initials for userObj in self._users])
     
     
     
@@ -256,9 +439,11 @@ class Repository( abstractClasses.Singleton ):
         """
         
         try:
-            self._projects = oyAux.getChildFolders( self._projectsFolderFullPath )
+            #self._projects = oyAux.getChildFolders( self._projectsFolderFullPath )
+            self._projects = oyAux.getChildFolders( self._serverPath )
         except IOError:
-            print "server path doesn't exists, %s" % self._projectsFolderFullPath
+            #print "server path doesn't exists, %s" % self._projectsFolderFullPath
+            print "server path doesn't exists, %s" % self._serverPath
     
     
     
@@ -270,7 +455,9 @@ class Repository( abstractClasses.Singleton ):
         ex : M:/JOBs
         """
         
-        return self._projectsFolderFullPath
+        #return self._projectsFolderFullPath
+        return self._serverPath
+    
     
     
     #----------------------------------------------------------------------
@@ -286,10 +473,10 @@ class Repository( abstractClasses.Singleton ):
             """
             # add a trailing separator
             # in any cases os.path.join adds a trailing seperator
-            self._serverPath = os.path.join( serverPath, '' )
+            #self._serverPath = os.path.join( serverPath, '' )
+            self._serverPath = serverPath
             
-            #self._updatePathVariables()
-            self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
+            #self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
             
             self._projects = [] * 0
             
@@ -329,11 +516,12 @@ class Repository( abstractClasses.Singleton ):
     #----------------------------------------------------------------------
     @property
     def defaultFiles(self):
-        """returns the default files list as list of tuples, the first element contains
-        the file name, the second the project relative path, the third the source path
+        """returns the default files list as list of tuples, the first element
+        contains the file name, the second the project relative path, the third
+        the source path
         
-        this is the list that contains files those
-        need to be copied to every project like workspace.mel for Maya
+        this is the list that contains files those need to be copied to every
+        project like workspace.mel for Maya
         """
         
         return self._defaultFilesList
@@ -410,17 +598,19 @@ class Repository( abstractClasses.Singleton ):
         if filePath is None:
             return None, None
         
-        if not filePath.startswith( self._projectsFolderFullPath ):
+        #if not filePath.startswith( self._projectsFolderFullPath ):
+        if not filePath.startswith( self._serverPath ):
             return None, None
         
-        residual = filePath[ len(self._projectsFolderFullPath)+1 : ]
+        #residual = filePath[ len(self._projectsFolderFullPath)+1 : ]
+        residual = filePath[ len(self._serverPath)+1 : ]
         
         parts = residual.split(os.path.sep)
         
         if len(parts) > 1:
             return parts[0], parts[1]
         
-        return None, None    
+        return None, None
     
     
     
@@ -497,5 +687,23 @@ class Repository( abstractClasses.Singleton ):
     #def getRecentFile(self, environmentName):
         #"""returns the recent file from the given environment
         #"""
+    
+    
+    
+    #----------------------------------------------------------------------
+    def getSettingsPath(self):
+        """checks environment against having a variable called
+        OYPROJECTMANAGER_PATH
+        """
         
-        
+        if os.environ.has_key(self._env_key):
+            return os.environ[self._env_key]
+        else:
+            return os.path.join(
+                os.path.abspath(
+                    os.path.dirname(
+                        os.path.dirname(__file__)
+                    )
+                ),
+                'settings')
+    
