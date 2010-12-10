@@ -1,0 +1,94 @@
+<?xml version="1.0" ?>
+<root>
+	<sequenceData shotPrefix="SH" shotPadding="3" revPrefix="r" revPadding="2" verPrefix="v" verPadding="3" timeUnit="pal">
+		<structure>
+			<shotDependent>
+				_ANIMATIONS_
+				_CAMERAS_
+				_COMPOSITING_/_OUTPUT_
+				_COMPOSITING_/_SHOTS_
+				_FX_
+				_LAYOUT_
+				_ONLINE_
+				_PLAYBLASTS_/_ANIMATION_PLAYBLASTS_
+				_PLAYBLASTS_/_PREVIS_PLAYBLASTS_
+				_PREVIS_
+				_RENDERED_IMAGES_/_SHOTS_
+				_RENDER_SCENES_
+			</shotDependent>
+			<shotIndependent>
+				_COMPOSITING_
+				_EDIT_MOVIE_
+				_EDIT_MOVIE_/_EXPORT_
+				_ILLUSTRATION_
+				_ILLUSTRATION_/_CHARACTER_DESIGNS_
+				_MATTE_PAINT_
+				_MAKING_OF_
+				_MODELS_
+				_SHADING_
+				_OFFLINE_
+				_ONLINE_/wholeMovie
+				_OTHERS_
+				_OTHERS_/_assets
+				_OTHERS_/_clips
+				_OTHERS_/_data
+				_OTHERS_/_fur
+				_OTHERS_/_fur/furAttrMap
+				_OTHERS_/_fur/furEqualMap
+				_OTHERS_/_fur/furFiles
+				_OTHERS_/_fur/furImages
+				_OTHERS_/_fur/furShadowMap
+				_OTHERS_/_mel
+				_OTHERS_/_particles
+				_OUTGOING_FILES_
+				_OUTGOING_FILES_/_IMAGES_
+				_OUTGOING_FILES_/_VIDEOS_
+				_OUTGOING_FILES_/_SOUNDS_
+				_PLAYBLASTS_
+				_PLAYBLASTS_/_OTHER_PLAYBLASTS_
+				_RENDERED_IMAGES_
+				_RENDER_SCENES_/renderData
+				_RENDER_SCENES_/renderData/depth
+				_RENDER_SCENES_/renderData/iprImages
+				_RENDER_SCENES_/renderData/mentalRay
+				_RENDER_SCENES_/renderData/mentalRay/finalgMap
+				_RENDER_SCENES_/renderData/mentalRay/lightMap
+				_RENDER_SCENES_/renderData/mentalRay/photonMap
+				_RENDER_SCENES_/renderData/mentalRay/shadowMap
+				_RENDER_SCENES_/renderData/shaders
+				_RIGS_
+				_SOUND_
+				_STORYBOARD_
+				_STORYBOARD_/_ANIMATIC_STORYBOARD_
+				_TEXT_
+				_TEXT_/_SCENARIO_
+				_TEXTURES_
+				_TRACKING_
+				_VISUAL_REFERENCES_
+				_VISUAL_REFERENCES_/_ARTWORKS_
+			</shotIndependent>
+			<outputFolders>
+				<output name="COMP"   path="_COMPOSITING_/_OUTPUT_"/>
+				<output name="RENDER" path="_RENDERED_IMAGES_/_SHOTS_"/>
+			</outputFolders>
+		</structure>
+		<assetTypes>
+			<type name="ANIM"          path="_ANIMATIONS_"              shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_ANIMATION_PLAYBLASTS_"/>
+			<type name="CAMERA"        path="_CAMERAS_"                 shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="COMP"          path="_COMPOSITING_/_SHOTS_"     shotDependent="1"  environments="NUKE"          playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="LAYOUT"        path="_LAYOUT_"                  shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="MODEL"         path="_MODELS_"                  shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="OTHER"         path="_OTHERS_"                  shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="PREVIS"        path="_PREVIS_"                  shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_PREVIS_PLAYBLASTS_"/>
+			<type name="RENDER"        path="_RENDER_SCENES_"           shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="RIG"           path="_RIGS_"                    shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="TEXTURE"       path="_TEXTURES_"                shotDependent="0"  environments="PHOTOSHOP"     playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="ILLUSTRATION"  path="_ILLUSTRATION_"            shotDependent="0"  environments="PHOTOSHOP"     playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="MATTE"         path="_MATTE_PAINT_"             shotDependent="0"  environments="PHOTOSHOP"     playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="SHADING"       path="_SHADING_"                 shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+			<type name="FX"            path="_FX_"                      shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="_PLAYBLASTS_/_OTHER_PLAYBLASTS_"/>
+		</assetTypes>
+		<shotData>
+		</shotData>
+	</sequenceData>
+</root>
