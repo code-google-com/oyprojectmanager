@@ -7,7 +7,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.10.15"
+__version__ = "10.11.20"
 
 
 
@@ -242,6 +242,11 @@ class MayaEnvironment(abstractClasses.Environment):
             assetSubName = self._asset.subName
             renderFileName = shotFolder + "/" + assetBaseName + "/" + assetSubName + "/<Layer>/" + assetBaseName + "_" + assetSubName + "_<Layer>_<RenderPass>_<Version>"
         
+        if self.hasStereoCamera():
+            # just add the <Camera> template variable to the file name
+            renderFileName = renderFileName + "_<Camera>"
+        
+        
         # SHOTS/ToonShading/TestTransition/incidence/ToonShading_TestTransition_incidence_MasterPass_v050.####.iff
         
         # defaultRenderGlobals
@@ -253,9 +258,16 @@ class MayaEnvironment(abstractClasses.Environment):
         dRG.setAttr('extensionPadding', 3 )
         dRG.setAttr('imageFormat', 7 ) # force the format to iff
         dRG.setAttr('pff', 1)
+
+
+
+    #----------------------------------------------------------------------
+    def setOutputFileFormat(self):
+        """sets the output file format
+        """
         
-        # check if Mentalray is loaded
-        if pm.pluginInfo('Mayatomr', q=1, l=1):
+        # check if Mentalray is the current renderer
+        if dRG.getAttr('currentRenderer') == 'mentalRay':
             # set the render output to OpenEXR
             dRG.setAttr('imageFormat', 51)
             dRG.setAttr('imfkey','exr')
@@ -269,6 +281,14 @@ class MayaEnvironment(abstractClasses.Environment):
                 # just don't do anything
                 pass
         
+        
+        ## check all the render layers and try to get if any of them are using
+        ## mayaSoftware as the renderer, and set the render output to iff if any
+        #for renderLayer in pm.ls(type='renderLayer'):
+            ## if the renderer is set to mayaSoftware (which is very rare)
+            #if dRG.getAttr('currentRenderer') == 'mayaSoftware':
+            
+            
 
 
 
@@ -670,4 +690,14 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         return ':'.join( (node.name().split(':'))[:-1] )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def hasStereoCamera(self):
+        """checks if the scene has a stereo camera setup
+        returns True if any
+        """
+        
+        return len(pm.ls(type='stereoRigTransform')) > 0
         
