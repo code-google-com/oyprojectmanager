@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.12.20
+- mayaEnv: fixed checking the stereoCamera rig, it is now also checking if the
+  stereoCamera plugin is loaded
+
 v10.11.20
 - repository: the repository settings now can be read from another folder which
   is directed by the OYPROJECTMANAGER_PATH environment variable, also added

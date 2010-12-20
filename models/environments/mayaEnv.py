@@ -699,5 +699,11 @@ class MayaEnvironment(abstractClasses.Environment):
         returns True if any
         """
         
-        return len(pm.ls(type='stereoRigTransform')) > 0
+        # check if the stereoCameraRig plugin is loaded
+        if pm.pluginInfo('stereoCamera', q=True, l=True):
+            return len(pm.ls(type='stereoRigTransform')) > 0
+        else:
+            # return False because it is impossible without stereoCamera plugin
+            # to have a stereoCamera rig
+            return False
         
