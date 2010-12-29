@@ -226,7 +226,8 @@ class MayaEnvironment(abstractClasses.Environment):
         
         parentSeq = self._asset.sequence
         
-        renderOutputFolder = parentSeq.structure.getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS
+        renderOutputFolder = parentSeq.structure.\
+                           getOutputFolderPathOf('RENDER') # _RENDERED_IMAGES_/SHOTS
         
         # image folder from the workspace.mel
         imageFolderFromWS = pm.workspace.fileRules['image'] # _RENDERED_IMAGES_/
@@ -258,13 +259,16 @@ class MayaEnvironment(abstractClasses.Environment):
         dRG.setAttr('extensionPadding', 3 )
         dRG.setAttr('imageFormat', 7 ) # force the format to iff
         dRG.setAttr('pff', 1)
-
-
-
+        
+        self.setOutputFileFormat()
+    
+    
+    
     #----------------------------------------------------------------------
     def setOutputFileFormat(self):
         """sets the output file format
         """
+        dRG = pm.PyNode('defaultRenderGlobals')
         
         # check if Mentalray is the current renderer
         if dRG.getAttr('currentRenderer') == 'mentalRay':
@@ -287,11 +291,9 @@ class MayaEnvironment(abstractClasses.Environment):
         #for renderLayer in pm.ls(type='renderLayer'):
             ## if the renderer is set to mayaSoftware (which is very rare)
             #if dRG.getAttr('currentRenderer') == 'mayaSoftware':
-            
-            
-
-
-
+    
+    
+    
     #----------------------------------------------------------------------
     def setPlayblastFileName(self):
         """sets the playblast file name

@@ -1,5 +1,9 @@
 Version History :
 -----------------
+v10.12.29
+- mayaEnv: now it sets the render file format correctly to OpenExr if MentalRay
+  is the current renderer
+
 v10.12.20
 - mayaEnv: fixed checking the stereoCamera rig, it is now also checking if the
   stereoCamera plugin is loaded
