@@ -157,7 +157,7 @@ class MayaEnvironment(abstractClasses.Environment):
             
             proj = project.Project( projName )
             seq = project.Sequence( proj, seqName )
-            
+
             testAsset = asset.Asset( proj, seq, fileName )
             
             if testAsset.isValidAsset:

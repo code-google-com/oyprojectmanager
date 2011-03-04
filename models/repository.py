@@ -273,7 +273,7 @@ class Repository( abstractClasses.Singleton ):
         
         # ---------------------------------------------------
         
-        #self._readLocalSettings()
+        #self._LocalSettings()
         self._readSettings()
         self._readUsers()
         #self._updatePathVariables()
@@ -315,6 +315,7 @@ class Repository( abstractClasses.Singleton ):
         
         try:
             self.windows_path = serverNodes[0].getAttribute('windows_path')
+            self.windows_path.replace("/", "\\")
         except AttributeError:
             pass
         
@@ -483,6 +484,7 @@ class Repository( abstractClasses.Singleton ):
             if platform_system == "Linux":
                 return self.linux_path
             elif platform_system == "Windows":
+                self.windows_path.replace("/", "\\")
                 return self.windows_path
             elif platform_system == "Darwin":
                 return self.osx_path
@@ -497,7 +499,7 @@ class Repository( abstractClasses.Singleton ):
             if platform_system == "Linux":
                 self.linux_path = serverPath
             elif platform_system == "Windows":
-                self.windows_path = serverPath
+                self.windows_path = serverPath.replace("/", "\\")
             elif platform_system == "Darwin":
                 self.osx_path = serverPath
             

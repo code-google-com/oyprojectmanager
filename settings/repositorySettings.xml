@@ -3,8 +3,8 @@
     <settings>
         <server
             name="default"
-            windows_path="M:/Works/JOBs2"
-            linux_path="/home/ozgur/Documents/Works/JOBs2"
+            windows_path="M:\JOBs"
+            linux_path="/mnt/M/JOBs"
             osx_path="/Users/Shared/Servers/M/JOBs"
         />
         <units>
