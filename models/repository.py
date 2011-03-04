@@ -621,7 +621,7 @@ class Repository( abstractClasses.Singleton ):
         C:/Users/userName/Documents for Windows 7 (be careful about the slashes)
         """
         
-        homePathAsStr = os.environ.get('HOME')
+        homePathAsStr = os.path.expanduser("~")
         
         if os.name == 'nt':
             homePathAsStr = homePathAsStr.replace('/','\\')
