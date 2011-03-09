@@ -212,6 +212,9 @@ class Repository( abstractClasses.Singleton ):
     def __init__(self):
         
         # initialize default variables
+        # user name STALKER for forward compability
+        self.repostiory_path_env_key = "STALKER_REPOSITORY_PATH"
+        
         
         # find where am I installed
         self._env_key = 'OYPROJECTMANAGER_PATH'
@@ -499,9 +502,13 @@ class Repository( abstractClasses.Singleton ):
             if platform_system == "Linux":
                 self.linux_path = serverPath
             elif platform_system == "Windows":
-                self.windows_path = serverPath.replace("/", "\\")
+                serverPath = serverPath.replace("/", "\\")
+                self.windows_path = serverPath
             elif platform_system == "Darwin":
                 self.osx_path = serverPath
+            
+            # set also the environment variables
+            os.environ[self.repostiory_path_env_key] = serverPath
             
             self._projects = [] * 0
             

@@ -1,5 +1,8 @@
 Version History
 ---------------
+v11.3.9:
+ * maya now replaces absolute paths with repository relative paths by using
+   the STALKER_REPOSITORY_PATH environment variable
 
 v11.3.3:
  * oyProjectManager.models.repository.Repository class now reads the serverPath
