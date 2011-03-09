@@ -737,11 +737,12 @@ class MayaEnvironment(abstractClasses.Environment):
         for mr_texture in pm.ls(type="mentalrayTexture"):
             mr_texture_path =  mr_texture.getAttr("fileTextureName")
             
-            if mr_texture_path.startswith(repo.serverPath):
-                mr_texture.setAttr(
-                    "fileTextureName",
-                    mr_texture_path.replace(repo.serverPath, repo_env_key)
-                )
+            if mr_texture_path is not None:
+                if mr_texture_path.startswith(repo.serverPath):
+                    mr_texture.setAttr(
+                        "fileTextureName",
+                        mr_texture_path.replace(repo.serverPath, repo_env_key)
+                    )
         
         # replace reference paths
         for ref in pm.listReferences():
