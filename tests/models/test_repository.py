@@ -96,6 +96,23 @@ class RepositoryTesterWithoutEnv(mocker.MockerTestCase):
     
     
     
+    ##----------------------------------------------------------------------
+    #def test_server_path(self):
+        #"""test if the server path is returning correct value according to the
+        #current operating system
+        #"""
+        
+        ## get the settings file and find the linux path in the settings file
+        
+        #import platform
+        
+        #if platform_system == "Linux":
+            #return self.linux_path
+        #elif platform_system == "Windows":
+            #return self.windows_path
+        #elif platform_system == "Darwin":
+            #return self.osx_path
+
 
 
 
