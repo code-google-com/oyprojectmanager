@@ -32,7 +32,7 @@ class MayaEnvironment(abstractClasses.Environment):
         self._asset.extension = 'ma'
         
         # set the project to the current environment
-        pm.workspace.open( self._asset.sequenceFullPath )
+        pm.workspace.open(self._asset.sequenceFullPath)
         
         # set the render file name and version
         self.setRenderFileName()
@@ -41,17 +41,20 @@ class MayaEnvironment(abstractClasses.Environment):
         self.setPlayblastFileName()
         
         # create the folder if it doesn't exists
-        oyAux.createFolder( self._asset.path )
+        oyAux.createFolder(self._asset.path)
         
         # delete the unknown nodes
         unknownNodes = pm.ls(type='unknown')
-        pm.delete( unknownNodes )
+        pm.delete(unknownNodes)
+        
+        # set the file paths for external resources
+        self.replace_external_paths()
         
         # save the file
-        pm.saveAs( self._asset.fullPath, type='mayaAscii' )
+        pm.saveAs(self._asset.fullPath, type='mayaAscii')
         
         # append it to the recent file list
-        self.appendToRecentFiles( self._asset.fullPath )
+        self.appendToRecentFiles(self._asset.fullPath)
         
         return True
     
@@ -99,6 +102,9 @@ class MayaEnvironment(abstractClasses.Environment):
         self.setPlayblastFileName()
         
         self.appendToRecentFiles( assetFullPath )
+        
+        # replace_external_paths
+        self.replace_external_paths()
         
         # check the referenced assets for newer version
         toUpdateList = self.checkReferenceVersions()
@@ -157,7 +163,7 @@ class MayaEnvironment(abstractClasses.Environment):
             
             proj = project.Project( projName )
             seq = project.Sequence( proj, seqName )
-            
+
             testAsset = asset.Asset( proj, seq, fileName )
             
             if testAsset.isValidAsset:
@@ -708,4 +714,44 @@ class MayaEnvironment(abstractClasses.Environment):
             # return False because it is impossible without stereoCamera plugin
             # to have a stereoCamera rig
             return False
+    
+    
+    
+    #----------------------------------------------------------------------
+    def replace_external_paths(self):
+        """replaces all the external paths to relatives to repo.server_path
+        """
+        
+        # create a repository
+        repo = repository.Repository()
+        
+        repo_env_key = "$" + repo.repostiory_path_env_key
+        
+        # texture files
+        for image_file in pm.ls(type="file"):
+            file_texture_path = image_file.getAttr("fileTextureName")
+            if file_texture_path.startswith(repo.serverPath):
+                file_texture_path.replace(repo.serverPath, repo_env_key)
+        
+        # replace mentalray textures
+        for mr_texture in pm.ls(type="mentalrayTexture"):
+            mr_texture_path =  mr_texture.getAttr("fileTextureName")
+            
+            if mr_texture_path is not None:
+                if mr_texture_path.startswith(repo.serverPath):
+                    mr_texture.setAttr(
+                        "fileTextureName",
+                        mr_texture_path.replace(repo.serverPath, repo_env_key)
+                    )
+        
+        # replace reference paths
+        for ref in pm.listReferences():
+            if ref.path.startswith(repo.serverPath):
+                ref.replacesWith(
+                    ref.path.replace(
+                        repo.serverPath, repo_env_key
+                    )
+                )
+        
+
         

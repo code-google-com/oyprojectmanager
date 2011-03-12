@@ -2,9 +2,11 @@
 <root>
 	<users>
 		<user initials="aa" name="atilgan asikuzun"/>
+		<user initials="ae" name="alper erhan"/>
+		<user initials="boz" name="batuhan ozer"/>
 		<user initials="bo" name="beril ozturk"/>
 		<user initials="bt" name="berat turkbikmaz"/>
-		<user initials="cc" name="cihan cicekel"/>
+		<user initials="fcc" name="fikret cihan cicekel"/>
 		<user initials="cg" name="cengizer gokce"/>
 		<user initials="ck" name="ceyhan kapusuz"/>
 		<user initials="co" name="cagatay ozkan"/>
@@ -14,6 +16,7 @@
 		<user initials="gg" name="goktug gurellier"/>
 		<user initials="hg" name="huseyin gulgen"/>
 		<user initials="jmb" name="jean michel bihorel"/>
+		<user initials="kdc" name="kaan demir celik"/>
 		<user initials="kk" name="kubilay kocaoglu"/>
 		<user initials="mg" name="mark gregory"/>
 		<user initials="mk" name="murat kayran"/>

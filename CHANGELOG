@@ -1,5 +1,15 @@
-Version History :
------------------
+Version History
+---------------
+v11.3.9:
+ * maya now replaces absolute paths with repository relative paths by using
+   the STALKER_REPOSITORY_PATH environment variable
+
+v11.3.3:
+ * oyProjectManager.models.repository.Repository class now reads the serverPath
+   variable for each of the operating systems. So it has a path for windows,
+   another path for linux and another path for osx. This will let the user to
+   have only one settings file valid through all over the studio.
+
 v10.12.29
 - mayaEnv: now it sets the render file format correctly to OpenExr if MentalRay
   is the current renderer

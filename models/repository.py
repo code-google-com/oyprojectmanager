@@ -5,13 +5,9 @@
 # Created: 11/21/2010
 
 import sys
-import unittest
-
-
-
-if __name__=='__main__':
-    unittest.main()
-import os, shutil
+import platform
+import os
+import shutil
 import oyAuxiliaryFunctions as oyAux
 from xml.dom import minidom
 from oyProjectManager.utils import cache
@@ -216,6 +212,9 @@ class Repository( abstractClasses.Singleton ):
     def __init__(self):
         
         # initialize default variables
+        # user name STALKER for forward compability
+        self.repostiory_path_env_key = "STALKER_REPOSITORY_PATH"
+        
         
         # find where am I installed
         self._env_key = 'OYPROJECTMANAGER_PATH'
@@ -236,9 +235,11 @@ class Repository( abstractClasses.Singleton ):
         self._defaultFilesFolderFullPath = os.path.join( self._settingsDirPath, '_defaultFiles_' )
         
         # JOBs folder settings ( M:/, JOBs )
-        self._serverPath = ''
-        #self._projectsFolderName = ''
-        #self._projectsFolderFullPath = ''
+        self._serverPath = ""
+        self._windows_path = ""
+        self._osx_path = ""
+        self._linux_path = ""
+        
         
         # ---------------------------------------------------
         # Last User File
@@ -275,7 +276,7 @@ class Repository( abstractClasses.Singleton ):
         
         # ---------------------------------------------------
         
-        #self._readLocalSettings()
+        #self._LocalSettings()
         self._readSettings()
         self._readUsers()
         #self._updatePathVariables()
@@ -313,7 +314,23 @@ class Repository( abstractClasses.Singleton ):
         # for now just assume one server
         
         #self._projectsFolderName = serverNodes[0].getAttribute('projectsFolderName')
-        self.serverPath = serverNodes[0].getAttribute('serverPath')
+        #self.serverPath = serverNodes[0].getAttribute('serverPath')
+        
+        try:
+            self.windows_path = serverNodes[0].getAttribute('windows_path')
+            self.windows_path.replace("/", "\\")
+        except AttributeError:
+            pass
+        
+        try:
+            self.linux_path = serverNodes[0].getAttribute('linux_path')
+        except AttributeError:
+            pass
+        
+        try:
+            self.osx_path = serverNodes[0].getAttribute('osx_path')
+        except AttributeError:
+            pass
         
         
         # read and create the default files list
@@ -440,10 +457,10 @@ class Repository( abstractClasses.Singleton ):
         
         try:
             #self._projects = oyAux.getChildFolders( self._projectsFolderFullPath )
-            self._projects = oyAux.getChildFolders( self._serverPath )
+            self._projects = oyAux.getChildFolders( self.serverPath )
         except IOError:
             #print "server path doesn't exists, %s" % self._projectsFolderFullPath
-            print "server path doesn't exists, %s" % self._serverPath
+            print "server path doesn't exists, %s" % self.serverPath
     
     
     
@@ -456,7 +473,7 @@ class Repository( abstractClasses.Singleton ):
         """
         
         #return self._projectsFolderFullPath
-        return self._serverPath
+        return self.serverPath
     
     
     
@@ -466,17 +483,32 @@ class Repository( abstractClasses.Singleton ):
         doc = """the server path"""
         
         def fget(self):
-            return self._serverPath
+            platform_system = platform.system()
+            if platform_system == "Linux":
+                return self.linux_path
+            elif platform_system == "Windows":
+                self.windows_path.replace("/", "\\")
+                return self.windows_path
+            elif platform_system == "Darwin":
+                return self.osx_path
+            
         
         def fset(self, serverPath):
-            """sets the server path
-            """
+            
             # add a trailing separator
             # in any cases os.path.join adds a trailing seperator
-            #self._serverPath = os.path.join( serverPath, '' )
-            self._serverPath = serverPath
             
-            #self._projectsFolderFullPath = os.path.join( self._serverPath, self._projectsFolderName)
+            platform_system = platform.system()
+            if platform_system == "Linux":
+                self.linux_path = serverPath
+            elif platform_system == "Windows":
+                serverPath = serverPath.replace("/", "\\")
+                self.windows_path = serverPath
+            elif platform_system == "Darwin":
+                self.osx_path = serverPath
+            
+            # set also the environment variables
+            os.environ[self.repostiory_path_env_key] = serverPath
             
             self._projects = [] * 0
             
@@ -485,6 +517,57 @@ class Repository( abstractClasses.Singleton ):
         return locals()
     
     serverPath = property( **serverPath() )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def linux_path():
+        def fget(self):
+            return self._linux_path
+        
+        def fset(self, linux_path_in):
+            #self._linux_path = self._validate_linux_path(linux_path_in)
+            self._linux_path = linux_path_in
+        
+        doc = """the linux path of the jobs server"""
+        
+        return locals()
+    
+    linux_path = property(**linux_path())
+    
+    
+    
+    #----------------------------------------------------------------------
+    def windows_path():
+        def fget(self):
+            return self._windows_path
+        
+        def fset(self, windows_path_in):
+            #self._windows_path = self._validate_windows_path(windows_path_in)
+            self._windows_path = windows_path_in
+        
+        doc = """the windows path of the jobs server"""
+        
+        return locals()
+    
+    windows_path = property(**windows_path())
+    
+    
+    
+    #----------------------------------------------------------------------
+    def osx_path():
+        def fget(self):
+            return self._osx_path
+        
+        def fset(self, osx_path_in):
+            #self._osx_path = self._validate_osx_path(osx_path_in)
+            self._osx_path = osx_path_in
+        
+        doc = """the osx path of the jobs server"""
+        
+        return locals()
+    
+    osx_path = property(**osx_path())
     
     
     
@@ -547,7 +630,7 @@ class Repository( abstractClasses.Singleton ):
         C:/Users/userName/Documents for Windows 7 (be careful about the slashes)
         """
         
-        homePathAsStr = os.environ.get('HOME')
+        homePathAsStr = os.path.expanduser("~")
         
         if os.name == 'nt':
             homePathAsStr = homePathAsStr.replace('/','\\')
@@ -599,11 +682,11 @@ class Repository( abstractClasses.Singleton ):
             return None, None
         
         #if not filePath.startswith( self._projectsFolderFullPath ):
-        if not filePath.startswith( self._serverPath ):
+        if not filePath.startswith( self.serverPath ):
             return None, None
         
         #residual = filePath[ len(self._projectsFolderFullPath)+1 : ]
-        residual = filePath[ len(self._serverPath)+1 : ]
+        residual = filePath[ len(self.serverPath)+1 : ]
         
         parts = residual.split(os.path.sep)
         
@@ -697,7 +780,8 @@ class Repository( abstractClasses.Singleton ):
         """
         
         if os.environ.has_key(self._env_key):
-            return os.environ[self._env_key]
+            # expand any user variable
+            return os.path.expanduser(os.environ[self._env_key])
         else:
             return os.path.join(
                 os.path.abspath(

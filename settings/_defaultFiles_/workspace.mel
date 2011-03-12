@@ -4,6 +4,10 @@ workspace -fr "scene" "OTHERS/";
 workspace -fr "mayaAscii" "OTHERS/";
 workspace -fr "mayaBinary" "OTHERS/";
 
+workspace -fr "movie" "OTHERS/data";
+workspace -fr "offlineEdit" "OHTERS/edits/";
+workspace -fr "autosave" "OTHERS/autosave/";
+
 workspace -fr "3dPaintTextures" "TEXTURES/";
 workspace -fr "textures" "TEXTURES/";
 

@@ -318,7 +318,7 @@ class Asset(object):
         
         parts = [] * 0
         parts.append( self._baseName )
-        
+
         if not self._sequence._noSubNameField:
             parts.append( self._subName )
         
