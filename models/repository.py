@@ -484,12 +484,21 @@ class Repository( abstractClasses.Singleton ):
         
         def fget(self):
             platform_system = platform.system()
-            if platform_system == "Linux":
+            python_version = platform.python_version()
+            
+            windows_string = "Windows"
+            linux_string = "Linux"
+            osx_string = "Darwin"
+            
+            if python_version.startswith("2.5"):
+                windows_string = "Microsoft"
+
+            if platform_system == linux_string:
                 return self.linux_path
-            elif platform_system == "Windows":
+            elif platform_system == windows_string:
                 self.windows_path.replace("/", "\\")
                 return self.windows_path
-            elif platform_system == "Darwin":
+            elif platform_system == osx_string:
                 return self.osx_path
             
         
@@ -499,12 +508,19 @@ class Repository( abstractClasses.Singleton ):
             # in any cases os.path.join adds a trailing seperator
             
             platform_system = platform.system()
-            if platform_system == "Linux":
+
+            python_version = platform.python_version()
+            
+            windows_string = "Windows"
+            linux_string = "Linux"
+            osx_string = "Darwin"
+            
+            if platform_system == linux_string:
                 self.linux_path = serverPath
-            elif platform_system == "Windows":
+            elif platform_system == windows_string:
                 serverPath = serverPath.replace("/", "\\")
                 self.windows_path = serverPath
-            elif platform_system == "Darwin":
+            elif platform_system == osx_string:
                 self.osx_path = serverPath
             
             # set also the environment variables

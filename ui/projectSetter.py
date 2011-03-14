@@ -109,6 +109,8 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         """
         # get the server from database object
         servers = self._repo.projectsFullPath
+
+        print servers
         
         # fill the server comboBoxes
         self.server_comboBox.clear()
