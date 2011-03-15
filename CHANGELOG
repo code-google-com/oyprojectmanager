@@ -1,5 +1,12 @@
 Version History
 ---------------
+v11.3.15:
+ * oyProjectMananager.models.repository.Repository now only lists projects
+   with correct name formatting even they have a valid sequence inside.
+ 
+ * oyProjectManager.models.project.Project now lists folders as sequences only
+   if their name matches the sequence name formatting.
+
 v11.3.9:
  * maya now replaces absolute paths with repository relative paths by using
    the STALKER_REPOSITORY_PATH environment variable

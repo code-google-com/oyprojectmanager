@@ -8,6 +8,7 @@ import sys
 import platform
 import os
 import shutil
+import re
 import oyAuxiliaryFunctions as oyAux
 from xml.dom import minidom
 from oyProjectManager.utils import cache
@@ -15,7 +16,7 @@ from oyProjectManager.models import user, abstractClasses
 
 
 
-__version__ = "10.11.21"
+__version__ = "11.3.15"
 
 
 
@@ -202,7 +203,7 @@ class Repository( abstractClasses.Singleton ):
           * user: a user node
           
             attributes:
-              * initials: the initials of the user
+              * initials: the initials of the users
               * name: the full name of the user
     """
     
@@ -213,8 +214,9 @@ class Repository( abstractClasses.Singleton ):
         
         # initialize default variables
         # user name STALKER for forward compability
-        self.repostiory_path_env_key = "STALKER_REPOSITORY_PATH"
-        
+        self.repository_path_env_key = "STALKER_REPOSITORY_PATH"
+        if not os.environ.has_key(self.repository_path_env_key):
+            os.environ[self.repository_path_env_key] = ""
         
         # find where am I installed
         self._env_key = 'OYPROJECTMANAGER_PATH'
@@ -331,6 +333,7 @@ class Repository( abstractClasses.Singleton ):
             self.osx_path = serverNodes[0].getAttribute('osx_path')
         except AttributeError:
             pass
+        
         
         
         # read and create the default files list
@@ -457,7 +460,14 @@ class Repository( abstractClasses.Singleton ):
         
         try:
             #self._projects = oyAux.getChildFolders( self._projectsFolderFullPath )
-            self._projects = oyAux.getChildFolders( self.serverPath )
+            self._projects = []
+            
+            child_folders = oyAux.getChildFolders( self.serverPath )
+            for folder in child_folders:
+                filtered_folder_name = re.sub(r".*?([^A-Z_]+)([A-Z0-9_]*)", r"\2", folder)
+                if filtered_folder_name == folder:
+                    self._projects.append(folder)
+           
         except IOError:
             #print "server path doesn't exists, %s" % self._projectsFolderFullPath
             print "server path doesn't exists, %s" % self.serverPath
@@ -524,7 +534,7 @@ class Repository( abstractClasses.Singleton ):
                 self.osx_path = serverPath
             
             # set also the environment variables
-            os.environ[self.repostiory_path_env_key] = serverPath
+            os.environ[self.repository_path_env_key] = serverPath
             
             self._projects = [] * 0
             
@@ -544,6 +554,7 @@ class Repository( abstractClasses.Singleton ):
         def fset(self, linux_path_in):
             #self._linux_path = self._validate_linux_path(linux_path_in)
             self._linux_path = linux_path_in
+            os.environ[self.repository_path_env_key] = linux_path_in
         
         doc = """the linux path of the jobs server"""
         
@@ -561,6 +572,7 @@ class Repository( abstractClasses.Singleton ):
         def fset(self, windows_path_in):
             #self._windows_path = self._validate_windows_path(windows_path_in)
             self._windows_path = windows_path_in
+            os.environ[self.repository_path_env_key] = windows_path_in
         
         doc = """the windows path of the jobs server"""
         
@@ -578,6 +590,7 @@ class Repository( abstractClasses.Singleton ):
         def fset(self, osx_path_in):
             #self._osx_path = self._validate_osx_path(osx_path_in)
             self._osx_path = osx_path_in
+            os.environ[self.repository_path_env_key] = osx_path_in
         
         doc = """the osx path of the jobs server"""
         

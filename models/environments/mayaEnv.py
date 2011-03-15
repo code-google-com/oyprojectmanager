@@ -725,7 +725,7 @@ class MayaEnvironment(abstractClasses.Environment):
         # create a repository
         repo = repository.Repository()
         
-        repo_env_key = "$" + repo.repostiory_path_env_key
+        repo_env_key = "$" + repo.repository_path_env_key
         
         # texture files
         for image_file in pm.ls(type="file"):

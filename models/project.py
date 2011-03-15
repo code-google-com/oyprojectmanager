@@ -115,7 +115,14 @@ class Project(object):
     def updateSequenceList(self):
         """updates the sequenceList variable
         """
-        self._sequenceList = os.listdir( self._fullPath )
+        #self._sequenceList = os.listdir( self._fullPath )
+        
+        # filter other folders like .DS_Store
+        for folder in os.listdir( self._fullPath ):
+            filtered_folder_name = re.sub(r".*?([^A-Z_]+)([A-Z0-9_]*)", r"\2", folder)
+            if filtered_folder_name == folder:
+                self._sequenceList.append(folder)
+        
         self._sequenceList.sort()
     
     
