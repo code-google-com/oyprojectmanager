@@ -554,7 +554,7 @@ class Repository( abstractClasses.Singleton ):
         def fset(self, linux_path_in):
             #self._linux_path = self._validate_linux_path(linux_path_in)
             self._linux_path = linux_path_in
-            os.environ[self.repository_path_env_key] = linux_path_in
+            #os.environ[self.repository_path_env_key] = linux_path_in
         
         doc = """the linux path of the jobs server"""
         
@@ -572,7 +572,7 @@ class Repository( abstractClasses.Singleton ):
         def fset(self, windows_path_in):
             #self._windows_path = self._validate_windows_path(windows_path_in)
             self._windows_path = windows_path_in
-            os.environ[self.repository_path_env_key] = windows_path_in
+            #os.environ[self.repository_path_env_key] = windows_path_in
         
         doc = """the windows path of the jobs server"""
         
@@ -590,7 +590,7 @@ class Repository( abstractClasses.Singleton ):
         def fset(self, osx_path_in):
             #self._osx_path = self._validate_osx_path(osx_path_in)
             self._osx_path = osx_path_in
-            os.environ[self.repository_path_env_key] = osx_path_in
+            #os.environ[self.repository_path_env_key] = osx_path_in
         
         doc = """the osx path of the jobs server"""
         
@@ -820,3 +820,15 @@ class Repository( abstractClasses.Singleton ):
                 ),
                 'settings')
     
+    #----------------------------------------------------------------------
+    def relative_path(self, path):
+        """Converts the given path to repository relative path.
+        
+        If "M:/JOBs/EXPER/_PROJECT_SETUP_" is given it will return
+        "$STALKER_REPOSITORY_PATH/EXPER/_PROJECT_SETUP_"
+        
+        The environment key name is read from the self.repository_path_env_key
+        variable
+        """
+        
+        return path.replace(self.serverPath, "$" + self.repository_path_env_key)

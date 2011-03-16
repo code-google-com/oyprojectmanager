@@ -1,5 +1,11 @@
 Version History
 ---------------
+v11.3.16:
+ * fixed a bug where the repository was setting the last read value of the
+   server settings value to the Repository.serverPath, thus it was setting
+   STALKER_REPOSITORY_PATH to the value of osx under windows, just because
+   osx was the last in the settings file.
+
 v11.3.15:
  * oyProjectMananager.models.repository.Repository now only lists projects
    with correct name formatting even they have a valid sequence inside.
