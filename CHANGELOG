@@ -1,5 +1,8 @@
 Version History
 ---------------
+v11.3.17:
+ * Fixed a little bug in mayaEnv.py
+
 v11.3.16:
  * fixed a bug where the repository was setting the last read value of the
    server settings value to the Repository.serverPath, thus it was setting
