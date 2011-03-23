@@ -746,12 +746,18 @@ class MayaEnvironment(abstractClasses.Environment):
         
         # replace reference paths
         for ref in pm.listReferences():
-            if ref.path.startswith(repo.serverPath):
-                ref.replaceWith(
-                    ref.path.replace(
-                        repo.serverPath, repo_env_key
-                    )
+            if ref.path.replace("\\", "/").startswith(repo.serverPath.replace("\\", "/")):
+                print "replacing reference:", ref.path
+                print "replacing with:", repo_env_key
+
+                new_ref_path = ref.path.replace(
+                    repo.serverPath.replace("\\", "/"),
+                    repo_env_key
                 )
+               
+                print new_ref_path
+
+                ref.replaceWith(new_ref_path)
         
 
         
