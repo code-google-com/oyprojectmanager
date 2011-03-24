@@ -1,5 +1,9 @@
 Version History
 ---------------
+v11.3.24:
+ * fixed maya.env, now it uses the repository relative path when something
+   is referenced.
+
 v11.3.17:
  * Fixed a little bug in mayaEnv.py
 

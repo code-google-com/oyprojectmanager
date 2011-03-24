@@ -7,7 +7,7 @@ from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
 
-__version__ = "10.11.20"
+__version__ = "11.3.24"
 
 
 
@@ -131,7 +131,10 @@ class MayaEnvironment(abstractClasses.Environment):
         # use the file name without extension as the namespace
         nameSpace = self._asset.fileNameWithoutExtension
         
-        pm.createReference( self._asset.fullPath, gl=True, loadReferenceDepth='all', namespace=nameSpace, options='v=0')
+        repo = repository.Repository()
+        
+        repository_relative_asset_fullpath = repo.relative_path(self._asset.fullPath)
+        pm.createReference(repository_relative_asset_fullpath, gl=True, loadReferenceDepth='all', namespace=nameSpace, options='v=0')
         
         return True
     
