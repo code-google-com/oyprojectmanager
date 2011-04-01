@@ -24,11 +24,13 @@ class NukeEnvironment(abstractClasses.Environment):
         """nuke spesific init
         """
         # call the supers __init__
-        super(NukeEnvironment, self).__init__( asset, name, extensions )
+        super(NukeEnvironment, self).__init__(asset, name, extensions)
         
         # and add you own modifications to __init__
         # get the root node
         self._root = self.getRootNode()
+        
+        self._main_output_node_name = "MAIN_OUTPUT"
     
     
     
@@ -199,3 +201,48 @@ class NukeEnvironment(abstractClasses.Environment):
         
         return timeUnit
     
+    
+    
+    #----------------------------------------------------------------------
+    def get_main_write_node(self):
+        """Returns the main write node in the scene or None.
+        """
+        
+        # list all the write nodes in the current file
+        all_write_nodes = nuke.allNodes("Write")
+        
+        main_write_node = None
+        
+        for write_node in all_write_nodes:
+            if write_node.name().startswith(self._main_output_node_name):
+                main_write_node = write_node
+                return main_write_node
+        
+        return None
+    
+    
+    
+    #----------------------------------------------------------------------
+    def create_main_write_node(self):
+        """creates the default write node if there is no one created before.
+        """
+        
+        # list all the write nodes in the current file
+        main_write_node = self.get_main_write_node()
+        
+        if main_write_node is None:
+            # create one with correct output path
+            main_write_node = nuke.Nodes.Write()
+            main_write_node.setName(self._main_output_node_name)
+        
+        # set the output path
+        
+        assert(isinstance(self._asset, asset.Asset))
+        
+        seq = self._asset.sequence
+        assert(isinstance(seq, project.Sequence))
+        
+        seq.
+        
+        
+        main_write_node["file"].setValue()

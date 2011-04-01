@@ -1,2 +1,6 @@
+About
+=====
 
-see the docs for more detail about the package
+oyProjectManager is a simple Asset Manager for animation and vfx studios and
+works with any animation and compositing packages supporting Python (ex. Maya,
+Nuke, Houdini etc.)

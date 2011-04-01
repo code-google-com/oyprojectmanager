@@ -93,15 +93,15 @@ class MayaEnvironment(abstractClasses.Environment):
         # check for unsaved changes
         assetFullPath = self._asset.fullPath
         
-        pm.openFile( assetFullPath, f=force, loadReferenceDepth='none' )
+        pm.openFile(assetFullPath, f=force, loadReferenceDepth='none')
         
         # set the project
-        pm.workspace.open( self._asset.sequenceFullPath )
+        pm.workspace.open(self._asset.sequenceFullPath)
         
         # set the playblast folder
         self.setPlayblastFileName()
         
-        self.appendToRecentFiles( assetFullPath )
+        self.appendToRecentFiles(assetFullPath)
         
         # replace_external_paths
         self.replace_external_paths()

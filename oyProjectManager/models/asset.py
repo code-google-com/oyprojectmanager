@@ -1037,12 +1037,13 @@ class AssetType(object):
     
     
     #----------------------------------------------------------------------
-    def __init__(self, name="", path="", shotDependent=False, playblastFolder="", environments=None):
+    def __init__(self, name="", path="", shotDependent=False, playblastFolder="", environments=None, output_path=""):
         self._name = name
         self._path = path
         self._shotDependency = shotDependent
         self._playblastFolder = playblastFolder
         self._environments = environments
+        self._output_path = output_path
     
     
     
@@ -1122,6 +1123,23 @@ class AssetType(object):
         return locals()
     
     isShotDependent = property( **isShotDependent() )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def output_path():
+        def fget(self):
+            return self._output_path
+        
+        def fset(self, output_path_in):
+            #self._output_path = self._validate_output_path(output_path_in)
+            self._output_path = output_path_in
+        
+        doc = """The output path of this asset type"""
+        
+        return locals()
+    
+    output_path = property(**output_path())
 
 
 

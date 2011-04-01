@@ -1,4 +1,4 @@
-import os, re, shutil, glob
+import sys, os, re, shutil, glob
 from xml.dom import minidom
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.utils import cache, rangeTools
@@ -30,7 +30,7 @@ class Project(object):
         self._fullPath = ''
         
         if projectName is not None:
-            self.name = oyAux.stringConditioner( projectName, False, True, False, True, True, False )
+            self.name = oyAux.stringConditioner(projectName, False, True, False, True, True, False)
         
         self._sequenceList = []
         
@@ -384,6 +384,10 @@ class Sequence(object):
         self._structure.shotDependentFolders = shotDependentFoldersList
         self._structure.shotIndependentFolders = shotIndependentFoldersList
         
+        
+        # --------------------------------------------------------------------
+        # THIS PART BELOW IS DEPRECATED REMOVE IT IN THE NEXT RELEASE
+        # --------------------------------------------------------------------
         # read the output folders node
         outputFoldersNode = structureNode.getElementsByTagName('outputFolders')[0]
         outputNodes = outputFoldersNode.getElementsByTagName('output')
@@ -395,9 +399,9 @@ class Sequence(object):
             name = outputNode.getAttribute('name')
             path = outputNode.getAttribute('path')
             
-            # fixe path issues for windows
-            if osName == 'nt':
-                path = oyAux.fixWindowsPath( path )
+            ## fixe path issues for windows
+            #if osName == 'nt':
+                #path = oyAux.fixWindowsPath( path )
             
             self._structure.addOutputFolder( name, path )
     
@@ -422,12 +426,18 @@ class Sequence(object):
             playblastFolder = node.getAttribute('playblastFolder')
             environments = node.getAttribute('environments').split(",")
             
-            # fix path issues for windows
-            if os.name == 'nt':
-                path = oyAux.fixWindowsPath( path )
-                playblastFolder = oyAux.fixWindowsPath( playblastFolder )
             
-            self._assetTypes.append( asset.AssetType( name, path, shotDependency, playblastFolder, environments) )
+            output_path = ndoe.getAttribute("output_path")
+            
+            ## fix path issues for windows
+            #if os.name == 'nt':
+                #path = oyAux.fixWindowsPath(path)
+                #playblastFolder = oyAux.fixWindowsPath(playblastFolder)
+            
+            self._assetTypes.append(
+                asset.AssetType(name, path, shotDependency, playblastFolder,
+                                environments, output_path)
+            )
     
     
     
@@ -1878,9 +1888,13 @@ class Structure(object):
         doc = "the output folders"
         
         def fget(self):
+            sys.stdout.write("DEPRECATION WARNING: use assetType.output_folder"
+                             " instead of project.structure.outputFolders")
             return self._outputFolders
         
         def fset(self, folders):
+            sys.stdout.write("DEPRECATION WARNING: use assetType.output_folder"
+                             " instead of project.structure.outputFolders")
             self._outputFolders = folders
         
         return locals()

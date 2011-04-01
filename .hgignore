@@ -1,0 +1,11 @@
+# Ignore file for oyProjectManager
+
+# use glob syntax
+syntax: glob
+
+docs/build/*
+*.pyc
+*~
+.~*
+.DS_Store
+
