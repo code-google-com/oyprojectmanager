@@ -33,7 +33,7 @@ __version__ = "10.3.17"
 
 
 ########################################################################
-class PhotoshopEnv(abstractClasses.Environment):
+class PhotoshopEnvironment(abstractClasses.Environment):
     """the photoshop environment class
     """
     

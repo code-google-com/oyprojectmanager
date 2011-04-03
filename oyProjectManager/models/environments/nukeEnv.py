@@ -242,7 +242,7 @@ class NukeEnvironment(abstractClasses.Environment):
         seq = self._asset.sequence
         assert(isinstance(seq, project.Sequence))
         
-        seq.
+        #seq.
         
         
         main_write_node["file"].setValue()

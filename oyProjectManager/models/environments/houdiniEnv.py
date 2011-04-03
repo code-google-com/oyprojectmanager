@@ -274,7 +274,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         # M:/JOBs/PRENSESIN_UYKUSU/SC_008/_RENDERED_IMAGES_/_SHOTS_/SH008/MasalKusu/`$OS`/SH008_MasalKusu_`$OS`_v006_oy.$F4.exr
         
         seq = self._asset.sequence
-        renderOutputFolder = seq.fullPath + '/' +seq.structure.getOutputFolderPathOf( 'RENDER' ) # _RENDERED_IMAGES_/SHOTS
+        renderOutputFolder = seq.fullPath + '/' + self._asset.type.output_path # _RENDERED_IMAGES_/SHOTS
         assetBaseName = self._asset.baseName
         assetSubName = self._asset.subName
         versionString = self._asset.versionString

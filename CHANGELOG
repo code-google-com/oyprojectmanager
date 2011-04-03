@@ -12,9 +12,27 @@ v11.4.1
 
  * trying to use the forward slashes all over the system internaly
 
+ * :class:`~oyProjectManager.models.environments.photoshopEnv.PhotoshopEnv` is
+   renamed to
+   :class:`~oyProjectManager.models.environment.photoshopEnv.PhotoshopEnvironment`
+
  * the output path is now handled by the AssetType class instead of the
    Structure class, it is much suitable to have the AssetType class to handle
    the output paths (still not finished).
+ 
+ * started to block out the
+   :class:`~oyProjectManager.models.project.DefaultSEttingsParser`.
+
+ * Added test for the :class:`~oyProjectManager.models.project.Sequence` for
+   the new settings structure, which includes the output_path in the type nodes
+   under the assetTypes node in the settings file.
+
+ * :class:`~oyProjectManager.models.project.Structure` is not initialized with
+   outputFolders argument, and doesn't have any idea what an output folders is
+   anymore.
+
+ * :class:`~oyProjectManager.models.project.Sequence` now uses the
+   `_settings_dirty` attribute to track down when to save settings file.
 
 v11.3.24
 --------

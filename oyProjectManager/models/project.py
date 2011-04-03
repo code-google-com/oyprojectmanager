@@ -14,6 +14,152 @@ __version__ = "10.6.23"
 
 
 ########################################################################
+class DefaultSettingsParser(object):
+    """A parser for the default settings for the sequence.
+    
+    Parses the given settings xml and fills the attributes of the given
+    :class:`~oyProjectManager.models.project.Sequence` class.
+    
+    :param sequence: a :class:`~oyProjectManager.models.project.Sequence`
+      instance. The default is None and this causes a ValueError to be raised.
+    
+    :type sequence: :class:`~oyProjectManager.models.project.Sequence`
+    
+    :param str content: the settings content as a string. Default is None
+      and this causes a ValueError to be raised.
+    
+    The version 1 spesification of the default settings consists of the
+    following nodes:
+      
+       * root: The root node
+         
+          * sequenceData node:
+            
+            Attributes:
+              
+               * shotPrefix: default is "SH", it is the prefix to be added
+                 before the shot number
+              
+               * shotPadding: default is 3, it is the number of padding going
+                 to be applied to find the string representation of the shot
+                 number. If the shot number is 5 and the shotPadding is set to
+                 3 and the shotPrefix is "SH" then the final shot name will be
+                 SH005
+               
+               * revPrefix: default is "r", it is the revision variable prefix
+              
+               * revpadding: default is 2, it is the revision number padding,
+                 for revision 3 the default values will output a string of
+                 "r03" for the revision string variable
+              
+               * verPrefix: default is "v", it is the version varaible prefix
+              
+               * verPadding: default is 3, it is the version number padding for
+                 default values a file version of 14 will outpu a string of
+                 "v014" for the version string variable.
+              
+               * timeUnit: default is pal, it is the time unit for the project,
+                 possible values are "pal, film, ntsc, game". This variable
+                 follows the Maya's time unit format.
+            
+            Child elements:
+              
+               * structure: it is the child of sequenceData. Structure element
+                 holds the project structure information. Every project will be
+                 created by using this project structure.
+                 
+                 Child elements:
+                   
+                    * shotDependent: show the shot dependent folders. A shot
+                      dependent folder will contain shot folders. For example
+                      a folder called ANIMATION could be defined under
+                      shotDependent folders, then oyProjectManager will
+                      automatically place folders for every shot of the project.
+                      So if the project has three shots with shot numbers 10,
+                      14, 21 then the structure of the ANIMATION folder will be
+                      like:
+                        
+                        ANIMATION/
+                        ANIMATION/SH010/
+                        ANIMATION/SH013/
+                        ANIMATION/SH021/
+                   
+                    * shotIndependent: show the shot independent folder, or the
+                      rest of the project structure. So any other folder which
+                      doesn't have a direct relation with shots can be placed
+                      here. For example you can place folders for MODELS, RIGS,
+                      OUTGOING_FILES etc.
+                   
+               * assetTypes: This element contains information about asset
+                 types.
+                 
+                 Attributes: None
+                 
+                 Child elements:
+                   
+                    * type: this is an asset type
+                      
+                      Attributes:
+                        
+                         * name: the name of the type
+                         
+                         * path: the project relative path for the asset files
+                           in this type.
+                        
+                         * shotDependent: it is a boolean value that specifies
+                           if this asset type is shot dependent.
+                        
+                         * environments: this attribute lists the environment
+                           names where this asset type is valid through. It
+                           should list the environment names in a comma
+                           separated value (CSV) format
+                        
+                         * playblastFolder: this is the attribute that shows
+                           the default playblast/flipbook path for this kind of
+                           assets
+                        
+                         * output_path: shows the output folder of this asset
+                           type. For example you can set the render output
+                           folder by setting the output folder of the RENDER
+                           asset type to a spesific folder relative to the
+                           project root.
+              
+              
+               * shotData: This is the element that shows the current projects
+                 shot information.
+                 
+                 Child Elements:
+                   
+                    * shot: The shot it self
+                      
+                      Attributes:
+                        
+                         * name: this is the name of the shot, it just shows
+                           the number and alternate letter part of the shot
+                           name, so for a shot named "SH001A" the name
+                           attribute is "1A"
+                        
+                         * start: this is the global start frame of the shot
+                        
+                         * end: this is the global end frame of the shot
+                        
+                      Child Elements:
+                        
+                         * description: This is the text element that has the
+                           description of the current shot. You can place any
+                           amount of text inside this text element.
+    """
+    
+    #----------------------------------------------------------------------
+    def __init__(self):
+        pass
+        
+    
+    
+
+
+
+########################################################################
 class Project(object):
     """Project object to help manage project data
     """
@@ -64,16 +210,16 @@ class Project(object):
             raise RuntimeError('please give a name to the project')
         
         # check if the folder allready exists
-        self._exists = not oyAux.createFolder( self._fullPath )
+        self._exists = not oyAux.createFolder(self._fullPath)
     
     
     
     #----------------------------------------------------------------------
-    def createSequence(self, sequenceName, shots ):
+    def createSequence(self, sequenceName, shots):
         """creates a sequence and returns the sequence object
         """
-        newSequence = Sequence( self, sequenceName )
-        newSequence.addShots( shots )
+        newSequence = Sequence(self, sequenceName)
+        newSequence.addShots(shots)
         newSequence.create()
         
         return newSequence
@@ -196,9 +342,14 @@ class Project(object):
 
 ########################################################################
 class Sequence(object):
-    """Sequence object to help manage sequence data
+    """Sequence object to help manage sequence data.
     
-    the class should be initialized with the projectName a sequenceName
+    By definition a Sequence is a group of
+    :class:`~oyProjectManager.models.project.Shot`\ s.
+    
+    The class should be initialized with a
+    :class:`~oyProjectManager.models.project.Project` instance and a
+    sequenceName.
     """
     
     
@@ -221,6 +372,7 @@ class Sequence(object):
         self._settingsFilePath = self._fullPath
         self._settingsFileFullPath = os.path.join( self._settingsFilePath, self._settingsFile )
         self._settingsFileExists = False
+        self._settings_dirty = False
         
         self._structure = Structure()
         self._assetTypes = [ asset.AssetType() ] * 0
@@ -253,7 +405,7 @@ class Sequence(object):
         """
         
         # check if there is a settings file
-        if not os.path.exists( self._settingsFileFullPath ):
+        if not os.path.exists(self._settingsFileFullPath):
             #print "ERROR: no settings file in the sequence..."
             # TODO: assume that it is an old project and try to get
             # the data (just shot list) from the folders
@@ -263,7 +415,7 @@ class Sequence(object):
             self._exists = True
         
         #print (self._settingsFileFullPath)
-        settingsAsXML = minidom.parse( self._settingsFileFullPath )
+        settingsAsXML = minidom.parse(self._settingsFileFullPath)
         
         rootNode = settingsAsXML.childNodes[0]
         
@@ -299,8 +451,8 @@ class Sequence(object):
             doConvertionToShotData = True
         
         # parse all nodes
-        self._parseAssetTypesNode( assetTypesNode )
-        self._parseStructureNode( structureNode )
+        self._parseAssetTypesNode(assetTypesNode)
+        self._parseStructureNode(structureNode)
         
         if doConvertionToShotData:
             # 
@@ -319,12 +471,17 @@ class Sequence(object):
             self._convertShotListToShotData()
             
             # update the settings file
-            self.saveSettings()
+            #self.saveSettings()
+            self._settings_dirty = True
         else:
             self._parseShotDataNode( shotDataNodes[0] )
         
         if doRemoveDatabaseDataNode:
             # just save the settings over it self, it should be fine
+            #self.saveSettings()
+            self._settings_dirty
+        
+        if self._settings_dirty:
             self.saveSettings()
     
     
@@ -385,25 +542,43 @@ class Sequence(object):
         self._structure.shotIndependentFolders = shotIndependentFoldersList
         
         
-        # --------------------------------------------------------------------
-        # THIS PART BELOW IS DEPRECATED REMOVE IT IN THE NEXT RELEASE
-        # --------------------------------------------------------------------
-        # read the output folders node
-        outputFoldersNode = structureNode.getElementsByTagName('outputFolders')[0]
-        outputNodes = outputFoldersNode.getElementsByTagName('output')
+        try:
+            # --------------------------------------------------------------------
+            # THIS PART BELOW IS DEPRECATED REMOVE IT IN THE NEXT RELEASE
+            # --------------------------------------------------------------------
+            # read the output folders node
+            outputFoldersNode = \
+                structureNode.getElementsByTagName('outputFolders')[0]
+            
+            outputNodes = outputFoldersNode.getElementsByTagName('output')
+            
+            for outputNode in outputNodes:
+                #assert(isinstance(outpuNode, minidom.Element))
+                name = outputNode.getAttribute('name')
+                path = outputNode.getAttribute('path')
+                
+                ## fixe path issues for windows
+                #if osName == 'nt':
+                    #path = oyAux.fixWindowsPath( path )
+                
+                # instead add the output folder to the asset types
+                # get the asset type by name and append the path to the
+                # output folder of the found asset type
+                aType = self.getAssetTypeWithName(name)
+                try:
+                    aType.output_path = path
+                except AttributeError:
+                    # it means there is no asset type with the given name
+                    pass
+                
+            # do a saveSettings to save the settings in new format
+            #self.saveSettings()
+            self._settings_dirty = True
         
-        # clear the data
-        self._structure._outputFolders = list()
-        for outputNode in outputNodes:
-            #assert(isinstance(outpuNode, minidom.Element))
-            name = outputNode.getAttribute('name')
-            path = outputNode.getAttribute('path')
-            
-            ## fixe path issues for windows
-            #if osName == 'nt':
-                #path = oyAux.fixWindowsPath( path )
-            
-            self._structure.addOutputFolder( name, path )
+        except IndexError:
+            # there is no output_folder in this project so don't parse it in
+            # this way
+            pass
     
     
     
@@ -425,9 +600,7 @@ class Sequence(object):
             shotDependency = bool( int( node.getAttribute('shotDependent') ) )
             playblastFolder = node.getAttribute('playblastFolder')
             environments = node.getAttribute('environments').split(",")
-            
-            
-            output_path = ndoe.getAttribute("output_path")
+            output_path = node.getAttribute("output_path")
             
             ## fix path issues for windows
             #if os.name == 'nt':
@@ -609,64 +782,54 @@ class Sequence(object):
         for aType in self._assetTypes:
             #assert( isinstance( aType, asset.AssetType ) )
             typeNode = minidom.Element('type')
-            typeNode.setAttribute( 'name', aType.name )
-            typeNode.setAttribute( 'path', aType.path.replace('\\','/') )
-            typeNode.setAttribute( 'shotDependent', unicode( int( aType.isShotDependent ) ) )
-            typeNode.setAttribute( 'playblastFolder', aType.playblastFolder.replace('\\','/') )
-            typeNode.setAttribute( 'environments', ",".join( aType.environments ) )
+            typeNode.setAttribute("name", aType.name )
+            typeNode.setAttribute("path", aType.path.replace("\\","/"))
+
+            typeNode.setAttribute("shotDependent",
+                                  unicode(int(aType.isShotDependent)))
+
+            typeNode.setAttribute("playblastFolder",
+                                  aType.playblastFolder.replace("\\", "/"))
+
+            typeNode.setAttribute("environments", ",".join(aType.environments))
+            typeNode.setAttribute("output_path",
+                                  aType.output_path.replace("\\", "/"))
             
             assetTypesNode.appendChild( typeNode )
         #----------------------------------------------------------------------
         
         
         
-        #----------------------------------------------------------------------
-        # OUTPUT FOLDERS
-        #----------------------------------------------------------------------
-        outputFoldersNode = minidom.Element('outputFolders')
-        for fTuple in self._structure.outputFolders:
-            
-            outputNode = minidom.Element('output')
-            outputNode.setAttribute( 'name', fTuple[0] )
-            outputNode.setAttribute( 'path', fTuple[1].replace('\\','/') )
-            
-            outputFoldersNode.appendChild( outputNode )
-        #----------------------------------------------------------------------
-        
-        
-        
         # append children
-        rootNode.appendChild( sequenceDataNode )
+        rootNode.appendChild(sequenceDataNode)
         
-        sequenceDataNode.appendChild( structureNode )
-        sequenceDataNode.appendChild( assetTypesNode )
-        sequenceDataNode.appendChild( shotDataNode )
+        sequenceDataNode.appendChild(structureNode)
+        sequenceDataNode.appendChild(assetTypesNode)
+        sequenceDataNode.appendChild(shotDataNode)
         
-        structureNode.appendChild( shotDependentNode )
-        structureNode.appendChild( shotIndependentNode )
-        structureNode.appendChild( outputFoldersNode )
+        structureNode.appendChild(shotDependentNode)
+        structureNode.appendChild(shotIndependentNode)
         
-        shotDependentNode.appendChild( shotDependentNodeText )
-        shotIndependentNode.appendChild( shotIndependentNodeText )
-        
-        #shotListNode.appendChild( shotListNodeText )
+        shotDependentNode.appendChild(shotDependentNodeText)
+        shotIndependentNode.appendChild(shotIndependentNodeText)
         
         # create XML file
         settingsXML = minidom.Document()
-        settingsXML.appendChild( rootNode )
+        settingsXML.appendChild(rootNode)
         
         try:
             # if there is a settings file backit up
             # keep maximum of 5 backups
-            oyAux.backupFile( self._settingsFileFullPath, 5 )
-            settingsFile = open( self._settingsFileFullPath, 'w' )
+            oyAux.backupFile(self._settingsFileFullPath, 5)
+            settingsFile = open(self._settingsFileFullPath, "w")
         except IOError:
             #print "couldn't open the settings file"
             pass
         finally:
-            settingsXML.writexml( settingsFile, "\t", "\t", "\n" )
+            settingsXML.writexml(settingsFile, "\t", "\t", "\n")
             settingsFile.close()
             self._settingsFileExists = True
+            self._settings_dirty = False
         
         return
     
@@ -1641,7 +1804,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    def addNewAssetType(self, name='', path='', shotDependent=False, playblastFolder='', environments=None):
+    def addNewAssetType(self, name='', path='', shotDependent=False, playblastFolder='', environments=None, output_path=""):
         """adds a new asset type to the sequence
         
         you need to invoke self.saveSettings to make the changes permenant
@@ -1662,56 +1825,6 @@ class Sequence(object):
             self._assetTypes.append( newAType )
         #else:
             #print name, "is allready on the list, skipping"
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def addNewShotDependentFolder(self, folderPath):
-        #"""adds new shot dependent folder
-        
-        #folderPath should be relative to sequence root
-        
-        #you need to invoke self.createStructure and then self.saveSettings
-        #to make the changes permenant
-        #"""
-        
-        #self._structure.addShotDependentFolder( folderPath )
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def addNewShotIndependentFolder(self, folderPath):
-        #"""adds new shot independent folder
-        
-        #folderPath should be relative to sequence root
-        
-        #you need to invoke self.createStructure and then self.saveSettings
-        #to make the changes permenant
-        #"""
-        
-        #self._structure.addShotIndependentFolder( folderPath )
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def addNewOutputFolder(self, name, path):
-        #"""adds new output folder to the structure
-        
-        #you need to invoke self.saveSettings to make the changes permenant
-        #"""
-        
-        #self._structure.addOutputFolder( name, path )
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def removeOutputFolder(self, name):
-        #"""removes the specified output folder
-        
-        #you need to invoke self.saveSettings to make the changes permenant
-        #"""
-        
-        #self._structure.removeOutputFolder( name )
     
     
     
@@ -1788,38 +1901,22 @@ class Sequence(object):
 
 ########################################################################
 class Structure(object):
-    """The class that helps to hold data about structures in a sequence
+    """The class that helps to hold data about structures in a sequence.
     
-    outputFolders should be a list of tuples showing the name and path of the outputFolder
+    Structure holds data about shot dependent and shot independent folders.
+    Shot dependent folders has shot folders, and the others not.
+    
+    This class is going to change a lot in the future releases and it is going
+    to handle all the `project folder template` by using Jinja2 templates.
     """
     
     
     
-    #_shotDependentFolders = list()
-    #_shotIndependentFolders = list()
-    
-    
-    
     #----------------------------------------------------------------------
-    def __init__(self, shotDependentFolders=None, shotIndependentFolders=None, outputFolders=None):
+    def __init__(self, shotDependentFolders=None, shotIndependentFolders=None):
         
         self._shotDependentFolders = shotDependentFolders # should be a list of str or unicode
         self._shotIndependentFolders = shotIndependentFolders # should be a list of str or unicode
-        self._outputFolders = outputFolders # should be a list of tuples
-    
-    
-    
-    #----------------------------------------------------------------------
-    def addOutputFolder(self, name, path):
-        """adds new output folder to the structure
-        """
-        if self._outputFolders == None:
-            self._outputFolders = [] * 0
-        
-        outputFolderTupple = (name, path)
-        
-        if outputFolderTupple not in self._outputFolders:
-            self._outputFolders.append( outputFolderTupple )
     
     
     
@@ -1883,51 +1980,6 @@ class Structure(object):
     
     
     #----------------------------------------------------------------------
-    def outputFolders():
-        
-        doc = "the output folders"
-        
-        def fget(self):
-            sys.stdout.write("DEPRECATION WARNING: use assetType.output_folder"
-                             " instead of project.structure.outputFolders")
-            return self._outputFolders
-        
-        def fset(self, folders):
-            sys.stdout.write("DEPRECATION WARNING: use assetType.output_folder"
-                             " instead of project.structure.outputFolders")
-            self._outputFolders = folders
-        
-        return locals()
-    
-    outputFolders = property( **outputFolders() )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def getOutputFolderPathOf(self, name):
-        """returns the output folder path with the name
-        returns none if name is not in the list
-        """
-        for oFolderT in self._outputFolders:
-            if oFolderT[0] == name:
-                return oFolderT[1]
-        
-        return None
-    
-    
-    
-    #----------------------------------------------------------------------
-    def removeOutputFolder(self, name):
-        """removes the specified output folder
-        """
-        
-        path = self.getOutputFolderPathOf( name )
-        oTuple = (name, path)
-        self._outputFolders.remove( oTuple )
-    
-    
-    
-    #----------------------------------------------------------------------
     def removeShotDependentFolder(self, folderPath):
         """removes the shot dependent folder from the structure
         
@@ -1962,9 +2014,6 @@ class Structure(object):
         
         for i,folder in enumerate(self._shotIndependentFolders):
             self._shotIndependentFolders[i] = folder.replace('\\','/')
-        
-        for i,folderTuple in enumerate(self._outputFolders):
-            self._outputFolders[i] = ( folderTuple[0], folderTuple[1].replace('\\','/') )
     
     
     
@@ -1976,7 +2025,6 @@ class Structure(object):
         # remove any duplicates
         self._shotDependentFolders = sorted(oyAux.unique( self._shotDependentFolders ))
         self._shotIndependentFolders = sorted(oyAux.unique( self._shotIndependentFolders ))
-        self._outputFolders = sorted(oyAux.unique( self._outputFolders ))
 
 
 
@@ -1987,7 +2035,9 @@ class Structure(object):
 class Shot(object):
     """The class that enables the system to manage shot data
     """
-
+    
+    
+    
     #----------------------------------------------------------------------
     def __init__(self, name , sequence=None, startFrame=1, endFrame=1, description=''):
         self._name = name

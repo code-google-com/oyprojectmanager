@@ -235,13 +235,12 @@ class MayaEnvironment(abstractClasses.Environment):
         
         parentSeq = self._asset.sequence
         
-        renderOutputFolder = parentSeq.structure.\
-                           getOutputFolderPathOf('RENDER') # _RENDERED_IMAGES_/SHOTS
+        renderOutputFolder = self._asset.type.output_path # RENDERED_IMAGES/SHOTS
         
         # image folder from the workspace.mel
         imageFolderFromWS = pm.workspace.fileRules['image'] # _RENDERED_IMAGES_/
         
-        shotFolder = renderOutputFolder[ len(imageFolderFromWS):] # SHOTS
+        shotFolder = renderOutputFolder[len(imageFolderFromWS):] # SHOTS
         
         assetBaseName = self._asset.baseName
         
