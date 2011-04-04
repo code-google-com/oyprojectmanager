@@ -1,7 +1,14 @@
 Version History
 ===============
 
-v11.4.1
+v11.4.4
+-------
+
+ * Now, the environment variable is set whenever the repository settings is
+   read. This eliminates the need of setting the STALKER_REPOSITORY_PATH
+   environment variable manually.
+
+v11.4.3
 -------
 
  * finished moving the oyProjectManager to its own mercurial repository (thanks

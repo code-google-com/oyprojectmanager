@@ -425,7 +425,8 @@ class Repository( abstractClasses.Singleton ):
         except AttributeError:
             pass
         
-        
+        # force setting the environment
+        self.serverPath = self.serverPath
         
         # read and create the default files list
         for fileNode in defaultFilesNode.getElementsByTagName('file'):
