@@ -825,6 +825,7 @@ class Sequence(object):
             oyAux.backupFile(self._settingsFileFullPath, 5)
             #print "settingsFileFullPath: ", self._settingsFileFullPath
             settingsFile = open(self._settingsFileFullPath, "w")
+            os.chmod
         except IOError:
             #print "couldn't open the settings file"
             pass
