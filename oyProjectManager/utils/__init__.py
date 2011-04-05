@@ -47,7 +47,8 @@ def relpath(p1, p2, sep=os.path.sep, pardir=os.path.pardir):
     """
     
     # replace any trailing slashes at the end
-    p1 = re.sub(r"[" + sep + "]+$", "" , p1)
+    p1 = re.sub(r"[/]+$", "" , p1)
+    p1 = re.sub(r"[\\]+$", "",  p1)
     
     common, (u1, u2) = common_prefix(p1.split(sep), p2.split(sep))
     if not common:

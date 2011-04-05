@@ -56,6 +56,9 @@ class NukeEnvironment(abstractClasses.Environment):
         fullPath = self._asset.fullPath
         fullPath = fullPath.replace('\\','/')
         
+        # create the main write node
+        self.create_main_write_node()
+        
         # replace read and write node paths
         self.replace_file_path()
         
@@ -94,7 +97,14 @@ class NukeEnvironment(abstractClasses.Environment):
         # replace \\ with /
         fullPath = fullPath.replace('\\','/')
         
-        nuke.scriptOpen( fullPath )
+        nuke.scriptOpen(fullPath)
+        
+        # create the main write node if it is not present
+        self.create_main_write_node()
+        
+        # replace paths
+        self.replace_file_path()
+        
         return True
     
     
@@ -263,6 +273,10 @@ class NukeEnvironment(abstractClasses.Environment):
         )
         
         main_write_node["file"].setValue(output_file_full_path)
+        
+        # set the output file type to targa
+        main_write_node["file_type"].setValue(13)
+        main_write_node["channels"].setValue("rgba")
     
     
     
@@ -289,6 +303,10 @@ class NukeEnvironment(abstractClasses.Environment):
         
         def nodeRep(nodes):
             [node["file"].setValue(
-                repPath(node["file"].getValue)
+                repPath(node["file"].getValue())
             ) for node in nodes]
         
+        nodeRep(readNodes)
+        nodeRep(writeNodes)
+        nodeRep(readGeoNodes)
+        nodeRep(writeGeoNodes)

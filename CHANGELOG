@@ -13,6 +13,9 @@ v11.4.5
  * file paths in nuke are now replaced with a tcl code reading the environment
    variable
 
+ * in nuke, an output node called "MAIN_OUTPUT" is created whenever the script
+   is opened or saved, and its path is set to the correct path
+
 v11.4.4
 -------
 

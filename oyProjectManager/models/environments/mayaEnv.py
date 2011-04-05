@@ -62,8 +62,7 @@ class MayaEnvironment(abstractClasses.Environment):
     
     #----------------------------------------------------------------------
     def export(self):
-        """the export action for maya environment
-        """
+        """the export action for maya environment        """
         
         # check if there is something selected
         if len(pm.ls(sl=True)) < 1:
@@ -236,9 +235,7 @@ class MayaEnvironment(abstractClasses.Environment):
         parentSeq = self._asset.sequence
         assert(isinstance(parentSeq, project.Sequence))
         
-        repo = repository.Repository()
-        parentSeqFullPath = repo.relative_path(parentSeq.fullPath)
-        
+        parentSeqFullPath = parentSeq.fullPath.replace("\\", "/")
         renderOutputFolder = self._asset.type.output_path # RENDERED_IMAGES
         
         # image folder from the workspace.mel
@@ -246,6 +243,8 @@ class MayaEnvironment(abstractClasses.Environment):
         
         imageFolderFromWS_full_path = os.path.join(parentSeqFullPath,
                                                    imageFolderFromWS)
+        imageFolderFromWS_full_path = \
+            imageFolderFromWS_full_path.replace("\\", "/")
         
         assetBaseName = self._asset.baseName
         renderFileName = ''
@@ -267,9 +266,14 @@ class MayaEnvironment(abstractClasses.Environment):
         
         # convert he render_file_full_path to a relative path to the
         # imageFolderFromWS_full_path
+        
+        print "imageFolderFromWS_full_path: %s" % imageFolderFromWS_full_path
+        print "render_file_full_path: %s" % render_file_full_path
+        
         render_file_rel_path = utils.relpath(
             imageFolderFromWS_full_path,
-            render_file_full_path
+            render_file_full_path,
+            sep="/"
         )
         
         if self.hasStereoCamera():
