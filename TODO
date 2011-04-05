@@ -1,0 +1,173 @@
+TODO
+====
+
+ * Create test for all the classes used, and turn the development practice to
+   TDD as soon as possible.
+
+ * Structure should use Jinja2 templates.
+
+ * The server could be specified by the user in run-time.
+
+ * Referencing an asset should set the STALKER_REPOSITORY_PATH environment
+   variable in the asset path.
+
+ * the creation of the workspace.mel should be handled by the mayaEnv module
+   instead of the project class. There could be some initialization part
+   for all the environment classes.
+
+
+
+ * exports to formats other than the native format of the environment should
+   be placed under a folder, lets say a folder named "_exports_" under the
+   asset folder
+
+ * set the default maya renderer to mentralray and use 32-bit exr as the
+   default output type
+
+ * save a local copy of the asset to not to carry all the eggs in the same
+   basket
+
+ * add a UserType class, save the default user types in an xml file
+
+ * add the UserType id to the users.xml
+
+ * the relation and interaction between the assetManager and the environments
+   should be more universal and organized. The environments should return
+   appropriate codes on return, so the assetManager now if it should warn the
+   user for data loos on premature exit, or should ask the user for info about
+   the asset updates...
+
+ * Deep reference update: create interfaces for the users to make them be able
+   to easily open and edit referenced assets. The interface should give
+   functionalities to the user to open the referenced files in another session
+   of the host application, to let the user update the referenced files with
+   the latest published versions of the same asset etc. And the interface
+   should automatically check and update references inside other references
+   (deep reference update)
+
+ * store recent files list in repository do not trust to the applications
+   recent files
+
+ * convert the system to a full featured Production Asset Management System by
+   using SQLAlchemy/Elixir as the database framework and ORM
+
+ * add a user login window
+
+ * add access control
+
+ * add the ability of a user to review an asset
+
+ * add asset approval system
+
+ * add a publishing system
+
+ * add thumbnails to assets
+
+ * add a messaging system
+
+ * add a resource management system
+
+ * switch to a database stored metadata system
+
+ * use the user class to define if the user can change the project
+
+ * keep track of the project timings, progress of the project, with another
+   module
+
+ * create appropriate Error classes for errors
+
+ * an asset object should contain all the versions, revisions, of the same
+   asset, or there should be an superAsset class that holds all the versions,
+   revisions and any subNames of the same asset, so the group of the files
+   should be counted as one asset with multi versions
+
+
+FIXED & DONE
+============
+
+ * for houdini set the render output picture path and name if there is an
+   output node, if there is no output node, by default create one
+
+ * create a ticket system ( probably wiht Django ) (done with Trac)
+
+ * programs should not list the files those they can not open, for example
+   houdini shouldn't list ma files, and maya should not list hip files
+
+ * in maya environment the references should not be loaded until the version
+   check is done, and then it should be loaded or not loaded according to the
+   user preferences. This should give us a gain in performance while replacing
+   new versions of assets
+
+ * (COULD NOT OBSERVE THE PROBLEM) while working with non-asset files, nuke
+   could not bring up the assetManager interface
+
+ * shotEditor is not working in Houdini
+
+ * the environments folder should be moved under dataModels (will be renamed to
+   models), to have a consistant structure
+
+ * dataModels should be renamed to models, and every module under it should not
+   contain Model in their names, for example:
+
+    dataModels/assetModel.py   --> models/asset.py
+    dataModels/projectModel.py --> models/project.py
+    etc.
+
+ * for environments supporting referencing, check the references for new
+   versions while opening the asset ( properly done for maya )
+
+ * the shot editor should list the shots in alphabetical order
+
+ * some suggestions to the system name:
+  
+   * DeepImpact
+  
+   * Raptor
+  
+   * Mynx
+  
+   * Shaft
+  
+   * Ghost
+  
+   * Stalker (Best for now) - The new version will be called STALKER
+
+ * in nuke the asset manager interface starts with irrelevant project and
+   sequence probably it can't get the variables from the nuke environment
+
+ * nuke still can't guess where to save the auto-save files under windows,
+   apparently there is a confussion about the seperator
+
+ * add a shot class to manage shot data, and keep track of the shot durations,
+   start and end frame numbers
+
+ * for houdini read the recent file history from $HIH/file.history or
+   $HOME/houdiniX.X/file.history
+
+ * in houdiniEnv, change the environment variables ($JOB etc.) to the current
+   project whenever a file is saved or opened
+
+ * seperate the version history and todo lists to other text documents
+
+ * reduce the code duplication in MainDialog
+
+ * try to add another type of caching system, which is input dependent, so for
+   the same input it should return the same value without evaluating anything
+
+ * add program names attribute to the assetType objects, so they can be
+   listed for specific programs only (e.g. MAYA, NUKE, PHOTOSHOP, HOUDINI etc.)
+
+ * use external settings file in XML format for the database, instead of
+   burrying the data to the class
+
+ * separate the project management to another ui
+
+ * save all xml in pretty xml format
+
+ * to get benefit from the caching system in the MainDialog class, add a
+   project and sequence attribute and fill them whenever the project and
+   sequence is changed to something else
+
+ * add an interface with PyQt4
+
+ * add an Asset class
