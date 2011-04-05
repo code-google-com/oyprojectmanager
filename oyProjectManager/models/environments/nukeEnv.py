@@ -56,6 +56,9 @@ class NukeEnvironment(abstractClasses.Environment):
         fullPath = self._asset.fullPath
         fullPath = fullPath.replace('\\','/')
         
+        # replace read and write node paths
+        self.replace_file_path()
+        
         nuke.scriptSaveAs( fullPath )
         
         return True
@@ -263,3 +266,29 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     
+    #----------------------------------------------------------------------
+    def replace_file_path(self):
+        """replaces file paths with environment variable scripts
+        """
+        
+        repo = repository.Repository()
+        
+        env_str = "[getenv " + repo.repository_path_env_key + "]"
+        
+        # convert the given path to tcl environment script
+        def repPath(path):
+            return path.replace(repo.serverPath, env_str)
+        
+        # get all read nodes
+        allNodes = nuke.allNodes()
+        
+        readNodes = [node for node in allNodes if node.Class() == "Read"]
+        writeNodes = [node for node in allNodes if node.Class() == "Write"]
+        readGeoNodes = [node for node in allNodes if node.Class() == "ReadGeo"]
+        writeGeoNodes = [node for node in allNodes if node.Class() == "WriteGeo"]
+        
+        def nodeRep(nodes):
+            [node["file"].setValue(
+                repPath(node["file"].getValue)
+            ) for node in nodes]
+        

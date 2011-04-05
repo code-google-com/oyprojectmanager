@@ -10,6 +10,9 @@ v11.4.5
  * the render file path in maya is now calculated relatively to the path
    queried from the workspace image file rule path
 
+ * file paths in nuke are now replaced with a tcl code reading the environment
+   variable
+
 v11.4.4
 -------
 
