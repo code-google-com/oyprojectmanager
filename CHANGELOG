@@ -1,6 +1,15 @@
 Version History
 ===============
 
+v11.4.5
+-------
+
+ * added relpath to the oyProjectManager.utils module, which turns paths to
+   relative paths to each other
+
+ * the render file path in maya is now calculated relatively to the path
+   queried from the workspace image file rule path
+
 v11.4.4
 -------
 

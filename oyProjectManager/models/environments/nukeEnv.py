@@ -232,7 +232,7 @@ class NukeEnvironment(abstractClasses.Environment):
         
         if main_write_node is None:
             # create one with correct output path
-            main_write_node = nuke.Nodes.Write()
+            main_write_node = nuke.nodes.Write()
             main_write_node.setName(self._main_output_node_name)
         
         # set the output path
@@ -242,7 +242,24 @@ class NukeEnvironment(abstractClasses.Environment):
         seq = self._asset.sequence
         assert(isinstance(seq, project.Sequence))
         
-        #seq.
+        aType = self._asset.type
+        assert(isinstance(aType, asset.AssetType))
         
         
-        main_write_node["file"].setValue()
+        output_file_name = self._asset.baseName + "_" + \
+                           self._asset.subName + "_" + \
+                           "OUTPUT_" + \
+                           self._asset.revisionString + "_" + \
+                           self._asset.versionString + "_" + \
+                           self._asset.userInitials + ".###.tga"
+        
+        output_file_full_path = os.path.join(
+            seq.fullPath,
+            self._asset.type.output_path,
+            output_file_name
+        )
+        
+        main_write_node["file"].setValue(output_file_full_path)
+    
+    
+    

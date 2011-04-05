@@ -4,7 +4,7 @@ from pymel import core as pm
 import maya.cmds as mc
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.models import asset, project, repository, abstractClasses
-
+from oyProjectManager import utils
 
 
 __version__ = "11.3.24"
@@ -234,33 +234,54 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         parentSeq = self._asset.sequence
+        assert(isinstance(parentSeq, project.Sequence))
         
-        renderOutputFolder = self._asset.type.output_path # RENDERED_IMAGES/SHOTS
+        repo = repository.Repository()
+        parentSeqFullPath = repo.relative_path(parentSeq.fullPath)
+        
+        renderOutputFolder = self._asset.type.output_path # RENDERED_IMAGES
         
         # image folder from the workspace.mel
-        imageFolderFromWS = pm.workspace.fileRules['image'] # _RENDERED_IMAGES_/
+        imageFolderFromWS = pm.workspace.fileRules['image'] # RENDERED_IMAGES/
         
-        shotFolder = renderOutputFolder[len(imageFolderFromWS):] # SHOTS
+        imageFolderFromWS_full_path = os.path.join(parentSeqFullPath,
+                                                   imageFolderFromWS)
         
         assetBaseName = self._asset.baseName
-        
         renderFileName = ''
+        
         if parentSeq.noSubNameField:
-            renderFileName = shotFolder + "/" + assetBaseName + "/<Layer>/" + assetBaseName + "_<Layer>_<RenderPass>_<Version>"
+            render_file_full_path = parentSeqFullPath + "/" + \
+                renderOutputFolder + "/" + \
+                assetBaseName + "/<Layer>/" + \
+                assetBaseName + "_<Layer>_<RenderPass>_<Version>"
+            
         else: # remove later when the support for old project is over
             assetSubName = self._asset.subName
-            renderFileName = shotFolder + "/" + assetBaseName + "/" + assetSubName + "/<Layer>/" + assetBaseName + "_" + assetSubName + "_<Layer>_<RenderPass>_<Version>"
+            render_file_full_path = parentSeqFullPath + "/" + \
+                renderOutputFolder + "/" + \
+                assetBaseName + "/" + \
+                assetSubName + "/<Layer>/" + \
+                assetBaseName + "_" + assetSubName + \
+                "_<Layer>_<RenderPass>_<Version>"
+        
+        # convert he render_file_full_path to a relative path to the
+        # imageFolderFromWS_full_path
+        render_file_rel_path = utils.relpath(
+            imageFolderFromWS_full_path,
+            render_file_full_path
+        )
         
         if self.hasStereoCamera():
             # just add the <Camera> template variable to the file name
-            renderFileName = renderFileName + "_<Camera>"
+            render_file_rel_path = render_file_rel_path + "_<Camera>"
         
         
         # SHOTS/ToonShading/TestTransition/incidence/ToonShading_TestTransition_incidence_MasterPass_v050.####.iff
         
         # defaultRenderGlobals
         dRG = pm.PyNode('defaultRenderGlobals')
-        dRG.setAttr('imageFilePrefix', renderFileName)
+        dRG.setAttr('imageFilePrefix', render_file_rel_path)
         dRG.setAttr('renderVersion', self._asset.versionString )
         dRG.setAttr('animation', 1)
         dRG.setAttr('outFormatControl', 0 )

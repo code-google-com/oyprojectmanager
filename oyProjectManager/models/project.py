@@ -822,6 +822,7 @@ class Sequence(object):
             # keep maximum of 5 backups
             oyAux.backupFile(self._settingsFileFullPath, 5)
             settingsFile = open(self._settingsFileFullPath, "w")
+            os.chmod
         except IOError:
             #print "couldn't open the settings file"
             pass
