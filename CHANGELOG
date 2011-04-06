@@ -14,7 +14,8 @@ v11.4.5
    variable
 
  * in nuke, an output node called "MAIN_OUTPUT" is created whenever the script
-   is opened or saved, and its path is set to the correct path
+   is saved, and its path is set to the correct path pointed by the current
+   asset.
 
 v11.4.4
 -------

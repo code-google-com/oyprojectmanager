@@ -99,9 +99,6 @@ class NukeEnvironment(abstractClasses.Environment):
         
         nuke.scriptOpen(fullPath)
         
-        # create the main write node if it is not present
-        self.create_main_write_node()
-        
         # replace paths
         self.replace_file_path()
         
@@ -299,6 +296,7 @@ class NukeEnvironment(abstractClasses.Environment):
         readNodes = [node for node in allNodes if node.Class() == "Read"]
         writeNodes = [node for node in allNodes if node.Class() == "Write"]
         readGeoNodes = [node for node in allNodes if node.Class() == "ReadGeo"]
+        readGeo2Nodes = [node for node in allNodes if node.Class() == "ReadGeo2"]
         writeGeoNodes = [node for node in allNodes if node.Class() == "WriteGeo"]
         
         def nodeRep(nodes):
@@ -309,4 +307,5 @@ class NukeEnvironment(abstractClasses.Environment):
         nodeRep(readNodes)
         nodeRep(writeNodes)
         nodeRep(readGeoNodes)
+        nodeRep(readGeo2Nodes)
         nodeRep(writeGeoNodes)
