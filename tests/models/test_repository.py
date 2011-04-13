@@ -6,105 +6,10 @@ import os
 import sys
 import shutil
 import tempfile
+from xml.dom import minidom
 import mocker
 
-
-
-
-
-
-########################################################################
-class RepositoryTesterWithoutEnv(mocker.MockerTestCase):
-    """tests the repository without the environment variables
-    """
-    
-    
-    #----------------------------------------------------------------------
-    def setUp(self):
-        """setting up the test
-        """
-        
-        # check the environment and remove the OYPROJECTMANAGER_PATH variable
-        # if there is one
-        
-        self.env_key = 'OYPROJECTMANAGER_PATH'
-        self.env_value = None
-        
-        if os.environ.has_key(self.env_key):
-            # store the variable in a local attribute and restore it later
-            self.env_value = os.environ[self.env_key]
-            os.environ.pop(self.env_key)
-    
-    
-    
-    #----------------------------------------------------------------------
-    def tearDown(self):
-        """revert everything back to normal
-        """
-        
-        # add the environment value if there was any
-        if self.env_value is not None:
-            os.environ[self.env_key] = self.env_value
-        
-    
-    
-    
-    #----------------------------------------------------------------------
-    def test_repository_withoutEnv(self):
-        """testing if the repository works without environment variables
-        """
-        
-        from oyProjectManager.models import repository
-        
-        # create a repository object
-        repo = repository.Repository()
-        
-        # do something
-    
-    
-    
-    #----------------------------------------------------------------------
-    def test_getSettingsPath_without_environment_variable(self):
-        """testing if the getSettingsPath returns the correct path when the
-        environment variables is not set
-        """
-        from oyProjectManager.models import repository
-        repo = repository.Repository()
-        
-        # this should return the default path
-        
-        
-        package_path = os.path.abspath(
-            os.path.dirname(
-                os.path.dirname(
-                    os.path.dirname(__file__)
-                    )
-                )
-            )
-        
-        self.default_settings_path = os.path.join( package_path, 'settings' )
-        
-        self.assertEquals(repo.getSettingsPath(), self.default_settings_path)
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def test_server_path(self):
-        #"""test if the server path is returning correct value according to the
-        #current operating system
-        #"""
-        
-        ## get the settings file and find the linux path in the settings file
-        
-        #import platform
-        
-        #if platform_system == "Linux":
-            #return self.linux_path
-        #elif platform_system == "Windows":
-            #return self.windows_path
-        #elif platform_system == "Darwin":
-            #return self.osx_path
-
+from oyProjectManager.models import repository, project
 
 
 
@@ -112,9 +17,10 @@ class RepositoryTesterWithoutEnv(mocker.MockerTestCase):
 
 
 ########################################################################
-class RepositoryTesterWithEnv(mocker.MockerTestCase):
+class RepositoryTester(mocker.MockerTestCase):
     """tests the repository with environment variables
     """
+    
     
     
     #----------------------------------------------------------------------
@@ -125,8 +31,9 @@ class RepositoryTesterWithEnv(mocker.MockerTestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mkdtemp()
-        self.temp_project_folder = tempfile.mkdtemp()
+        #self.temp_settings_folder = tempfile.mkdtemp()
+        self.temp_settings_folder = tempfile.mktemp()
+        self.temp_projects_folder = tempfile.mkdtemp()
         
         os.environ['OYPROJECTMANAGER_PATH'] = self.temp_settings_folder
         
@@ -141,57 +48,72 @@ class RepositoryTesterWithEnv(mocker.MockerTestCase):
         )
         
         self.default_settings_dir_path = os.path.join(
-            self.package_path, 'settings' )
+            self.package_path, "oyProjectManager", "settings" )
         
-        # copy the setting files
-        files = [ 'defaultProjectSettings.xml',
-                  'environmentSettings.xml',
-                  'repositorySettings.xml',
-                  'users.xml',
-                ]
+        ## copy the setting files
+        #files = ["defaultProjectSettings.xml",
+                 #"environmentSettings.xml",
+                 #"repositorySettings.xml",
+                 #"users.xml",
+                 #"_defaultFiles_",
+                 #]
         
-        for file_ in files:
-            shutil.copy2(
-                os.path.join(
-                    self.default_settings_dir_path,
-                    file_)
-                ,
-                os.path.join(
-                    self.temp_settings_folder,
-                    file_)
-                )
+        #for file_ in files:
+            #shutil.copy2(
+                #os.path.join(
+                    #self.default_settings_dir_path,
+                    #file_)
+                #,
+                #os.path.join(
+                    #self.temp_settings_folder,
+                    #file_)
+                #)
+        
+        shutil.copytree(
+            self.default_settings_dir_path,
+            self.temp_settings_folder,
+        )
         
         # change the server path to a temp folder
         repository_settings_file_path = os.path.join(
             self.temp_settings_folder, 'repositorySettings.xml')
         
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='r+')
+        # change the repositorySettings.xml by using the minidom
+        xmlDoc = minidom.parse(repository_settings_file_path)
         
-        lines = repository_settings_file.readlines()
-        repository_settings_file.close()
-        
-        for i, line in enumerate(lines):
-            if line.strip().startswith('serverPath='):
-                lines[i] = 'serverPath="' + self.temp_project_folder + '"\n'
+        serverNodes = xmlDoc.getElementsByTagName("server")
+        for serverNode in serverNodes:
+            serverNode.setAttribute("windows_path", self.temp_projects_folder)
+            serverNode.setAttribute("linux_path", self.temp_projects_folder)
+            serverNode.setAttribute("osx_path", self.temp_projects_folder)
         
         repository_settings_file = file(repository_settings_file_path,
                                         mode='w')
-        
-        repository_settings_file.writelines( lines )
+        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
     
     
     
     #----------------------------------------------------------------------
-    def test_getSettingsPath_with_environment_variable(self):
-        """testing if the getSettingsPath returns the correct path when the
-        environment variables is set
+    def tearDown(self):
+        """remove the temp folders
         """
-        from oyProjectManager.models import repository
-        repo = repository.Repository()
         
-        # this should return the same path with the environment
-        self.assertEqual(repo.getSettingsPath(), self.temp_settings_folder)
+        # delete the temp folder
+        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_projects_folder)
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def test_get_settings_path_with_environment_variable(self):
+        #"""testing if the get_settings_path returns the correct path when the
+        #environment variables is set
+        #"""
+        
+        #repo = repository.Repository()
+        
+        ## this should return the same path with the environment
+        #self.assertEqual(repo.get_settings_path(), self.temp_settings_folder)
     
     
     
@@ -199,7 +121,7 @@ class RepositoryTesterWithEnv(mocker.MockerTestCase):
     def test_create_project(self):
         """testing project creation
         """
-        from oyProjectManager.models import repository
+        
         repo = repository.Repository()
         
         project_name = 'TEST_PROJECT'
@@ -212,7 +134,7 @@ class RepositoryTesterWithEnv(mocker.MockerTestCase):
         self.assertTrue(
             os.path.exists(
                 os.path.join(
-                    repo.serverPath,
+                    repo.server_path,
                     project_name
                     )
                 )
@@ -221,53 +143,441 @@ class RepositoryTesterWithEnv(mocker.MockerTestCase):
     
     
     #----------------------------------------------------------------------
-    def tearDown(self):
-        """remove the temp folders
+    def test_without_environment_variable(self):
+        """testing if a KeyError will be raised when there is no
+        OYPROJECTMANAGER_PATH variable defined in the environment variables
         """
         
-        # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
-        shutil.rmtree(self.temp_project_folder)
-
-
-
-
-
-
-########################################################################
-class RepositoryTester(mocker.MockerTestCase):
-    """The main test case for the Repository class.
-    """
+        # delete the environment variable
+        if os.environ.has_key("OYPROJECTMANAGER_PATH"):
+            os.environ.pop("OYPROJECTMANAGER_PATH")
+        
+        self.assertRaises(KeyError, repository.Repository)
     
     
     
     #----------------------------------------------------------------------
-    @classmethod
-    def setUpClass(cls):
-        """set up the test in class level
+    def test_environment_variable_is_expanded(self):
+        """testing if user and environment values are expanded in
+        OYPROJECTMANAGER_PATH environment variable
         """
         
-        # setup environment variable for default settings
+        temp_folder_name = tempfile.mktemp().replace(tempfile.gettempdir(), "")
         
-        import os, sys
-        import oyProjectManager
+        other_env_key = "OTHERENVVAR1"
+        other_env_value = "tmp"
         
-        oyProjectManager_path = os.path.sep.join(
-            oyProjectManager.__file__.split(os.path.sep)[:-2]
+        os.environ[other_env_key] = other_env_value
+        
+        new_path = os.path.join("~", "$" + other_env_key,
+                                "tmp" + temp_folder_name)
+        
+        expanded_new_path = os.path.expanduser(os.path.expandvars(new_path))
+        
+        # copy the current settings to the target folder to not to raise any
+        # other errors
+        
+        shutil.copytree(os.environ["OYPROJECTMANAGER_PATH"], expanded_new_path)
+        
+        os.environ["OYPROJECTMANAGER_PATH"] = new_path
+        
+        # now test if the path is expanded
+        repo = repository.Repository()
+        
+        self.assertEquals(repo.settings_dir_path, expanded_new_path)
+        
+        # now delete the tmp folder
+        shutil.rmtree(expanded_new_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_default_settings_file_full_path_property_is_working_properly(self):
+        """testing if the default_settings_file_full_path porperty is working
+        properly
+        """
+        
+        repo = repository.Repository()
+        
+        self.assertEquals(repo._default_settings_file_full_path,
+                          repo.default_settings_file_full_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_default_settings_file_full_path_property_is_read_only(self):
+        """testing if the default_settings_file_full_path property is read only
+        """
+        
+        repo = repository.Repository()
+        
+        self.assertRaises(AttributeError,
+                          setattr,
+                          repo,
+                          "default_settings_file_full_path",
+                          "a value")
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_get_project_and_sequence_name_from_file_path_works_properly(self):
+        """testing if get_project_and_sequence_name_from_file_path is working
+        properly.
+        """
+        
+        # create a fictional asset path
+        repo = repository.Repository()
+        
+        project_name = "Proj1"
+        sequence_name = "Seq1"
+        
+        asset_path = os.path.join(repo.server_path, project_name,
+                                  sequence_name, "Asset1")
+        
+        self.assertEquals(
+            repo.get_project_and_sequence_name_from_file_path(asset_path),
+            (project_name, sequence_name)
+        )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_get_project_and_sequence_name_from_file_path_returns_None(self):
+        """testing if get_project_and_sequence_name_from_file_path returns
+        (None, None) for irrelative paths.
+        """
+        
+        repo = repository.Repository()
+        
+        self.assertEquals(
+            repo.get_project_and_sequence_name_from_file_path(
+                "/an/irrelative/path/to/some/asset/or/something/else"),
+            (None, None)
+        )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_home_path_works_properly(self):
+        """testing if get_home path works properly
+        """
+        
+        repo = repository.Repository()
+        
+        self.assertEquals(repo.home_path, os.environ["HOME"])
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_home_path_is_read_only(self):
+        """testing if the home_path property is read only
+        """
+        
+        repo = repository.Repository()
+        
+        self.assertRaises(AttributeError,
+                          setattr,
+                          repo,
+                          "home_path",
+                          "/some/path/to/something")
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_last_user_property_working_properly(self):
+        """testing if the last_user property is working properly
+        """
+        
+        repo = repository.Repository()
+        
+        # get the last user from the repo
+        last_user = repo.last_user
+        
+        if last_user == "":
+            # no saved user before
+            # just create one
+            repo.last_user = repo.userInitials[0]
+            
+            # re-read last_user
+            last_user = repo.last_user
+        
+        # now check it if it is same with the last_user_file
+        self.assertEquals(
+            last_user,
+            open(repo._last_user_file_full_path).readline().strip()
+        )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_last_user_property_sets_last_user_properly(self):
+        """testing if the last_user property is properly setting the last user
+        """
+        
+        repo = repository.Repository()
+        # store the current user
+        current_last_user = repo.last_user
+        
+        # change last user by using the property
+        # change it with the user first in the user list
+        new_last_user = repo.userInitials[0]
+        repo.last_user = new_last_user
+        
+        # check if it is set properly
+        self.assertEquals(
+            repo.last_user,
+            new_last_user
         )
         
-        test_settings_path = os.path.join(oyProjectManager_path,
-                                          "tests/test_settings")
-        
-        # append or update the environment key to point the test_settings path
-        os.environ["OYPROJECTMANAGER_SETTINGS_PATH"] = test_settings_path
+        # restore the previous user
+        if current_last_user is not None:
+            repo.last_user = current_last_user
     
     
     
     #----------------------------------------------------------------------
-    def test_init(self):
-        """testing initializing the class
+    def test_server_path_expands_variables(self):
+        """teting if the server_path property is expanding environment
+        variables properly.
         """
         
+        # set the new server path to a user relative and environment relative
+        # path
+        os.environ["ENVVAR1"] = "tmp"
+        new_server_path = os.path.join("~", "tmp", "$ENVVAR1")
+        expanded_new_server_path = os.path.expanduser(
+            os.path.expandvars(new_server_path)
+        )
         
+        # create the folder
+        try:
+            os.makedirs(expanded_new_server_path)
+        except OSError:
+            # the path exists
+            pass
         
+        repo = repository.Repository()
+        
+        repo.server_path = new_server_path
+        
+        self.assertEquals(repo.server_path, expanded_new_server_path)
+        
+        # clean up test
+        shutil.rmtree(expanded_new_server_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_server_path_working_properly(self):
+        """testing if the server_path property is working properly
+        """
+        
+        # for now just check if it is the same with the linux_path
+        
+        repo = repository.Repository()
+        
+        self.assertEquals(repo.server_path, repo.linux_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_server_path_setting_path_working_properly(self):
+        """testing if the server_path property is working properly
+        """
+        
+        # for now just test it for linux
+        repo = repository.Repository()
+        
+        new_server_path = tempfile.mkdtemp()
+        
+        repo.server_path = new_server_path
+        
+        # check if it is same with the server_path
+        self.assertEquals(
+            new_server_path,
+            repo.server_path
+        )
+        
+        # check if it is same with the linux path
+        self.assertEquals(
+            new_server_path,
+            repo.linux_path
+        )
+        
+        # now check if it is same with the linux path
+        self.assertEquals(
+            repo.server_path,
+            repo.linux_path
+        )
+        
+        # clean up
+        os.rmdir(new_server_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_linux_path_setting_the_server_path(self):
+        """testing if changing the linux_path also changes the server_path
+        under linux
+        """
+        
+        new_server_path = tempfile.mkdtemp()
+        
+        # set this dir to the linux path and check if it is also changing the
+        # server_path
+        repo = repository.Repository()
+        
+        repo.linux_path = new_server_path
+        
+        self.assertEquals(repo.server_path, new_server_path)
+        
+        # clean up
+        os.rmdir(new_server_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_settings_dir_path_works_properly(self):
+        """testing if the settings_dir_path works properly
+        """
+        
+        # check if the settings_dir path property is working properly
+        # get the current settings_dir_path from the environment variable
+        
+        settings_dir_path_from_env = os.path.expanduser(
+            os.path.expandvars(
+                os.environ["OYPROJECTMANAGER_PATH"]
+            )
+        )
+        
+        repo = repository.Repository()
+        
+        self.assertEquals(repo.settings_dir_path, settings_dir_path_from_env)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_projects_property_working_properly(self):
+        """testing if the project property is working properly
+        """
+        
+        # create a couple of projects
+        project_names = ["PROJ1",
+                         "PROJ2",
+                         "PROJ3",
+                         "TEST_PROJECT1",
+                         ]
+        
+        repo = repository.Repository()
+        
+        for project_name in project_names:
+            #proj = repo.createProject(project_name)
+            proj = project.Project(project_name)
+            proj.create()
+        
+        # now get the projects list and check
+        # if it is same with the original projects list
+        
+        self.assertEquals(repo.projects, project_names)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_update_project_list_working_properly(self):
+        """testing if the update_project_list is filtering folders correctly
+        """
+        
+        # create a couple of projects
+        folder_names = ["PROJ1",
+                        "PROJ2",
+                        "PROJ3",
+                        "TEST_PROJECT",
+                        "TEST_PROJECT1",
+                        "1test project2",
+                        ".DS_Store",
+                        ]
+        
+        expected_list = ["PROJ1",
+                         "PROJ2",
+                         "PROJ3",
+                         "TEST_PROJECT",
+                         "TEST_PROJECT1",
+                         ]
+        
+        repo = repository.Repository()
+        
+        # create a folder in the projects folder
+        for folder_name in folder_names:
+            os.mkdir(os.path.join(self.temp_projects_folder, folder_name))
+        
+        # now get the projects list and check
+        # if it is same with the original projects list
+        
+        self.assertEquals(repo.projects, expected_list)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_relative_path_working_properly(self):
+        """testing if the relative_path is working properly
+        """
+        
+        test_folder_name = "TEST_FOLDER"
+        
+        test_folder_full_path = os.path.join(
+            self.temp_projects_folder,
+            test_folder_name
+        )
+        
+        repo = repository.Repository()
+        
+        expected_path = os.path.join(
+            "$" + repo.repository_path_env_key,
+            test_folder_name
+        )
+        
+        self.assertEquals(
+            repo.relative_path(test_folder_full_path),
+            expected_path
+        )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_valid_projects_returns_valid_projects(self):
+        """testing if valid_projects property returns valid projects
+        """
+        
+        # create a couple of projects with sequences
+        # then create a couple of extra folders
+        # and check if we get only the projects
+        
+        project_names = ["PROJ1", "PROJ2", "PROJ3"]
+        seq_name = "SEQ1"
+        shots = "1"
+        extra_folders = ["PROJ4", "PROJ5", "PROJ6"]
+        
+        repo = repository.Repository()
+        
+        # create the projects
+        for project_name in project_names:
+            proj = repo.createProject(project_name)
+            proj.create()
+            
+            # create a sequence for them
+            proj.createSequence(seq_name, shots)
+        
+        # create folders
+        for folder in extra_folders:
+            os.mkdir(
+                os.path.join(
+                    repo.server_path,
+                    folder
+                )
+            )
+        
+        # now check if we only get the valid projects
+        self.assertEquals(
+            project_names,
+            repo.valid_projects
+        )

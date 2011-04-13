@@ -159,7 +159,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
                                 self.updateComboBoxesForAsset )
         
         self._fillUI()
-        self.updateProjectList()
+        self.update_project_list()
         
         if self._numOfRefs > 0:
             # just act like the first asset has been double clicked
@@ -279,18 +279,18 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
     
     
     #----------------------------------------------------------------------
-    def updateProjectList(self):
+    def update_project_list(self):
         """updates projects list
         """
         
-        serverPath = self._repo.serverPath
+        server_path = self._repo.server_path
         
-        projectsList = self._repo.validProjects
+        projectsList = self._repo.valid_projects
         projectsList.sort()
         
         self.server_comboBox.clear()
         self.project_comboBox.clear()
-        self.server_comboBox.addItem( serverPath )
+        self.server_comboBox.addItem( server_path )
         self.project_comboBox.addItems( projectsList )
     
     

@@ -55,7 +55,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         self._centerWindow()
         
         # connect SIGNALs
-        QtCore.QObject.connect(self.tabWidget, QtCore.SIGNAL("currentChanged(int)"), self.updateProjectLists )
+        QtCore.QObject.connect(self.tabWidget, QtCore.SIGNAL("currentChanged(int)"), self.update_project_lists )
         
         QtCore.QObject.connect(self.project_comboBox3, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSequenceLists )
         QtCore.QObject.connect(self.project_comboBox4, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSequenceLists )
@@ -100,7 +100,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         # fill the server comboBox
         self.servers_comboBox.clear()
-        self.servers_comboBox.addItem ( self.repo.serverPath )
+        self.servers_comboBox.addItem ( self.repo.server_path )
         
         
         # --------------------------------
@@ -108,10 +108,10 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         # --------------------------------
         self.fps_comboBox.clear()
         
-        timeUnits = self.repo.timeUnits
+        time_units = self.repo.time_units
         fpsList = []
-        for timeUnitName in timeUnits.keys():
-            fpsList.append( timeUnitName + self._timeFpsDivider + timeUnits[timeUnitName] )
+        for timeUnitName in time_units.keys():
+            fpsList.append( timeUnitName + self._timeFpsDivider + time_units[timeUnitName] )
         
         fpsList = sorted( fpsList, None, lambda x: x.split( self._timeFpsDivider )[1] )
         
@@ -230,7 +230,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     #----------------------------------------------------------------------
-    def updateProjectLists(self):
+    def update_project_lists(self):
         """updates the project comboBoxes
         """
         projects = self.repo.projects

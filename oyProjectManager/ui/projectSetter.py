@@ -88,13 +88,13 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         
         # update servers and projects
         self.updateServerList()
-        self.updateProjectList()
+        self.update_project_list()
         
         # get the current project
         # get it from the environment
         fileName, filePath = self._environment.getPathVariables()
         
-        currentProjectName, currentSequenceName = self._repo.getProjectAndSequenceNameFromFilePath( filePath )
+        currentProjectName, currentSequenceName = self._repo.get_project_and_sequence_name_from_file_path( filePath )
         
         if currentProjectName is not None:
             self.project_comboBox.setCurrentIndex( self.project_comboBox.findText(currentProjectName) )
@@ -113,7 +113,7 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         """updates the server list
         """
         # get the server from database object
-        servers = self._repo.projectsFullPath
+        servers = self._repo.server_path
 
         print servers
         
@@ -124,12 +124,12 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
     
     
     #----------------------------------------------------------------------
-    def updateProjectList(self):
+    def update_project_list(self):
         """updates the project list
         """
         
         # get the valid projects
-        projects = self._repo.validProjects
+        projects = self._repo.valid_projects
         
         self.project_comboBox.clear()
         self.project_comboBox.addItems( sorted(projects) )

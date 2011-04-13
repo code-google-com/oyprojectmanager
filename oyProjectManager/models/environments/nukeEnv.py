@@ -182,10 +182,10 @@ class NukeEnvironment(abstractClasses.Environment):
         repo = repository.Repository()
         
         try:
-            fps = repo.timeUnits[ timeUnit ]
+            fps = repo.time_units[ timeUnit ]
         except KeyError:
             # set it to pal by default
-            fps = repo.timeUnits[ 'pal' ]
+            fps = repo.time_units[ 'pal' ]
         
         self._root.knob('fps').setValue( float(fps) )
     
@@ -199,12 +199,12 @@ class NukeEnvironment(abstractClasses.Environment):
         currentFps = str(int(self._root.knob('fps').getValue()))
         
         repo = repository.Repository()
-        timeUnits = repo.timeUnits
+        time_units = repo.time_units
         
         # by default set it to pal
         timeUnit = 'pal'
         
-        for timeUnitName, timeUnitFps in timeUnits.iteritems():
+        for timeUnitName, timeUnitFps in time_units.iteritems():
             if currentFps == timeUnitFps:
                 timeUnit = timeUnitName
                 break
@@ -288,7 +288,7 @@ class NukeEnvironment(abstractClasses.Environment):
         
         # convert the given path to tcl environment script
         def repPath(path):
-            return path.replace(repo.serverPath, env_str)
+            return path.replace(repo.server_path, env_str)
         
         # get all read nodes
         allNodes = nuke.allNodes()

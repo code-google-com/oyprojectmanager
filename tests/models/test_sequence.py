@@ -38,7 +38,7 @@ class SequenceTester(unittest.TestCase):
                                           "tests/test_settings")
         
         # append or update the environment key to point the test_settings path
-        os.environ["OYPROJECTMANAGER_SETTINGS_PATH"] = test_settings_path
+        os.environ["OYPROJECTMANAGER_PATH"] = test_settings_path
     
     
     
@@ -73,7 +73,7 @@ class SequenceTester(unittest.TestCase):
         repo = repository.Repository()
         
         # BUG: works only under linux fix it later
-        self.assertEquals(repo.serverPath, "/tmp/JOBs")
+        self.assertEquals(repo.server_path, "/tmp/JOBs")
     
     
     

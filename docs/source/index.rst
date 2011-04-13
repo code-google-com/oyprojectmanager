@@ -26,9 +26,15 @@ Summary
    oyProjectManager.models.abstractClasses.Environment
    oyProjectManager.models.asset
    oyProjectManager.models.project.DefaultSettingsParser
+   oyProjectManager.models.project
+   oyProjectManager.models.project.Project
+   oyProjectManager.models.project.Shot
+   oyProjectManager.models.project.Structure
+   oyProjectManager.models.repository
+   oyProjectManager.models.repository.Repository
 
 .. this is not working
-   
+    oyProjectManager.models.project.Sequence
     oyProjectManager.models.asset.Asset
     oyProjectManager.models.asset.AssetType
     oyProjectManager.models.asset.SuperAsset

@@ -115,7 +115,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
             path = os.path.dirname( fullPath )
             
             # try to create an asset with that info
-            projName, seqName = repo.getProjectAndSequenceNameFromFilePath( fullPath )
+            projName, seqName = repo.get_project_and_sequence_name_from_file_path( fullPath )
             
             proj = project.Project( projName )
             seq = project.Sequence( proj, seqName )
@@ -144,7 +144,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
             for i in range(len(recentFiles)-1,0,-1):
                 
                 fileName = os.path.basename( recentFiles[i] )
-                projName, seqName = repo.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
+                projName, seqName = repo.get_project_and_sequence_name_from_file_path( recentFiles[i] )
                 
                 if projName != None and seqName != None:
                     
@@ -248,13 +248,13 @@ class HoudiniEnvironment(abstractClasses.Environment):
         """
         
         repo = repository.Repository()
-        timeUnits = repo.timeUnits
+        time_units = repo.time_units
         
         currentFps = str(int(hou.fps()))
         
         timeUnit = 'pal'
         
-        for timeUnitName, timeUnitFps in timeUnits.iteritems():
+        for timeUnitName, timeUnitFps in time_units.iteritems():
             if currentFps == timeUnitFps:
                 timeUnit = timeUnitName
                 break
@@ -304,11 +304,11 @@ class HoudiniEnvironment(abstractClasses.Environment):
         repo = repository.Repository()
         
         try:
-            timeUnitFps = float(repo.timeUnits[timeUnit])
+            timeUnitFps = float(repo.time_units[timeUnit])
         except KeyError:
             # set it to pal by default
             timeUnit='pal'
-            timeUnitFps = float(repo.timeUnits[timeUnit])
+            timeUnitFps = float(repo.time_units[timeUnit])
         
         # keep the current start and end time of the time range
         startFrame, endFrame = self.getFrameRange()

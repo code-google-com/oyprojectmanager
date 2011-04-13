@@ -82,7 +82,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self._setupSignals()
         
         self._setDefaults()
-        self.updateProjectList()
+        self.update_project_list()
         
         self.getSettingsFromEnvironment()
         
@@ -346,11 +346,11 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.user_comboBox1.addItems( userInits )
         
         # update the user with the last selected user
-        lastUser = self._repo.lastUser
+        last_user = self._repo.last_user
         
         userIndex = -1
-        if lastUser != '' and lastUser != None:
-            userIndex = self.user_comboBox1.findText(lastUser) 
+        if last_user != '' and last_user != None:
+            userIndex = self.user_comboBox1.findText(last_user) 
         
         if userIndex == -1:
             userIndex = 0
@@ -376,7 +376,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             return
         
         # get the project and sequence names
-        projectName, sequenceName = self._repo.getProjectAndSequenceNameFromFilePath( self.path )
+        projectName, sequenceName = self._repo.get_project_and_sequence_name_from_file_path( self.path )
                 
         if projectName == None or projectName == '' or sequenceName == None or sequenceName == '':
             return
@@ -473,18 +473,18 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     #----------------------------------------------------------------------
-    def updateProjectList(self):
+    def update_project_list(self):
         """updates projects list
         """
         
-        serverPath = self._repo.serverPath
+        server_path = self._repo.server_path
         
-        projectsList = self._repo.validProjects
+        projectsList = self._repo.valid_projects
         projectsList.sort()
         
         self.server_comboBox.clear()
         self.project_comboBox.clear()
-        self.server_comboBox.addItem( serverPath )
+        self.server_comboBox.addItem( server_path )
         self.project_comboBox.addItems( projectsList )
     
     
@@ -1434,7 +1434,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             # if everything worked fine close the interface
             if envStatus:
                 # set the last user variable
-                self._repo.lastUser = self._asset.userInitials
+                self._repo.last_user = self._asset.userInitials
                 
                 #print info
                 if self._environment.name == 'MAYA':

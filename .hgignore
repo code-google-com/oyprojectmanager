@@ -9,4 +9,4 @@ docs/source/generated/*
 *~
 .~*
 .DS_Store
-
+.coverage

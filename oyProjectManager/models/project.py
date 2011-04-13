@@ -195,7 +195,7 @@ class Project(object):
     #----------------------------------------------------------------------
     def _initPathVariables(self):
         
-        self._path = self._repository.projectsFullPath
+        self._path = self._repository.server_path
         if self._name != '' or self._name is not None:
             self._fullPath = os.path.join( self._path, self._name)
     
@@ -265,7 +265,7 @@ class Project(object):
         
         # filter other folders like .DS_Store
         for folder in os.listdir( self._fullPath ):
-            filtered_folder_name = re.sub(r".*?([^A-Z_]+)([A-Z0-9_]*)", r"\2", folder)
+            filtered_folder_name = re.sub(r".*?([^A-Z_]+)([A-Z0-9_]+)", r"\2", folder)
             if filtered_folder_name == folder:
                 self._sequenceList.append(folder)
         
@@ -369,12 +369,13 @@ class Sequence(object):
         self._fullPath = os.path.join( self._path, self._name )
         
         self._settingsFile = ".settings.xml"
-        self._settingsFilePath = self._fullPath
-        self._settingsFileFullPath = os.path.join(self._settingsFilePath, self._settingsFile)
+        self._settings_file_path = self._fullPath
+        self._settings_file_full_path = os.path.join(self._settings_file_path,
+                                                     self._settingsFile)
         self._settingsFileExists = False
         self._settings_dirty = False
 
-        #print self._settingsFileFullPath
+        #print self._settings_file_full_path
         
         self._structure = Structure()
         self._assetTypes = [ asset.AssetType() ] * 0
@@ -407,7 +408,7 @@ class Sequence(object):
         """
         
         # check if there is a settings file
-        if not os.path.exists(self._settingsFileFullPath):
+        if not os.path.exists(self._settings_file_full_path):
             #print "ERROR: no settings file in the sequence..."
             # TODO: assume that it is an old project and try to get
             # the data (just shot list) from the folders
@@ -416,8 +417,8 @@ class Sequence(object):
             self._settingsFileExists = True
             self._exists = True
         
-        #print (self._settingsFileFullPath)
-        settingsAsXML = minidom.parse(self._settingsFileFullPath)
+        #print (self._settings_file_full_path)
+        settingsAsXML = minidom.parse(self._settings_file_full_path)
         
         rootNode = settingsAsXML.childNodes[0]
         
@@ -822,9 +823,9 @@ class Sequence(object):
         try:
             # if there is a settings file backit up
             # keep maximum of 5 backups
-            oyAux.backupFile(self._settingsFileFullPath, 5)
-            #print "settingsFileFullPath: ", self._settingsFileFullPath
-            settingsFile = open(self._settingsFileFullPath, "w")
+            oyAux.backupFile(self._settings_file_full_path, 5)
+            #print "settingsFileFullPath: ", self._settings_file_full_path
+            settingsFile = open(self._settings_file_full_path, "w")
             os.chmod
         except IOError:
             #print "couldn't open the settings file"
@@ -869,7 +870,8 @@ class Sequence(object):
             exists = oyAux.createFolder( self._fullPath )
             
             # copy the settings file to the root of the sequence
-            shutil.copy( self._repository.defaultSettingsFileFullPath, self._settingsFileFullPath )
+            shutil.copy(self._repository.default_settings_file_full_path,
+                        self._settings_file_full_path)
         
         # just read the structure from the XML
         self.readSettings()
@@ -1884,7 +1886,7 @@ class Sequence(object):
         """
         
         # get the backup files of the .settings.xml
-        backupFiles = oyAux.getBackupFiles( self._settingsFileFullPath )
+        backupFiles = oyAux.getBackupFiles(self._settings_file_full_path)
         
         if len(backupFiles) > 0 :
             #print backupFiles
@@ -1894,8 +1896,8 @@ class Sequence(object):
             
             print "replacing with : ", os.path.basename( backupFiles[-1] )
             
-            shutil.copy( backupFiles[-1], self._settingsFileFullPath )
-            os.remove( backupFiles[-1] )
+            shutil.copy(backupFiles[-1], self._settings_file_full_path)
+            os.remove(backupFiles[-1])
         
 
 

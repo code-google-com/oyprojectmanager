@@ -162,7 +162,7 @@ class MayaEnvironment(abstractClasses.Environment):
             fileName = os.path.basename( fullPath )
             
             # try to create an asset with that info
-            projName, seqName = repo.getProjectAndSequenceNameFromFilePath( fullPath )
+            projName, seqName = repo.get_project_and_sequence_name_from_file_path( fullPath )
             
             proj = project.Project( projName )
             seq = project.Sequence( proj, seqName )
@@ -191,7 +191,7 @@ class MayaEnvironment(abstractClasses.Environment):
                 for i in range(len(recentFiles)-1, -1,-1):
                     
                     fileName = os.path.basename( recentFiles[i] )
-                    projName, seqName = repo.getProjectAndSequenceNameFromFilePath( recentFiles[i] )
+                    projName, seqName = repo.get_project_and_sequence_name_from_file_path( recentFiles[i] )
                     
                     if projName != None and seqName != None:
                         
@@ -363,15 +363,19 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         repo = repository.Repository()
         
-        mayaProjectPath = os.path.join( repo.projectsFullPath, projectName, sequenceName )
+        mayaProjectPath = os.path.join(
+            repo.server_path,
+            projectName,
+            sequenceName
+        )
         
         pm.workspace.open(mayaProjectPath)
         
-        proj = project.Project( projectName )
-        seq = project.Sequence( proj, sequenceName )
+        proj = project.Project(projectName)
+        seq = project.Sequence(proj, sequenceName)
         
         # set the current timeUnit to match with the environments
-        self.setTimeUnit( seq.timeUnit )
+        self.setTimeUnit(seq.timeUnit)
     
     
     
@@ -481,7 +485,7 @@ class MayaEnvironment(abstractClasses.Environment):
                 # directly append the asset to the list
                 validAssets.append( (prevAsset, ref, prevFullPath ) )
             else:
-                projName, seqName = repo.getProjectAndSequenceNameFromFilePath( fullPath )
+                projName, seqName = repo.get_project_and_sequence_name_from_file_path( fullPath )
                 
                 proj = project.Project( projName )
                 seq = project.Sequence( proj, seqName )
@@ -571,7 +575,7 @@ class MayaEnvironment(abstractClasses.Environment):
         # check if the given unit is in repository
         repo = repository.Repository()
         
-        if not repo.timeUnits.has_key( timeUnit ):
+        if not repo.time_units.has_key( timeUnit ):
             raise KeyError(timeUnit)
         
         # get the current time, current playback min and max ( because maya
@@ -749,7 +753,7 @@ class MayaEnvironment(abstractClasses.Environment):
     def replace_external_paths(self):
         """replaces all the external paths to relatives to repo.server_path
         """
-        
+server_pathserver_pathserver_pathserver_pathserver_pathserver_path        
         # create a repository
         repo = repository.Repository()
         

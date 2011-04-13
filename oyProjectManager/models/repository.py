@@ -49,15 +49,15 @@ class Repository(abstractClasses.Singleton):
     Settings File
     =============
     
-    oyProjectManager uses the OYPROJECTMANAGER_SETTINGS_PATH_PATH environment
-    variable to track the settings, if there is no
-    OYPROJECTMANAGER_SETTINGS_PATH variable in your current environment, the
-    system will use the default settings, which probably will not work in your
-    studio. You can set OYPROJECTMANAGER_SETTINGS_PATH to a shared folder in
-    your fileserver where all the users can access.
+    oyProjectManager uses the OYPROJECTMANAGER_PATH environment variable to
+    track the settings, if there is no OYPROJECTMANAGER_PATH variable in your
+    current environment the system will not work.
+    
+    You can set OYPROJECTMANAGER_PATH to a shared folder in your fileserver
+    where all the users can access.
     
     oyProjectManager will look for these files in the
-    OYPROJECTMANAGER_SETTINGS_PATH:
+    OYPROJECTMANAGER_PATH:
     
        * defaultProjectSettings.xml
       
@@ -68,7 +68,7 @@ class Repository(abstractClasses.Singleton):
        * users.xml
     
     You can just duplicate the XML files under the settings folder of the
-    package root to your own OYPROJECTMANAGER_SETTINGS_PATH.
+    package root to your own OYPROJECTMANAGER_PATH.
     
     These are the xml files that the oyProjectManager searches for:
     
@@ -118,7 +118,7 @@ class Repository(abstractClasses.Singleton):
                    
                     * name: the name of the server
                    
-                    * serverPath: the path of the project folder in this server
+                    * server_path: the path of the project folder in this server
                    
                     * projectFoldersName: the project folder name in this
                       server
@@ -127,7 +127,7 @@ class Repository(abstractClasses.Singleton):
             
             children:
             
-               * timeUnits:
+               * time_units:
                  
                  children:
                  
@@ -199,65 +199,90 @@ class Repository(abstractClasses.Singleton):
     def __init__(self):
         
         # initialize default variables
+        
         # user name STALKER for forward compability
         self.repository_path_env_key = "STALKER_REPOSITORY_PATH"
-        if not os.environ.has_key(self.repository_path_env_key):
-            os.environ[self.repository_path_env_key] = ""
+        self.settings_path_env_key = "OYPROJECTMANAGER_PATH"
         
-        # find where am I installed
-        self._env_key = "OYPROJECTMANAGER_SETTINGS_PATH"
-        self._settingsDirPath = self.getSettingsPath()
+        self._init_repository_path_environment_variable()
+        
+        # ---------------------------------------------------
+        # READ REPOSITORY SETTINGS
+        # ---------------------------------------------------
+        
+        self._settings_dir_path = None
+        
+        # fill the data
+        self._settings_dir_path = self.settings_dir_path
+        
+        # Repository Settings File (repositorySettings.xml)
+        self._repository_settings_file_name = 'repositorySettings.xml'
+        self._repository_settings_file_path = self.settings_dir_path
+        
+        self._repository_settings_file_full_path = os.path.join(
+            self._repository_settings_file_path,
+            self._repository_settings_file_name
+        )
+        # ---------------------------------------------------
         
         
-        # Repository Settings File ( repositorySettings.xml )
-        self._repositorySettingsFileName = 'repositorySettings.xml'
-        self._repositorySettingsFilePath = self._settingsDirPath
         
-        self._repositorySettingsFileFullPath = os.path.join(
-            self._repositorySettingsFilePath, self._repositorySettingsFileName
+        # ---------------------------------------------------
+        # READ DEFAULT SETTINGS
+        # ---------------------------------------------------
+        self._default_project_settings_file_name = 'defaultProjectSettings.xml'
+        self._default_project_settings_file_path = self.settings_dir_path
+        
+        self._default_settings_file_full_path = os.path.join(
+            self._default_project_settings_file_path,
+            self._default_project_settings_file_name
         )
         
-        # Default Settings File ( defaultSettings.xml )
-        self._defaultSettingsFileName = 'defaultProjectSettings.xml'
-        self._defaultSettingsFilePath = self._settingsDirPath
-        
-        self._defaultSettingsFileFullPath = os.path.join(
-            self._defaultSettingsFilePath, self._defaultSettingsFileName
+        # Default Files Folder Path (_defaultFiles_)
+        self._default_files_folder_full_path = os.path.join(
+            self.settings_dir_path, '_defaultFiles_'
         )
+        # ---------------------------------------------------
         
-        # Default Files Folder Path ( _defaultFiles_ )
-        self._defaultFilesFolderFullPath = os.path.join(
-            self._settingsDirPath, '_defaultFiles_'
-        )
         
+        # ---------------------------------------------------
         # JOBs folder settings ( M:/, JOBs )
-        self._serverPath = ""
+        # ---------------------------------------------------
+        self._server_path = ""
         self._windows_path = ""
         self._osx_path = ""
         self._linux_path = ""
+        # ---------------------------------------------------
         
         
         # ---------------------------------------------------
         # Last User File
         # ---------------------------------------------------
-        self._lastUserFileName = '.lastUser'
-        self._lastUserFilePath = self.homePath
-        self._lastUserFileFullPath = os.path.join(
-            self._lastUserFilePath, self._lastUserFileName
+        self._last_user_file_name = '.last_user'
+        self._last_user_file_path = self.home_path
+        self._last_user_file_full_path = os.path.join(
+            self._last_user_file_path, self._last_user_file_name
         )
+        # ---------------------------------------------------
+        
+        
         
         # ---------------------------------------------------
         # Users Settings File
         # ---------------------------------------------------
-        self._usersFileName = 'users.xml'
-        self._usersFilePath = self._settingsDirPath
-        self._usersFileFullPath = os.path.join(
-            self._usersFilePath, self._usersFileName
+        self._users_file_name = 'users.xml'
+        self._users_file_path = self.settings_dir_path
+        self._users_file_full_path = os.path.join(
+            self._users_file_path, self._users_file_name
         )
         self._users = [] * 0
         
         self._projects = [] * 0
-        self._defaultFilesList = [] * 0
+        self._default_files_list = [] * 0
+        # ---------------------------------------------------
+        
+        
+        
         
         # ---------------------------------------------------
         # UNITS
@@ -266,23 +291,35 @@ class Repository(abstractClasses.Singleton):
         # Only time units are implemented for now,
         # the rest will be added when they are first needed
         # 
-        self._timeUnits = {}
+        self._time_units = {}
         
         # ---------------------------------------------------
-        self._readSettings()
+        self._parse_repository_settings()
         self._readUsers()
+        # ---------------------------------------------------
     
     
     
     #----------------------------------------------------------------------
-    def _readSettings(self):
-        """Reads the repository settings from the xml file at the project root.
+    def _init_repository_path_environment_variable(self):
+        """initializes the environment variables
+        """
         
+        #print "initializing repository path env variable"
         
+        # create the environment variable if there is no defined yet
+        if not os.environ.has_key(self.repository_path_env_key):
+            os.environ[self.repository_path_env_key] = ""
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _parse_repository_settings(self):
+        """Parses the repository_settings.xml file.
         """
         
         # open the repository settings file
-        xmlFile = minidom.parse( self._repositorySettingsFileFullPath )
+        xmlFile = minidom.parse(self._repository_settings_file_full_path)
         
         rootNode = xmlFile.childNodes[0]
         
@@ -297,10 +334,11 @@ class Repository(abstractClasses.Singleton):
         
         timeNodes = rootNode.getElementsByTagName('time')
         
+        
         for timeNode in timeNodes:
             name = timeNode.getAttribute('name')
             fps = timeNode.getAttribute('fps')
-            self._timeUnits[ name ] = fps
+            self._time_units[ name ] = fps
         
         # -----------------------------------------------------
         # read the server settings
@@ -323,30 +361,18 @@ class Repository(abstractClasses.Singleton):
             pass
         
         # force setting the environment
-        self.serverPath = self.serverPath
+        self.server_path = self.server_path
         
         # read and create the default files list
         for fileNode in defaultFilesNode.getElementsByTagName('file'):
             #assert(isinstance(fileNode, minidom.Element))
-            #                                           fileName                          projectRelativePath                         sourcePath
-            self._defaultFilesList.append(
+            self._default_files_list.append(
                 (
                     fileNode.getAttribute('name'),
                     fileNode.getAttribute('projectRelativePath'),
-                    self._defaultFilesFolderFullPath
+                    self._default_files_folder_full_path
                 )
             )
-        
-        # -----------------------------------------------------
-        # read the environment settings
-        
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def _updatePathVariables(self):
-        #"""updates path variables
-        #"""
     
     
     
@@ -356,7 +382,7 @@ class Repository(abstractClasses.Singleton):
     def projects(self):
         """returns projects names as a list
         """
-        self.updateProjectList()
+        self.update_project_list()
         return self._projects
     
     
@@ -364,13 +390,13 @@ class Repository(abstractClasses.Singleton):
     #----------------------------------------------------------------------
     @cache.CachedMethod
     @property
-    def validProjects(self):
+    def valid_projects(self):
         """returns the projectNames only if they are valid projects.
         A project is only valid if there are some valid sequences under it
         """
         
         # get all projects and filter them
-        self.updateProjectList()
+        self.update_project_list()
         
         from oyProjectManager.models import project
         
@@ -388,7 +414,7 @@ class Repository(abstractClasses.Singleton):
                 #assert(isinstance(seq, Sequence))
                 if seq.isValid():
                     # it has at least one valid sequence
-                    validProjectList.append( projName )
+                    validProjectList.append(projName)
                     break
         
         return validProjectList
@@ -428,10 +454,10 @@ class Repository(abstractClasses.Singleton):
         """
         
         # check if the usersFile exists
-        if not os.path.exists( self._usersFileFullPath ):
+        if not os.path.exists( self._users_file_full_path ):
             return
         
-        usersXML = minidom.parse( self._usersFileFullPath )
+        usersXML = minidom.parse( self._users_file_full_path )
         
         rootNode = usersXML.childNodes[0]
         
@@ -449,7 +475,7 @@ class Repository(abstractClasses.Singleton):
     
     
     #----------------------------------------------------------------------
-    def updateProjectList(self):
+    def update_project_list(self):
         """updates the project list variable
         """
         
@@ -459,36 +485,29 @@ class Repository(abstractClasses.Singleton):
             #)
             self._projects = []
             
-            child_folders = oyAux.getChildFolders(self.serverPath)
+            child_folders = oyAux.getChildFolders(self.server_path)
+            #print "self.server_path", self.server_path
+            
             for folder in child_folders:
                 filtered_folder_name = re.sub(
-                    r".*?([^A-Z_]+)([A-Z0-9_]*)",
+                    r".*?([^A-Z_]+)([A-Z0-9_]+)",
                     r"\2", folder
                 )
+                #print filtered_folder_name, folder
                 if filtered_folder_name == folder:
                     self._projects.append(folder)
-           
+                #self._projects.append(folder)
+        
+            self._projects.sort()
+        
         except IOError:
             #print "server path doesn't exists, %s" % self._projectsFolderFullPath
-            print "server path doesn't exists, %s" % self.serverPath
+            print "server path doesn't exists, %s" % self.server_path
     
     
     
     #----------------------------------------------------------------------
-    @property
-    def projectsFullPath(self):
-        """returns the projects folder full path
-        
-        ex : M:/JOBs
-        """
-        
-        #return self._projectsFolderFullPath
-        return self.serverPath
-    
-    
-    
-    #----------------------------------------------------------------------
-    def serverPath():
+    def server_path():
         
         doc = """the server path"""
         
@@ -512,10 +531,16 @@ class Repository(abstractClasses.Singleton):
                 return self.osx_path
             
         
-        def fset(self, serverPath):
+        def fset(self, server_path_in):
             
             # add a trailing separator
             # in any cases os.path.join adds a trailing seperator
+            
+            server_path_in = os.path.expanduser(
+                os.path.expandvars(
+                    server_path_in
+                )
+            )
             
             platform_system = platform.system()
 
@@ -526,23 +551,23 @@ class Repository(abstractClasses.Singleton):
             osx_string = "Darwin"
             
             if platform_system == linux_string:
-                self.linux_path = serverPath
+                self.linux_path = server_path_in
             elif platform_system == windows_string:
-                serverPath = serverPath.replace("/", "\\")
-                self.windows_path = serverPath
+                server_path = server_path.replace("/", "\\")
+                self.windows_path = server_path_in
             elif platform_system == osx_string:
-                self.osx_path = serverPath
+                self.osx_path = server_path_in
             
             # set also the environment variables
-            os.environ[self.repository_path_env_key] = serverPath
+            os.environ[self.repository_path_env_key] = server_path_in
             
             self._projects = [] * 0
             
-            self.updateProjectList()
+            self.update_project_list()
         
         return locals()
     
-    serverPath = property( **serverPath() )
+    server_path = property( **server_path() )
     
     
     
@@ -601,25 +626,14 @@ class Repository(abstractClasses.Singleton):
     
     
     #----------------------------------------------------------------------
-    #def createStructureDataFromPath(self, structurePath ):
-        #"""creates structure data of a given path
-        #can be used to create new structure definitions for new projects
-        #"""
-        #structureData = [] * 0
-        
-        #for dirPath, dirNames, fileNames in os.walk(defaultProjectPath):
-            #structureData.append( dirPath[len(defaultProjectPath)+1:len(dirPath)] )
-        
-        #structureData.sort()
-        
-        #return structureData
-    
-    
-    
-    #----------------------------------------------------------------------
     def createProject(self, projectName):
-        """creates a new project on the server with the given project name
+        """Creates a new project on the server with the given project name.
+        
+        :returns: The newly created project.
+        
+        :rType: `~oyProjectManager.models.project.Project`
         """
+        
         from oyProjectManager.models import project
         return project.Project(projectName)
     
@@ -636,73 +650,72 @@ class Repository(abstractClasses.Singleton):
         project like workspace.mel for Maya
         """
         
-        return self._defaultFilesList
+        return self._default_files_list
     
     
     
     #----------------------------------------------------------------------
     @property
-    def defaultSettingsFileFullPath(self):
+    def default_settings_file_full_path(self):
         """returns the default settings file full path
         """
-        return self._defaultSettingsFileFullPath
+        return self._default_settings_file_full_path
     
     
     
     #----------------------------------------------------------------------
     @property
-    def homePath(self):
-        """returns the homePath environment variable
+    def home_path(self):
+        """returns the home_path environment variable
         it is :
         /home/userName/ for linux
         C:\Documents and Settings\userName\My Documents for Windows
         C:/Users/userName/Documents for Windows 7 (be careful about the slashes)
         """
         
-        homePathAsStr = os.path.expanduser("~")
+        home_path_as_str = os.path.expanduser("~")
         
         #if os.name == 'nt':
-            #homePathAsStr = homePathAsStr.replace('/','\\')
+            #home_path_as_str = home_path_as_str.replace('/','\\')
         
-        return homePathAsStr
+        return home_path_as_str
     
     
     
     #----------------------------------------------------------------------
-    def lastUser():
+    def last_user():
         def fget(self):
-            lastUserInitials = None
+            last_user_initials = None
             
             try:
-                lastUserFile = open( self._lastUserFileFullPath )
+                last_user_file = open( self._last_user_file_full_path )
             except IOError:
                 pass
             else:
-                lastUserInitials = lastUserFile.readline().strip()
-                lastUserFile.close()
+                last_user_initials = last_user_file.readline().strip()
+                last_user_file.close()
             
-            return lastUserInitials
+            return last_user_initials
         
         def fset(self, userInitials):
             try:
-                lastUserFile = open( self._lastUserFileFullPath, 'w' )
+                last_user_file = open(self._last_user_file_full_path, 'w')
             except IOError:
                 pass
             else:
-                lastUserFile.write( userInitials )
-                lastUserFile.close()
+                last_user_file.write(userInitials)
+                last_user_file.close()
         
-        doc = """returns and saves the last user initials if the lastUserFile file exists otherwise returns None"""
-        
+        doc = """returns and saves the last user initials if the last_user_file file exists otherwise returns None"""
         
         return locals()
     
-    lastUser = property( **lastUser() )
+    last_user = property(**last_user())
     
     
     
     #----------------------------------------------------------------------
-    def getProjectAndSequenceNameFromFilePath(self, filePath):
+    def get_project_and_sequence_name_from_file_path(self, filePath):
         """Returns the project name and sequence name from the path or fullPath.
         
         Calculates the project and sequence names from the given file or folder
@@ -723,11 +736,11 @@ class Repository(abstractClasses.Singleton):
             return None, None
         
         #if not filePath.startswith( self._projectsFolderFullPath ):
-        if not filePath.startswith( self.serverPath ):
+        if not filePath.startswith( self.server_path ):
             return None, None
         
         #residual = filePath[ len(self._projectsFolderFullPath)+1 : ]
-        residual = filePath[ len(self.serverPath)+1 : ]
+        residual = filePath[ len(self.server_path)+1 : ]
         
         parts = residual.split(os.path.sep)
         
@@ -739,39 +752,47 @@ class Repository(abstractClasses.Singleton):
     
     
     #----------------------------------------------------------------------
-    @property
-    def settingsDirPath(self):
-        """returns the settings dir path
-        """
-        return self._settingsDirPath
-    
-    
-    
-    #----------------------------------------------------------------------
-    @property
-    def timeUnits(self):
-        """returns timeUnits as a dictionary
-        """
-        return self._timeUnits
-    
-    
-    #----------------------------------------------------------------------
-    def getSettingsPath(self):
-        """checks environment against having a variable called
-        OYPROJECTMANAGER_SETTINGS_PATH
+    def settings_dir_path():
+        def fget(self):
+            if self._settings_dir_path is None:
+                self._settings_dir_path = os.path.expandvars(
+                    os.path.expanduser(
+                        os.environ[self.settings_path_env_key]
+                    )
+                )
+            
+            return self._settings_dir_path
+        
+        doc = """Returns the settings dir path.
         """
         
-        if os.environ.has_key(self._env_key):
-            # expand any user variable
-            return os.path.expanduser(os.environ[self._env_key])
-        else:
-            return os.path.join(
-                os.path.abspath(
-                    os.path.dirname(
-                        os.path.dirname(__file__)
-                    )
-                ),
-                'settings')
+        return locals()
+    
+    settings_dir_path = property(**settings_dir_path())
+    
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def time_units(self):
+        """returns time_units as a dictionary
+        """
+        return self._time_units
+    
+    
+    ##----------------------------------------------------------------------
+    #def get_settings_path(self):
+        #"""checks environment against having a variable called
+        #OYPROJECTMANAGER_PATH
+        #"""
+        
+        #return os.path.expandvars(
+            #os.path.expanduser(
+                #os.environ[self.settings_path_env_key]
+            #)
+        #)
+    
     
     #----------------------------------------------------------------------
     def relative_path(self, path):
@@ -784,5 +805,5 @@ class Repository(abstractClasses.Singleton):
         variable
         """
         
-        return path.replace(self.serverPath,
+        return path.replace(self.server_path,
                             "$" + self.repository_path_env_key)

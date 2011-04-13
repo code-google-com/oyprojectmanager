@@ -1,6 +1,37 @@
 Version History
 ===============
 
+v0.1.0
+------
+
+ * in :class:`~oyProjectManager.models.repository.Repository`
+   some methods listed below has been renamed:
+   
+    * getProjectAndSequenceNameFromFilePath ->
+      get_project_and_sequence_name_from_file_path
+   
+    * lastUser -> last_user
+   
+    * settingsDirPath -> settings_dir_path
+
+ * changed the version numbering scheme back again to a normal version, relase
+   scheme.
+
+ * removed the
+   :method:`~oyProjectManager.models.repository.Repository.get_settings_path`.
+
+ * removed the
+   :method:`~oyProjectManager.models.repository.Repository.projectsFullPath`,
+   use
+   :method:`~oyProjectManager.models.repository.Repository.server_path`
+   instead.
+
+v11.4.9
+-------
+
+ * from now on the OYPROJECTMANAGER_PATH is mandatory. Without the variable
+   the system will not work.
+
 v11.4.7
 -------
 
@@ -8,11 +39,18 @@ v11.4.7
    notImplemented errors for the methods which are not implemented by the child
    class.
 
+ * :attr:`~oyProjectManager.models.repository.Repository._env_key` is renamed
+   to
+   :attr:`~oyProjectManager.models.repository.Repository.settings_path_env_key`
+
+ * The environment key "OYPROJECTMANAGER_SETTINGS_PATH" is renamed to
+   "OYPROJECTMANAGER_PATH" to keep things simple and reasonable.
+
 v11.4.5
 -------
 
- * added relpath to the oyProjectManager.utils module, which turns paths to
-   relative paths to each other
+ * added relpath to the :module:`oyProjectManager.utils` module, which turns
+   paths to relative paths to each other
 
  * the render file path in maya is now calculated relatively to the path
    queried from the workspace image file rule path

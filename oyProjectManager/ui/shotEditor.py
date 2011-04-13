@@ -119,7 +119,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         
         # fill the server comboBox
         self.servers_comboBox.clear()
-        self.servers_comboBox.addItem ( self.repo.serverPath )
+        self.servers_comboBox.addItem ( self.repo.server_path )
     
     
     
@@ -146,7 +146,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
                 #print "path : ", path
                 
                 # update the interface
-                projName, seqName = self.repo.getProjectAndSequenceNameFromFilePath( path )
+                projName, seqName = self.repo.get_project_and_sequence_name_from_file_path( path )
                 
                 # select them in the interface
                 
@@ -165,7 +165,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         """updates the projects combobox
         """
         
-        projects = self.repo.validProjects
+        projects = self.repo.valid_projects
         sortedProjects = sorted( projects )
         
         # clear all the items in the current combo boxes

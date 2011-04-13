@@ -26,11 +26,12 @@ class EnvironmentFactory( abstractClasses.Singleton ):
         
         # we should know where the settings file is
         # get the settings dir path
-        self._settingsFileName = 'environmentSettings.xml'
-        self._settingsFilePath = self._repo.settingsDirPath
-        self._settingsFileFullPath = os.path.join( self._settingsFilePath, self._settingsFileName )
+        self._settings_file_name = 'environmentSettings.xml'
+        self._settings_file_path = self._repo.settings_dir_path
+        self._settings_file_full_path = os.path.join(self._settings_file_path,
+                                                     self._settings_file_name)
         
-        # store environment settings in virutual environments
+        # store environment settings in virtual environments
         self._virtualEnvironments = dict()
         
         self._hasReadSettings = False
@@ -47,7 +48,7 @@ class EnvironmentFactory( abstractClasses.Singleton ):
         
         if not self._hasReadSettings:
             
-            xmlNodes = minidom.parse( self._settingsFileFullPath )
+            xmlNodes = minidom.parse( self._settings_file_full_path )
             
             rootNode = xmlNodes.childNodes[0]
             
@@ -55,9 +56,13 @@ class EnvironmentFactory( abstractClasses.Singleton ):
                 envName = environment.getAttribute( 'name' )
                 
                 # get lower extensions
-                extensions = map( unicode.lower, environment.getAttribute( 'extensions' ).split(','))
+                extensions = map(
+                    unicode.lower,
+                    environment.getAttribute('extensions').split(',')
+                )
                 
-                self._virtualEnvironments[ envName ] = VirtualEnvironment( envName, extensions )
+                self._virtualEnvironments[envName] = \
+                    VirtualEnvironment(envName, extensions)
             
             # don't reparse it over and over again
             self._hasReadSettings = True
