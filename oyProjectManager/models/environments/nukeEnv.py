@@ -62,7 +62,14 @@ class NukeEnvironment(abstractClasses.Environment):
         # replace read and write node paths
         self.replace_file_path()
         
-        nuke.scriptSaveAs( fullPath )
+        # create the path before saving
+        try:
+            os.makedirs(os.path.dirname(fullPath))
+        except OSError:
+            # path already existsOSErro
+            pass
+        
+        nuke.scriptSaveAs(fullPath)
         
         return True
     
@@ -266,10 +273,18 @@ class NukeEnvironment(abstractClasses.Environment):
         output_file_full_path = os.path.join(
             seq.fullPath,
             self._asset.type.output_path,
+            self._asset.baseName,
             output_file_name
         )
         
         main_write_node["file"].setValue(output_file_full_path)
+        
+        # create the path
+        try:
+            os.makedirs(os.path.dirname(output_file_full_path))
+        except OSError:
+            # path already exists
+            pass
         
         # set the output file type to targa
         main_write_node["file_type"].setValue(13)

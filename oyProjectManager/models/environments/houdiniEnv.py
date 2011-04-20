@@ -15,11 +15,12 @@ import os
 import hou
 import re
 from oyProjectManager.models import asset, project, repository, abstractClasses
+from oyProjectManager import utils
 import oyAuxiliaryFunctions as oyAux
 
 
 
-__version__ = "10.8.27"
+__version__ = "11.4.20"
 
 
 
@@ -242,7 +243,15 @@ class HoudiniEnvironment(abstractClasses.Environment):
         # get the children
         outNodes = ropContext.children()
         
-        return outNodes
+        exclude_node_types = [
+            hou.nodeType(hou.nodeTypeCategories()["Driver"], "wedge")
+        ]
+        
+        # remove nodes in type in exclude_node_types list
+        new_out_nodes = [node for node in outNodes
+                         if node.type() not in exclude_node_types]
+        
+        return new_out_nodes
     
     
     
@@ -286,17 +295,25 @@ class HoudiniEnvironment(abstractClasses.Environment):
                        userInitials + ".$F4.exr"
         outputFileName = outputFileName.replace('\\','/')
         
+        # compute a $HIP relative file path
+        # $HIP = the current asset path
+        hip = self.asset.path
+        hip_relative_output_file_path = "$HIP/" + utils.relpath(hip, outputFileName, "/", "..")
+        
         outputNodes = self.getOutputNodes()
+        
         for outputNode in outputNodes:
+            
             # get only the ifd nodes for now
             if outputNode.type().name() == 'ifd':
                 # set the file name
-                outputNode.setParms({'vm_picture': str(outputFileName)})
+                #outputNode.setParms({'vm_picture': str(outputFileName)})
+                outputNode.setParms({'vm_picture': str(hip_relative_output_file_path)})
                 
                 # also create the folders
-                outputFileFullPath = outputNode.evalParm( 'vm_picture' )
-                outputFilePath = os.path.dirname( outputFileFullPath )
-                oyAux.createFolder( outputFilePath )
+                outputFileFullPath = outputNode.evalParm('vm_picture')
+                outputFilePath = os.path.dirname(outputFileFullPath)
+                oyAux.createFolder(outputFilePath)
     
     
     

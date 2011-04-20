@@ -637,7 +637,7 @@ class Repository( abstractClasses.Singleton ):
                 self.osx_path = serverPath
             
             # set also the environment variables
-            os.environ[self.repository_path_env_key] = serverPath
+            os.environ[self.repository_path_env_key] = str(serverPath)
             
             self._projects = [] * 0
             
