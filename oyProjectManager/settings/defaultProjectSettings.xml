@@ -69,20 +69,21 @@
             </shotIndependent>
         </structure>
         <assetTypes>
-            <type name="ANIM"          path="ANIMATIONS"        shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="PLAYBLASTS/ANIMATION_PLAYBLASTS"  output_path="RENDERED_IMAGES"/>
-            <type name="CAMERA"        path="CAMERAS"           shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
-            <type name="COMP"          path="COMPOSITING/SHOTS" shotDependent="1"  environments="NUKE"          playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="COMPOSITING/OUTPUT"/>
-            <type name="LAYOUT"        path="LAYOUT"            shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
-            <type name="MODEL"         path="MODELS"            shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
-            <type name="OTHER"         path="OTHERS"            shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
-            <type name="PREVIS"        path="PREVIS"            shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="PLAYBLASTS/PREVIS_PLAYBLASTS"     output_path="RENDERED_IMAGES"/>
-            <type name="RENDER"        path="RENDER_SCENES"     shotDependent="1"  environments="MAYA,HOUDINI"  playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
-            <type name="RIG"           path="RIGS"              shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
-            <type name="TEXTURE"       path="TEXTURES"          shotDependent="0"  environments="PHOTOSHOP"     playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="TEXTURES"/>
-            <type name="ILLUSTRATION"  path="ILLUSTRATION"      shotDependent="0"  environments="PHOTOSHOP"     playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="ILLUSTRATION"/>
-            <type name="MATTE"         path="MATTE_PAINT"       shotDependent="0"  environments="PHOTOSHOP"     playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="MATTE_PAINT/OUTPUTS"/>
-            <type name="SHADING"       path="SHADING"           shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
-            <type name="FX"            path="FX"                shotDependent="0"  environments="MAYA,HOUDINI"  playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
+            <type name="ANIM"          path="ANIMATIONS"        shotDependent="1"  environments="MAYA,HOUDINI"      playblastFolder="PLAYBLASTS/ANIMATION_PLAYBLASTS"  output_path="RENDERED_IMAGES"/>
+            <type name="CAMERA"        path="CAMERAS"           shotDependent="1"  environments="MAYA,HOUDINI"      playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
+            <type name="COMP"          path="COMPOSITING/SHOTS" shotDependent="1"  environments="NUKE"              playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="COMPOSITING/OUTPUT"/>
+			<type name="EDIT"          path="EDIT_MOVIE"        shotDependent="0"  environments="NUKE"              playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="EDIT_MOVIE/EXPORT"/>
+            <type name="LAYOUT"        path="LAYOUT"            shotDependent="1"  environments="MAYA,HOUDINI"      playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
+            <type name="MODEL"         path="MODELS"            shotDependent="0"  environments="MAYA,HOUDINI"      playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
+            <type name="OTHER"         path="OTHERS"            shotDependent="0"  environments="MAYA,HOUDINI,NUKE" playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
+            <type name="PREVIS"        path="PREVIS"            shotDependent="1"  environments="MAYA,HOUDINI"      playblastFolder="PLAYBLASTS/PREVIS_PLAYBLASTS"     output_path="RENDERED_IMAGES"/>
+            <type name="RENDER"        path="RENDER_SCENES"     shotDependent="1"  environments="MAYA,HOUDINI"      playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
+            <type name="RIG"           path="RIGS"              shotDependent="0"  environments="MAYA,HOUDINI"      playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
+            <type name="TEXTURE"       path="TEXTURES"          shotDependent="0"  environments="PHOTOSHOP"         playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="TEXTURES"/>
+            <type name="ILLUSTRATION"  path="ILLUSTRATION"      shotDependent="0"  environments="PHOTOSHOP"         playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="ILLUSTRATION"/>
+            <type name="MATTE"         path="MATTE_PAINT"       shotDependent="0"  environments="PHOTOSHOP"         playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="MATTE_PAINT/OUTPUTS"/>
+            <type name="SHADING"       path="SHADING"           shotDependent="0"  environments="MAYA,HOUDINI"      playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
+            <type name="FX"            path="FX"                shotDependent="0"  environments="MAYA,HOUDINI"      playblastFolder="PLAYBLASTS/OTHER_PLAYBLASTS"      output_path="RENDERED_IMAGES"/>
         </assetTypes>
         <shotData>
         </shotData>

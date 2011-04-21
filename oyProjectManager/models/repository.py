@@ -8,9 +8,7 @@ import os
 import shutil
 import re
 import oyAuxiliaryFunctions as oyAux
-
 from xml.dom import minidom
-
 from oyProjectManager.utils import cache
 from oyProjectManager.models import user, abstractClasses
 
@@ -559,7 +557,7 @@ class Repository(abstractClasses.Singleton):
                 self.osx_path = server_path_in
             
             # set also the environment variables
-            os.environ[self.repository_path_env_key] = server_path_in
+            os.environ[self.repository_path_env_key] = str(server_path_in)
             
             self._projects = [] * 0
             
@@ -781,17 +779,6 @@ class Repository(abstractClasses.Singleton):
         return self._time_units
     
     
-    ##----------------------------------------------------------------------
-    #def get_settings_path(self):
-        #"""checks environment against having a variable called
-        #OYPROJECTMANAGER_PATH
-        #"""
-        
-        #return os.path.expandvars(
-            #os.path.expanduser(
-                #os.environ[self.settings_path_env_key]
-            #)
-        #)
     
     
     #----------------------------------------------------------------------
