@@ -753,7 +753,7 @@ class MayaEnvironment(abstractClasses.Environment):
     def replace_external_paths(self):
         """replaces all the external paths to relatives to repo.server_path
         """
-server_pathserver_pathserver_pathserver_pathserver_pathserver_path        
+        
         # create a repository
         repo = repository.Repository()
         
@@ -761,12 +761,12 @@ server_pathserver_pathserver_pathserver_pathserver_pathserver_path
         
         # replace reference paths
         for ref in pm.listReferences():
-            if ref.path.replace("\\", "/").startswith(repo.serverPath.replace("\\", "/")):
+            if ref.path.replace("\\", "/").startswith(repo.server_path.replace("\\", "/")):
                 print "replacing reference:", ref.path
                 print "replacing with:", repo_env_key
 
                 new_ref_path = ref.path.replace(
-                    repo.serverPath.replace("\\", "/"),
+                    repo.server_path.replace("\\", "/"),
                     repo_env_key
                 )
                
@@ -777,10 +777,10 @@ server_pathserver_pathserver_pathserver_pathserver_pathserver_path
         # texture files
         for image_file in pm.ls(type="file"):
             file_texture_path = image_file.getAttr("fileTextureName")
-            if file_texture_path.startswith(repo.serverPath):
+            if file_texture_path.startswith(repo.server_path):
                 image_file.setAttr(
                     "fileTextureName",
-                    file_texture_path.replace(repo.serverPath, repo_env_key)
+                    file_texture_path.replace(repo.server_path, repo_env_key)
                 )
         
         # replace mentalray textures
@@ -788,9 +788,9 @@ server_pathserver_pathserver_pathserver_pathserver_pathserver_path
             mr_texture_path =  mr_texture.getAttr("fileTextureName")
             
             if mr_texture_path is not None:
-                if mr_texture_path.startswith(repo.serverPath):
+                if mr_texture_path.startswith(repo.server_path):
                     mr_texture.setAttr(
                         "fileTextureName",
-                        mr_texture_path.replace(repo.serverPath, repo_env_key)
+                        mr_texture_path.replace(repo.server_path, repo_env_key)
                     )
         

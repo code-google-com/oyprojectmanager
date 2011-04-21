@@ -18,7 +18,8 @@ from oyProjectManager.models import user, abstractClasses
 
 
 ########################################################################
-class Repository(abstractClasses.Singleton):
+#class Repository(abstractClasses.Singleton):
+class Repository(object):
     """Repository class gives informations about the servers, projects, users
     etc.
     
@@ -551,7 +552,7 @@ class Repository(abstractClasses.Singleton):
             if platform_system == linux_string:
                 self.linux_path = server_path_in
             elif platform_system == windows_string:
-                server_path = server_path.replace("/", "\\")
+                server_path_in = server_path_in.replace("/", "\\")
                 self.windows_path = server_path_in
             elif platform_system == osx_string:
                 self.osx_path = server_path_in

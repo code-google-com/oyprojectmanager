@@ -53,7 +53,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         self._environmentFactory = environmentFactory.EnvironmentFactory()
         
         self.setWindowTitle( environmentTitle + ' | ' +
-                             self.windowTitle() +  'v' + __version__ + ' | ' +
+                             self.windowTitle() +  ' | ' +
                              'oyProjectManager v' + oyProjectManager.__version__ )
         
         # center to the window

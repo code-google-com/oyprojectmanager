@@ -49,7 +49,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         self.setupUi(self)
         
         # change the window title
-        self.setWindowTitle( self.windowTitle() + ' v' + __version__ + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
+        self.setWindowTitle( self.windowTitle() + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
         
         # center to the window
         self._centerWindow()
