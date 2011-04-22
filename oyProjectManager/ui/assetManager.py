@@ -51,7 +51,10 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         self._environmentFactory = environmentFactory.EnvironmentFactory()
         
-        self.setWindowTitle( environmentTitle + ' | ' + self.windowTitle() + ' v' + __version__ + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
+        self.setWindowTitle(
+            environmentTitle + ' | ' + self.windowTitle() + \
+            ' | ' + 'oyProjectManager v' + oyProjectManager.__version__
+        )
         
         # center to the window
         self._centerWindow()
@@ -1614,7 +1617,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """
         
         print "-----------------------------------"
-        print "AssetManager " + __version__
+        print "AssetManager"
         print assetObject.fileName
         print actionName + " succesfully"
     

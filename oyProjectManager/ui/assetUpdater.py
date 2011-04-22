@@ -50,7 +50,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
         self.setupUi(self)
         
         # change the window title
-        self.setWindowTitle( self.windowTitle() + ' v' + __version__ )
+        self.setWindowTitle(self.windowTitle())
         
         # center to the window
         self._centerWindow()

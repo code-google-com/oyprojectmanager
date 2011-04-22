@@ -4,6 +4,16 @@ Version History
 v0.1.0
 ------
 
+ * Updated houdiniEnv to filter out wedge nodes from the render nodes list,
+   which was causing errors while setting the frame range limits.
+
+ * houdiniEnv now replaces the render output path with relative to the $HIP
+   environment variable.
+
+ * nukeEnv now creates the full path of the current asset before saving it.
+
+ * Added "EDIT" assetType to Nuke environment.
+
  * in :class:`~oyProjectManager.models.repository.Repository`
    some methods listed below has been renamed:
    
