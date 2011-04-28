@@ -36,6 +36,37 @@ v0.1.0
    :method:`~oyProjectManager.models.repository.Repository.server_path`
    instead.
 
+ * Changed the :class:`~oyProjectManager.models.repository.Repository`
+   inheritance, it is now an instance of the regular Python Object class
+   instead of the :class:`~oyProjectManager.models.abstractClasses.Singleton`
+
+ * :method:`~oyProjectManager.models.repository.Repository._readUsers` renamed
+   to :method:`~oyProjectManager.models.repository.Repository._parse_users`
+
+ * :method:`~oyProjectManager.models.repository.Repository.userNames` renamed
+   to :method:`~oyProjectManager.models.repository.Repository.user_names`
+
+ * :method:`~oyProjectManager.models.repository.Repository.userInitials`
+   renamed to
+   :method:`~oyProjectManager.models.repository.Repository.user_initials`
+
+ * From now on an OSError will be raised when the users.xml file is missing.
+
+ * :class:`~oyProjectManager.models.project.Project` is now validating its name
+   property and the incoming name argument by itself and the it is now able to
+   produce good names in a lot of conditions.
+
+ * Updated all the codes to reduce the dependency to other packages, especially
+   to oyAuxiliaryFunctions.
+
+ * timeUnit values are now stored as int instead of strings in
+   :class:`~oyProjectManager.models.repository.Repository`
+
+ * replaced the internal caching system with Beaker.
+
+ * moved the class methods of the RangeTools to
+   :module:`~oyProjectManager.utils`
+
 v11.4.9
 -------
 

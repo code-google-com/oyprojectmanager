@@ -575,11 +575,11 @@ class MayaEnvironment(abstractClasses.Environment):
         # check if the given unit is in repository
         repo = repository.Repository()
         
-        if not repo.time_units.has_key( timeUnit ):
+        if not repo.time_units.has_key(timeUnit):
             raise KeyError(timeUnit)
         
-        # get the current time, current playback min and max ( because maya
-        # changes them, try to restore the limits )
+        # get the current time, current playback min and max (because maya
+        # changes them, try to restore the limits)
         
         currentTime = pm.currentTime(q=1)
         pMin = pm.playbackOptions(q=1, min=1)
@@ -589,15 +589,14 @@ class MayaEnvironment(abstractClasses.Environment):
         
         # set the time unit, do not change the keyframe times
         # use the timeUnit as it is
-        pm.currentUnit( t=timeUnit, ua=0 )
+        pm.currentUnit(t=timeUnit, ua=0)
         # to be sure
         pm.optionVar['workingUnitTime'] = timeUnit
         
-        
         # update the playback ranges
-        pm.currentTime( currentTime )
-        pm.playbackOptions( ast=pAst, aet=pAet )
-        pm.playbackOptions( min=pMin, max=pMax )
+        pm.currentTime(currentTime)
+        pm.playbackOptions(ast=pAst, aet=pAet)
+        pm.playbackOptions(min=pMin, max=pMax)
 
 
 

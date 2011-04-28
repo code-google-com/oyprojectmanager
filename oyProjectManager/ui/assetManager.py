@@ -343,7 +343,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.subName_listWidget.addItem( "MAIN" )
         
         # append the users to the users list
-        userInits = self._repo.userInitials
+        userInits = self._repo.user_initials
         
         self.user_comboBox1.clear()
         self.user_comboBox1.addItems( userInits )

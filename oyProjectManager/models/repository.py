@@ -9,10 +9,15 @@ import shutil
 import re
 import oyAuxiliaryFunctions as oyAux
 from xml.dom import minidom
-from oyProjectManager.utils import cache
+#from oyProjectManager.utils import cache
+from beaker import cache
 from oyProjectManager.models import user, abstractClasses
 
 
+
+# create a cache manager
+
+bCache = cache.CacheManager()
 
 
 
@@ -20,7 +25,7 @@ from oyProjectManager.models import user, abstractClasses
 ########################################################################
 #class Repository(abstractClasses.Singleton):
 class Repository(object):
-    """Repository class gives informations about the servers, projects, users
+    """Repository class gives information about the servers, projects, users
     etc.
     
     The Repository class helps:
@@ -294,7 +299,7 @@ class Repository(object):
         
         # ---------------------------------------------------
         self._parse_repository_settings()
-        self._readUsers()
+        self._parse_users()
         # ---------------------------------------------------
     
     
@@ -334,8 +339,8 @@ class Repository(object):
         
         for timeNode in timeNodes:
             name = timeNode.getAttribute('name')
-            fps = timeNode.getAttribute('fps')
-            self._time_units[ name ] = fps
+            fps = int(timeNode.getAttribute('fps'))
+            self._time_units[name] = fps
         
         # -----------------------------------------------------
         # read the server settings
@@ -374,7 +379,6 @@ class Repository(object):
     
     
     #----------------------------------------------------------------------
-    #@cache.CachedMethod
     @property
     def projects(self):
         """returns projects names as a list
@@ -385,8 +389,8 @@ class Repository(object):
     
     
     #----------------------------------------------------------------------
-    @cache.CachedMethod
     @property
+    @bCache.cache()
     def valid_projects(self):
         """returns the projectNames only if they are valid projects.
         A project is only valid if there are some valid sequences under it
@@ -429,16 +433,16 @@ class Repository(object):
     
     #----------------------------------------------------------------------
     @property
-    def userNames(self):
+    def user_names(self):
         """returns the user names
         """
-        return [ userObj.name for userObj in self._users ]
+        return [userObj.name for userObj in self._users]
     
     
     
     #----------------------------------------------------------------------
     @property
-    def userInitials(self):
+    def user_initials(self):
         """returns the user intials
         """
         return sorted([userObj.initials for userObj in self._users])
@@ -446,15 +450,15 @@ class Repository(object):
     
     
     #----------------------------------------------------------------------
-    def _readUsers(self):
+    def _parse_users(self):
         """parses the usersFile
         """
         
         # check if the usersFile exists
-        if not os.path.exists( self._users_file_full_path ):
-            return
+        if not os.path.exists(self._users_file_full_path):
+            raise OSError("There is no users.xml file")
         
-        usersXML = minidom.parse( self._users_file_full_path )
+        usersXML = minidom.parse(self._users_file_full_path)
         
         rootNode = usersXML.childNodes[0]
         
@@ -475,30 +479,22 @@ class Repository(object):
     def update_project_list(self):
         """updates the project list variable
         """
-        
         try:
-            #self._projects = oyAux.getChildFolders(
-                #self._projectsFolderFullPath
-            #)
             self._projects = []
-            
             child_folders = oyAux.getChildFolders(self.server_path)
-            #print "self.server_path", self.server_path
             
             for folder in child_folders:
                 filtered_folder_name = re.sub(
                     r".*?([^A-Z_]+)([A-Z0-9_]+)",
                     r"\2", folder
                 )
-                #print filtered_folder_name, folder
+                
                 if filtered_folder_name == folder:
                     self._projects.append(folder)
-                #self._projects.append(folder)
-        
+            
             self._projects.sort()
         
         except IOError:
-            #print "server path doesn't exists, %s" % self._projectsFolderFullPath
             print "server path doesn't exists, %s" % self.server_path
     
     

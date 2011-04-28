@@ -262,7 +262,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         repo = repository.Repository()
         time_units = repo.time_units
         
-        currentFps = str(int(hou.fps()))
+        currentFps = int(hou.fps())
         
         timeUnit = 'pal'
         
@@ -333,7 +333,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         
         # keep the current start and end time of the time range
         startFrame, endFrame = self.getFrameRange()
-        hou.setFps( timeUnitFps )
+        hou.setFps(timeUnitFps)
         
         self.setFrameRange( startFrame, endFrame)
     

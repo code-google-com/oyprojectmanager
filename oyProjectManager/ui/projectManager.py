@@ -9,7 +9,7 @@ import projectManager_UI
 
 import oyProjectManager
 from oyProjectManager.models import project, repository
-from oyProjectManager.utils import rangeTools
+from oyProjectManager import utils
 from oyProjectManager.ui import singletonQApplication
 
 
@@ -111,14 +111,22 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         time_units = self.repo.time_units
         fpsList = []
         for timeUnitName in time_units.keys():
-            fpsList.append( timeUnitName + self._timeFpsDivider + time_units[timeUnitName] )
+            fpsList.append(
+                timeUnitName + \
+                self._timeFpsDivider + \
+                str(time_units[timeUnitName])
+            )
         
-        fpsList = sorted( fpsList, None, lambda x: x.split( self._timeFpsDivider )[1] )
+        fpsList = sorted(
+            fpsList,
+            None,
+            lambda x: x.split(self._timeFpsDivider)[1]
+        )
         
-        self.fps_comboBox.addItems( fpsList )
+        self.fps_comboBox.addItems(fpsList)
         
         # by default select 25 / ugly patch
-        self.fps_comboBox.setCurrentIndex( 2 )
+        self.fps_comboBox.setCurrentIndex(2)
     
     
     
@@ -153,8 +161,17 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     def checkShotRange(self):
         """checks both shotRange lineEdits
         """
-        self.shotRange_lineEdit2.setText( rangeTools.RangeConverter.matchRange( unicode( self.shotRange_lineEdit2.text() ) ) )
-        self.shotRange_lineEdit3.setText( rangeTools.RangeConverter.matchRange( unicode( self.shotRange_lineEdit3.text() ) ) )
+        self.shotRange_lineEdit2.setText(
+            utils.matchRange(
+                unicode(self.shotRange_lineEdit2.text())
+            )
+        )
+        
+        self.shotRange_lineEdit3.setText(
+            utils.matchRange(
+                unicode(self.shotRange_lineEdit3.text())
+            )
+        )
     
     
     
@@ -191,14 +208,14 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         sequenceName = oyAux.file_name_conditioner( sequenceName )
         
         # get the shot range
-        shotRange = unicode( self.shotRange_lineEdit2.text() )
+        shotRange = unicode(self.shotRange_lineEdit2.text())
         
         # get the timeUnit name
         timeUnit = unicode( self.fps_comboBox.currentText().split( self._timeFpsDivider )[0] )
         
         # create the sequence object
         newSeq = project.Sequence( project.Project( projectName ) , sequenceName )
-        newSeq.addShots( shotRange )
+        newSeq.addShots(shotRange)
         newSeq.create()
         newSeq.timeUnit = timeUnit
         newSeq.saveSettings()
@@ -218,9 +235,9 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         sequenceName = unicode( self.sequence_comboBox3.currentText() )
         seq = project.Sequence( project.Project(projectName), sequenceName )
         
-        shotRange = unicode( self.shotRange_lineEdit3.text() )
+        shotRange = unicode(self.shotRange_lineEdit3.text())
         
-        seq.addShots( shotRange )
+        seq.addShots(shotRange)
         seq.createShots()
         seq.saveSettings()
         

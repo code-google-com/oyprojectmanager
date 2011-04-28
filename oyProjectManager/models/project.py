@@ -2,13 +2,26 @@
 
 
 
-import sys, os, re, shutil, glob
+import sys
+import os
+import shutil
+import glob
+import re
+
+from beaker import cache
+
 from xml.dom import minidom
+
 import oyAuxiliaryFunctions as oyAux
-from oyProjectManager.utils import cache, rangeTools
+
+from oyProjectManager import utils
 from oyProjectManager.models import asset, user, repository
 
 
+
+
+# create a cache with the CacheManager
+bCache = cache.CacheManager()
 
 
 
@@ -154,20 +167,46 @@ class DefaultSettingsParser(object):
     def __init__(self):
         pass
         
-    
-    
+
+
+
 
 
 
 ########################################################################
 class Project(object):
-    """Project object to help manage project data
+    """Manages project related data.
+    
+    A Project is simply a holder for Assets and Sequences.
+    
+    :param name: The name of the project. Should be a string or unicode. Name
+      can not be None, a ValueError will be raised when it is given as None.
+      The default value is None, so it will raise a ValueError.
+      
+      The given project name is validated against the following rules:
+        
+        * The name can only have A-Z and 0-9 and "_" characters, all the other
+          chars are going to be filtered out.
+        
+        * The name can only start with literals, no spaces, no numbers or any
+          other character is not allowed.
+        
+        * Numbers and underscores are only allowed if they are not the first
+          letter.
+        
+        * All the letters should be upper case.
+        
+        * All the "-" (minus) signs are converted to "_" (under score)
+        
+        * All the CamelCase formattings are expanded to underscore (Camel_Case)
+    
+    
     """
     
     
     
     #----------------------------------------------------------------------
-    def __init__(self, projectName=None):
+    def __init__(self, name=None):
         
         self._repository = repository.Repository()
         
@@ -175,8 +214,7 @@ class Project(object):
         self._path = ''
         self._fullPath = ''
         
-        if projectName is not None:
-            self.name = oyAux.stringConditioner(projectName, False, True, False, True, True, False)
+        self.name = self._validate_name(name)
         
         self._sequenceList = []
         
@@ -189,6 +227,37 @@ class Project(object):
         """the string representation of the project
         """
         return self.name
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _validate_name(self, name_in):
+        """validates the given name_in value
+        """
+        
+        # strip the name
+        name_in = name_in.strip()
+        
+        # convert all the "-" signs to "_"
+        name_in = name_in.replace("-", "_")
+        
+        # replace camel case letters
+        name_in = re.sub(r"(.+?[a-z]+)([A-Z])", r"\1_\2", name_in)
+
+        # remove unnecesary characters from the string
+        name_in = re.sub("([^a-zA-Z0-9\s_]+)", r"", name_in)
+        
+        # remove all the characters which are not alpabetic
+        name_in = re.sub("(^[^a-zA-Z]+)", r"", name_in)
+        
+        # substitude all spaces with "_" characters
+        name_in = re.sub("([\s])+", "_", name_in)
+        
+        # convert it to upper case
+        name_in = name_in.upper()
+        
+        return name_in
+
     
     
     
@@ -210,7 +279,9 @@ class Project(object):
             raise RuntimeError('please give a name to the project')
         
         # check if the folder allready exists
-        self._exists = not oyAux.createFolder(self._fullPath)
+        #self._exists = not oyAux.createFolder(self._fullPath)
+        utils.mkdir(self._fullPath)
+        self._exists = 1
     
     
     
@@ -227,7 +298,7 @@ class Project(object):
     
     
     #----------------------------------------------------------------------
-    @cache.CachedMethod
+    @bCache.cache(expire=60)
     def sequenceNames(self):
         """returns the sequence names of that project
         """
@@ -237,7 +308,7 @@ class Project(object):
     
     
     #----------------------------------------------------------------------
-    @cache.CachedMethod
+    @bCache.cache(expire=60)
     def sequences(self):
         """returns the sequences as sequence objects
         
@@ -299,8 +370,8 @@ class Project(object):
         def fget(self):
             return self._name
         
-        def fset(self, name):
-            self._name = name
+        def fset(self, name_in):
+            self._name = self._validate_name(name_in)
             self._initPathVariables()
         
         return locals()
@@ -631,7 +702,7 @@ class Sequence(object):
                 self._shotList  = [ shot.strip() for shot in shotListNode.childNodes[0].wholeText.split('\n') if shot.strip() != "" ]
         
         # sort the shot list
-        self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
+        self._shotList = utils.sort_string_numbers( self._shotList )
     
     
     
@@ -867,7 +938,7 @@ class Sequence(object):
         
         if not self._exists:
             # create a folder with sequenceName
-            exists = oyAux.createFolder( self._fullPath )
+            utils.mkdir(self._fullPath)
             
             # copy the settings file to the root of the sequence
             shutil.copy(self._repository.default_settings_file_full_path,
@@ -912,16 +983,17 @@ class Sequence(object):
         # for now consider the shots as a string of range
         # do the hard work later
         
-        newShotsList = rangeTools.RangeConverter.convertRangeToList( shots )
+        newShotsList = utils.convertRangeToList( shots )
         
         # convert the list to strings
         newShotsList = map(str, newShotsList)
         
         # add the shotList to the current _shotList
-        self._shotList = oyAux.unique( oyAux.concatenateLists( self._shotList, newShotsList ) )
+        self._shotList.extend(newShotsList)
+        self._shotList = utils.unique(self._shotList)
         
         # sort the shotList
-        self._shotList = oyAux.sort_strings_with_embedded_numbers( self._shotList )
+        self._shotList = utils.sort_string_numbers(self._shotList)
         
         # just create shot objects with shot name and leave the start and end frame and
         # description empty, it will be edited later
@@ -929,7 +1001,7 @@ class Sequence(object):
         
         
         # create a shot names buffer
-        shotNamesBuffer = [ shot.name for shot in self.shots ]
+        shotNamesBuffer = [shot.name for shot in self.shots]
         
         for shotName in newShotsList:
             # check if the shot allready exists
@@ -938,11 +1010,10 @@ class Sequence(object):
                 newShotObjects.append( shot )
         
         # add the new shot objects to the existing ones
-        self._shots = oyAux.unique( oyAux.concatenateLists( self._shots, newShotObjects ) )
+        self._shots.extend(newShotObjects)
         
         # sort the shot objects
-        self._shots = oyAux.sort_strings_with_embedded_numbers( self._shots )
-        
+        self._shots = utils.sort_string_numbers( self._shots )
     
     
     
@@ -1212,14 +1283,13 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    @cache.InputBasedCachedMethod
-    def getAssetTypes(self, environment=None):
+    @bCache.cache()
+    def getAssetTypes(self, environment):
         """returns a list of AssetType objects that this project has
         
         if the environment is set something other then None only the assetTypes
         for that environment is returned
         """
-        
         
         if environment==None:
             return self._assetTypes
@@ -1236,7 +1306,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    @cache.InputBasedCachedMethod
+    @bCache.cache()
     def getAssetTypeWithName(self, typeName):
         """returns the assetType object that has the name typeName.
         if it can't find any assetType that has the name typeName it returns None
@@ -1287,7 +1357,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    @cache.CachedMethod
+    @bCache.cache(expire=60)
     def getAssetFolders(self):
         """returns all asset folders
         """
@@ -1304,7 +1374,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    @cache.CachedMethod
+    @bCache.cache(expire=60)
     def getAllAssets(self):
         """returns Asset objects for all the assets of the sequence
         beware that this method uses a very simple caching algorithm, so it
@@ -1375,7 +1445,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    @cache.InputBasedCachedMethod
+    @bCache.cache()
     def getAllAssetsForType(self, typeName):
         """returns Asset objects for just the given type of the sequence
         """
@@ -1446,7 +1516,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    @cache.InputBasedCachedMethod
+    @bCache.cache()
     def getAllAssetFileNamesForType(self, typeName):
         """returns Asset objects for just the given type of the sequence
         """
@@ -1528,7 +1598,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    @cache.InputBasedCachedMethod
+    @bCache.cache()
     def getAllAssetsForTypeAndBaseName(self, typeName, baseName):
         """returns Asset objects of the sequence for just the given type and basename
         """
@@ -1686,7 +1756,7 @@ class Sequence(object):
     
     
     #----------------------------------------------------------------------
-    @cache.InputBasedCachedMethod
+    @bCache.cache()
     def generateFakeInfoVariables(self, assetFileName):
         """generates fake info variables from assetFileNames by splitting the file name
         from '_' characters and trying to get information from those splits
@@ -1736,7 +1806,7 @@ class Sequence(object):
     
     
     ##----------------------------------------------------------------------
-    #@cache.InputBasedCachedMethod
+    #@bCache.cache()
     #def isValidExtension(self, extensionString):
         #"""checks if the given extension is in extensionsToIgnore list
         #"""

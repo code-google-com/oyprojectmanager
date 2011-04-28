@@ -3,7 +3,6 @@
 
 
 import re
-import oyAuxiliaryFunctions as oyAux
 
 
 
@@ -52,10 +51,9 @@ class RangeConverter(object):
             else:
                 number = int(ranges[0])
                 if number not in shotList:
-                    shotList.append( int(ranges[0]) )
+                    shotList.append(number)
         
         shotList.sort()
-        shotList = oyAux.concatenateLists( shotList )
         
         return shotList
     
@@ -67,7 +65,7 @@ class RangeConverter(object):
         """validates the range string
         """
         
-        assert( isinstance( _range, (str, unicode) ) )
+        assert(isinstance(_range, (str, unicode)))
         
         pattern = re.compile('[0-9\-,]+')
         matchObj = re.match( pattern, _range )

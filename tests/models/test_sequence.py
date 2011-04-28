@@ -183,7 +183,7 @@ class SequenceTester(unittest.TestCase):
         assert(isinstance(new_seq, project.Sequence))
         
         # check if for every assetType defined there is an ouput_path 
-        for asset_type in new_seq.getAssetTypes():
+        for asset_type in new_seq.getAssetTypes(None):
             assert(isinstance(asset_type, asset.AssetType))
             self.assertNotEqual(asset_type.output_path, "")
         
