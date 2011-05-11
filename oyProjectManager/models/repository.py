@@ -485,7 +485,7 @@ class Repository(object):
             
             for folder in child_folders:
                 filtered_folder_name = re.sub(
-                    r".*?([^A-Z_]+)([A-Z0-9_]+)",
+                    r".*?(^[^A-Z_]+)([A-Z0-9_]+)",
                     r"\2", folder
                 )
                 
@@ -628,7 +628,9 @@ class Repository(object):
         """
         
         from oyProjectManager.models import project
-        return project.Project(projectName)
+        newProject = project.Project(projectName)
+        newProject.create()
+        return newProject
     
     
     

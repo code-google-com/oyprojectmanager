@@ -166,7 +166,6 @@ class DefaultSettingsParser(object):
     #----------------------------------------------------------------------
     def __init__(self):
         pass
-        
 
 
 
@@ -200,6 +199,16 @@ class Project(object):
         
         * All the CamelCase formattings are expanded to underscore (Camel_Case)
     
+    Creating a Project instance is not enough to phsyically create the project
+    folder. To make it hapen the
+    :method:`~oyProjectManager.models.project.Project.create` should be called
+    to finish the creation process, which in fact is only a folder.
+    
+    A Project can not be created without a name or with a name which is None. A
+    Project can not be created with an invalid name. So lets say a project with
+    name "'^+'^" can not be craeated cause the name will become an empty string
+    after name validation.
+    
     
     """
     
@@ -210,9 +219,9 @@ class Project(object):
         
         self._repository = repository.Repository()
         
-        self._name = None
-        self._path = ''
-        self._fullPath = ''
+        self._name = ""
+        self._path = ""
+        self._fullPath = ""
         
         self.name = self._validate_name(name)
         
@@ -235,6 +244,12 @@ class Project(object):
         """validates the given name_in value
         """
         
+        if name_in is None:
+            raise ValueError("The name can not be None")
+        
+        if name_in is "":
+            raise ValueError("The name can not be an empty string")
+        
         # strip the name
         name_in = name_in.strip()
         
@@ -243,11 +258,11 @@ class Project(object):
         
         # replace camel case letters
         name_in = re.sub(r"(.+?[a-z]+)([A-Z])", r"\1_\2", name_in)
-
+        
         # remove unnecesary characters from the string
         name_in = re.sub("([^a-zA-Z0-9\s_]+)", r"", name_in)
         
-        # remove all the characters which are not alpabetic
+        # remove all the characters from the begining which are not alpabetic
         name_in = re.sub("(^[^a-zA-Z]+)", r"", name_in)
         
         # substitude all spaces with "_" characters
@@ -255,6 +270,10 @@ class Project(object):
         
         # convert it to upper case
         name_in = name_in.upper()
+        
+        # check if the name became empty string after validation
+        if name_in is "":
+            raise ValueError("The name is not valid after validation")
         
         return name_in
 
@@ -272,11 +291,12 @@ class Project(object):
     
     #----------------------------------------------------------------------
     def create(self):
-        """creates the project
+        """Creates the project directory in the repository.
         """
+        
         # check if the project object has a name
         if self._name is None:
-            raise RuntimeError('please give a name to the project')
+            raise RuntimeError("Please give a proper name to the project")
         
         # check if the folder allready exists
         #self._exists = not oyAux.createFolder(self._fullPath)
@@ -310,19 +330,16 @@ class Project(object):
     #----------------------------------------------------------------------
     @bCache.cache(expire=60)
     def sequences(self):
-        """returns the sequences as sequence objects
+        """Returns the sequences of the project as sequence objects.
         
-        don't use it offen, because it causes the system to parse all the sequence settings
-        for all the sequences under that project
-        
-        it is now using the caching mechanism use it freely
+        It utilizes the caching system.
         """
         
         self.updateSequenceList()
         sequences = [] * 0
         
         for sequenceName in self._sequenceList:
-            sequences.append( Sequence( self, sequenceName) )
+            sequences.append(Sequence( self, sequenceName))
         
         return sequences
     
@@ -336,7 +353,11 @@ class Project(object):
         
         # filter other folders like .DS_Store
         for folder in os.listdir( self._fullPath ):
-            filtered_folder_name = re.sub(r".*?([^A-Z_]+)([A-Z0-9_]+)", r"\2", folder)
+            filtered_folder_name = re.sub(
+                r".*?(^[^A-Z_]+)([A-Z0-9_]+)",
+                r"\2",
+                folder
+            )
             if filtered_folder_name == folder:
                 self._sequenceList.append(folder)
         
@@ -1968,7 +1989,25 @@ class Sequence(object):
             
             shutil.copy(backupFiles[-1], self._settings_file_full_path)
             os.remove(backupFiles[-1])
+    
+    
+    
+    #----------------------------------------------------------------------
+    def __eq__(self, other):
+        """The equality operator
+        """
         
+        return isinstance(other, Sequence) and other.name == self.name and \
+               other.projectName == self.projectName
+    
+    
+    
+    #----------------------------------------------------------------------
+    def __ne__(self, other):
+        """The in equality operator
+        """
+        
+        return not self.__eq__(other)
 
 
 

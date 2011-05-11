@@ -191,6 +191,54 @@ class SequenceTester(unittest.TestCase):
         settings = minidom.parse(settingsFileFullPath)
         
         self.assertEqual(settings.getElementsByTagName("outputFolders"), [])
-
-
-
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test___eq___operator(self):
+        """testing the __eq__ (equal) operator
+        """
+        
+        # create a new project and two sequence
+        # then create three new sequence objects to compare each of them
+        # with the other
+        
+        new_proj = project.Project("TEST_PROJECT")
+        seq1 = project.Sequence(new_proj, "SEQ1")
+        seq2 = project.Sequence(new_proj, "SEQ1")
+        seq3 = project.Sequence(new_proj, "SEQ2")
+        
+        new_proj2 = project.Project("TEST_PROJECT2")
+        seq4 = project.Sequence(new_proj2, "SEQ3")
+        
+        self.assertTrue(seq1==seq2)
+        self.assertFalse(seq1==seq3)
+        self.assertFalse(seq1==seq4)
+        self.assertFalse(seq3==seq4)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test___ne___operator(self):
+        """testing the __ne__ (not equal) operator
+        """
+        
+        # create a new project and two sequence
+        # then create three new sequence objects to compare each of them
+        # with the other
+        
+        new_proj = project.Project("TEST_PROJECT")
+        seq1 = project.Sequence(new_proj, "SEQ1")
+        seq2 = project.Sequence(new_proj, "SEQ1")
+        seq3 = project.Sequence(new_proj, "SEQ2")
+        
+        new_proj2 = project.Project("TEST_PROJECT2")
+        seq4 = project.Sequence(new_proj2, "SEQ3")
+        
+        self.assertFalse(seq1!=seq2)
+        self.assertTrue(seq1!=seq3)
+        self.assertTrue(seq1!=seq4)
+        self.assertTrue(seq3!=seq4)
+    
+    
+    

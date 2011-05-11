@@ -67,6 +67,17 @@ v0.1.0
  * moved the class methods of the RangeTools to
    :module:`~oyProjectManager.utils`
 
+ * from now on, to create a new project with a
+   :class:`~oyProjectManager.models.repository.Repository` instance, calling
+   :method:`~oyProjectManager.models.repository.Repository.createProject`
+   is enough, there is no need to call
+   :method:`~oyProjectManager.models.project.Project.create` with the
+   returning
+   :class:`~oyProjectManager.models.project.Project` instance.
+
+ * added __eq__ and __ne__ operators to the
+   :class:`~oyProjectManager.models.project.Sequence` class.
+
 v11.4.9
 -------
 

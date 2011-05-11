@@ -95,7 +95,7 @@ class RepositoryTester(mocker.MockerTestCase):
         project_name = 'TEST_PROJECT'
         
         newProject = repo.createProject(project_name)
-        newProject.create()
+        #newProject.create()
         
         # lets check if there is a folder in the server path with the given
         # name
@@ -127,7 +127,7 @@ class RepositoryTester(mocker.MockerTestCase):
             expected_project_name = test_value[1]
             
             new_project = repo.createProject(project_name)
-            new_project.create()
+            #new_project.create()
             
             # check if the project name is as expected
             self.assertEqual(new_project.name, expected_project_name)
@@ -501,7 +501,7 @@ class RepositoryTester(mocker.MockerTestCase):
         for project_name in project_names:
             #proj = repo.createProject(project_name)
             proj = project.Project(project_name)
-            proj.create()
+            #proj.create()
         
         # now get the projects list and check
         # if it is same with the original projects list
@@ -523,6 +523,9 @@ class RepositoryTester(mocker.MockerTestCase):
                         "TEST_PROJECT1",
                         "1test project2",
                         ".DS_Store",
+                        "_TEST_PROJECT_",
+                        "_PROJECT_SETUP_",
+                        "FUL_3D",
                         ]
         
         expected_list = ["PROJ1",
@@ -530,7 +533,12 @@ class RepositoryTester(mocker.MockerTestCase):
                          "PROJ3",
                          "TEST_PROJECT",
                          "TEST_PROJECT1",
+                         "_TEST_PROJECT_",
+                         "_PROJECT_SETUP_",
+                         "FUL_3D",
                          ]
+        
+        expected_list.sort()
         
         repo = repository.Repository()
         
@@ -590,7 +598,7 @@ class RepositoryTester(mocker.MockerTestCase):
         # create the projects
         for project_name in project_names:
             proj = repo.createProject(project_name)
-            proj.create()
+            #proj.create()
             
             # create a sequence for them
             proj.createSequence(seq_name, shots)
