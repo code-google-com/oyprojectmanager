@@ -189,12 +189,12 @@ class NukeEnvironment(abstractClasses.Environment):
         repo = repository.Repository()
         
         try:
-            fps = repo.time_units[ timeUnit ]
+            fps = repo.time_units[timeUnit]
         except KeyError:
             # set it to pal by default
-            fps = repo.time_units[ 'pal' ]
+            fps = repo.time_units['pal']
         
-        self._root.knob('fps').setValue( float(fps) )
+        self._root.knob('fps').setValue(fps)
     
     
     
@@ -203,7 +203,7 @@ class NukeEnvironment(abstractClasses.Environment):
         """returns the current time unit
         """
         
-        currentFps = str(int(self._root.knob('fps').getValue()))
+        currentFps = int(self._root.knob('fps').getValue())
         
         repo = repository.Repository()
         time_units = repo.time_units

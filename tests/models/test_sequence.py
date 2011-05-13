@@ -2,7 +2,10 @@
 
 
 
-import os, sys, shutil
+import os
+import sys
+import shutil
+import tempfile
 import unittest
 from xml.dom import minidom
 from oyProjectManager.models import project, repository, asset
@@ -25,7 +28,7 @@ class SequenceTester(unittest.TestCase):
         """set up the test in class level
         """
         
-        # setup environment variable for default settings
+        # setup endvironment variable for default settings
         
         import os, sys
         import oyProjectManager
@@ -39,6 +42,21 @@ class SequenceTester(unittest.TestCase):
         
         # append or update the environment key to point the test_settings path
         os.environ["OYPROJECTMANAGER_PATH"] = test_settings_path
+        
+        # create the test folder
+        os.makedirs("/tmp/JOBs")
+    
+    
+    
+    #----------------------------------------------------------------------
+    @classmethod
+    def tearDownClass(cls):
+        """cleanup test
+        """
+        
+        # remove the temp project path
+        shutil.rmtree("/tmp/JOBs")
+        
     
     
     
@@ -73,7 +91,7 @@ class SequenceTester(unittest.TestCase):
         repo = repository.Repository()
         
         # BUG: works only under linux fix it later
-        self.assertEquals(repo.server_path, "/tmp/JOBs")
+        self.assertEqual(repo.server_path, "/tmp/JOBs")
     
     
     
@@ -100,7 +118,7 @@ class SequenceTester(unittest.TestCase):
         
         output_folders = document.getElementsByTagName("output_folders")
         
-        self.assertEquals(output_folders, [])
+        self.assertEqual(output_folders, [])
     
     
     
@@ -168,14 +186,155 @@ class SequenceTester(unittest.TestCase):
         assert(isinstance(new_seq, project.Sequence))
         
         # check if for every assetType defined there is an ouput_path 
-        for asset_type in new_seq.getAssetTypes():
+        for asset_type in new_seq.getAssetTypes(None):
             assert(isinstance(asset_type, asset.AssetType))
             self.assertNotEqual(asset_type.output_path, "")
         
         # by using the dom check if the settings is converted to the new format
         settings = minidom.parse(settingsFileFullPath)
         
-        self.assertEquals(settings.getElementsByTagName("outputFolders"), [])
+        self.assertEqual(settings.getElementsByTagName("outputFolders"), [])
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test___eq___operator(self):
+        """testing the __eq__ (equal) operator
+        """
+        
+        # create a new project and two sequence
+        # then create three new sequence objects to compare each of them
+        # with the other
+        
+        new_proj = project.Project("TEST_PROJECT")
+        seq1 = project.Sequence(new_proj, "SEQ1")
+        seq2 = project.Sequence(new_proj, "SEQ1")
+        seq3 = project.Sequence(new_proj, "SEQ2")
+        
+        new_proj2 = project.Project("TEST_PROJECT2")
+        seq4 = project.Sequence(new_proj2, "SEQ3")
+        
+        self.assertTrue(seq1==seq2)
+        self.assertFalse(seq1==seq3)
+        self.assertFalse(seq1==seq4)
+        self.assertFalse(seq3==seq4)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test___ne___operator(self):
+        """testing the __ne__ (not equal) operator
+        """
+        
+        # create a new project and two sequence
+        # then create three new sequence objects to compare each of them
+        # with the other
+        
+        new_proj = project.Project("TEST_PROJECT")
+        seq1 = project.Sequence(new_proj, "SEQ1")
+        seq2 = project.Sequence(new_proj, "SEQ1")
+        seq3 = project.Sequence(new_proj, "SEQ2")
+        
+        new_proj2 = project.Project("TEST_PROJECT2")
+        seq4 = project.Sequence(new_proj2, "SEQ3")
+        
+        self.assertFalse(seq1!=seq2)
+        self.assertTrue(seq1!=seq3)
+        self.assertTrue(seq1!=seq4)
+        self.assertTrue(seq3!=seq4)
 
 
 
+
+
+
+#########################################################################
+#class SequenceTester_NewType(unittest.TestCase):
+    #"""tests the Project class
+    #"""
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def setUp(self):
+        #"""testing the settings path from the environment variable
+        #"""
+        
+        ## -----------------------------------------------------------------
+        ## start of the setUp
+        ## create the environment variable and point it to a temp directory
+        #self.temp_settings_folder = tempfile.mktemp()
+        #self.temp_projects_folder = tempfile.mkdtemp()
+        
+        ## copy the test settings
+        #import oyProjectManager
+        
+        #self._test_settings_folder = os.path.join(
+            #os.path.dirname(
+                #os.path.dirname(
+                    #oyProjectManager.__file__
+                #)
+            #),
+            #"tests", "test_settings"
+        #)
+        
+        #os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
+        #os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
+        
+        ## copy the default files to the folder
+        #shutil.copytree(
+            #self._test_settings_folder,
+            #self.temp_settings_folder,
+        #)
+        
+        ## change the server path to a temp folder
+        #repository_settings_file_path = os.path.join(
+            #self.temp_settings_folder, 'repositorySettings.xml')
+        
+        ## change the repositorySettings.xml by using the minidom
+        #xmlDoc = minidom.parse(repository_settings_file_path)
+        
+        #serverNodes = xmlDoc.getElementsByTagName("server")
+        #for serverNode in serverNodes:
+            #serverNode.setAttribute("windows_path", self.temp_projects_folder)
+            #serverNode.setAttribute("linux_path", self.temp_projects_folder)
+            #serverNode.setAttribute("osx_path", self.temp_projects_folder)
+        
+        #repository_settings_file = file(repository_settings_file_path,
+                                        #mode='w')
+        #xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
+        
+        
+        #self._name_test_values = [
+            #("test project", "TEST_PROJECT"),
+            #("123123 test_project", "TEST_PROJECT"),
+            #("123432!+!'^+Test_PRoject323^+'^%&+%&324", "TEST_PROJECT323324"),
+            #("    ---test 9s_project", "TEST_9S_PROJECT"),
+            #("    ---test 9s-project", "TEST_9S_PROJECT"),
+            #(" multiple     spaces are    converted to under     scores",
+             #"MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
+            #("camelCase", "CAMEL_CASE"),
+            #("CamelCase", "CAMEL_CASE"),
+            #("_Project_Setup_", "PROJECT_SETUP_"),
+            #("_PROJECT_SETUP_", "PROJECT_SETUP_"),
+            #("FUL_3D", "FUL_3D"),
+        #]
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def tearDown(self):
+        #"""remove the temp folders
+        #"""
+        
+        ## delete the temp folder
+        #shutil.rmtree(self.temp_settings_folder)
+        #shutil.rmtree(self.temp_projects_folder)
+    
+    
+    
+    ##----------------------------------------------------------------------
+    #def test_(self):
+        #"""
+        #"""
+        

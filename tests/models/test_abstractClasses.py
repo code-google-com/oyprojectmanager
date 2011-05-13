@@ -26,7 +26,7 @@ class SingletonTester(unittest.TestCase):
         a = abstractClasses.Singleton()
         b = abstractClasses.Singleton()
         
-        self.assertEquals(id(a), id(b))
+        self.assertEqual(id(a), id(b))
 
 
 

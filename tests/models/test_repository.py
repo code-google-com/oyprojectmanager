@@ -9,7 +9,7 @@ import tempfile
 from xml.dom import minidom
 import mocker
 
-from oyProjectManager.models import repository, project
+from oyProjectManager.models import repository, project, user
 
 
 
@@ -31,46 +31,27 @@ class RepositoryTester(mocker.MockerTestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
-        #self.temp_settings_folder = tempfile.mkdtemp()
         self.temp_settings_folder = tempfile.mktemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
-        os.environ['OYPROJECTMANAGER_PATH'] = self.temp_settings_folder
+        # copy the test settings
+        import oyProjectManager
         
-        
-        # copy the default files to the folder
-        self.package_path = os.path.abspath(
+        self._test_settings_folder = os.path.join(
             os.path.dirname(
                 os.path.dirname(
-                    os.path.dirname(__file__)
+                    oyProjectManager.__file__
                 )
-            )
+            ),
+            "tests", "test_settings"
         )
         
-        self.default_settings_dir_path = os.path.join(
-            self.package_path, "oyProjectManager", "settings" )
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
+        os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
         
-        ## copy the setting files
-        #files = ["defaultProjectSettings.xml",
-                 #"environmentSettings.xml",
-                 #"repositorySettings.xml",
-                 #"users.xml",
-                 #"_defaultFiles_",
-                 #]
-        
-        #for file_ in files:
-            #shutil.copy2(
-                #os.path.join(
-                    #self.default_settings_dir_path,
-                    #file_)
-                #,
-                #os.path.join(
-                    #self.temp_settings_folder,
-                    #file_)
-                #)
-        
+        # copy the default files to the folder
         shutil.copytree(
-            self.default_settings_dir_path,
+            self._test_settings_folder,
             self.temp_settings_folder,
         )
         
@@ -104,19 +85,6 @@ class RepositoryTester(mocker.MockerTestCase):
     
     
     
-    ##----------------------------------------------------------------------
-    #def test_get_settings_path_with_environment_variable(self):
-        #"""testing if the get_settings_path returns the correct path when the
-        #environment variables is set
-        #"""
-        
-        #repo = repository.Repository()
-        
-        ## this should return the same path with the environment
-        #self.assertEqual(repo.get_settings_path(), self.temp_settings_folder)
-    
-    
-    
     #----------------------------------------------------------------------
     def test_create_project(self):
         """testing project creation
@@ -127,7 +95,7 @@ class RepositoryTester(mocker.MockerTestCase):
         project_name = 'TEST_PROJECT'
         
         newProject = repo.createProject(project_name)
-        newProject.create()
+        #newProject.create()
         
         # lets check if there is a folder in the server path with the given
         # name
@@ -139,6 +107,40 @@ class RepositoryTester(mocker.MockerTestCase):
                     )
                 )
             )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_create_project_with_wrong_name_formating(self):
+        """testing if the project name will be correctly formatted if the given
+        project name is not in good format
+        """
+        
+        test_values = [
+            ("test project", "TEST_PROJECT")
+        ]
+        
+        repo = repository.Repository()
+        
+        for test_value in test_values:
+            project_name = test_value[0]
+            expected_project_name = test_value[1]
+            
+            new_project = repo.createProject(project_name)
+            #new_project.create()
+            
+            # check if the project name is as expected
+            self.assertEqual(new_project.name, expected_project_name)
+            
+            # also check if there is a folder created with the expected_name
+            self.assertTrue(
+                os.path.exists(
+                    os.path.join(
+                        repo.server_path,
+                        expected_project_name
+                        )
+                    )
+                )
     
     
     
@@ -184,7 +186,7 @@ class RepositoryTester(mocker.MockerTestCase):
         # now test if the path is expanded
         repo = repository.Repository()
         
-        self.assertEquals(repo.settings_dir_path, expanded_new_path)
+        self.assertEqual(repo.settings_dir_path, expanded_new_path)
         
         # now delete the tmp folder
         shutil.rmtree(expanded_new_path)
@@ -199,7 +201,7 @@ class RepositoryTester(mocker.MockerTestCase):
         
         repo = repository.Repository()
         
-        self.assertEquals(repo._default_settings_file_full_path,
+        self.assertEqual(repo._default_settings_file_full_path,
                           repo.default_settings_file_full_path)
     
     
@@ -234,7 +236,7 @@ class RepositoryTester(mocker.MockerTestCase):
         asset_path = os.path.join(repo.server_path, project_name,
                                   sequence_name, "Asset1")
         
-        self.assertEquals(
+        self.assertEqual(
             repo.get_project_and_sequence_name_from_file_path(asset_path),
             (project_name, sequence_name)
         )
@@ -249,9 +251,24 @@ class RepositoryTester(mocker.MockerTestCase):
         
         repo = repository.Repository()
         
-        self.assertEquals(
+        self.assertEqual(
             repo.get_project_and_sequence_name_from_file_path(
                 "/an/irrelative/path/to/some/asset/or/something/else"),
+            (None, None)
+        )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_get_project_and_sequence_name_from_file_path_returns_None_for_None(self):
+        """testing if get_project_and_sequence_name_from_file_path returns
+        (None, None) for None
+        """
+        
+        repo = repository.Repository()
+        
+        self.assertEqual(
+            repo.get_project_and_sequence_name_from_file_path(None),
             (None, None)
         )
     
@@ -264,7 +281,7 @@ class RepositoryTester(mocker.MockerTestCase):
         
         repo = repository.Repository()
         
-        self.assertEquals(repo.home_path, os.environ["HOME"])
+        self.assertEqual(repo.home_path, os.environ["HOME"])
     
     
     
@@ -296,13 +313,13 @@ class RepositoryTester(mocker.MockerTestCase):
         if last_user == "":
             # no saved user before
             # just create one
-            repo.last_user = repo.userInitials[0]
+            repo.last_user = repo.user_initials[0]
             
             # re-read last_user
             last_user = repo.last_user
         
         # now check it if it is same with the last_user_file
-        self.assertEquals(
+        self.assertEqual(
             last_user,
             open(repo._last_user_file_full_path).readline().strip()
         )
@@ -320,11 +337,11 @@ class RepositoryTester(mocker.MockerTestCase):
         
         # change last user by using the property
         # change it with the user first in the user list
-        new_last_user = repo.userInitials[0]
+        new_last_user = repo.user_initials[0]
         repo.last_user = new_last_user
         
         # check if it is set properly
-        self.assertEquals(
+        self.assertEqual(
             repo.last_user,
             new_last_user
         )
@@ -360,7 +377,7 @@ class RepositoryTester(mocker.MockerTestCase):
         
         repo.server_path = new_server_path
         
-        self.assertEquals(repo.server_path, expanded_new_server_path)
+        self.assertEqual(repo.server_path, expanded_new_server_path)
         
         # clean up test
         shutil.rmtree(expanded_new_server_path)
@@ -376,7 +393,7 @@ class RepositoryTester(mocker.MockerTestCase):
         
         repo = repository.Repository()
         
-        self.assertEquals(repo.server_path, repo.linux_path)
+        self.assertEqual(repo.server_path, repo.linux_path)
     
     
     
@@ -393,19 +410,19 @@ class RepositoryTester(mocker.MockerTestCase):
         repo.server_path = new_server_path
         
         # check if it is same with the server_path
-        self.assertEquals(
+        self.assertEqual(
             new_server_path,
             repo.server_path
         )
         
         # check if it is same with the linux path
-        self.assertEquals(
+        self.assertEqual(
             new_server_path,
             repo.linux_path
         )
         
         # now check if it is same with the linux path
-        self.assertEquals(
+        self.assertEqual(
             repo.server_path,
             repo.linux_path
         )
@@ -429,7 +446,7 @@ class RepositoryTester(mocker.MockerTestCase):
         
         repo.linux_path = new_server_path
         
-        self.assertEquals(repo.server_path, new_server_path)
+        self.assertEqual(repo.server_path, new_server_path)
         
         # clean up
         os.rmdir(new_server_path)
@@ -437,7 +454,7 @@ class RepositoryTester(mocker.MockerTestCase):
     
     
     #----------------------------------------------------------------------
-    def test_settings_dir_path_works_properly(self):
+    def test_settings_dir_path_property_works_properly(self):
         """testing if the settings_dir_path works properly
         """
         
@@ -452,7 +469,18 @@ class RepositoryTester(mocker.MockerTestCase):
         
         repo = repository.Repository()
         
-        self.assertEquals(repo.settings_dir_path, settings_dir_path_from_env)
+        self.assertEqual(repo.settings_dir_path, settings_dir_path_from_env)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_settings_dir_path_property_is_read_only(self):
+        """testing if settings_dir_path property is read only
+        """
+        
+        repo = repository.Repository()
+        self.assertRaises(AttributeError, setattr, repo, "settings_dir_path",
+                          "")
     
     
     
@@ -471,14 +499,13 @@ class RepositoryTester(mocker.MockerTestCase):
         repo = repository.Repository()
         
         for project_name in project_names:
-            #proj = repo.createProject(project_name)
             proj = project.Project(project_name)
             proj.create()
         
         # now get the projects list and check
         # if it is same with the original projects list
         
-        self.assertEquals(repo.projects, project_names)
+        self.assertEqual(repo.projects, project_names)
     
     
     
@@ -495,6 +522,9 @@ class RepositoryTester(mocker.MockerTestCase):
                         "TEST_PROJECT1",
                         "1test project2",
                         ".DS_Store",
+                        "_TEST_PROJECT_",
+                        "_PROJECT_SETUP_",
+                        "FUL_3D",
                         ]
         
         expected_list = ["PROJ1",
@@ -502,7 +532,12 @@ class RepositoryTester(mocker.MockerTestCase):
                          "PROJ3",
                          "TEST_PROJECT",
                          "TEST_PROJECT1",
+                         "_TEST_PROJECT_",
+                         "_PROJECT_SETUP_",
+                         "FUL_3D",
                          ]
+        
+        expected_list.sort()
         
         repo = repository.Repository()
         
@@ -513,7 +548,7 @@ class RepositoryTester(mocker.MockerTestCase):
         # now get the projects list and check
         # if it is same with the original projects list
         
-        self.assertEquals(repo.projects, expected_list)
+        self.assertEqual(repo.projects, expected_list)
     
     
     
@@ -536,7 +571,7 @@ class RepositoryTester(mocker.MockerTestCase):
             test_folder_name
         )
         
-        self.assertEquals(
+        self.assertEqual(
             repo.relative_path(test_folder_full_path),
             expected_path
         )
@@ -562,7 +597,7 @@ class RepositoryTester(mocker.MockerTestCase):
         # create the projects
         for project_name in project_names:
             proj = repo.createProject(project_name)
-            proj.create()
+            #proj.create()
             
             # create a sequence for them
             proj.createSequence(seq_name, shots)
@@ -577,7 +612,343 @@ class RepositoryTester(mocker.MockerTestCase):
             )
         
         # now check if we only get the valid projects
-        self.assertEquals(
+        self.assertEqual(
             project_names,
             repo.valid_projects
         )
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_repository_path_environment_variable_init_1(self):
+        """testing if the repository path environment variable is initialized
+        where there is no repository path key in the environment variables
+        """
+        
+        # remove the environment variable if it exists
+        key = "STALKER_REPOSITORY_PATH"
+        value = ""
+        
+        has_key = os.environ.has_key(key)
+        
+        if has_key:
+            value = os.environ[key]
+            
+            # remove the key
+            os.environ.pop(key)
+        
+        # create another repo and check if it is going to create the key
+        repo = repository.Repository()
+        self.assertTrue(os.environ.has_key(key))
+        
+        # restore the value
+        if has_key:
+            os.environ[key] = value
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_repository_path_environment_variable_init_2(self):
+        """testing if the repository path environment variable is initialized
+        correctly even there is a key in the environment with the same
+        """
+        
+        # check if there is a key in the environment and create one if there
+        # isn't any
+        
+        key = "STALKER_REPOSITORY_PATH"
+        value = "/TEST_VALUE"
+        
+        if os.environ.has_key(key):
+            # get the value
+            value = os.environ[key]
+        else:
+            # set the value
+            os.environ[key] = value
+        
+        # now create a Repository and check if it is going to get the value
+        # for the repository_path
+        
+        repo = repository.Repository()
+        
+        # the value should be still there intact
+        self.assertEqual(os.environ[key], value)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _create_new_users_settings(self):
+        """creates new users settings file for tests
+        """
+        # duplicate the current users.xml file and create a new one by hand
+        # which has the correct formatting
+        
+        settings_path = os.path.expanduser(
+            os.path.expandvars(
+                os.environ["OYPROJECTMANAGER_PATH"]
+            )
+        )
+        
+        # check if there is a users.xml file
+        orig_file_path = os.path.join(settings_path, "users.xml")
+        backup_file_path = os.path.join(settings_path, "users.xml.orig")
+        
+        # rename it
+        os.rename(orig_file_path, backup_file_path)
+        
+        new_users_file_content = \
+            """<?xml version="1.0" ?>
+            <root>
+                <users>
+                    <user initials="u1" name="user1"/>
+                    <user initials="u2" name="user2"/>
+                    <user initials="u3" name="user3"/>
+                    <user initials="u4" name="user4"/>
+                    <user initials="u5" name="user5"/>
+                </users>
+            </root>"""
+        
+        # write the date to the settings file
+        new_file = open(orig_file_path, "w")
+        new_file.write(new_users_file_content)
+        new_file.close()
+        
+        return orig_file_path, backup_file_path
+    
+    
+    
+    #----------------------------------------------------------------------
+    def _restore_file(self, orig_file_path, backup_file_path):
+        """restores the given file
+        """
+        
+        # restore the original file
+        os.remove(orig_file_path)
+        os.rename(backup_file_path, orig_file_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_users_property_is_returning_User_objects(self):
+        """testing if the users property is just returning User objects
+        """
+        
+        # create new users.xml with known values
+        orig_file_path, backup_file_path = self._create_new_users_settings()
+        
+        # now do you magic
+        repo = repository.Repository()
+        
+        for userObj in repo.users:
+            self.assertTrue(isinstance(userObj, user.User))
+        
+        # the users count should be 5 for our settings file
+        self.assertEqual(len(repo.users), 5)
+        
+        # restore the file
+        self._restore_file(orig_file_path, backup_file_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_users_property_returning_correct_users(self):
+        """testing if the users property is returning the correct users from
+        the settings file
+        """
+        
+        # create a new users.xml with known values
+        orig_file_path, backup_file_path = self._create_new_users_settings()
+        
+        # now create a repository and check for the users
+        repo = repository.Repository()
+        
+        users = repo.users
+        
+        self.assertEqual(users[0].name, "user1")
+        self.assertEqual(users[1].name, "user2")
+        self.assertEqual(users[2].name, "user3")
+        self.assertEqual(users[3].name, "user4")
+        self.assertEqual(users[4].name, "user5")
+        
+        # restore the users.xml file
+        self._restore_file(orig_file_path, backup_file_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_users_property_is_read_only(self):
+        """testing if the users property is read-only
+        """
+        
+        repo = repository.Repository()
+        self.assertRaises(AttributeError, setattr, repo, "users", [])
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_user_names_property_is_working_correctly(self):
+        """testing if the user_names property is working properly
+        """
+        
+        # create a new users.xml with known values
+        orig_file_path, backup_file_path = self._create_new_users_settings()
+        
+        # now create a repository and check for the users
+        repo = repository.Repository()
+        
+        user_names = repo.user_names
+        
+        self.assertEqual(user_names[0], "user1")
+        self.assertEqual(user_names[1], "user2")
+        self.assertEqual(user_names[2], "user3")
+        self.assertEqual(user_names[3], "user4")
+        self.assertEqual(user_names[4], "user5")
+        
+        # restore the users.xml file
+        self._restore_file(orig_file_path, backup_file_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_user_names_property_is_readonly(self):
+        """testing if the user_names property is read only
+        """
+        
+        repo = repository.Repository()
+        self.assertRaises(AttributeError, setattr, repo, "user_names", [])
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_users_settings_file_is_missing(self):
+        """testing if an OSError will be raised when the users.xml file is
+        missing
+        """
+        
+        # rename the current users.xml file
+        
+        settings_path = os.path.expanduser(
+            os.path.expandvars(
+                os.environ["OYPROJECTMANAGER_PATH"]
+            )
+        )
+        
+        # check if there is a users.xml file
+        orig_file_path = os.path.join(settings_path, "users.xml")
+        backup_file_path = os.path.join(settings_path, "users.xml.orig")
+        
+        # rename it
+        os.rename(orig_file_path, backup_file_path)
+        
+        # now create a Repository and expect an OSError
+        self.assertRaises(OSError, repository.Repository)
+        
+        # rename back the settings file
+        os.rename(backup_file_path, orig_file_path)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_user_initials_property_is_read_only(self):
+        """testing if the user_initials property is read only
+        """
+        
+        repo = repository.Repository()
+        self.assertRaises(AttributeError, setattr, repo, "user_initials", [])
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_user_initials_working_properly(self):
+        """testing if the user_initials property working properly
+        """
+        
+        # it should return
+        user_initials = ["u1", "u2", "u3", "u4", "u5"]
+        repo = repository.Repository()
+        self.assertEqual(repo.user_initials, user_initials)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_time_units_returns_a_dictionary(self):
+        """testing if time_units returns a dictionary
+        """
+        
+        repo = repository.Repository()
+        
+        self.assertIsInstance(repo.time_units, dict)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_time_units_is_a_read_only_property(self):
+        """testing if time_units is read only
+        """
+        
+        repo = repository.Repository()
+        self.assertRaises(AttributeError, setattr, repo, "time_units", None)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_time_units_is_returning_the_correct_values(self):
+        """testing if time_units is returning correct values
+        """
+        
+        # the current test settings file should return the following dictionary
+        time_units = {
+            "game":15,
+            "film":24,
+            "pal":25,
+            "ntsc":30,
+            "show":48,
+            "palf":50,
+            "ntscf":60,
+        }
+        
+        repo = repository.Repository()
+        self.assertEqual(repo.time_units, time_units)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_defaultFiles_returning_a_list_of_tuples(self):
+        """testing if the defaultFiles method returns a list of tuples
+        """
+        
+        repo = repository.Repository()
+        
+        for defaultFileInfo in repo.defaultFiles:
+            self.assertIsInstance(defaultFileInfo, tuple)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_defaultFiles_is_read_only(self):
+        """testing if the defaultFiles property is read only
+        """
+        
+        repo = repository.Repository()
+        self.assertRaises(AttributeError, setattr, repo, "defaultFiles", [])
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_defaultFiles_working_properly(self):
+        """testing if the defaultFiles property is returning a tuple containing
+        the default file locations
+        """
+        
+        repo = repository.Repository()
+        defFiles_list = repo.defaultFiles
+        
+        # for the default setup it should return only one element and it is
+        # the workspace.mel
+        
+        self.assertEqual(len(defFiles_list), 1)
+        self.assertEqual(defFiles_list[0][0], "workspace.mel")
+        self.assertEqual(defFiles_list[0][1], ".")
+    
+    
+    
