@@ -499,9 +499,8 @@ class RepositoryTester(mocker.MockerTestCase):
         repo = repository.Repository()
         
         for project_name in project_names:
-            #proj = repo.createProject(project_name)
             proj = project.Project(project_name)
-            #proj.create()
+            proj.create()
         
         # now get the projects list and check
         # if it is same with the original projects list

@@ -6,10 +6,14 @@
 Welcome to oyProjectManager's documentation!
 ============================================
 
+.. include:: source/../../../README
+
 Contents:
 
 .. toctree::
    :maxdepth: 1
+   
+   changelog.rst
    
 
 Summary
@@ -25,29 +29,23 @@ Summary
    oyProjectManager.models.abstractClasses.Singleton
    oyProjectManager.models.abstractClasses.Environment
    oyProjectManager.models.asset
+   oyProjectManager.models.asset.Asset
+   oyProjectManager.models.asset.AssetType
    oyProjectManager.models.project.DefaultSettingsParser
    oyProjectManager.models.project
    oyProjectManager.models.project.Project
+   oyProjectManager.models.project.Sequence
    oyProjectManager.models.project.Shot
    oyProjectManager.models.project.Structure
    oyProjectManager.models.repository
    oyProjectManager.models.repository.Repository
+   oyProjectManager.models.user
+   oyProjectManager.models.user.User
+   oyProjectManager.models.user.UserType
+   oyProjectManager.utils
 
 .. this is not working
-    oyProjectManager.models.project.Sequence
-    oyProjectManager.models.asset.Asset
-    oyProjectManager.models.asset.AssetType
     oyProjectManager.models.asset.SuperAsset
-    oyProjectManager.models.project
-    oyProjectManager.models.project.Project
-    oyProjectManager.models.project.Sequence
-    oyProjectManager.models.project.Shot
-    oyProjectManager.models.project.Structure
-    oyProjectManager.models.repository
-    oyProjectManager.models.repository.Repository
-    oyProjectManager.models.user
-    oyProjectManager.models.user.User
-    oyProjectManager.models.user.UserType
     oyProjectManager.models.environments
     oyProjectManager.models.environments.environmentFactory
     oyProjectManager.models.environments.environmentFactory.EnvironmentFactory
@@ -61,13 +59,7 @@ Summary
     oyProjectManager.models.environments.nukeEnv.NukeEnvironment
     oyProjectManager.models.environments.photoshopEnv
     oyProjectManager.models.environments.photoshopEnv.PhotoshopEnv
-    oyProjectManager.utils.rangeTools
-    oyProjectManager.utils.rangeTools.RangeConverter
     
-    oyProjectManager.utils
-    oyProjectManager.utils.cache
-    oyProjectManager.utils.cache.CachedMethod
-    oyProjectManager.utils.cache.InputBasedCachedMethod
 
 
 

@@ -163,6 +163,8 @@ class DefaultSettingsParser(object):
                            amount of text inside this text element.
     """
     
+    
+    
     #----------------------------------------------------------------------
     def __init__(self):
         pass
@@ -201,7 +203,7 @@ class Project(object):
     
     Creating a Project instance is not enough to phsyically create the project
     folder. To make it hapen the
-    :method:`~oyProjectManager.models.project.Project.create` should be called
+    :meth:`~oyProjectManager.models.project.Project.create` should be called
     to finish the creation process, which in fact is only a folder.
     
     A Project can not be created without a name or with a name which is None. A
@@ -276,7 +278,6 @@ class Project(object):
             raise ValueError("The name is not valid after validation")
         
         return name_in
-
     
     
     
@@ -442,23 +443,38 @@ class Sequence(object):
     The class should be initialized with a
     :class:`~oyProjectManager.models.project.Project` instance and a
     sequenceName.
+    
+    Two sequences are considered the same if their name and their project
+    names are matching.
+    
+    :param project: The owner
+      :class:`~oyProjectManager.models.project.Project`. A sequence can not be
+      created without a proper
+      :class:`~oyProjectManager.models.project.Project`.
+    
+    :type project: :class:`~oyProjectManager.models.project.Project`
+    
+    :param str name: The name of the sequence. It is heavily formatted. Follows
+      the same naming rules with the
+      :class:`~oyProjectManager.models.project.Project`.
     """
     
     
     
     #----------------------------------------------------------------------
-    def __init__(self, project, sequenceName):
+    def __init__(self, project, name):
         # create the parent project with projectName
         
-        assert(isinstance(project, Project) )
+        
+        assert(isinstance(project, Project))
         
         self._project = project
         self._repository = self._project.repository
         
-        self._name = oyAux.stringConditioner( sequenceName, False, True, False, True, True, False )
+        self._name = oyAux.stringConditioner(name, False, True, False, True, True, False )
         
         self._path = self._project.fullPath
-        self._fullPath = os.path.join( self._path, self._name )
+        self._fullPath = os.path.join(self._path, self._name)
         
         self._settingsFile = ".settings.xml"
         self._settings_file_path = self._fullPath
@@ -918,7 +934,7 @@ class Sequence(object):
             oyAux.backupFile(self._settings_file_full_path, 5)
             #print "settingsFileFullPath: ", self._settings_file_full_path
             settingsFile = open(self._settings_file_full_path, "w")
-            os.chmod
+            #os.chmod
         except IOError:
             #print "couldn't open the settings file"
             pass
@@ -1142,6 +1158,7 @@ class Sequence(object):
     def getShot(self, shotNumber):
         """returns the shot with given shotNumber
         """
+        
         for shot in self._shots:
             assert(isinstance(shot, Shot))
             if shot.name == shotNumber:
@@ -2138,8 +2155,8 @@ class Structure(object):
         """
         
         # remove any duplicates
-        self._shotDependentFolders = sorted(oyAux.unique( self._shotDependentFolders ))
-        self._shotIndependentFolders = sorted(oyAux.unique( self._shotIndependentFolders ))
+        self._shotDependentFolders = sorted(oyAux.unique(self._shotDependentFolders))
+        self._shotIndependentFolders = sorted(oyAux.unique(self._shotIndependentFolders))
 
 
 
@@ -2148,7 +2165,7 @@ class Structure(object):
 
 ########################################################################
 class Shot(object):
-    """The class that enables the system to manage shot data
+    """The class that enables the system to manage shot data.
     """
     
     
@@ -2279,46 +2296,3 @@ class Shot(object):
         """the duration
         """
         return self._duration
-        
-
-
-
-
-
-
-#########################################################################
-#class Environment(object):
-    #"""holds environment data
-    #"""
-    
-    ##----------------------------------------------------------------------
-    #def __init__(self, name):
-        
-        #self._name = name
-        
-        #self._recentFilesList = []
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def addRecentFile(self, recentFile):
-        #"""adds the given file name to the recent files list
-        #"""
-        #self._recentFilesList.append( recentFile )
-    
-    
-    ##----------------------------------------------------------------------
-    #def getRecentFiles(self):
-        #"""returns the recent files list
-        #"""
-        #return self._recentFilesList
-    
-    
-    
-    ##----------------------------------------------------------------------
-    #def setRecentFiles(self, recentFiles):
-        #"""sets the recent files
-        #"""
-        #self._recentFilesList = recentFiles
-    
-    #recentFilesList = property( getRecentFiles, setRecentFiles )

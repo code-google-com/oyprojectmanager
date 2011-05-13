@@ -1,6 +1,19 @@
 TODO
 ====
 
+ * Project should also have an settings.xml for path values and general project
+   structure. So the project structure should be moved from sequence to
+   project. It will allow the user to create more organized folder structures
+   by letting them to move the common assets in another place then the
+   sequence. The project should also use Jinja2 templates to define the
+   sequence and asset placements. It could be as simple as:
+    
+     <% project.path %>/<ASSETS>/<% asset.base_name %>
+     <% project.path %>/<SEQUENCES>/<% sequence.name %>
+   
+   It should be all dependent to the studio. We could steal some ideas from
+   the upcoming project Stalker.
+
  * Instead of having something like a "default files" concept, allow all
    environment to have their own initialization part, and call them whenever
    a project is created.
@@ -9,8 +22,6 @@ TODO
    TDD as soon as possible.
 
  * Structure should use Jinja2 templates.
-
- * The server could be specified by the user in run-time.
 
  * Referencing an asset should set the STALKER_REPOSITORY_PATH environment
    variable in the asset path.
@@ -24,9 +35,9 @@ TODO
  * save a local copy of the asset to not to carry all the eggs in the same
    basket
 
- * add a UserType class, save the default user types in an xml file
-
  * add the UserType id to the users.xml
+
+ * use the user class to define if the user can change the project
 
  * the relation and interaction between the assetManager and the environments
    should be more universal and organized. The environments should return
@@ -50,7 +61,8 @@ TODO
 
  * add a user login window
 
- * add access control
+ * add access control, add a UserType class, save the default user types
+   in an xml file
 
  * add the ability of a user to review an asset
 
@@ -62,14 +74,8 @@ TODO
 
  * add a messaging system
 
- * add a resource management system
-
- * switch to a database stored metadata system
-
- * use the user class to define if the user can change the project
-
- * keep track of the project timings, progress of the project, with another
-   module
+ * add a resource management system, to keep track of the project timings,
+   progress of the project, with another module
 
  * create appropriate Error classes for errors
 

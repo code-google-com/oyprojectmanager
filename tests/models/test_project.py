@@ -83,6 +83,7 @@ class ProjectTester(unittest.TestCase):
             ("camelCase", "CAMEL_CASE"),
             ("CamelCase", "CAMEL_CASE"),
             ("_Project_Setup_", "PROJECT_SETUP_"),
+            ("_PROJECT_SETUP_", "PROJECT_SETUP_"),
             ("FUL_3D", "FUL_3D"),
         ]
     
@@ -235,3 +236,10 @@ class ProjectTester(unittest.TestCase):
     
     
     
+    #----------------------------------------------------------------------
+    def test___eq__operator(self):
+        """testing the __eq__ (equal) operator
+        """
+        
+        # create two projects
+        

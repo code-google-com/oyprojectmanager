@@ -4,7 +4,7 @@
 
 import os, re, time
 import oyAuxiliaryFunctions as oyAux
-
+import jinja2
 
 
 
@@ -968,6 +968,37 @@ class Asset(object):
         """returns 
         """
         return self._notes
+    
+    
+    
+    #----------------------------------------------------------------------
+    @property
+    def output_path(self):
+        """returns the output path of the current asset
+        """
+        
+        # render all variables like:
+        # assetBaseName
+        # assetSubName
+        # assetTypeName
+        # assetRevNumber
+        # assetRevString
+        # assetVerNumber
+        # assetVerString
+        # assetUserInitials
+        # assetExtension
+        
+        return jinja2.Template(self.type.output_path).render(
+            assetBaseName=self.baseName,
+            assetSubName = self.subName,
+            assetTypeName = self.typeName,
+            assetRevNumber = self.revisionNumber,
+            assetRevString = self.revisionString,
+            assetVerNumber = self.versionNumber,
+            assetVerString = self.versionString,
+            assetUserInitials = self.userInitials,
+            assetExtension = self.extension
+        )
     
     
     

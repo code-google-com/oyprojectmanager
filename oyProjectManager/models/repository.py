@@ -49,19 +49,17 @@ class Repository(object):
         * convert the given path to repository relative path which contains
           the environment variable key in the repository path.
     
-    =============
-    Settings File
-    =============
+    **Settings File**
     
-    oyProjectManager uses the OYPROJECTMANAGER_PATH environment variable to
-    track the settings, if there is no OYPROJECTMANAGER_PATH variable in your
-    current environment the system will not work.
+    oyProjectManager uses the ``OYPROJECTMANAGER_PATH`` environment variable to
+    track the settings, if there is no ``OYPROJECTMANAGER_PATH`` variable in
+    your current environment the system will not work.
     
-    You can set OYPROJECTMANAGER_PATH to a shared folder in your fileserver
+    You can set ``OYPROJECTMANAGER_PATH`` to a shared folder in your fileserver
     where all the users can access.
     
     oyProjectManager will look for these files in the
-    OYPROJECTMANAGER_PATH:
+    ``OYPROJECTMANAGER_PATH``:
     
        * defaultProjectSettings.xml
       
@@ -72,7 +70,7 @@ class Repository(object):
        * users.xml
     
     You can just duplicate the XML files under the settings folder of the
-    package root to your own OYPROJECTMANAGER_PATH.
+    package root to your own ``OYPROJECTMANAGER_PATH``.
     
     These are the xml files that the oyProjectManager searches for:
     
@@ -624,7 +622,7 @@ class Repository(object):
         
         :returns: The newly created project.
         
-        :rType: `~oyProjectManager.models.project.Project`
+        :rType: :class:`~oyProjectManager.models.project.Project`
         """
         
         from oyProjectManager.models import project

@@ -1,6 +1,13 @@
 Version History
 ===============
 
+v0.1.1
+------
+
+ * Updated :class:`~oyProjectManager.models.project.Sequence` documentation
+
+ * In defaultProjectSettings it is now possible to use Jinja2 templates.
+
 v0.1.0
 ------
 
@@ -28,27 +35,27 @@ v0.1.0
    scheme.
 
  * removed the
-   :method:`~oyProjectManager.models.repository.Repository.get_settings_path`.
+   :meth:`~oyProjectManager.models.repository.Repository.get_settings_path`.
 
  * removed the
-   :method:`~oyProjectManager.models.repository.Repository.projectsFullPath`,
+   :meth:`~oyProjectManager.models.repository.Repository.projectsFullPath`,
    use
-   :method:`~oyProjectManager.models.repository.Repository.server_path`
+   :meth:`~oyProjectManager.models.repository.Repository.server_path`
    instead.
 
  * Changed the :class:`~oyProjectManager.models.repository.Repository`
    inheritance, it is now an instance of the regular Python Object class
    instead of the :class:`~oyProjectManager.models.abstractClasses.Singleton`
 
- * :method:`~oyProjectManager.models.repository.Repository._readUsers` renamed
-   to :method:`~oyProjectManager.models.repository.Repository._parse_users`
+ * :meth:`~oyProjectManager.models.repository.Repository._readUsers` renamed
+   to :meth:`~oyProjectManager.models.repository.Repository._parse_users`
 
- * :method:`~oyProjectManager.models.repository.Repository.userNames` renamed
-   to :method:`~oyProjectManager.models.repository.Repository.user_names`
+ * :meth:`~oyProjectManager.models.repository.Repository.userNames` renamed
+   to :meth:`~oyProjectManager.models.repository.Repository.user_names`
 
- * :method:`~oyProjectManager.models.repository.Repository.userInitials`
+ * :meth:`~oyProjectManager.models.repository.Repository.userInitials`
    renamed to
-   :method:`~oyProjectManager.models.repository.Repository.user_initials`
+   :meth:`~oyProjectManager.models.repository.Repository.user_initials`
 
  * From now on an OSError will be raised when the users.xml file is missing.
 
@@ -69,9 +76,9 @@ v0.1.0
 
  * from now on, to create a new project with a
    :class:`~oyProjectManager.models.repository.Repository` instance, calling
-   :method:`~oyProjectManager.models.repository.Repository.createProject`
+   :meth:`~oyProjectManager.models.repository.Repository.createProject`
    is enough, there is no need to call
-   :method:`~oyProjectManager.models.project.Project.create` with the
+   :meth:`~oyProjectManager.models.project.Project.create` with the
    returning
    :class:`~oyProjectManager.models.project.Project` instance.
 
