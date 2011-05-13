@@ -8,6 +8,9 @@ v0.1.1
 
  * In defaultProjectSettings it is now possible to use Jinja2 templates.
 
+ * nukeEnv now sets the root.project_directory path variable to the sequence
+   path and replaces all the file paths relative to project_directory path.
+
 v0.1.0
 ------
 

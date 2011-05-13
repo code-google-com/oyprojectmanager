@@ -6,6 +6,7 @@ import os
 import nuke
 import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.models import asset, project, abstractClasses, repository
+from oyProjectManager import utils
 
 
 
@@ -56,6 +57,9 @@ class NukeEnvironment(abstractClasses.Environment):
         fullPath = self._asset.fullPath
         fullPath = fullPath.replace('\\','/')
         
+        # set project_directory
+        self.project_directory = self._asset.sequenceFullPath
+        
         # create the main write node
         self.create_main_write_node()
         
@@ -105,6 +109,9 @@ class NukeEnvironment(abstractClasses.Environment):
         fullPath = fullPath.replace('\\','/')
         
         nuke.scriptOpen(fullPath)
+        
+        # set the project_directory
+        self.project_directory = self._asset.sequenceFullPath
         
         # replace paths
         self.replace_file_path()
@@ -303,11 +310,16 @@ class NukeEnvironment(abstractClasses.Environment):
         
         repo = repository.Repository()
         
-        env_str = "[getenv " + repo.repository_path_env_key + "]"
+        # TODO:
+        # check if the project_directory is still the same
+        # if it is do the regular replacement
+        # but if it is not then expand all the paths to absolute paths
+        
         
         # convert the given path to tcl environment script
         def repPath(path):
-            return path.replace(repo.server_path, env_str)
+            #return path.replace(repo.server_path, env_str)
+            return utils.relpath(self.project_directory, path, "/", "..")
         
         # get all read nodes
         allNodes = nuke.allNodes()
@@ -320,7 +332,13 @@ class NukeEnvironment(abstractClasses.Environment):
         
         def nodeRep(nodes):
             [node["file"].setValue(
-                repPath(node["file"].getValue())
+                repPath(
+                    os.path.expandvars(
+                        os.path.expanduser(
+                            node["file"].getValue()
+                        )
+                    )
+                )
             ) for node in nodes]
         
         nodeRep(readNodes)
@@ -328,3 +346,28 @@ class NukeEnvironment(abstractClasses.Environment):
         nodeRep(readGeoNodes)
         nodeRep(readGeo2Nodes)
         nodeRep(writeGeoNodes)
+    
+    
+    
+    #----------------------------------------------------------------------
+    def project_directory():
+        def fget(self):
+            #return self._project_directory
+            root = self.getRootNode()
+            return root["project_directory"].getValue()
+        
+        def fset(self, project_directory_in):
+            #self._project_directory = self._validate_project_directory(project_directory_in)
+            root = self.getRootNode()
+            root["project_directory"].setValue(project_directory_in)
+        
+        doc = """The project directory.
+        
+        Set it to the project root, and set all your paths relative to this
+        directory.
+        """
+        
+        return locals()
+    
+    project_directory = property(**project_directory())
+    

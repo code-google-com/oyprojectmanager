@@ -45,8 +45,11 @@ def common_prefix(*sequences):
 def relpath(p1, p2, sep=os.path.sep, pardir=os.path.pardir):
     """return a relative path from p1 equivalent to path p2.
     
-    In particular: the empty string, if p1 == p2;
-                   p2, if p1 and p2 have no comon prefix.
+    In particular:
+    
+        the empty string, if p1 == p2;
+        p2, if p1 and p2 have no comon prefix.
+    
     """
     
     # replace any trailing slashes at the end
