@@ -224,8 +224,8 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         # clear the current table
         self.shotData_tableWidget.clear()
         
-        projName = self.getCurrentProjectName()
-        seqName = self.getCurrentSequenceName()
+        projName = str(self.getCurrentProjectName())
+        seqName = str(self.getCurrentSequenceName())
         
         proj = project.Project( projName )
         seq = project.Sequence( proj, seqName )
