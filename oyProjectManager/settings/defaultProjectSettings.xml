@@ -51,7 +51,7 @@
         <assetTypes>
             <type name="ANIM"           path="ANIMATIONS"             shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
             <type name="CAMERA"         path="CAMERAS"                shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
-            <type name="COMP"           path="COMPOSITING/SHOTS"      shotDependent="1"  environments="NUKE"              output_path="COMPOSITING/{{assetBaseName}}/OUTPUT"/>
+            <type name="COMP"           path="COMPOSITING"            shotDependent="1"  environments="NUKE"              output_path="COMPOSITING/{{assetBaseName}}/OUTPUT"/>
             <type name="EDIT"           path="EDIT"                   shotDependent="0"  environments="NUKE"              output_path="EDIT/ONLINE/{{assetBaseName}}/EXPORT"/>
             <type name="FX"             path="FX"                     shotDependent="0"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
             <type name="MODEL"          path="MODELS"                 shotDependent="0"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
