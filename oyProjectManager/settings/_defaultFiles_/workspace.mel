@@ -8,12 +8,12 @@ workspace -fr "movie" "OTHERS/data/";
 workspace -fr "offlineEdit" "OHTERS/edits/";
 workspace -fr "autosave" "OTHERS/autosave/";
 
-workspace -fr "3dPaintTextures" "TEXTURES/";
-workspace -fr "textures" "TEXTURES/";
+workspace -fr "3dPaintTextures" "PAINTINGS/TEXTURES/";
+workspace -fr "textures" "PAINTINGS/TEXTURES/";
 
 workspace -fr "particles" "OTHERS/particles/";
-workspace -fr "renderScenes" "RENDER_SCENES/";
-workspace -fr "lights" "RENDER_SCENES/renderData/shaders/";
+workspace -fr "renderScenes" "LIGHTING/";
+workspace -fr "lights" "LIGHTING/renderData/shaders/";
 
 workspace -fr "diskCache" "OTHERS/data/";
 
@@ -26,9 +26,9 @@ workspace -fr "furEqualMap" "OTHERS/fur/furEqualMap/";
 workspace -fr "image" "RENDERED_IMAGES/";
 workspace -fr "images" "RENDERED_IMAGES/";
 
-workspace -fr "mentalRay" "RENDER_SCENES/renderData/mentalRay/";
-workspace -fr "iprImages" "RENDER_SCENES/renderData/iprImages/";
-workspace -fr "depth" "RENDER_SCENES/renderData/depth/";
+workspace -fr "mentalRay" "LIGHTING/renderData/mentalRay/";
+workspace -fr "iprImages" "LIGHTING/renderData/iprImages/";
+workspace -fr "depth" "LIGHTING/renderData/depth/";
 
 workspace -fr "animImport" "OTHERS/data/";
 workspace -fr "animExport" "OTHERS/data/";
@@ -36,9 +36,9 @@ workspace -fr "clips" "OTHERS/clips/";
 
 workspace -fr "templates" "OTHERS/assets/";
 
-workspace -fr "audio" "SOUND/";
+workspace -fr "audio" "EDIT/SOUND/";
 
-workspace -fr "sourceImages" "TEXTURES/";
+workspace -fr "sourceImages" "PAINTINGS/TEXTURES/";
 
 workspace -fr "mel" "OTHERS/_mel/";
 

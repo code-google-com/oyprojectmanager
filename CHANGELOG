@@ -11,6 +11,10 @@ v0.1.1
  * nukeEnv now sets the root.project_directory path variable to the sequence
    path and replaces all the file paths relative to project_directory path.
 
+ * fixed :class:`~oyProjectManager.ui.singletonQApplication.QApplication` for
+   Qt 4.7 and later. Where it was not returning a QApplication instance
+   properly.
+
 v0.1.0
 ------
 
