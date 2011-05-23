@@ -26,8 +26,7 @@
                 EDIT/OFFLINE
                 EDIT/ONLINE/WHOLE_SEQUENCE
                 EDIT/SOUND
-                EDIT/STORYBOARD
-                EDIT/STORYBOARD/ANIMATIC_STORYBOARD
+                EDIT/ANIMATIC_STORYBOARD
                 OTHERS
                 OTHERS/assets
                 OTHERS/clips
@@ -45,6 +44,8 @@
                 REFERENCES/ARTWORKS
                 REFERENCES/TEXT
                 REFERENCES/TEXT/SCENARIO
+                REFERENCES/PHOTOS
+                REFERENCES/STORYBOARD
             </shotIndependent>
         </structure>
         <assetTypes>
