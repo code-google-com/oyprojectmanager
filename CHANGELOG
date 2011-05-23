@@ -18,6 +18,8 @@ v0.1.1
  * The ``playblastFolder`` settings is replaced with the ``output path``, which
    is more consistent.
 
+ * Fixed output path in :class:`~oyProjectManager.models.environments.nukeEnv`
+
 v0.1.0
 ------
 

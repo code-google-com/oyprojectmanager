@@ -280,7 +280,6 @@ class NukeEnvironment(abstractClasses.Environment):
         output_file_full_path = os.path.join(
             seq.fullPath,
             self._asset.output_path,
-            self._asset.baseName,
             output_file_name
         )
         
