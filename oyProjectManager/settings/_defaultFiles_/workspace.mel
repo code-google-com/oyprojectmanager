@@ -26,7 +26,7 @@ workspace -fr "furEqualMap" "OTHERS/fur/furEqualMap/";
 workspace -fr "image" "RENDERED_IMAGES/";
 workspace -fr "images" "RENDERED_IMAGES/";
 
-workspace -fr "mentalRay" "LIGHTING/renderData/mentalRay/";
+workspace -fr "mentalray" "LIGHTING/renderData/mentalRay/";
 workspace -fr "iprImages" "LIGHTING/renderData/iprImages/";
 workspace -fr "depth" "LIGHTING/renderData/depth/";
 
