@@ -6,7 +6,7 @@ workspace -fr "mayaBinary" "OTHERS/";
 
 workspace -fr "movie" "OTHERS/data/";
 workspace -fr "offlineEdit" "OHTERS/edits/";
-workspace -fr "autosave" "OTHERS/autosave/";
+workspace -fr "autoSave" "OTHERS/autosave/";
 
 workspace -fr "3dPaintTextures" "PAINTINGS/TEXTURES/";
 workspace -fr "textures" "PAINTINGS/TEXTURES/";
@@ -40,18 +40,21 @@ workspace -fr "audio" "EDIT/SOUND/";
 
 workspace -fr "sourceImages" "PAINTINGS/TEXTURES/";
 
-workspace -fr "mel" "OTHERS/_mel/";
+workspace -fr "mel" "OTHERS/mel/";
 
 workspace -fr "Adobe(R) Illustrator(R)" "OTHERS/data/";
 workspace -fr "aliasWire" "OTHERS/data/";
 workspace -fr "DAE_FBX" "OTHERS/data/";
+workspace -fr "DAE_FBX export" "OTHERS/data/";
 workspace -fr "DXF_FBX" "OTHERS/data/";
-workspace -fr "DXFexport" "OTHERS/data/";
+workspace -fr "DXF_FBX export" "OTHERS/data/";
 workspace -fr "DXF" "OTHERS/data/";
+workspace -fr "DXF export" "OTHERS/data/";
 workspace -fr "EPS" "OTHERS/data/";
-workspace -fr "Fbx" "OTHERS/data/";
-workspace -fr "IGESexport" "OTHERS/data/";
+workspace -fr "FBX" "OTHERS/data/";
+workspace -fr "FBX export" "OTHERS/data/";
 workspace -fr "IGES" "OTHERS/data/";
+workspace -fr "IGESexport" "OTHERS/data/";
 workspace -fr "move" "OTHERS/data/";
 workspace -fr "OBJ" "OTHERS/data/";
 workspace -fr "OBJexport" "OTHERS/data/";
