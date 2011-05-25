@@ -13,7 +13,7 @@ workspace -fr "textures" "PAINTINGS/TEXTURES/";
 
 workspace -fr "particles" "OTHERS/particles/";
 workspace -fr "renderScenes" "LIGHTING/";
-workspace -fr "lights" "LIGHTING/renderData/shaders/";
+workspace -fr "lights" "RENDERED_IMAGES/renderData/shaders/";
 
 workspace -fr "diskCache" "OTHERS/data/";
 
@@ -25,10 +25,10 @@ workspace -fr "furEqualMap" "OTHERS/fur/furEqualMap/";
 
 workspace -fr "image" "RENDERED_IMAGES/";
 workspace -fr "images" "RENDERED_IMAGES/";
-
-workspace -fr "mentalray" "LIGHTING/renderData/mentalRay/";
-workspace -fr "iprImages" "LIGHTING/renderData/iprImages/";
-workspace -fr "depth" "LIGHTING/renderData/depth/";
+workspace -fr "mentalray" "RENDERED_IMAGES/renderData/mentalRay/";
+workspace -fr "mentalRay" "RENDERED_IMAGES/renderData/mentalRay/";
+workspace -fr "iprImages" "RENDERED_IMAGES/renderData/iprImages/";
+workspace -fr "depth" "RENDERED_IMAGES/renderData/depth/";
 
 workspace -fr "animImport" "OTHERS/data/";
 workspace -fr "animExport" "OTHERS/data/";
