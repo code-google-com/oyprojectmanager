@@ -20,6 +20,9 @@ v0.1.1
 
  * Fixed output path in :class:`~oyProjectManager.models.environments.nukeEnv`
 
+ * With Maya 2012, mayaEnv now sets the default image format to OpenEXR with
+   ZIP compression.
+
 v0.1.0
 ------
 

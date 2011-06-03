@@ -306,9 +306,11 @@ class MayaEnvironment(abstractClasses.Environment):
         
         # check if Mentalray is the current renderer
         if dRG.getAttr('currentRenderer') == 'mentalRay':
-            # set the render output to OpenEXR
+            mrG = pm.PyNode("mentalrayGlobals")
+            # set the render output to OpenEXR with zip compression
             dRG.setAttr('imageFormat', 51)
             dRG.setAttr('imfkey','exr')
+            mrG.setAttr("imageCompression", 4)
             
             # if the renderer is not registered this causes a _objectError
             # and the frame buffer to 16bit half
