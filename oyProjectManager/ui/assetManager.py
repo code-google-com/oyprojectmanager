@@ -15,15 +15,21 @@ from oyProjectManager.ui import assetUpdater, singletonQApplication
 
 
 #----------------------------------------------------------------------
-def UI( environmentName=None ):
+def UI(environmentName=None):
     """the UI to call the dialog by itself
     """
     global app
     global mainDialog
-    app = singletonQApplication.QApplication(sys.argv)
+    
+    #use_exec = False
+    #if QtGui.QApplication.instance() is None:
+    #    use_exec = True
+    
+    app = singletonQApplication.QApplication(sys.argv)    
     mainDialog = MainDialog( environmentName )
     mainDialog.show()
-    #app.setStyle('Plastique')
+    
+    #if use_exec:
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
 
