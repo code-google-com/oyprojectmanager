@@ -164,15 +164,18 @@ class DefaultSettingsParser(object):
     #----------------------------------------------------------------------
     def __init__(self):
         pass
-        
-    
-    
+
+
+
 
 
 
 ########################################################################
-class Project(object):
+class ProjectNew(object):
     """Manages project related data.
+    
+    .. versionadded:: 0.1.2
+       Project Settings
     
     A Project is simply a holder for Assets and Sequences.
     
@@ -197,28 +200,32 @@ class Project(object):
         
         * All the CamelCase formattings are expanded to underscore (Camel_Case)
     
-    Creating a Project instance is not enough to phsyically create the project
-    folder. To make it hapen the
-    :meth:`~oyProjectManager.models.project.Project.create` should be called
-    to finish the creation process, which in fact is only a folder.
+    :param int fps: The frame rate in frame per scond format. It is an integer.
+      The default value is 25. It can be skipped. If set to None. The default
+      value will be used.
     
-    A Project can not be created without a name or with a name which is None. A
-    Project can not be created with an invalid name. For example, a project
-    with name "'^+'^" can not be craeated because the name will become an empty
-    string after the name validation process.
+    :param 
     
+    Creating a :class:`oyProjectManager.models.project.Project` instance is not
+    enough to phsyically create the project folder. To make it hapen the
+    :meth:`~oyProjectManager.models.project.Project.create` should be called to
+    finish the creation process.
     
-    .. versionadded:: 0.1.2
-       Project Settings
-       
+    A Project can not be created without a name or with a name which is None or
+    with an invalid name. For example, a project with name "'^+'^" can not be
+    craeated because the name will become an empty string after the name
+    validation process.
+    
     Projects have a file called ".settings.xml" in their root. This settings
     file holds information about:
     
-       * The placement of the asset files.
-    
-       * The placement of the shot files.
-    
        * The general folder structure of the project.
+    
+       * The seuqences that this project has.
+    
+       * The shots that all the individual sequences have.
+    
+       * The placement code of the asset files.
     
        * etc.
     
@@ -228,10 +235,30 @@ class Project(object):
     Even though it is not recommended the file can be edited by a text editor
     to change the project settings. But care must be taken while doing so.
     
-    
+    The pre version 0.1.2 projects are going to be converted from sequence
+    based project structure to project based project structure upon parsing
+    the project.
     
     """
     
+    
+    
+    #----------------------------------------------------------------------
+    def __init__(self):
+        pass
+
+
+
+
+
+
+########################################################################
+class Project(object):
+    """The old design of the project.
+    
+    This is the previous design of the Project. It will onlly be used for the
+    previous design projects.
+    """
     
     
     #----------------------------------------------------------------------
@@ -368,19 +395,22 @@ class Project(object):
     def updateSequenceList(self):
         """updates the sequenceList variable
         """
-        #self._sequenceList = os.listdir( self._fullPath )
         
         # filter other folders like .DS_Store
-        for folder in os.listdir( self._fullPath ):
-            filtered_folder_name = re.sub(
-                r".*?(^[^A-Z_]+)([A-Z0-9_]+)",
-                r"\2",
-                folder
-            )
-            if filtered_folder_name == folder:
-                self._sequenceList.append(folder)
-        
-        self._sequenceList.sort()
+        try:
+            for folder in os.listdir(self._fullPath):
+                filtered_folder_name = re.sub(
+                    r".*?(^[^A-Z_]+)([A-Z0-9_]+)",
+                    r"\2",
+                    folder
+                )
+                if filtered_folder_name == folder:
+                    self._sequenceList.append(folder)
+            
+            self._sequenceList.sort()
+        except OSError:
+            # the path doesn't exist
+            pass
     
     
     

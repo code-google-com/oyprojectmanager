@@ -242,4 +242,28 @@ class ProjectTester(unittest.TestCase):
         """
         
         # create two projects
+    
+    
+    
+    #----------------------------------------------------------------------
+    def test_updateSequenceList_project_name_is_not_valid_but_there_is_a_project_directory(self):
+        """testing if the OSError will be handled correctly by
+        updateSequenceList when there is a folder in the repository path which
+        is not in the correct format
+        """
         
+        # create a folder in the project path which is not in the correct
+        # format
+        
+        folder_name = "ProjectName"
+        
+        # create the folder
+        repo = repository.Repository()
+        os.makedirs(os.path.join(repo.server_path, folder_name))
+        
+        # now create a project with the name and ask seuqences
+        new_project = project.Project(folder_name)
+        
+        # the OSError should be handled correctly by the
+        # updateSequenceList method
+        new_project.updateSequenceList()

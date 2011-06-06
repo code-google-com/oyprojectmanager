@@ -177,14 +177,13 @@ class Asset(object):
         if self._project == None or self._sequence == None:
             return
         
-        parts = self._fileName.split( self._dataSeparator )
+        parts = self._fileName.split(self._dataSeparator)
         
         if not self._sequence._noSubNameField:
             if len(parts) < 5:
                 return
             
             try:
-                
                 self._baseName     = parts[0]
                 self._subName      = parts[1]
                 self._typeName     = parts[2]
@@ -212,12 +211,12 @@ class Asset(object):
             self._userInitials = parts[4]
             
             if len(parts) > 5: # there should be a notes part
-                self._notes = self._dataSeparator.join( parts[5:len(parts)] )
+                self._notes = self._dataSeparator.join(parts[5:len(parts)])
             else:
                 self._notes = ""
         
         # get the type object
-        self._type = self._sequence.getAssetTypeWithName( self._typeName )
+        self._type = self._sequence.getAssetTypeWithName(self._typeName)
         
         # sometimes the file name matches the format but it is not neccessarly
         # an asset file if the type is None
@@ -225,8 +224,8 @@ class Asset(object):
             return
         
         try:
-            self._rev = self._sequence.convertToRevNumber( self._revString )
-            self._ver = self._sequence.convertToVerNumber( self._verString )
+            self._rev = self._sequence.convertToRevNumber(self._revString)
+            self._ver = self._sequence.convertToVerNumber(self._verString)
         except ValueError:
             # the pattern is not compatible with the current project
             return
@@ -265,6 +264,7 @@ class Asset(object):
     def path(self):
         """retrurns the path of the asset
         """
+        
         return self._path
     
     
@@ -389,30 +389,37 @@ class Asset(object):
         if self._hasBaseInfo:
             seqFullPath = self._sequence.fullPath
             
-            typeFolder = self._type.path
-            #try:
-                #typeFolder = self._type.path
-            #except AttributeError:
-                #justCnt = 20
-                #print "fileName".ljust( justCnt ), ": ", self._fileName
-                #print "baseName".ljust( justCnt ), ": ", self._baseName
-                #print "subName".ljust( justCnt ), ": ", self._subName
-                #print "typeName".ljust( justCnt ), ": ", self._typeName
-                #print "revString".ljust( justCnt ), ": ", self._revString
-                #print "verString".ljust( justCnt ), ": ", self._verString
-                #print "userInitials".ljust( justCnt ), ": ", self._userInitials
-                #print "parent sequence".ljust( justCnt ), ": ", self._sequence.name
-                #print "parent project".ljust( justCnt ), ": ", self._project.name
-                #raise
+            typePath = self._type.path
             
-            self._path = os.path.join( seqFullPath, typeFolder)
-            self._path = os.path.join( self._path, self._baseName )
+            assert(isinstance(typePath, (str, unicode)))
+            
+            # check if it has any jinja2 template variable
+            if "{{" in typePath:
+                self._path = os.path.join(seqFullPath, typePath)
+                
+                # and render the jinja2 template
+                jinja2.Template(self._path).render(
+                    assetBaseName=self.baseName,
+                    assetSubName = self.subName,
+                    assetTypeName = self.typeName,
+                    assetRevNumber = self.revisionNumber,
+                    assetRevString = self.revisionString,
+                    assetVerNumber = self.versionNumber,
+                    assetVerString = self.versionString,
+                    assetUserInitials = self.userInitials,
+                    assetExtension = self.extension
+                )
+            else:
+                # fallback to the previous design where there is no
+                # jinja2 template support
+                self._path = os.path.join(seqFullPath, typePath)
+                self._path = os.path.join(self._path, self._baseName )
             
             # if it has full info update the rest of the variables
             if self._hasFullInfo:
                 
                 self._fileName = self.fileName
-                self._fullPath = os.path.join( self._path, self._fileName )
+                self._fullPath = os.path.join(self._path, self._fileName)
                 
                 self.updateExistancy()
     
@@ -1017,7 +1024,7 @@ class Asset(object):
         """
         
         if self._hasBaseInfo:
-            if os.path.exists( self._path ):
+            if os.path.exists(self._path):
                 files = os.listdir( self._path )
                 critiquePart = self._getCritiqueName()
                 

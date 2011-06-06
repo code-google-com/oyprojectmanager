@@ -20,16 +20,10 @@ def UI(environmentName=None):
     """
     global app
     global mainDialog
-    
-    #use_exec = False
-    #if QtGui.QApplication.instance() is None:
-    #    use_exec = True
-    
-    app = singletonQApplication.QApplication(sys.argv)    
-    mainDialog = MainDialog( environmentName )
+    app = singletonQApplication.QApplication(sys.argv)
+    mainDialog = MainDialog(environmentName)
     mainDialog.show()
-    
-    #if use_exec:
+    #app.setStyle('Plastique')
     app.exec_()
     app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
 

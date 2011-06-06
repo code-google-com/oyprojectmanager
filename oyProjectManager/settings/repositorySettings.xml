@@ -17,21 +17,6 @@
                 <time name="palf" fps="50" />
                 <time name="ntscf" fps="60" />
             </timeUnits>
-            <linearUnits>
-                <linear name="milimeter" short="mm"/>
-                <linear name="centimeter" short="cm"/>
-                <linear name="meter" short="m"/>
-                <linear name="kilometer" short="km"/>
-                <linear name="inch" short="in"/>
-                <linear name="foot" short="ft"/>
-                <linear name="yard" short="yd"/>
-                <linear name="mile" short="mi"/>
-                <linear name="milimeter" short="mm"/>
-            </linearUnits>
-            <angularUnits>
-                <angle name="degree" short="deg"/>
-                <angle name="radian" short="rad"/>
-            </angularUnits>
         </units>
     </settings>
     <defaultFiles>
