@@ -283,6 +283,9 @@ class NukeEnvironment(abstractClasses.Environment):
             output_file_name
         )
         
+        output_file_full_path = \
+            output_file_full_path.replace("\\", "/")
+        
         main_write_node["file"].setValue(output_file_full_path)
         
         # create the path
@@ -352,7 +355,9 @@ class NukeEnvironment(abstractClasses.Environment):
             return root["project_directory"].getValue()
         
         def fset(self, project_directory_in):
-            #self._project_directory = self._validate_project_directory(project_directory_in)
+            
+            project_directory_in = project_directory_in.replace("\\", "/")
+            
             root = self.getRootNode()
             root["project_directory"].setValue(project_directory_in)
         
