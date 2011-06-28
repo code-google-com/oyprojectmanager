@@ -16,8 +16,14 @@ from oyProjectManager.models import user, abstractClasses
 
 
 # create a cache manager
-
 bCache = cache.CacheManager()
+
+# disable beaker DEBUG messages
+import logging
+logger = logging.getLogger('beaker.container')
+logger.setLevel(logging.WARNING)
+
+
 
 
 
@@ -729,14 +735,20 @@ class Repository(object):
         if filePath is None:
             return None, None
         
-        #if not filePath.startswith( self._projectsFolderFullPath ):
-        if not filePath.startswith( self.server_path ):
+        filePath = os.path.expandvars(
+                       os.path.expanduser(
+                           os.path.normpath(filePath)
+                       )
+                   ).replace("\\", "/")
+        
+        #if not filePath.startswith(self._projectsFolderFullPath):
+        if not filePath.startswith(self.server_path.replace("\\", "/")):
             return None, None
         
         #residual = filePath[ len(self._projectsFolderFullPath)+1 : ]
-        residual = filePath[ len(self.server_path)+1 : ]
+        residual = filePath[len(self.server_path.replace("\\", "/"))+1:]
         
-        parts = residual.split(os.path.sep)
+        parts = residual.split("/")
         
         if len(parts) > 1:
             return parts[0], parts[1]

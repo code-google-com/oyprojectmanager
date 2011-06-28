@@ -24,6 +24,12 @@ v0.1.1
    ZIP compression. (updated, now checks the maya version and applies the
    compression only if the maya versions is 2012 or higher)
 
+ * Updated mayaEnv.py, now the reference and images are converted to a path
+   using the "STALKER_REPOSITORY_PATH" environment variable and the mentalray
+   texture paths are converted to sequence relative paths. In mentalray
+   textures we still can not use the environment variable in Windows, so we
+   need to keep using the relative paths.
+
 v0.1.0
 ------
 

@@ -23,6 +23,13 @@ from oyProjectManager.models import asset, user, repository
 # create a cache with the CacheManager
 bCache = cache.CacheManager()
 
+# disable beaker DEBUG messages
+import logging
+logger = logging.getLogger('beaker.container')
+logger.setLevel(logging.WARNING)
+
+
+
 
 
 

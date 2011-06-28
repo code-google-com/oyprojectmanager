@@ -49,7 +49,7 @@
             <type name="CAMERA"         path="SHOTS/{{assetBaseName}}/CAMERAS"                 shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
             <type name="COMP"           path="SHOTS/{{assetBaseName}}/COMPOSITING"             shotDependent="1"  environments="NUKE"              output_path="COMPOSITING/{{assetBaseName}}/OUTPUT"/>
             <type name="EDIT"           path="SHOTS/{{assetBaseName}}/EDIT"                    shotDependent="0"  environments="NUKE"              output_path="EDIT/ONLINE/{{assetBaseName}}/EXPORT"/>
-            <type name="FX"             path="SHOTS/{{assetBaseName}}/FX"                      shotDependent="0"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
+            <type name="FX"             path="SHOTS/{{assetBaseName}}/FX"                      shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
             <type name="MODEL"          path="ASSETS/{{assetBaseName}}/MODELS"                 shotDependent="0"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
             <type name="OTHER"          path="OTHERS"                                          shotDependent="0"  environments="MAYA,HOUDINI,NUKE" output_path="RENDERED_IMAGES"/>
             <type name="PREVIS"         path="SHOTS/{{assetBaseName}}/PREVIS"                  shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>

@@ -49,7 +49,7 @@ class MayaEnvironment(abstractClasses.Environment):
         pm.delete(unknownNodes)
         
         # set the file paths for external resources
-        #self.replace_external_paths()
+        self.replace_external_paths()
         
         # save the file
         pm.saveAs(self._asset.fullPath, type='mayaAscii')
@@ -63,7 +63,8 @@ class MayaEnvironment(abstractClasses.Environment):
     
     #----------------------------------------------------------------------
     def export(self):
-        """the export action for maya environment        """
+        """the export action for maya environment
+        """
         
         # check if there is something selected
         if len(pm.ls(sl=True)) < 1:
@@ -74,10 +75,10 @@ class MayaEnvironment(abstractClasses.Environment):
         self._asset.extension = 'ma'
         
         # create the folder if it doesn't exists
-        oyAux.createFolder( self._asset.path )
+        oyAux.createFolder(self._asset.path)
         
         # export the file
-        pm.exportSelected( self._asset.fullPath, type='mayaAscii' )
+        pm.exportSelected(self._asset.fullPath, type='mayaAscii')
         
         return True
     
@@ -104,7 +105,7 @@ class MayaEnvironment(abstractClasses.Environment):
         self.appendToRecentFiles(assetFullPath)
         
         # replace_external_paths
-        #self.replace_external_paths()
+        self.replace_external_paths()
         
         # check the referenced assets for newer version
         toUpdateList = self.checkReferenceVersions()
@@ -133,8 +134,18 @@ class MayaEnvironment(abstractClasses.Environment):
         
         repo = repository.Repository()
         
-        repository_relative_asset_fullpath = repo.relative_path(self._asset.fullPath)
-        pm.createReference(repository_relative_asset_fullpath, gl=True, loadReferenceDepth='all', namespace=nameSpace, options='v=0')
+        #repository_relative_asset_fullpath = repo.relative_path(self._asset.fullPath)
+        new_asset_fullpath = utils.relpath(
+            self._asset.sequenceFullPath.replace("\\", "/"),
+            self._asset.fullPath, "/", ".."
+        )
+        pm.createReference(
+            new_asset_fullpath,
+            gl=True,
+            loadReferenceDepth='all',
+            namespace=nameSpace,
+            options='v=0'
+        )
         
         return True
     
@@ -151,23 +162,28 @@ class MayaEnvironment(abstractClasses.Environment):
         workspacePath = None
         
         repo = repository.Repository()
-        
+
+        # pm.env.sceneName() always uses "/"
         fullPath = pm.env.sceneName()
-        if os.name == 'nt':
-            fullPath = fullPath.replace('/','\\')
+        
+        #if os.name == 'nt':
+        #    fullPath = fullPath.replace('/','\\')
         
         #print "the fullPath in maya is ", fullPath
         
         if fullPath != '':
-            fileName = os.path.basename( fullPath )
+            fileName = os.path.basename(fullPath)
             
             # try to create an asset with that info
-            projName, seqName = repo.get_project_and_sequence_name_from_file_path( fullPath )
-            
-            proj = project.Project( projName )
-            seq = project.Sequence( proj, seqName )
+            projName, seqName = repo.get_project_and_sequence_name_from_file_path(fullPath)
 
-            testAsset = asset.Asset( proj, seq, fileName )
+            #print "projName", projName
+            #print "seqName", seqName
+            
+            proj = project.Project(projName)
+            seq = project.Sequence(proj, seqName)
+
+            testAsset = asset.Asset(proj, seq, fileName)
             
             if testAsset.isValidAsset:
                 fileName = testAsset.fileName
@@ -190,15 +206,15 @@ class MayaEnvironment(abstractClasses.Environment):
                 
                 for i in range(len(recentFiles)-1, -1,-1):
                     
-                    fileName = os.path.basename( recentFiles[i] )
+                    fileName = os.path.basename(recentFiles[i])
                     projName, seqName = repo.get_project_and_sequence_name_from_file_path( recentFiles[i] )
                     
                     if projName != None and seqName != None:
                         
-                        proj = project.Project( projName )
-                        seq = project.Sequence( proj, seqName )
+                        proj = project.Project(projName)
+                        seq = project.Sequence(proj, seqName)
                         
-                        testAsset = asset.Asset( proj, seq, fileName )
+                        testAsset = asset.Asset(proj, seq, fileName)
                         
                         if testAsset.isValidAsset and testAsset.exists:
                             path = testAsset.path
@@ -312,10 +328,13 @@ class MayaEnvironment(abstractClasses.Environment):
             dRG.setAttr('imfkey','exr')
             # check the maya version and set it if maya version is equal or
             # greater than 2012
-            
-            if pm.versions.current() >= pm.versions.v2012:
-                mrG.setAttr("imageCompression", 4)
-            
+            import pymel
+            try:
+                if pymel.versions.current() >= pymel.versions.v2012:
+                    mrG.setAttr("imageCompression", 4)
+            except AttributeError:
+                pass
+                
             # if the renderer is not registered this causes a _objectError
             # and the frame buffer to 16bit half
             try:
@@ -437,12 +456,12 @@ class MayaEnvironment(abstractClasses.Environment):
             
             if not asset.isLatestVersion():
                 # add asset to the update list
-                updateList.append( assetTuple )
+                updateList.append(assetTuple)
             
         #return updateList
         
         # sort the list according to assetFilepath
-        return sorted( updateList, None, lambda x: x[2] )
+        return sorted(updateList, None, lambda x: x[2])
 
 
 
@@ -451,7 +470,8 @@ class MayaEnvironment(abstractClasses.Environment):
         """returns the valid assets those been referenced to the current scene
         
         returns asset objects and the corresponding reference object as a
-        tupple in a list, and a string showing the path of the reference
+        tupple in a list, and a string showing the path of the reference.
+        Replaces all the relative paths to absolute paths.
         """
         
         validAssets = []
@@ -471,15 +491,26 @@ class MayaEnvironment(abstractClasses.Environment):
             
             #assert(isinstance(ref, pm.FileReference))
             tempAssetFullPath = ref.path
-            if osName == 'nt':
-                tempAssetFullPath = tempAssetFullPath.replace('/','\\')
+
+            # check and convert it to absolute path
+            #tempAssetFullPath = utils.abspath(self.getWorkspacePath, tempAssetFullPath)
             
-            refsAndPaths.append( (ref, tempAssetFullPath) )
+            #if osName == 'nt':
+            #    tempAssetFullPath = tempAssetFullPath.replace('/','\\')
+            tempAssetFullPath = os.path.expandvars(
+                                    os.path.expanduser(
+                                        os.path.normpath(
+                                            tempAssetFullPath
+                                        )
+                                    )
+                                )
+            
+            refsAndPaths.append((ref, tempAssetFullPath))
         
         # sort them according to path
         # to make same paths togather
         
-        refsAndPaths = sorted( refsAndPaths, None, lambda x: x[1])
+        refsAndPaths = sorted(refsAndPaths, None, lambda x: x[1])
         
         prevAsset = None
         prevFullPath = ''
@@ -488,9 +519,10 @@ class MayaEnvironment(abstractClasses.Environment):
             
             if fullPath == prevFullPath:
                 # directly append the asset to the list
-                validAssets.append( (prevAsset, ref, prevFullPath ) )
+                validAssets.append((prevAsset, ref, prevFullPath))
             else:
-                projName, seqName = repo.get_project_and_sequence_name_from_file_path( fullPath )
+                projName, seqName = \
+                    repo.get_project_and_sequence_name_from_file_path(fullPath)
                 
                 proj = project.Project(projName)
                 seq = project.Sequence(proj, seqName)
@@ -505,7 +537,7 @@ class MayaEnvironment(abstractClasses.Environment):
                     prevFullPath = fullPath
                     
         # return a sorted list
-        return sorted( validAssets, None, lambda x: x[2] )
+        return sorted(validAssets, None, lambda x: x[2])
     
     
     
@@ -530,7 +562,7 @@ class MayaEnvironment(abstractClasses.Environment):
                 latestAsset = asset.latestVersion2[0]
                 previousAssetPath = assetPath
             
-            ref.replaceWith( latestAsset.fullPath )
+            ref.replaceWith(latestAsset.fullPath)
     
     
     
@@ -629,27 +661,27 @@ class MayaEnvironment(abstractClasses.Environment):
         baseRefNode = sourceRef.refNode
         
         # get the base namespace before replacing the reference
-        prevNS = self.getFullNamespaceFromNodeName( sourceRef.nodes()[0] )
+        prevNS = self.getFullNamespaceFromNodeName(sourceRef.nodes()[0])
         
         # if the sourceRef has referenced files do a dirty edit
         # by applying all the edits to the referenced node (the old way of
         # replacing references )
-        subReferences = self.getAllSubReferences( sourceRef )
-        print "subReferences count:",len(subReferences)
+        subReferences = self.getAllSubReferences(sourceRef)
+        print "subReferences count:", len(subReferences)
         
         if len(subReferences) > 0:
             # for all subReferences get the editString and apply it to the
             # replaced file with new namespace
             allEdits = []
             for subRef in subReferences:
-                allEdits += subRef.getReferenceEdits( orn= baseRefNode )
+                allEdits += subRef.getReferenceEdits(orn= baseRefNode)
             
             # replace the reference
-            sourceRef.replaceWith( targetFile )
+            sourceRef.replaceWith(targetFile)
             
             # try to find the new namespace
-            subReferences = self.getAllSubReferences( sourceRef )
-            newNS = self.getFullNamespaceFromNodeName( subReferences[0].nodes()[0] ) # possible bug here, fix it later
+            subReferences = self.getAllSubReferences(sourceRef)
+            newNS = self.getFullNamespaceFromNodeName(subReferences[0].nodes()[0]) # possible bug here, fix it later
             
             # replace the old namespace with the new namespace in all the edits
             allEdits = [ edit.replace( prevNS+":", newNS+":") for edit in allEdits ] 
@@ -721,8 +753,8 @@ class MayaEnvironment(abstractClasses.Environment):
                 
                 # first convert the sub ref dictionary to a normal ref object
                 subRef = subRefData[1]
-                allRefs.append( subRef )
-                allRefs += self.getAllSubReferences( subRef )
+                allRefs.append(subRef)
+                allRefs += self.getAllSubReferences(subRef)
         
         return allRefs
     
@@ -755,7 +787,12 @@ class MayaEnvironment(abstractClasses.Environment):
     
     #----------------------------------------------------------------------
     def replace_external_paths(self):
-        """replaces all the external paths to relatives to repo.server_path
+        """replaces all the external paths
+        
+        replaces:
+          references: to a path with $STALKER_REPOSITORY_PATH env variable
+          file and mentalrayTextures: to a relative path to the project path
+                                      (the self._asset.sequenceFullPath)
         """
         
         # create a repository
@@ -763,28 +800,47 @@ class MayaEnvironment(abstractClasses.Environment):
         
         repo_env_key = "$" + repo.repository_path_env_key
         
-        # replace reference paths
+        # replace reference paths with STALKER_REPOSITORY_PATH
         for ref in pm.listReferences():
-            if ref.path.replace("\\", "/").startswith(repo.server_path.replace("\\", "/")):
-                print "replacing reference:", ref.path
-                print "replacing with:", repo_env_key
+            if ref.path.replace("\\", "/").\
+                startswith(repo.server_path.replace("\\", "/")):
+                #print "replacing reference:", ref.path
+                #print "replacing with:", repo_env_key
                 
                 new_ref_path = ref.path.replace(
                     repo.server_path.replace("\\", "/"),
                     repo_env_key
                 )
+                #new_ref_path = utils.relpath(
+                #    self._asset.sequenceFullPath.replace("\\", "/"),
+                #    ref.path,
+                #    "/", ".."
+                #)
                 
-                print new_ref_path
+                #print new_ref_path
                 
                 ref.replaceWith(new_ref_path)
             
         # texture files
         for image_file in pm.ls(type="file"):
             file_texture_path = image_file.getAttr("fileTextureName")
-            if file_texture_path.startswith(repo.server_path):
+            file_texture_path = file_texture_path.replace("\\", "/")
+            #print "clean path:", file_texture_path
+            if file_texture_path.startswith(repo.server_path.replace("\\", "/")):
+                #new_path = utils.relpath(
+                #    self._asset.sequenceFullPath.replace("\\", "/"),
+                #    file_texture_path,
+                #    "/", ".."
+                #)
+                new_path = file_texture_path.replace(
+                    repo.server_path, repo_env_key
+                )
+                
+                #print "new_path: ", new_path
                 image_file.setAttr(
                     "fileTextureName",
-                    file_texture_path.replace(repo.server_path, repo_env_key)
+                #    file_texture_path.replace(repo.server_path, repo_env_key)
+                    new_path
                 )
         
         # replace mentalray textures
@@ -793,8 +849,16 @@ class MayaEnvironment(abstractClasses.Environment):
             
             if mr_texture_path is not None:
                 if mr_texture_path.startswith(repo.server_path):
+                    #mr_texture.setAttr(
+                    #    "fileTextureName",
+                    #    "/" + mr_texture_path.replace(repo.server_path, repo_env_key)
+                    #)
+                    new_path = utils.relpath(
+                        self._asset.sequenceFullPath.replace("\\", "/"),
+                        mr_texture_path.replace("\\", "/"),
+                        "/", ".."
+                    )
                     mr_texture.setAttr(
                         "fileTextureName",
-                        "/" + mr_texture_path.replace(repo.server_path, repo_env_key)
+                        new_path
                     )
-        

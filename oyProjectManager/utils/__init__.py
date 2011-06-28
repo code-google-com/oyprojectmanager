@@ -65,6 +65,21 @@ def relpath(p1, p2, sep=os.path.sep, pardir=os.path.pardir):
 
 
 #----------------------------------------------------------------------
+def abspath(p1, p2):
+    """Converts the p2 to abspath by joining it with p1
+    
+    The output is always normalized, so for windows all the path seperators
+    will be backslahes where on other systems it will be forward slashes. 
+    """
+
+    if not os.path.isabs(p2):
+        return os.path.normpath(os.path.join(p1, p2))
+    
+    return p2
+
+
+
+#----------------------------------------------------------------------
 def mkdir(path):
     """Creates a directory in the given path
     """
