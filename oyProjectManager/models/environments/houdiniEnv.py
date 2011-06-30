@@ -45,9 +45,19 @@ class HoudiniEnvironment(abstractClasses.Environment):
         fullPath = self._asset.fullPath
         fullPath = fullPath.replace('\\','/')
         
+        # *************************************************************
+        # trying to set the render file name while the file has not been
+        # saved before creates an error
+        # so save the file two times if it is not saved before
+        
+        ## check if the HIP environment variable has some data
+        #if os.environ["HIP"] == os.environ["HOME"]:
+        # save the file to create a meaningful HIP variable
+        hou.hipFile.save(file_name=str(fullPath))
+        
         # set the render file name
         self.setRenderFileName()
-        
+
         # houdini accepts only strings as file name, no unicode support as I
         # see
         hou.hipFile.save(file_name=str(fullPath))
@@ -309,6 +319,9 @@ class HoudiniEnvironment(abstractClasses.Environment):
                 # also create the folders
                 outputFileFullPath = outputNode.evalParm('vm_picture')
                 outputFilePath = os.path.dirname(outputFileFullPath)
+                
+                print "outputFileFullPath: ", outputFileFullPath 
+                
                 oyAux.createFolder(
                     os.path.expandvars(outputFilePath)
                 )

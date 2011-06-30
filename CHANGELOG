@@ -30,6 +30,9 @@ v0.1.1
    textures we still can not use the environment variable in Windows, so we
    need to keep using the relative paths.
 
+ * fixed the output path of the main node in nukeEnv.py, now in windows the
+   path is absolute but in other oses it is still relative.
+
 v0.1.0
 ------
 

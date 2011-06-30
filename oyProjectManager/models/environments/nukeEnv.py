@@ -339,8 +339,12 @@ class NukeEnvironment(abstractClasses.Environment):
                 )
             ) for node in nodes]
         
-        nodeRep(readNodes)
-        nodeRep(writeNodes)
+        nodeRep(readNodes)        
+        # the fucking windows is complaining about back-slashes again
+        # in the write nodes so the write nodes are going to be absolute
+        # path
+        if os.name != "nt":
+            nodeRep(writeNodes)
         nodeRep(readGeoNodes)
         nodeRep(readGeo2Nodes)
         nodeRep(writeGeoNodes)
