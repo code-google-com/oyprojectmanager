@@ -33,6 +33,19 @@ v0.1.1
  * fixed the output path of the main node in nukeEnv.py, now in windows the
    path is absolute but in other oses it is still relative.
 
+ * oyProjectManager now supports Jinja2 templates in the project structure.
+   It is now possible to create folders inside shot dependent folders:
+     
+     FX/{{assetBaseName}}/test_folder
+    
+   now renders as:
+     
+     FX/SH001/test_folder
+     FX/SH002/test_folder
+     FX/SH003/test_folder
+     etc.
+   
+
 v0.1.0
 ------
 

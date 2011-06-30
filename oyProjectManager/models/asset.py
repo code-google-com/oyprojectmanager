@@ -398,7 +398,7 @@ class Asset(object):
                 self._path = os.path.join(seqFullPath, typePath)
                 
                 # and render the jinja2 template
-                jinja2.Template(self._path).render(
+                self._path = jinja2.Template(self._path).render(
                     assetBaseName=self.baseName,
                     assetSubName = self.subName,
                     assetTypeName = self.typeName,

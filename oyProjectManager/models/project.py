@@ -9,6 +9,7 @@ import glob
 import re
 
 from beaker import cache
+import jinja2
 
 from xml.dom import minidom
 
@@ -806,9 +807,9 @@ class Sequence(object):
         for shotNode in shotDataNode.getElementsByTagName('shot'):
             #assert( isinstance( shotNode, minidom.Element ) )
             
-            startFrame = shotNode.getAttribute( 'startFrame' )
-            endFrame = shotNode.getAttribute( 'endFrame' )
-            name = shotNode.getAttribute( 'name' )
+            startFrame = shotNode.getAttribute('startFrame')
+            endFrame = shotNode.getAttribute('endFrame')
+            name = shotNode.getAttribute('name')
             description = shotNode.getElementsByTagName('description')[0].childNodes[0].wholeText.strip()
             
             if startFrame != '':
@@ -849,9 +850,9 @@ class Sequence(object):
         # the shotList
         
         for shotName in self._shotList:
-            newShot = Shot( shotName, self )
+            newShot = Shot(shotName, self)
             #newShot.name = shotName
-            self._shots.append( newShot )
+            self._shots.append(newShot)
     
     
     
@@ -1100,7 +1101,7 @@ class Sequence(object):
         self._shots.extend(newShotObjects)
         
         # sort the shot objects
-        self._shots = utils.sort_string_numbers( self._shots )
+        self._shots = utils.sort_string_numbers(self._shots)
     
     
     
@@ -1159,19 +1160,29 @@ class Sequence(object):
     def createShots(self):
         """creates the shot folders in the structure
         """
+        
         if not self._exists:
             return
         
-        #for folder in self._shotFolders:
+        # create the structure
         for folder in self._structure.shotDependentFolders:
-            for shotNumber in self._shotList:
-                # get a shotString for that number
-                shotString = self.convertToShotString( shotNumber )
-                
-                # create the folder with that name
-                shotFullPath = os.path.join ( self._fullPath, folder, shotString )
-                
-                oyAux.createFolder( shotFullPath )
+            
+            # render jinja2 templates if neccessary
+            if "{{" in folder:
+                for shotNumber in self._shotList:
+                    template = jinja2.Template(
+                        os.path.join(self._fullPath, folder)
+                    )
+                    
+                    path = template.render(
+                        assetBaseName=self.convertToShotString(shotNumber)
+                    )
+                    
+                    oyAux.createFolder(path)
+            else:
+                path = os.path.join(self._fullPath, folder)
+                oyAux.createFolder(path)
+
     
     
     
@@ -1240,17 +1251,15 @@ class Sequence(object):
     def createStructure(self):
         """creates the folders defined by the structure
         """
+        
         if not self._exists:
             return
         
-        createFolder = oyAux.createFolder
-        
-        # create the structure
-        for folder in self._structure.shotDependentFolders:
-            createFolder( os.path.join( self._fullPath, folder ) )
+        # create shots
+        self.createShots()
         
         for folder in self._structure.shotIndependentFolders:
-            createFolder( os.path.join( self._fullPath, folder ) )
+            oyAux.createFolder(os.path.join(self._fullPath, folder))
     
     
     
