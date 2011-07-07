@@ -44,7 +44,9 @@ v0.1.1
      FX/SH002/test_folder
      FX/SH003/test_folder
      etc.
-   
+
+ * Fixed houdiniEnv.py, now it is not complaining about project name when the
+   file doesn't follow oyProjectManager naming conventions.   
 
 v0.1.0
 ------

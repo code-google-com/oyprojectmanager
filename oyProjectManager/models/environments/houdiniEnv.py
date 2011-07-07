@@ -129,19 +129,20 @@ class HoudiniEnvironment(abstractClasses.Environment):
             # try to create an asset with that info
             projName, seqName = repo.get_project_and_sequence_name_from_file_path( fullPath )
             
-            proj = project.Project( projName )
-            seq = project.Sequence( proj, seqName )
+            if not projName is None and not seqName is None: 
+                proj = project.Project(projName)
+                seq = project.Sequence(proj, seqName)
             
-            testAsset = asset.Asset( proj, seq, fileName )
             
-            #if path != '':
-                #fileName = os.path.basename( fullPath )
-            #else:
-                #path = None
-            if testAsset.isValidAsset:
-                fileName = testAsset.fileName
-                path = testAsset.path
-                readRecentFile = False
+                testAsset = asset.Asset(proj, seq, fileName)
+            
+                if testAsset.isValidAsset:
+                    fileName = testAsset.fileName
+                    path = testAsset.path
+                    readRecentFile = False
+            else:
+                # no good file name
+                readRecentFile = True
         
         if readRecentFile:
             # there is no file oppend yet use the first valid file
@@ -151,7 +152,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
             
             # unfix the windows paths from / to \\
             if os.name == 'nt':
-                recentFiles = [ recentFile.replace('/','\\') for recentFile in recentFiles ]
+                recentFiles = [recentFile.replace('/','\\') for recentFile in recentFiles]
             
             for i in range(len(recentFiles)-1,0,-1):
                 
