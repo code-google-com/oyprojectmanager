@@ -306,7 +306,8 @@ class HoudiniEnvironment(abstractClasses.Environment):
         # compute a $HIP relative file path
         # which is much safer if the file is going to be render in multiple oses
         # $HIP = the current asset path
-        hip = self.asset.path
+        #hip = self._asset.path
+        hip = hou.getenv("HIP")
         hip_relative_output_file_path = "$HIP/" + utils.relpath(hip, outputFileName, "/", "..")
         
         outputNodes = self.getOutputNodes()

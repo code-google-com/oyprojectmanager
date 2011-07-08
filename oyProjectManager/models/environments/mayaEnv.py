@@ -179,16 +179,19 @@ class MayaEnvironment(abstractClasses.Environment):
 
             #print "projName", projName
             #print "seqName", seqName
-            
-            proj = project.Project(projName)
-            seq = project.Sequence(proj, seqName)
 
-            testAsset = asset.Asset(proj, seq, fileName)
-            
-            if testAsset.isValidAsset:
-                fileName = testAsset.fileName
-                path = testAsset.path
-                readRecentFile = False
+            if projName != None and seqName != None:
+                proj = project.Project(projName)
+                seq = project.Sequence(proj, seqName)
+
+                testAsset = asset.Asset(proj, seq, fileName)
+                
+                if testAsset.isValidAsset:
+                    fileName = testAsset.fileName
+                    path = testAsset.path
+                    readRecentFile = False
+            else:
+                readRecentFile = True
         
         
         

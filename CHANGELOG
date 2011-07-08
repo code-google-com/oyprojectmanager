@@ -46,7 +46,10 @@ v0.1.1
      etc.
 
  * Fixed houdiniEnv.py, now it is not complaining about project name when the
-   file doesn't follow oyProjectManager naming conventions.   
+   file doesn't follow oyProjectManager naming conventions.
+
+ * Fixed mayaEnv.py, not it is not complaining about project names if the
+   current scene name is not following the oyProjectManager naming conventions.
 
 v0.1.0
 ------
