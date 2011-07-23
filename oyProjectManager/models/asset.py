@@ -320,15 +320,15 @@ class Asset(object):
             return None
         
         parts = [] * 0
-        parts.append( self._baseName )
-
-        if not self._sequence._noSubNameField:
-            parts.append( self._subName )
+        parts.append(self._baseName)
         
-        parts.append( self._type.name )
-        parts.append( self._revString )
-        parts.append( self._verString )
-        parts.append( self._userInitials )
+        if not self._sequence._noSubNameField:
+            parts.append(self._subName)
+        
+        parts.append(self._type.name)
+        parts.append(self._revString)
+        parts.append(self._verString)
+        parts.append(self._userInitials)
         
         # check if there is a note
         if self._notes != None and self._notes != '':
