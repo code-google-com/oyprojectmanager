@@ -271,7 +271,7 @@ class NukeEnvironment(abstractClasses.Environment):
                            "OUTPUT_" + \
                            self._asset.revisionString + "_" + \
                            self._asset.versionString + "_" + \
-                           self._asset.userInitials + ".###.tga"
+                           self._asset.userInitials + ".###.jpg"
         
         # check if it is a stereo comp
         # if it is enable seperate view rendering
@@ -295,9 +295,9 @@ class NukeEnvironment(abstractClasses.Environment):
             # path already exists
             pass
         
-        # set the output file type to targa
-        main_write_node["file_type"].setValue(13)
-        main_write_node["channels"].setValue("rgba")
+        # set the default output file type to jpeg
+        main_write_node["file_type"].setValue(8)
+        main_write_node["channels"].setValue("rgb")
     
     
     
