@@ -51,6 +51,11 @@ v0.1.1
  * Fixed mayaEnv.py, not it is not complaining about project names if the
    current scene name is not following the oyProjectManager naming conventions.
 
+ * Fixed houdiniEnv.py, now it is able to set the JOB environment variable
+   correctly.
+
+ * nukeEnv now sets the default output to jpg
+
 v0.1.0
 ------
 

@@ -70,7 +70,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     #----------------------------------------------------------------------
-    def open_(self, force=False ):
+    def open_(self, force=False):
         """the open action for houdini environment
         """
         
@@ -180,7 +180,26 @@ class HoudiniEnvironment(abstractClasses.Environment):
         """sets the environment variables according to the given assetObject
         """
         # set the $JOB variable to the sequence root
-        os.environ['JOB'] = str( self._asset.sequenceFullPath ).replace('\\','/')
+        repo = repository.Repository()
+        repo_env_key = "$" + repo.repository_path_env_key
+        
+        asset_path = str(self._asset.fullPath).replace("\\", "/")
+        sequence_path = str(self._asset.sequenceFullPath).replace('\\','/')
+        
+        #repo_server_path = repo.server_path.replace("\\", "/")
+        
+        #if sequence_path.startswith(repo_server_path):
+        #    sequence_path = sequence_path.replace(repo_server_path, repo_env_key)
+        #hip_relative_seq_path = "$HIP" + utils.relpath(
+        #    asset_path,
+        #    sequence_path,
+        #    "/", "..",
+        #) 
+        
+        os.environ.update({"JOB": str(sequence_path)})
+        
+        # also set it using hscript, hou is a little bit problematic
+        hou.hscript("set -g JOB = '" + str(sequence_path) + "'")
     
     
     
