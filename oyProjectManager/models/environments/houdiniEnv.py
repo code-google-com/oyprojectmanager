@@ -181,21 +181,15 @@ class HoudiniEnvironment(abstractClasses.Environment):
         """
         # set the $JOB variable to the sequence root
         repo = repository.Repository()
-        repo_env_key = "$" + repo.repository_path_env_key
+        #repo_env_key = "$" + repo.repository_path_env_key
         
-        asset_path = str(self._asset.fullPath).replace("\\", "/")
+        #asset_path = str(self._asset.fullPath).replace("\\", "/")
         sequence_path = str(self._asset.sequenceFullPath).replace('\\','/')
         
-        #repo_server_path = repo.server_path.replace("\\", "/")
+        # convert the sequence path to a STALKER_REPOSITORY_PATH relative path
+        sequence_path = repo.relative_path(sequence_path) 
         
-        #if sequence_path.startswith(repo_server_path):
-        #    sequence_path = sequence_path.replace(repo_server_path, repo_env_key)
-        #hip_relative_seq_path = "$HIP" + utils.relpath(
-        #    asset_path,
-        #    sequence_path,
-        #    "/", "..",
-        #) 
-        
+        # update the environment variables
         os.environ.update({"JOB": str(sequence_path)})
         
         # also set it using hscript, hou is a little bit problematic
@@ -322,12 +316,16 @@ class HoudiniEnvironment(abstractClasses.Environment):
                        userInitials + ".$F4.exr"
         outputFileName = outputFileName.replace('\\','/')
         
-        # compute a $HIP relative file path
+        # compute a $JOB relative file path
         # which is much safer if the file is going to be render in multiple oses
         # $HIP = the current asset path
+        # $JOB = the current sequence path
         #hip = self._asset.path
-        hip = hou.getenv("HIP")
-        hip_relative_output_file_path = "$HIP/" + utils.relpath(hip, outputFileName, "/", "..")
+        #hip = hou.getenv("HIP")
+        job = hou.getenv("JOB")
+        
+        #hip_relative_output_file_path = "$HIP/" + utils.relpath(hip, outputFileName, "/", "..")
+        job_relative_output_file_path = "$JOB/" + utils.relpath(job, outputFileName, "/", "..")
         
         outputNodes = self.getOutputNodes()
         for outputNode in outputNodes:
@@ -335,7 +333,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
             if outputNode.type().name() == 'ifd':
                 # set the file name
                 #outputNode.setParms({'vm_picture': str(outputFileName)})
-                outputNode.setParms({'vm_picture': str(hip_relative_output_file_path)})
+                outputNode.setParms({'vm_picture': str(job_relative_output_file_path)})
                 
                 # also create the folders
                 outputFileFullPath = outputNode.evalParm('vm_picture')
@@ -344,7 +342,9 @@ class HoudiniEnvironment(abstractClasses.Environment):
                 print "outputFileFullPath: ", outputFileFullPath 
                 
                 oyAux.createFolder(
-                    os.path.expandvars(outputFilePath)
+                    os.path.expandvars(
+                        os.path.expandvars(outputFilePath)
+                    )
                 )
     
     

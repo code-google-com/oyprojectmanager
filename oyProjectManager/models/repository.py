@@ -209,7 +209,7 @@ class Repository(object):
         # initialize default variables
         
         # user name STALKER for forward compability
-        self.repository_path_env_key = "STALKER_REPOSITORY_PATH"
+        self.repository_path_env_key = "STALKER_REPOSITORY_PATH" # use just $REPO
         self.settings_path_env_key = "OYPROJECTMANAGER_PATH"
         
         self._init_repository_path_environment_variable()
