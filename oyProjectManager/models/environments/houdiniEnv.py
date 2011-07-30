@@ -323,6 +323,9 @@ class HoudiniEnvironment(abstractClasses.Environment):
         #hip = self._asset.path
         #hip = hou.getenv("HIP")
         job = hou.getenv("JOB")
+        # eliminate environment vars
+        while "$" in job:
+            job = os.path.expandvars(job)
         
         #hip_relative_output_file_path = "$HIP/" + utils.relpath(hip, outputFileName, "/", "..")
         job_relative_output_file_path = "$JOB/" + utils.relpath(job, outputFileName, "/", "..")
