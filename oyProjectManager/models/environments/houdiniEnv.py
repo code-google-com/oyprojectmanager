@@ -186,8 +186,8 @@ class HoudiniEnvironment(abstractClasses.Environment):
         #asset_path = str(self._asset.fullPath).replace("\\", "/")
         sequence_path = str(self._asset.sequenceFullPath).replace('\\','/')
         
-        # convert the sequence path to a STALKER_REPOSITORY_PATH relative path
-        sequence_path = repo.relative_path(sequence_path) 
+        # convert the sequence path to a self.repository_path_env_key relative 
+        sequence_path = repo.relative_path(sequence_path)
         
         # update the environment variables
         os.environ.update({"JOB": str(sequence_path)})
@@ -338,6 +338,9 @@ class HoudiniEnvironment(abstractClasses.Environment):
                 #outputNode.setParms({'vm_picture': str(outputFileName)})
                 outputNode.setParms({'vm_picture': str(job_relative_output_file_path)})
                 
+                # set the compression to zips (zip, single scanline)
+                outputNode.setParms({"vm_image_exr_compression": "zips"})
+                
                 # also create the folders
                 outputFileFullPath = outputNode.evalParm('vm_picture')
                 outputFilePath = os.path.dirname(outputFileFullPath)
@@ -370,7 +373,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         startFrame, endFrame = self.getFrameRange()
         hou.setFps(timeUnitFps)
         
-        self.setFrameRange( startFrame, endFrame)
+        self.setFrameRange(startFrame, endFrame)
     
     
     

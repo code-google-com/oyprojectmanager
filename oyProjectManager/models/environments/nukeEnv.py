@@ -113,6 +113,11 @@ class NukeEnvironment(abstractClasses.Environment):
         # set the project_directory
         self.project_directory = self._asset.sequenceFullPath
         
+        # TODO:
+        # Check if the file paths are starting with a string matching one of the
+        # OS'es project_directory path and replace them with a relative one
+        # matching the current OS 
+        
         # replace paths
         self.replace_file_path()
         
