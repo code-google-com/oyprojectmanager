@@ -54,10 +54,13 @@ class HoudiniEnvironment(abstractClasses.Environment):
         #if os.environ["HIP"] == os.environ["HOME"]:
         # save the file to create a meaningful HIP variable
         hou.hipFile.save(file_name=str(fullPath))
+
+        # set the environment variables
+        self.setEnvironmentVariables()
         
         # set the render file name
         self.setRenderFileName()
-
+        
         # houdini accepts only strings as file name, no unicode support as I
         # see
         hou.hipFile.save(file_name=str(fullPath))
