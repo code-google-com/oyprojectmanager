@@ -58,6 +58,11 @@ v0.1.1
 
  * houdiniEnv now sets the exr compression to zips (zip, single scanline)
 
+ * Fixed nukeEnv, it now correctly sets the render output to jpg under windows
+
+ * Updated mayaEnv, it is now using a more generic structure for the playblast
+   folder
+
 v0.1.0
 ------
 

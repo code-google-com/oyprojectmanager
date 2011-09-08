@@ -256,7 +256,7 @@ class MayaEnvironment(abstractClasses.Environment):
         assert(isinstance(parentSeq, project.Sequence))
         
         parentSeqFullPath = parentSeq.fullPath.replace("\\", "/")
-        renderOutputFolder = self._asset.output_path # RENDERED_IMAGES
+        renderOutputFolder = self._asset.output_path # RENDERED_IMAGES/{{assetBaseName}}/{{assetSubName}}
         
         # image folder from the workspace.mel
         imageFolderFromWS = pm.workspace.fileRules['image'] # RENDERED_IMAGES/
@@ -271,16 +271,13 @@ class MayaEnvironment(abstractClasses.Environment):
         
         if parentSeq.noSubNameField:
             render_file_full_path = parentSeqFullPath + "/" + \
-                renderOutputFolder + "/" + \
-                assetBaseName + "/<Layer>/" + \
+                renderOutputFolder + "/<Layer>/" + \
                 assetBaseName + "_<Layer>_<RenderPass>_<Version>"
             
         else: # remove later when the support for old project is over
             assetSubName = self._asset.subName
             render_file_full_path = parentSeqFullPath + "/" + \
-                renderOutputFolder + "/" + \
-                assetBaseName + "/" + \
-                assetSubName + "/<Layer>/" + \
+                renderOutputFolder + "/" + "/<Layer>/" + \
                 assetBaseName + "_" + assetSubName + \
                 "_<Layer>_<RenderPass>_<Version>"
         
@@ -325,7 +322,6 @@ class MayaEnvironment(abstractClasses.Environment):
         
         # check if Mentalray is the current renderer
         if dRG.getAttr('currentRenderer') == 'mentalRay':
-            mrG = pm.PyNode("mentalrayGlobals")
             # set the render output to OpenEXR with zip compression
             dRG.setAttr('imageFormat', 51)
             dRG.setAttr('imfkey','exr')
@@ -334,16 +330,17 @@ class MayaEnvironment(abstractClasses.Environment):
             import pymel
             try:
                 if pymel.versions.current() >= pymel.versions.v2012:
+                    mrG = pm.PyNode("mentalrayGlobals")
                     mrG.setAttr("imageCompression", 4)
-            except AttributeError:
+            except AttributeError, pm.general.MayaNodeError:
                 pass
-                
+            
             # if the renderer is not registered this causes a _objectError
             # and the frame buffer to 16bit half
             try:
                 miDF = pm.PyNode('miDefaultFramebuffer')
                 miDF.setAttr('datatype', 16)
-            except pm.general.MayaNodeError:
+            except TypeError, pm.general.MayaNodeError:
                 # just don't do anything
                 pass
         
@@ -367,10 +364,10 @@ class MayaEnvironment(abstractClasses.Environment):
         
         seqFullPath = self._asset.sequence.fullPath
         
-        baseName = self._asset.baseName
+        # baseName = self._asset.baseName
         
         playblastPath = os.path.join(seqFullPath, playblastFolderPath,
-                                     baseName)
+                                     "Playblast")
         
         playblastFullPath = os.path.join(playblastPath,
                                          self._asset.fileNameWithoutExtension)

@@ -301,7 +301,11 @@ class NukeEnvironment(abstractClasses.Environment):
             pass
         
         # set the default output file type to jpeg
-        main_write_node["file_type"].setValue(8)
+        if os.name != "nt":
+            main_write_node["file_type"].setValue(8)
+        else:
+            main_write_node["file_type"].setValue(7)
+        
         main_write_node["channels"].setValue("rgb")
     
     
