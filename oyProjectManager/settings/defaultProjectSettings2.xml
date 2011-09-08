@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<root>
+    <project>
+        <structure>
+            <custom_template>
+                {% for sequence in project.sequences %}
+                    {{ sequence.name }}/EDIT/OFFLINE
+                    
+                    {{ set shot_path = sequence.name + '/SHOTS'
+                    {% for shot in sequence.shots %}
+                        {% for task in shot.tasks %}
+                            {{ shot_path }}/{{ shot.code }}/{{ task.type.name }}
+                    {% endfor %}
+                {% endfor %}
+            </custom_template>
+            <templates>
+                <filenameTemplate target_entity_type="Asset">
+                    {{ set asset_path = project.name + '/' + '/ASSETS/' + asset.name }}
+                    {% for task in asset.tasks %}
+                        {{ asset_path }}/{{ task.name }}
+                        {{ asset_path }}/{{ task.name }}/OUTPUT
+                    {% endfor %}
+                </filenameTemplate>
+            </templates>
+        <structureTemplate>
+        <assets>
+            <asset>
+                pickled data
+            </asset>
+        </assets>
+        <sequences>
+            <sequence>
+                <shots>
+                    <shot>
+                        <task>
+                        </task>
+                    </shot>
+                </shots>
+            </sequence>
+        </sequences>
+    </project>
+</root>

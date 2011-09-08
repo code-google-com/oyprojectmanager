@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+<root>
+    <sequenceData shotPrefix="SH" shotPadding="3" revPrefix="r" revPadding="2" verPrefix="v" verPadding="3" timeUnit="pal" supportsTemplate="True">
+        <structure>
+            <shotDependent>
+                {{assetBaseName}}/ANIMATIONS
+                {{assetBaseName}}/CAMERAS
+                {{assetBaseName}}/COMPOSITING
+                {{assetBaseName}}/FX
+                {{assetBaseName}}/EDIT/ONLINE
+                {{assetBaseName}}/PREVIS
+                {{assetBaseName}}/RENDERED_IMAGES
+                {{assetBaseName}}/LIGHTING
+                {{assetBaseName}}/SCENE_ASSEMBLY
+                {{assetBaseName}}/MATCH_MOVE
+            </shotDependent>
+            <shotIndependent>
+                PAINTINGS/ILLUSTRATION
+                PAINTINGS/ILLUSTRATION/CHARACTER_DESIGNS
+                PAINTINGS/MATTE_PAINT
+                PAINTINGS/TEXTURES
+                EDIT/OFFLINE
+                EDIT/ONLINE/WHOLE_SEQUENCE
+                EDIT/SOUND
+                EDIT/ANIMATIC_STORYBOARD
+                EDIT/MAKING_OF
+                OTHERS
+                OTHERS/assets
+                OTHERS/clips
+                OTHERS/data
+                OTHERS/fur
+                OTHERS/fur/furAttrMap
+                OTHERS/fur/furEqualMap
+                OTHERS/fur/furFiles
+                OTHERS/fur/furImages
+                OTHERS/fur/furShadowMap
+                OTHERS/mel
+                OTHERS/particles
+                REFERENCES
+                REFERENCES/ARTWORKS
+                REFERENCES/TEXT
+                REFERENCES/TEXT/SCENARIO
+                REFERENCES/PHOTOS
+                REFERENCES/STORYBOARD
+            </shotIndependent>
+        </structure>
+        <assetTypes>
+            <type name="ANIM"           path="SHOTS/{{assetBaseName}}/ANIMATIONS"              shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
+            <type name="CAMERA"         path="SHOTS/{{assetBaseName}}/CAMERAS"                 shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
+            <type name="COMP"           path="SHOTS/{{assetBaseName}}/COMPOSITING"             shotDependent="1"  environments="NUKE"              output_path="COMPOSITING/{{assetBaseName}}/OUTPUT"/>
+            <type name="EDIT"           path="SHOTS/{{assetBaseName}}/EDIT"                    shotDependent="0"  environments="NUKE"              output_path="EDIT/ONLINE/{{assetBaseName}}/EXPORT"/>
+            <type name="FX"             path="SHOTS/{{assetBaseName}}/FX"                      shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
+            <type name="MODEL"          path="ASSETS/{{assetBaseName}}/MODELS"                 shotDependent="0"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
+            <type name="OTHER"          path="OTHERS"                                          shotDependent="0"  environments="MAYA,HOUDINI,NUKE" output_path="RENDERED_IMAGES"/>
+            <type name="PREVIS"         path="SHOTS/{{assetBaseName}}/PREVIS"                  shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
+            <type name="LIGHTING"       path="SHOTS/{{assetBaseName}}/LIGHTING"                shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
+            <type name="RIG"            path="ASSETS/{{assetBaseName}}/RIGS"                   shotDependent="0"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
+            <type name="SCENE_ASSEMBLY" path="SHOTS/{{assetBaseName}}/SCENE_ASSEMBLY"          shotDependent="1"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
+            <type name="MATTE"          path="SHOTS/{{assetBaseName}}/PAINTINGS/MATTE_PAINT"   shotDependent="0"  environments="PHOTOSHOP"         output_path="MATTE_PAINT/OUTPUTS"/>
+            <type name="TEXTURE"        path="ASSETS/{{assetBaseName}}/PAINTINGS/TEXTURES"     shotDependent="0"  environments="PHOTOSHOP"         output_path="TEXTURES"/>
+            <type name="ILLUSTRATION"   path="ASSETS/{{assetBaseName}}/PAINTINGS/ILLUSTRATION" shotDependent="0"  environments="PHOTOSHOP"         output_path="ILLUSTRATION"/>
+            <type name="SHADING"        path="ASSETS/{{assetBaseName}}/SHADING"                shotDependent="0"  environments="MAYA,HOUDINI"      output_path="RENDERED_IMAGES"/>
+            <type name="TRACKING"       path="SHOTS/{{assetBaseName}}/TRACKING"                shotDependent="1"  environments="3DEQUALIZER"       output_path="RENDERED_IMAGES"/>
+        </assetTypes>
+        <shotData>
+        </shotData>
+    </sequenceData>
+</root>

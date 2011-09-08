@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<root>
+    <settings>
+        <server
+            name="default"
+            windows_path="M:/JOBs"
+            linux_path="/tmp/JOBs"
+            osx_path="/Users/Shared/Servers/M/JOBs"
+        />
+        <units>
+            <timeUnits>
+                <time name="game" fps="15" />
+                <time name="film" fps="24" />
+                <time name="pal" fps="25" />
+                <time name="ntsc" fps="30" />
+                <time name="show" fps="48" />
+                <time name="palf" fps="50" />
+                <time name="ntscf" fps="60" />
+            </timeUnits>
+            <linearUnits>
+                <linear name="milimeter" short="mm"/>
+                <linear name="centimeter" short="cm"/>
+                <linear name="meter" short="m"/>
+                <linear name="kilometer" short="km"/>
+                <linear name="inch" short="in"/>
+                <linear name="foot" short="ft"/>
+                <linear name="yard" short="yd"/>
+                <linear name="mile" short="mi"/>
+                <linear name="milimeter" short="mm"/>
+            </linearUnits>
+            <angularUnits>
+                <angle name="degree" short="deg"/>
+                <angle name="radian" short="rad"/>
+            </angularUnits>
+        </units>
+    </settings>
+    <defaultFiles>
+        <file name="workspace.mel" projectRelativePath="."/>
+    </defaultFiles>
+</root>
