@@ -307,16 +307,22 @@ class HoudiniEnvironment(abstractClasses.Environment):
         # M:/JOBs/PRENSESIN_UYKUSU/SC_008/_RENDERED_IMAGES_/_SHOTS_/SH008/MasalKusu/`$OS`/SH008_MasalKusu_`$OS`_v006_oy.$F4.exr
         # $STALKER_REPOSITORY_PATH/PRENSESIN_UYKUSU/SC_008/_RENDERED_IMAGES_/_SHOTS_/SH008/MasalKusu/`$OS`/SH008_MasalKusu_`$OS`_v006_oy.$F4.exr
         seq = self._asset.sequence
-        renderOutputFolder = seq.fullPath + '/' + self._asset.type.output_path # _RENDERED_IMAGES_/SHOTS
+        #renderOutputFolder = seq.fullPath + '/' + self._asset.type.output_path # _RENDERED_IMAGES_/SHOTS
+        renderOutputFolder = self._asset.output_path # RENDERED_IMAGES/{{assetBaseName}}/{{assetSubName}}
         assetBaseName = self._asset.baseName
         assetSubName = self._asset.subName
         versionString = self._asset.versionString
         userInitials = self._asset.userInitials
         
-        outputFileName = renderOutputFolder + "/" + assetBaseName + "/" + \
-                       assetSubName + "/`$OS`/" + assetBaseName + "_" + \
-                       assetSubName + "_`$OS`_" + versionString + "_" + \
-                       userInitials + ".$F4.exr"
+        #outputFileName = renderOutputFolder + "/" + assetBaseName + "/" + \
+        #               assetSubName + "/`$OS`/" + assetBaseName + "_" + \
+        #               assetSubName + "_`$OS`_" + versionString + "_" + \
+        #               userInitials + ".$F4.exr"
+       
+        outputFileName = renderOutputFolder + "/" + "/`$OS`/" + \
+                         assetBaseName + "_" + assetSubName + "_`$OS`_" + \
+                         versionString + "_" + userInitials + ".$F4.exr"
+         
         outputFileName = outputFileName.replace('\\','/')
         
         # compute a $JOB relative file path

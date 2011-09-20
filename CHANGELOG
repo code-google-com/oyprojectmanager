@@ -62,6 +62,8 @@ v0.1.1
 
  * Updated mayaEnv, it is now using a more generic structure for the playblast
    folder
+ 
+ * Fixed render output path for houdiniEnv
 
 v0.1.0
 ------
