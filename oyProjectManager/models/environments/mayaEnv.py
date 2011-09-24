@@ -136,8 +136,8 @@ class MayaEnvironment(abstractClasses.Environment):
         repo = repository.Repository()
         
         #repository_relative_asset_fullpath = repo.relative_path(self._asset.fullPath)
-        print "asset.fullPath: ", asset.fullPath
-        print "self._asset.fullPath: ", self._asset.fullPath
+        #print "asset.fullPath: ", asset.fullPath
+        #print "self._asset.fullPath: ", self._asset.fullPath
         
         new_asset_fullpath = asset.fullPath
         if asset.fullPath.replace("\\", "/").startswith(
@@ -150,8 +150,8 @@ class MayaEnvironment(abstractClasses.Environment):
         # replace the path with environment variable
         new_asset_fullpath = repo.relative_path(new_asset_fullpath)
         
-        print "printing the new path"
-        print new_asset_fullpath
+        #print "printing the new path"
+        #print new_asset_fullpath
         
         pm.createReference(
             new_asset_fullpath,
