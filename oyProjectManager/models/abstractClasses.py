@@ -89,7 +89,7 @@ class Environment(object):
     
     
     #----------------------------------------------------------------------
-    def export(self):
+    def export(self, asset):
         """the export action
         """
         raise NotImplemented
@@ -105,7 +105,7 @@ class Environment(object):
     
     
     #----------------------------------------------------------------------
-    def import_(self):
+    def import_(self, asset):
         """the import action
         """
         raise NotImplemented
@@ -113,7 +113,7 @@ class Environment(object):
     
     
     #----------------------------------------------------------------------
-    def reference(self):
+    def reference(self, asset):
         """the reference action
         """
         raise NotImplemented

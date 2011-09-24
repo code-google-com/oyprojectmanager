@@ -62,7 +62,7 @@ class MayaEnvironment(abstractClasses.Environment):
     
     
     #----------------------------------------------------------------------
-    def export(self):
+    def export(self, asset):
         """the export action for maya environment
         """
         
@@ -72,13 +72,13 @@ class MayaEnvironment(abstractClasses.Environment):
             return False
         
         # set the extension to ma by default
-        self._asset.extension = 'ma'
+        asset.extension = 'ma'
         
         # create the folder if it doesn't exists
-        oyAux.createFolder(self._asset.path)
+        oyAux.createFolder(asset.path)
         
         # export the file
-        pm.exportSelected(self._asset.fullPath, type='mayaAscii')
+        pm.exportSelected(asset.fullPath, type='mayaAscii')
         
         return True
     
@@ -115,30 +115,44 @@ class MayaEnvironment(abstractClasses.Environment):
     
     
     #----------------------------------------------------------------------
-    def import_(self):
+    def import_(self, asset):
         """the import action for maya environment
         """
-        pm.importFile( self._asset.fullPath )
+        pm.importFile(asset.fullPath)
         
         return True
     
     
     
     #----------------------------------------------------------------------
-    def reference(self):
+    def reference(self, asset):
         """the reference action for maya environment
         """
         
         # use the file name without extension as the namespace
-        nameSpace = self._asset.fileNameWithoutExtension
+        #nameSpace = self._asset.fileNameWithoutExtension
+        nameSpace = asset.fileNameWithoutExtension
         
         repo = repository.Repository()
         
         #repository_relative_asset_fullpath = repo.relative_path(self._asset.fullPath)
-        new_asset_fullpath = utils.relpath(
-            self._asset.sequenceFullPath.replace("\\", "/"),
-            self._asset.fullPath, "/", ".."
-        )
+        print "asset.fullPath: ", asset.fullPath
+        print "self._asset.fullPath: ", self._asset.fullPath
+        
+        new_asset_fullpath = asset.fullPath
+        if asset.fullPath.replace("\\", "/").startswith(
+          self._asset.sequenceFullPath):
+            new_asset_fullpath = utils.relpath(
+                self._asset.sequenceFullPath.replace("\\", "/"),
+                asset.fullPath.replace("\\", "/"), "/", ".."
+            )
+        
+        # replace the path with environment variable
+        new_asset_fullpath = repo.relative_path(new_asset_fullpath)
+        
+        print "printing the new path"
+        print new_asset_fullpath
+        
         pm.createReference(
             new_asset_fullpath,
             gl=True,
@@ -802,15 +816,20 @@ class MayaEnvironment(abstractClasses.Environment):
         
         # replace reference paths with STALKER_REPOSITORY_PATH
         for ref in pm.listReferences():
-            if ref.path.replace("\\", "/").\
+            #if ref.path.replace("\\", "/").\
+            #    startswith(repo.server_path.replace("\\", "/")):
+            if ref.unresolvedPath().replace("\\", "/").\
                 startswith(repo.server_path.replace("\\", "/")):
-                #print "replacing reference:", ref.path
-                #print "replacing with:", repo_env_key
                 
                 new_ref_path = ref.path.replace(
                     repo.server_path.replace("\\", "/"),
                     repo_env_key
                 )
+                
+                print "replacing reference:", ref.path
+                print "replacing with:", new_ref_path
+                
+                
                 #new_ref_path = utils.relpath(
                 #    self._asset.sequenceFullPath.replace("\\", "/"),
                 #    ref.path,

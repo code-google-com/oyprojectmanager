@@ -88,8 +88,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.update_project_list()
         
         self.getSettingsFromEnvironment()
-        
-        #self.fillFieldsFromFileInfo()
     
     
     
@@ -97,8 +95,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     def _setEnvironment(self, environmentName):
         """sets the environment object from the environemnt name
         """
-        #self._environment = environmentFactory.EnvironmentFactory.create( self._asset, environmentName )
-        self._environment = self._environmentFactory.create( self._asset, environmentName )
+        self._environment = self._environmentFactory.create(self._asset, environmentName)
     
     
     
@@ -409,6 +406,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         if not assetObj.isValidAsset and not assetObj.exists:
             return
+        
+        # set the asset of the environment
+        self._environment._asset = assetObj
         
         assetType = assetObj.type.name
         shotNumber = assetObj.shotNumber
@@ -971,9 +971,8 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """
         
         # get the asset object from fields
-        self._createAssetObjectFromSaveFields()#'updateRevisionToLatest' )
+        self._createAssetObjectFromSaveFields()
         
-        #if assetObj == None or not asset.isValidAsset:
         if self._asset == None or not self._asset.isValidAsset:
             self.setRevisionNumberField( 0 )
             return
@@ -994,7 +993,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """
         
         # get the asset objet from fields
-        self._createAssetObjectFromSaveFields()#'updateVersionToLatest' )
+        self._createAssetObjectFromSaveFields()
         
         if self._asset == None or not self._asset.isValidAsset:
             self.setVersionNumberField( 1 )
@@ -1095,11 +1094,10 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         assetObj.setInfoVariables( **infoVars )
         
         self._asset = assetObj
-        # set the environment to the current asset object
-        self._environment.asset = self._asset
-        
+        ## set the environment to the current asset object
+        #self._environment.asset = self._asset
     
-    
+
     
     #----------------------------------------------------------------------
     def _createAssetObjectFromOpenFields(self):
@@ -1108,8 +1106,23 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         index = self.assets_tableWidget1.currentIndex().row()
         assetFileName = unicode(self.assets_tableWidget1.tableData[index][1])
-        self._asset = asset.Asset( self._project, self._sequence, assetFileName )
-        self._environment.asset = self._asset
+        self._updateProjectObject()
+        self._updateSequenceObject()
+        self._asset = asset.Asset(self._project, self._sequence, assetFileName)
+        #self._environment.asset = self._asset
+
+
+
+    #----------------------------------------------------------------------
+    def _getAssetObjectFromOpenFields(self):
+        """retriewes the file name from the open asset fields
+        """
+        
+        index = self.assets_tableWidget1.currentIndex().row()
+        assetFileName = unicode(self.assets_tableWidget1.tableData[index][1])
+        self._updateProjectObject()
+        self._updateSequenceObject()
+        return asset.Asset(self._project, self._sequence, assetFileName)
     
     
     
@@ -1118,7 +1131,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """returns the file name from the fields
         """
         # get the asset object from fields
-        self._createAssetObjectFromSaveFields()#'getFileNameFromSaveFields' )
+        self._createAssetObjectFromSaveFields()
         
         if self._asset == None:
             return None, None
@@ -1181,8 +1194,11 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         currentProjectName = self.getCurrentProjectName()
         
-        if self._project == None or self._project.name != currentProjectName or (currentProjectName != "" or currentProjectName != None ):
+        if self._project == None or \
+           self._project.name != currentProjectName or \
+           (currentProjectName != "" or currentProjectName != None ):
             self._project = project.Project( currentProjectName )
+    
     
     
     #----------------------------------------------------------------------
@@ -1193,7 +1209,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         currentSequenceName = self.getCurrentSequenceName()
         
         #assert(isinstance(self._sequence,Sequence))
-        if self._sequence == None or self._sequence.name != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) or \
+        if self._sequence == None or \
+           self._sequence.name != currentSequenceName and \
+           (currentSequenceName != "" or currentSequenceName != None ) or \
            self._sequence.projectName != self._project.name:
             self._updateProjectObject()
             newSeq = project.Sequence( self._project, currentSequenceName )
@@ -1400,7 +1418,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         assetStatus = False
         
         # get the asset object
-        self._createAssetObjectFromSaveFields()#'saveAsset' )
+        self._createAssetObjectFromSaveFields()
+        self._environment.asset = self._asset
+        
         
         if self._asset == None:
             return
@@ -1454,7 +1474,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """
         
         # get the asset object
-        self._createAssetObjectFromSaveFields() #'exportAsset' )
+        self._createAssetObjectFromSaveFields()
         
         if self._asset == None:
             return
@@ -1469,7 +1489,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         if assetStatus and verStatus and revStatus and overwriteStatus:
             # everything is ok now save in the host application
-            envStatus = self._environment.export()
+            envStatus = self._environment.export(self._asset)
             
             # if everything worked fine close the interface
             if envStatus:
@@ -1477,7 +1497,13 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 
                 # inform the user for successful operation
                 
-                QtGui.QMessageBox.information(self, 'Asset Export', 'Asset :\n\n'+ self._asset.fileName +'\n\nis exported successfuly', QtGui.QMessageBox.Ok)
+                QtGui.QMessageBox.information(
+                    self,
+                    'Asset Export',
+                    'Asset :\n\n'+ self._asset.fileName + \
+                        '\n\nis exported successfuly',
+                    QtGui.QMessageBox.Ok
+                )
                 
                 self.close()
     
@@ -1491,6 +1517,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         # get the asset object
         self._createAssetObjectFromOpenFields()
+        self._environment.asset = self._asset
         
         # check the file existancy
         exists = os.path.exists( self._asset.fullPath )
@@ -1564,13 +1591,13 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self._createAssetObjectFromOpenFields()
         
         # check the file existancy
-        exists = os.path.exists( self._asset.fullPath )
+        exists = os.path.exists(self._asset.fullPath)
         
         envStatus = False
         
         # open the asset in the environment
         if exists:
-            envStatus = self._environment.import_()
+            envStatus = self._environment.import_(self._asset)
             
             if envStatus:
                 #self.close()
@@ -1590,17 +1617,21 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         beware that not all environments supports this action
         """
         
+        #print self._environment._asset
+        
         # get the asset object
-        self._createAssetObjectFromOpenFields()
+        #self._createAssetObjectFromOpenFields()
+        referenced_asset = self._getAssetObjectFromOpenFields()
         
         # check the file existancy
-        exists = os.path.exists( self._asset.fullPath )
+        #exists = os.path.exists(self._asset.fullPath)
+        exists = os.path.exists(referenced_asset.fullPath)
         
         envStatus = False
         
         # open the asset in the environment
         if exists:
-            envStatus = self._environment.reference()
+            envStatus = self._environment.reference(referenced_asset)
             
             if envStatus:
                 QtGui.QMessageBox.information(self, 'Asset Reference', 'Asset :\n\n'+ self._asset.fileName +'\n\nis referenced successfuly', QtGui.QMessageBox.Ok)

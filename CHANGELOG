@@ -64,6 +64,21 @@ v0.1.1
    folder
  
  * Fixed render output path for houdiniEnv
+ 
+ * Fixed assetManager.py and mayaEnv.py. The concept of having an asset and an
+   environment is now separated a little bit more. The assetManager interface is
+   not updating the asset of the environment in every action taken. It is just
+   updated if it is really neccessary.
+
+ * Changed the abstractClasses.Environment classes referenceAsset, importAsset
+   and exportAsset methods. They are now accepting a parameter called asset,
+   which shows the referenced, imported or exported asset relatively.
+
+ * Fixed asset referencing and importing in mayaEnv.py. It is now correctly
+   using the environment variable.
+
+ * Fixed asset saving in mayaEnv.py. Now, it is not updating the references
+   every time the asset is saved.
 
 v0.1.0
 ------
