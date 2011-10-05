@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<root>
+	<users>
+		<user initials="aa" name="atilgan asikuzun"/>
+		<user initials="ae" name="alper erhan"/>
+ 		<user initials="boz" name="batuhan ozer"/>
+		<user initials="bo" name="beril ozturk"/>
+		<user initials="bt" name="berat turkbikmaz"/>
+		<user initials="fcc" name="fikret cihan cicekel"/>
+		<user initials="cg" name="cengizer gokce"/>
+		<user initials="ck" name="ceyhan kapusuz"/>
+		<user initials="co" name="cagatay ozkan"/>
+		<user initials="eb" name="emre buyukbayram"/>
+		<user initials="ec" name="emre camci"/>
+		<user initials="ey" name="ekin yalgin"/>
+		<user initials="gg" name="goktug gurellier"/>
+		<user initials="hg" name="huseyin gulgen"/>
+		<user initials="jmb" name="jean michel bihorel"/>
+		<user initials="kdc" name="kaan demir celik"/>
+		<user initials="kk" name="kubilay kocaoglu"/>
+		<user initials="mou" name="mert ozan uslu"/>
+		<user initials="mg" name="mark gregory"/>
+		<user initials="mk" name="murat kayran"/>
+		<user initials="oe" name="atilla ozgur ermutlu"/>
+		<user initials="ok" name="ozgur kilic"/>
+		<user initials="oy" name="erkan ozgur yilmaz"/>
+		<user initials="sh" name="serkan hamidov"/>
+		<user initials="so" name="seckin ozalp"/>
+		<user initials="ss" name="sinan seven"/>
+		<user initials="su" name="soner unlu"/>
+		<user initials="st" name="stu tozer"/>
+		<user initials="te" name="tankut erinc"/>
+		<user initials="ts" name="tuncer senturk"/>
+	</users>
+</root>
