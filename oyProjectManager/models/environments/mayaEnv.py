@@ -6,7 +6,6 @@ import os
 from pymel import versions
 from pymel import core as pm
 import maya.cmds as mc
-import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.models import asset, project, repository, abstractClasses
 from oyProjectManager import utils
 
@@ -42,7 +41,7 @@ class MayaEnvironment(abstractClasses.Environment):
         self.setPlayblastFileName()
         
         # create the folder if it doesn't exists
-        oyAux.createFolder(self._asset.path)
+        utils.createFolder(self._asset.path)
         
         # delete the unknown nodes
         unknownNodes = pm.ls(type='unknown')
@@ -75,7 +74,7 @@ class MayaEnvironment(abstractClasses.Environment):
         asset.extension = 'ma'
         
         # create the folder if it doesn't exists
-        oyAux.createFolder(asset.path)
+        utils.createFolder(asset.path)
         
         # export the file
         pm.exportSelected(asset.fullPath, type='mayaAscii')

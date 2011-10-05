@@ -2,16 +2,14 @@
 
 
 
-import sys
 import platform
 import os
-import shutil
 import re
-import oyAuxiliaryFunctions as oyAux
 from xml.dom import minidom
-#from oyProjectManager.utils import cache
 from beaker import cache
-from oyProjectManager.models import user, abstractClasses
+
+from oyProjectManager import utils
+from oyProjectManager.models import user
 
 
 
@@ -203,7 +201,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def __init__(self):
         
         # initialize default variables
@@ -308,7 +306,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _init_repository_path_environment_variable(self):
         """initializes the environment variables
         """
@@ -319,7 +317,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _parse_repository_settings(self):
         """Parses the repository_settings.xml file.
         """
@@ -382,7 +380,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     @property
     def projects(self):
         """returns projects names as a list
@@ -392,7 +390,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     @property
     @bCache.cache()
     def valid_projects(self):
@@ -426,7 +424,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     @property
     def users(self):
         """returns users as a list of User objects
@@ -435,7 +433,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     @property
     def user_names(self):
         """returns the user names
@@ -444,7 +442,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     @property
     def user_initials(self):
         """returns the user intials
@@ -453,7 +451,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _parse_users(self):
         """parses the usersFile
         """
@@ -479,13 +477,13 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def update_project_list(self):
         """updates the project list variable
         """
         try:
             self._projects = []
-            child_folders = oyAux.getChildFolders(self.server_path)
+            child_folders = utils.getChildFolders(self.server_path)
             
             for folder in child_folders:
                 filtered_folder_name = re.sub(
@@ -503,126 +501,98 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
-    def server_path():
+    @property
+    def server_path(self):
+        """The server path
+        """
         
-        doc = """the server path"""
+        platform_system = platform.system()
+        python_version = platform.python_version()
         
-        def fget(self):
-            platform_system = platform.system()
-            python_version = platform.python_version()
-            
-            windows_string = "Windows"
-            linux_string = "Linux"
-            osx_string = "Darwin"
-            
-            if python_version.startswith("2.5"):
-                windows_string = "Microsoft"
+        windows_string = "Windows"
+        linux_string = "Linux"
+        osx_string = "Darwin"
+        
+        if python_version.startswith("2.5"):
+            windows_string = "Microsoft"
 
-            if platform_system == linux_string:
-                return self.linux_path
-            elif platform_system == windows_string:
-                #self.windows_path.replace("/", "\\")
-                return self.windows_path
-            elif platform_system == osx_string:
-                return self.osx_path
-            
+        if platform_system == linux_string:
+            return self.linux_path
+        elif platform_system == windows_string:
+            #self.windows_path.replace("/", "\\")
+            return self.windows_path
+        elif platform_system == osx_string:
+            return self.osx_path
+    
+    @server_path.setter
+    def server_path(self, server_path_in):
+        """setter for the server_path
         
-        def fset(self, server_path_in):
-            
-            # add a trailing separator
-            # in any cases os.path.join adds a trailing seperator
-            
-            server_path_in = os.path.expanduser(
-                os.path.expandvars(
-                    server_path_in
-                )
+        :param server_path_in: a string showing the server path
+        """
+        
+        # add a trailing separator
+        # in any cases os.path.join adds a trailing seperator
+
+        server_path_in = os.path.expanduser(
+            os.path.expandvars(
+                server_path_in
             )
-            
-            platform_system = platform.system()
+        )
+        
+        platform_system = platform.system()
 
-            python_version = platform.python_version()
-            
-            windows_string = "Windows"
-            linux_string = "Linux"
-            osx_string = "Darwin"
-            
-            if platform_system == linux_string:
-                self.linux_path = server_path_in
-            elif platform_system == windows_string:
-                server_path_in = server_path_in.replace("/", "\\")
-                self.windows_path = server_path_in
-            elif platform_system == osx_string:
-                self.osx_path = server_path_in
-            
-            # set also the environment variables
-            os.environ[self.repository_path_env_key] = str(server_path_in)
-            
-            self._projects = [] * 0
-            
-            self.update_project_list()
+        python_version = platform.python_version()
         
-        return locals()
-    
-    server_path = property( **server_path() )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def linux_path():
-        def fget(self):
-            return self._linux_path
+        windows_string = "Windows"
+        linux_string = "Linux"
+        osx_string = "Darwin"
         
-        def fset(self, linux_path_in):
-            #self._linux_path = self._validate_linux_path(linux_path_in)
-            self._linux_path = linux_path_in
-            #os.environ[self.repository_path_env_key] = linux_path_in
+        if platform_system == linux_string:
+            self.linux_path = server_path_in
+        elif platform_system == windows_string:
+            server_path_in = server_path_in.replace("/", "\\")
+            self.windows_path = server_path_in
+        elif platform_system == osx_string:
+            self.osx_path = server_path_in
         
-        doc = """the linux path of the jobs server"""
+        # set also the environment variables
+        os.environ[self.repository_path_env_key] = str(server_path_in)
         
-        return locals()
-    
-    linux_path = property(**linux_path())
-    
-    
-    
-    #----------------------------------------------------------------------
-    def windows_path():
-        def fget(self):
-            return self._windows_path
+        self._projects = [] * 0
         
-        def fset(self, windows_path_in):
-            #self._windows_path = self._validate_windows_path(windows_path_in)
-            self._windows_path = windows_path_in
-            #os.environ[self.repository_path_env_key] = windows_path_in
+        self.update_project_list()
+    
+    @property
+    def linux_path(self):
+        return self._linux_path
+    
+    @linux_path.setter
+    def linux_path(self, linux_path_in):
+        """The linux path of the jobs server
+        """
+        self._linux_path = linux_path_in
+    
+    @property
+    def windows_path(self):
+        """The windows path of the jobs server
+        """
+        return self._windows_path
+    
+    @windows_path.setter
+    def windows_path(self, windows_path_in):
+        self._windows_path = windows_path_in
+    
+    @property
+    def osx_path(self):
+        """The osx path of the jobs server
+        """
+        return self._osx_path
         
-        doc = """the windows path of the jobs server"""
-        
-        return locals()
+    @osx_path.setter
+    def osx_path(self, osx_path_in):
+        self._osx_path = osx_path_in
     
-    windows_path = property(**windows_path())
-    
-    
-    
-    #----------------------------------------------------------------------
-    def osx_path():
-        def fget(self):
-            return self._osx_path
-        
-        def fset(self, osx_path_in):
-            #self._osx_path = self._validate_osx_path(osx_path_in)
-            self._osx_path = osx_path_in
-            #os.environ[self.repository_path_env_key] = osx_path_in
-        
-        doc = """the osx path of the jobs server"""
-        
-        return locals()
-    
-    osx_path = property(**osx_path())
-    
-    
-    
-    #----------------------------------------------------------------------
     def createProject(self, projectName):
         """Creates a new project on the server with the given project name.
         
@@ -638,7 +608,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     @property
     def defaultFiles(self):
         """returns the default files list as list of tuples, the first element
@@ -653,7 +623,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     @property
     def default_settings_file_full_path(self):
         """returns the default settings file full path
@@ -663,7 +633,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     @property
     def home_path(self):
         """returns the home_path environment variable
@@ -682,39 +652,34 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
-    def last_user():
-        def fget(self):
-            last_user_initials = None
-            
-            try:
-                last_user_file = open( self._last_user_file_full_path )
-            except IOError:
-                pass
-            else:
-                last_user_initials = last_user_file.readline().strip()
-                last_user_file.close()
-            
-            return last_user_initials
+    @property
+    def last_user(self):
+        """returns and saves the last user initials if the last_user_file file
+        exists otherwise returns None
+        """
+        last_user_initials = None
         
-        def fset(self, userInitials):
-            try:
-                last_user_file = open(self._last_user_file_full_path, 'w')
-            except IOError:
-                pass
-            else:
-                last_user_file.write(userInitials)
-                last_user_file.close()
+        try:
+            last_user_file = open( self._last_user_file_full_path )
+        except IOError:
+            pass
+        else:
+            last_user_initials = last_user_file.readline().strip()
+            last_user_file.close()
         
-        doc = """returns and saves the last user initials if the last_user_file file exists otherwise returns None"""
-        
-        return locals()
+        return last_user_initials
     
-    last_user = property(**last_user())
+    @last_user.setter
+    def last_user(self, userInitials):
+        try:
+            last_user_file = open(self._last_user_file_full_path, 'w')
+        except IOError:
+            pass
+        else:
+            last_user_file.write(userInitials)
+            last_user_file.close()
     
     
-    
-    #----------------------------------------------------------------------
     def get_project_and_sequence_name_from_file_path(self, filePath):
         """Returns the project name and sequence name from the path or fullPath.
         
@@ -757,7 +722,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def settings_dir_path():
         def fget(self):
             if self._settings_dir_path is None:
@@ -779,7 +744,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     @property
     def time_units(self):
         """returns time_units as a dictionary
@@ -789,7 +754,7 @@ class Repository(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def relative_path(self, path):
         """Converts the given path to repository relative path.
         

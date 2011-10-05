@@ -3,11 +3,11 @@
 
 
 import os, sys
-import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
 import assetReplacer_UI
 
 import oyProjectManager
+from oyProjectManager import utils
 from oyProjectManager.models import asset, project, repository
 from oyProjectManager.models.environments import environmentFactory
 from oyProjectManager.ui import singletonQApplication
@@ -459,7 +459,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         subNamesList.append('MAIN')
         
         # remove duplicates
-        subNamesList = oyAux.unique( subNamesList )
+        subNamesList = utils.unique( subNamesList )
         
         # add them to the baseName combobox
         

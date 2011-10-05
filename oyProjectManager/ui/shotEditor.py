@@ -6,17 +6,12 @@ import os, sys
 from PyQt4 import QtGui, QtCore
 import shotEditor_UI
 
-import oyAuxiliaryFunctions as oyAux
+from oyProjectManager import utils
 from oyProjectManager.models import project, repository
 from oyProjectManager.ui import singletonQApplication
 from oyProjectManager.models.environments import environmentFactory
 
 
-
-
-
-
-#----------------------------------------------------------------------
 def UI(environmentName=''):
     """the UI to call the dialog by itself
     """
@@ -27,14 +22,14 @@ def UI(environmentName=''):
     mainDialog.show()
     #app.setStyle('Plastique')
     app.exec_()
-    app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
+    app.connect(
+        app,
+        QtCore.SIGNAL("lastWindowClosed()"),
+        app,
+        QtCore.SLOT("quit()")
+    )
 
 
-
-
-
-
-#######################################################################
 class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     """the main dialog of a tool to edit shot ranges and descriptions for a
     project
@@ -42,7 +37,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def __init__(self, environmentName=None, parent=None):
         super(MainDialog,self).__init__(parent)
         self.setupUi(self)
@@ -102,7 +97,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _centerWindow(self):
         """centers the window to the screen
         """
@@ -112,7 +107,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setDefaults(self):
         """sets the default values
         """
@@ -123,10 +118,10 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     # ENVIRONMENT PREPARATION
-    #----------------------------------------------------------------------
-    #----------------------------------------------------------------------
+    
+    
     def _createEnvironment(self, environmentName):
         """creates the environment object
         """
@@ -160,7 +155,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateProjects(self):
         """updates the projects combobox
         """
@@ -184,7 +179,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateSequences(self):
         """updates the sequence combobox
         """
@@ -205,7 +200,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateShotDataTable(self):
         """updates the shot data table
         
@@ -307,7 +302,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _updateNewDataOnShotDataTable(self):
         """updates the newDataOnShotDataTable
         """
@@ -317,7 +312,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def askUserPermission(self):
         """asks the user permission to discard the data
         """
@@ -334,7 +329,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentProjectName(self):
         """returns the current project name
         """
@@ -342,7 +337,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentSequenceName(self):
         """returns the current sequence name
         """
@@ -350,7 +345,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _saveShotData(self):
         """saves the changes to the sequence
         """
@@ -393,7 +388,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _updateDuration(self, rowIndex, columnIndex):
         """updates the duration cell if any of the start or end frame cells
         changed
@@ -416,7 +411,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def validateText(self, rowIndex, columnIndex):
         """validates the text in the given cell
         """
@@ -431,14 +426,14 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         text = unicode( item.text() )
         
         # remove any invalid character
-        text = oyAux.invalidCharacterRemover( text, oyAux.validTextChars )
+        text = utils.invalidCharacterRemover( text, utils.validTextChars )
         
         # set the text back
         item.setText( text )
     
     
     
-    #----------------------------------------------------------------------
+    
     def isShotDataFilled(self):
         """returns true if the data filling process is ended
         """

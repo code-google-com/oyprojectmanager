@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 The backup script for the system.
 
@@ -53,7 +54,10 @@ class BackUp(object):
     :param project: The name of the project to be backed up or the
       :class:`~oyProjectManager.models.project.Project` instance showing the 
       project to be backed up. None or empty string will raise TypeError and
-      ValueError respectively.
+      ValueError respectively. If given as string a new
+      :class:`~oyProjectManager.models.project.Project` instance will be created
+      and hold in the :attr:`~oyProjectManager.utils.backup.BackUp.project`
+      attribute.
     
     :param extra_filter_rules: A path of a text file which holds the extra 
       filter rules. Can be skipped.
@@ -84,14 +88,13 @@ class BackUp(object):
                  number_of_versions=None,
                  extra_filter_rules=None):
         
-        self._project = None
+        self._project = self._validate_project(project)
+        self._extra_filter_rules = \
+            self._validate_extra_filter_rules(extra_filter_rules)
+        self._output = self._validate_output(output)
+        self._number_of_versions = \
+            self._validate_number_of_versions(number_of_versions)
         
-        if project is None:
-            raise TypeError
-        
-        if project == "":
-            raise ValueError
-
 
     def doBackup(self):
         """Does the backup process.
@@ -99,11 +102,80 @@ class BackUp(object):
         Calls ``rsync`` with the appropriate filters. Creates the output path
         if it doesn't exists.
         """
-
-        pass
-
-
-
+        
+        print self.project
+        print self.project.fullPath
+        
+        # get the last compositing
+        for sequence in self.project.sequences():
+            print sequence.name
+            print sequence.fullPath
+            comp_Assets = sequence.getAllAssetsForType("COMP")
+            print comp_Assets
+        
+    
+    
+    def _validate_project(self, project):
+        """validates the given project value
+        """
+        
+        if not isinstance(project, Project) and \
+           not isinstance(project, str):
+            raise TypeError("BackUp.project should be an instance of"
+                            "oyProjectManager.models.project.Project instance")
+        
+        if project == "":
+            raise ValueError
+        
+        if isinstance(project, (str, unicode)):
+            project = Project(name=project)
+        
+        if not project.exists:
+            raise RuntimeError("The project doesn't exists, so it can not be "
+                               "backup")
+        
+        return project
+    
+    def _validate_extra_filter_rules(self, extra_filter_rules):
+        """validates the given extra_filter_rules
+        """
+        
+        if extra_filter_rules is None:
+            extra_filter_rules = ""
+        
+        if not isinstance(extra_filter_rules, (str, unicode)):
+            raise TypeError("extra_filter_rules should be a string "
+                            "showing the path of the extra filter rules")
+        
+        return extra_filter_rules
+    
+    def _validate_output(self, output):
+        """validates the given output value
+        """
+        
+        if output is None:
+            raise TypeError("output argument can not be None")
+        
+        if output == "":
+            raise ValueError("output argument can not be empty string")
+        
+        if not isinstance(output, (str, unicode)):
+            raise TypeError("output argument should be a string")
+        
+        return output
+    
+    def _validate_number_of_versions(self, number_of_versions):
+        """validates the given number_of_versions value
+        """
+        
+        if number_of_versions is None:
+            number_of_versions = 1
+        
+        if not isinstance(number_of_versions, int):
+            raise TypeError("number_of_versions should be an integer")
+        
+        return number_of_versions
+    
     @property
     def project(self):
         """The project to be backed up.
@@ -113,48 +185,54 @@ class BackUp(object):
         return self._project
     
     @project.setter
-    def project(self, project_in):
+    def project(self, project):
         """setter of the project attribute
         """
-        
-        if not isinstance(project_in, Project):
-            raise TypeError("BackUp.project should be an instance of"
-                            "oyProjectManager.models.project.Project instance")
-        
-        if project_in == "":
-            raise ValueError
-        
-        self._project = project_in
-
+        self._project = self._validate_project(project)
     
-#    def sequences(self):
-#        """The sequences to be backed up.
-#        
-#        It is a list of :class:`~oyProjectManager.models.project.Sequence` 
-#        instances. If it is set to an empty list or None all the sequences in
-#        the project are going to be backed up.
-#        """
-#
-#        pass
+    @property
+    def extra_filter_rules(self):
+        """a string showing the file path of the extra filter rules which is
+        going to be used with the rsync
+        """
+        
+        return self._extra_filter_rules
     
+    @extra_filter_rules.setter
+    def extra_filter_rules(self, extra_filter_rules):
+        """setter for the extra_filter_rules
+        """
+        self._extra_filter_rules = \
+            self._validate_extra_filter_rules(extra_filter_rules)
     
+    @property
     def num_of_versions(self):
         """the number of versions of latest Nuke files.
         
         It is an integer.
         """
         
-        pass
+        return self._number_of_versions
     
+    @num_of_versions.setter
+    def num_of_versions(self, num_of_versions):
+        """the setter for the number of versions attribute
+        """
+        self._number_of_versions = \
+            self._validate_number_of_versions(num_of_versions)
     
+    @property
     def output(self):
         """A string showing the output of the backed up files.
         
         If it is set to None a TypeError will be raised and if it is set to 
         an empty string a ValueError will be raised.
         """
-        
-        pass
-        
-        
-        
+        return self._output
+    
+    @output.setter
+    def output(self, output):
+        """the output setter
+        """
+        self._output = self._validate_output(output)
+    

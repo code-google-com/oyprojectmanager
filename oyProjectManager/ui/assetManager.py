@@ -3,18 +3,18 @@
 
 
 import os, sys
-import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
 import assetManager_UI
 
 import oyProjectManager
+from oyProjectManager import utils
 from oyProjectManager.models import asset, project, repository
 from oyProjectManager.models.environments import environmentFactory
 from oyProjectManager.ui import assetUpdater, singletonQApplication
 
 
 
-#----------------------------------------------------------------------
+
 def UI(environmentName=None):
     """the UI to call the dialog by itself
     """
@@ -32,14 +32,14 @@ def UI(environmentName=None):
 
 
 
-########################################################################
+
 class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     """the main dialog of the system
     """
     
     
     
-    #----------------------------------------------------------------------
+    
     def __init__(self, environmentName=None, parent=None):
         super(MainDialog,self).__init__(parent)
         self.setupUi(self)
@@ -91,7 +91,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _setEnvironment(self, environmentName):
         """sets the environment object from the environemnt name
         """
@@ -99,7 +99,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _setupSignals(self):
         """sets up the signals/slots
         """
@@ -300,7 +300,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _setupValidators(self):
         """sets up the input validators
         """
@@ -319,7 +319,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _centerWindow(self):
         """centers the window to the screen
         """
@@ -330,7 +330,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _setDefaults(self):
         """sets the default values
         """
@@ -366,7 +366,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def fillFieldsFromFileInfo(self):
         """fills the ui fields from the data that comes from the fileName and path
         """
@@ -475,7 +475,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def update_project_list(self):
         """updates projects list
         """
@@ -492,7 +492,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateSequenceList(self, *arg):
         """updates the sequence according to selected project
         """
@@ -510,7 +510,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateAssetTypeList(self):
         """updates asset types
         """
@@ -537,7 +537,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateShotList(self):
         """updates shot list
         """
@@ -564,7 +564,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateBaseNameField(self):
         """updates the baseName fields with current asset baseNames for selected
         type, if the type is not shot dependent
@@ -606,7 +606,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateBaseNameLineEdit(self, baseName):
         """updates the baseName_lineEdit according to the selected text in the
         baseName_listWidget
@@ -616,7 +616,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateSubNameField(self):
         """updates the subName fields with current asset subNames for selected
         baseName, if the type is not shot dependent
@@ -671,7 +671,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         subNamesList.append('MAIN')
         
         # remove duplicates
-        subNamesList = oyAux.unique( subNamesList )
+        subNamesList = utils.unique( subNamesList )
         
         # add them to the baseName combobox
         
@@ -684,7 +684,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateSubNameLineEdit( self, subName ):#, caller_id=None):
         """updates the subName_lineEdit according to the selected text in the
         subName_listWidget
@@ -695,7 +695,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    ##----------------------------------------------------------------------
+    #
     #def updateSubNameLineEditFromSignal(self):
         #"""updates the subName_lineEdit triggered by a signal
         #"""
@@ -709,7 +709,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateShotDependentFields(self):
         """updates shot dependent fields like the shotList and baseName
         """
@@ -734,7 +734,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateVersionListBuffer(self):
         """updates the version list buffer
         """
@@ -785,7 +785,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def partialUpdateAssetsTableWidget(self):
         """just updates if the number of maximum displayable entry is changed
         """
@@ -806,7 +806,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def fillAssetsTableWidget(self, assetFileNames):
         """fills the assets table widget with given assets
         """
@@ -875,7 +875,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def fullUpdateAssetsTableWidget(self):
         """invokes a version list buffer update and a assets list widget update
         """
@@ -884,7 +884,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentProjectName(self):
         """returns the current project name
         """
@@ -892,7 +892,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentSequenceName(self):
         """returns the current sequence name
         """
@@ -900,7 +900,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentAssetType(self):
         """returns the current assetType from the UI
         """
@@ -908,7 +908,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentShotString(self):
         """returns the current shot string from the UI
         """
@@ -916,7 +916,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentBaseName(self):
         """returns the current baseName from the UI
         """
@@ -925,7 +925,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentSubName(self):
         """returns the current subName from the UI
         """
@@ -933,7 +933,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentRevNumber(self):
         """returns the current revision number from the UI
         """
@@ -941,7 +941,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentVerNumber(self):
         """returns the current version number from the UI
         """
@@ -949,7 +949,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentUserInitials(self):
         """returns the current user initials from the UI
         """
@@ -957,7 +957,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getCurrentNote(self):
         """returns the current note from the UI
         """
@@ -965,7 +965,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateRevisionToLatest(self):
         """ tries to get the latest revision
         """
@@ -987,7 +987,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateVersionToLatest(self):
         """ tries to get the latest version
         """
@@ -1009,7 +1009,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setProjectName(self, projectName):
         """sets the project in the combobox
         """
@@ -1026,7 +1026,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setSequenceName(self, sequenceName):
         """sets the sequence in the combobox
         """
@@ -1045,7 +1045,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _createAssetObjectFromSaveFields(self):#, caller_id=None):
         """returns the asset object from the fields
         """
@@ -1099,7 +1099,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
 
     
-    #----------------------------------------------------------------------
+    
     def _createAssetObjectFromOpenFields(self):
         """retriewes the file name from the open asset fields
         """
@@ -1113,7 +1113,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
 
 
 
-    #----------------------------------------------------------------------
+    
     def _getAssetObjectFromOpenFields(self):
         """retriewes the file name from the open asset fields
         """
@@ -1126,7 +1126,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getFileNameFromSaveFields(self):
         """returns the file name from the fields
         """
@@ -1140,7 +1140,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setRevisionNumberField(self, revNumber):
         """sets the revision number field in the interface
         """
@@ -1148,14 +1148,14 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setVersionNumberField(self, verNumber):
         """sets the version number field in the interface
         """
         self.version_spinBox.setValue( verNumber )
     
     
-    #----------------------------------------------------------------------
+    
     def updateShotDataFields(self, index):
         """updates the shot data fields like the frame range fields and the
         shot description fields according to the current shot
@@ -1171,7 +1171,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateForNoSubName(self):
         """this method will be removed in later version, it is written just to support
         old types of assets those have no subName field
@@ -1186,7 +1186,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _updateProjectObject(self):
         """updates the project object if it is changed
         it is introduced to take advantege of the cache system
@@ -1201,7 +1201,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _updateSequenceObject(self):
         """updates the sequence object if it is not
         """
@@ -1220,7 +1220,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def validateSubName(self, text):
         """validates the subName field by removing unneccessary characters
         """
@@ -1230,7 +1230,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def validateBaseName(self, text):
         """validates the baseName field by removing unneccessary characters
         """
@@ -1240,20 +1240,20 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def fieldNameValidator(self, text):
         """a validator that validates input texts
         """
         text = unicode(text)
         
-        if len(text) == 0:
+        if not len(text):
             return text
         
         # first remove invalid chars
-        text = oyAux.invalidCharacterRemover( text, oyAux.validFileNameChars )
+        text = utils.invalidCharacterRemover(text, utils.validFileNameChars)
         
         # validate the text
-        text = oyAux.stringConditioner( text, False, True, False, False, False, False )
+        text = utils.stringConditioner(text, capitalize=False)
         
         # capitalize just the first letter
         text = text[0].upper() + text[1:]
@@ -1262,7 +1262,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def addNewListItem(self, inputItem):
         """adds new base name to the list
         """
@@ -1291,7 +1291,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def findListItemWithText(self, listWidget, text):
         """returns the item index with given index
         """
@@ -1309,9 +1309,9 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     # ENVIRONMENT PREPARATION
-    #----------------------------------------------------------------------
+    
     def getSettingsFromEnvironment(self):
         """gets the data from environment
         """
@@ -1324,10 +1324,10 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     # SAVE & OPEN & IMPORT & REFERENCE ACTIONS FOR ENVIRONMENTS
-    #----------------------------------------------------------------------
-    #----------------------------------------------------------------------
+    
+    
     def checkOutputAsset(self, assetObject):
         """check if the asset is a valid asset
         """
@@ -1335,7 +1335,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def checkOutputFileVersion(self, assetObject):
         """checks if the asset is set to latest version for its own kind
         """
@@ -1361,7 +1361,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def checkOutputFileRevision(self, assetObject):
         """checks if the asset is set to latest revision for its own kind
         """
@@ -1386,7 +1386,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def checkOutputFileOverwrite(self, assetObject):
         """checks if the assetObject already exists, so user tries to overwrite
         """
@@ -1405,24 +1405,18 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def saveAsset(self):
         """prepares the data and sends the asset object to the function
         specially written for the host environment to save the asset file
         """
-        
-        envStatus = False
-        verStatus = False
-        revStatus = False
-        overwriteStatus = False
-        assetStatus = False
         
         # get the asset object
         self._createAssetObjectFromSaveFields()
         self._environment.asset = self._asset
         
         
-        if self._asset == None:
+        if self._asset is None:
             return
         
         # check the file conditions
@@ -1430,8 +1424,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         verStatus = self.checkOutputFileVersion( self._asset )
         revStatus = self.checkOutputFileRevision( self._asset )
         overwriteStatus = self.checkOutputFileOverwrite( self._asset )
-        
-        envStatus = False
         
         if assetStatus and verStatus and revStatus and overwriteStatus:
             
@@ -1452,6 +1444,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             self.adjustTimeUnit()
             
             #everything is ok now save in the host application
+            print "self._environment: ", self._environment
             envStatus = self._environment.save()
             
             # if everything worked fine close the interface
@@ -1462,12 +1455,12 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 #print info
                 if self._environment.name == 'MAYA':
                     self.printInfo( self._asset,  "saved" )
-                    
+                
                 self.close()
     
     
     
-    #----------------------------------------------------------------------
+    
     def exportAsset(self):
         """prepares the data and sends the asset object to the function
         specially written for the host environment to open the asset file
@@ -1509,7 +1502,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def openAsset(self):
         """prepares the data and sends the asset object to the function
         specially written for the host environment to open the asset file
@@ -1581,7 +1574,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def importAsset(self):
         """prepares the data and sends the asset object to the function
         specially written for the host environment to import the asset file
@@ -1609,7 +1602,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def referenceAsset(self):
         """prepares the data and sends the asset object to the function
         specially written for the host environment to reference the asset file
@@ -1642,7 +1635,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def printInfo(self, assetObject, actionName):
         """prints info about action
         """
@@ -1654,7 +1647,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def adjustFrameRange(self):
         """adjusts the frame range to match the shot settings
         
@@ -1695,7 +1688,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def adjustTimeUnit(self):
         """adjusts the timeUnit to match the settings
         """

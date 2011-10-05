@@ -19,7 +19,6 @@ http://sourceforge.net/projects/comtypes/
 
 
 from comtypes import client
-import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.models import asset, project, repository, abstractClasses
 
 
@@ -35,5 +34,4 @@ class PhotoshopEnvironment(abstractClasses.Environment):
     
     
     pass
-    
     

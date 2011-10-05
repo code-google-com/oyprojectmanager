@@ -12,7 +12,7 @@ import oyProjectManager
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-required_packages = ["pyqt",]
+required_packages = ["pyqt", "pyseq"]
 
 setup(name="oyProjectManager",
       version=oyProjectManager.__version__,

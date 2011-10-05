@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-import os, sys, re
-import oyAuxiliaryFunctions as oyAux
 from PyQt4 import QtGui, QtCore
 import projectManager_UI
 
@@ -13,11 +10,6 @@ from oyProjectManager import utils
 from oyProjectManager.ui import singletonQApplication
 
 
-
-
-
-
-#----------------------------------------------------------------------
 def UI():
     """the UI to call the dialog by itself
     """
@@ -29,27 +21,28 @@ def UI():
     mainDialog.show()
     #app.setStyle('Plastique')
     app.exec_()
-    app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
+    app.connect(
+        app,
+        QtCore.SIGNAL("lastWindowClosed()"),
+        app,
+        QtCore.SLOT("quit()")
+    )
 
 
 
-
-
-
-########################################################################
 class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     """the main dialog of the system
     """
     
-    
-    
-    #----------------------------------------------------------------------
     def __init__(self, parent=None):
         super(MainDialog,self).__init__(parent)
         self.setupUi(self)
         
         # change the window title
-        self.setWindowTitle( self.windowTitle() + ' | ' + 'oyProjectManager v' + oyProjectManager.__version__ )
+        self.setWindowTitle(
+            self.windowTitle() + ' | ' + \
+            'oyProjectManager v' + oyProjectManager.__version__
+        )
         
         # center to the window
         self._centerWindow()
@@ -82,7 +75,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _centerWindow(self):
         """centers the window to the screen
         """
@@ -93,7 +86,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setDefaults(self):
         """sets the default values
         """
@@ -130,34 +123,42 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def checkProjectName(self):
         """checks the project lineEdit1
         """
         
         text = unicode( self.project_lineEdit1.text() )
-        #text = oyAux.file_name_conditioner( text )
-        text = oyAux.invalidCharacterRemover(text, oyAux.validFileNameChars)
-        text = oyAux.stringConditioner( text, False, True, False, True, True, False )
+        text = utils.invalidCharacterRemover(text, utils.validFileNameChars)
+        text = utils.stringConditioner(
+            text,
+            allowUnderScores=True, 
+            upperCaseOnly=True,
+            capitalize=False
+        )
         
         self.project_lineEdit1.setText( text )
     
     
     
-    #----------------------------------------------------------------------
+    
     def checkSequenceName(self):
         """checks the sequence lineEdit2
         """
         text = unicode( self.sequence_lineEdit2.text() )
-        #text = oyAux.file_name_conditioner( text )
-        text = oyAux.invalidCharacterRemover(text, oyAux.validFileNameChars)
-        text = oyAux.stringConditioner( text, False, True, False, True, True, False )
+        text = utils.invalidCharacterRemover(text, utils.validFileNameChars)
+        text = utils.stringConditioner(
+            text,
+            allowUnderScores=True,
+            upperCaseOnly=True, 
+            capitalize=False
+        )
         
         self.sequence_lineEdit2.setText( text )
     
     
     
-    #----------------------------------------------------------------------
+    
     def checkShotRange(self):
         """checks both shotRange lineEdits
         """
@@ -175,7 +176,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def createProject(self):
         """creates the project
         """
@@ -183,7 +184,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         projectName = unicode( self.project_lineEdit1.text() )
         
         # condition it
-        projectName = oyAux.file_name_conditioner( projectName )
+        projectName = utils.file_name_conditioner( projectName )
         
         # create the project
         proj = project.Project( projectName )
@@ -194,7 +195,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def createSequence(self):
         """creates the sequence
         """
@@ -205,7 +206,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         sequenceName = unicode( self.sequence_lineEdit2.text() )
         
         # condition them
-        sequenceName = oyAux.file_name_conditioner( sequenceName )
+        sequenceName = utils.file_name_conditioner( sequenceName )
         
         # get the shot range
         shotRange = unicode(self.shotRange_lineEdit2.text())
@@ -225,7 +226,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def addShots(self):
         """add shots button action
         """
@@ -246,7 +247,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def update_project_lists(self):
         """updates the project comboBoxes
         """
@@ -284,7 +285,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateSequenceLists(self):
         """updates the sequence comboBoxes
         """
@@ -318,7 +319,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateShotLists(self):
         """updates the shot lists
         """
@@ -346,7 +347,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def addAlternativeShot(self):
         """adds an alternative to the given shot
         """

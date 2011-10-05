@@ -1,28 +1,19 @@
 # -*- coding: utf-8 -*-
 
-
-import sys
 import os
 import shutil
 import tempfile
 import unittest
 from xml.dom import minidom
 
-from oyProjectManager.models import project, repository, asset
+from oyProjectManager.models import project, repository
 
 
 
-
-
-
-########################################################################
 class ProjectTester(unittest.TestCase):
     """tests the Project class
     """
     
-    
-    
-    #----------------------------------------------------------------------
     def setUp(self):
         """testing the settings path from the environment variable
         """
@@ -70,7 +61,7 @@ class ProjectTester(unittest.TestCase):
         repository_settings_file = file(repository_settings_file_path,
                                         mode='w')
         xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-        
+        repository_settings_file.close()
         
         self._name_test_values = [
             ("test project", "TEST_PROJECT"),
@@ -89,7 +80,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def tearDown(self):
         """remove the temp folders
         """
@@ -100,7 +91,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_name_argument_formating(self):
         """testing if the name will be formatted correctly when creating a
         new project.
@@ -117,7 +108,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_name_property_formating(self):
         """testing if the name property will be formatted correctly.
         """
@@ -133,7 +124,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_name_argument_is_None(self):
         """testing if a ValueError will be raised when the name argument is
         None.
@@ -143,7 +134,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_name_property_is_None(self):
         """testing if a ValueError will be raised when the name property is
         tried to be set to None
@@ -155,7 +146,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_name_argument_is_empty_string(self):
         """testing if a ValueError will be raised when the name arugment is
         an empty string
@@ -165,7 +156,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_name_property_is_set_to_empty_string(self):
         """testing if a ValueError will be raised when the name property is
         tried to be set to empty string
@@ -177,7 +168,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_name_argument_is_empty_string_after_validation(self):
         """testing if a ValueError will be raised when the name argument is not
         None nor empty string but an empty string after validation
@@ -190,7 +181,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_name_property_is_empty_string_after_validation(self):
         """testing if a ValueError will be raised when the name property is
         an empty string after validation
@@ -209,7 +200,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_updateSequenceList_working_properly(self):
         """testing if updateSequenceList is working properly
         """
@@ -236,7 +227,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test___eq__operator(self):
         """testing the __eq__ (equal) operator
         """
@@ -245,7 +236,7 @@ class ProjectTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_updateSequenceList_project_name_is_not_valid_but_there_is_a_project_directory(self):
         """testing if the OSError will be handled correctly by
         updateSequenceList when there is a folder in the repository path which

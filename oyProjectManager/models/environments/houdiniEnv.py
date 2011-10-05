@@ -7,28 +7,17 @@ Description:
 The houdini part of the asset management system...
 """
 
-
-
 import os
 import hou
 import re
 from oyProjectManager.models import asset, project, repository, abstractClasses
 from oyProjectManager import utils
-import oyAuxiliaryFunctions as oyAux
 
 
-
-
-
-
-########################################################################
 class HoudiniEnvironment(abstractClasses.Environment):
     """the houdini environment class
     """
     
-    
-    
-    #----------------------------------------------------------------------
     def save(self):
         """the save action for houdini environment
         """
@@ -37,7 +26,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         self._asset.extension = 'hip'
         
         # create the folder if it doesn't exists
-        oyAux.createFolder( self._asset.path )
+        utils.createFolder( self._asset.path )
         
         # houdini uses / instead of \ under windows
         # lets fix it
@@ -72,7 +61,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def open_(self, force=False):
         """the open action for houdini environment
         """
@@ -92,7 +81,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def import_(self):
         """the import action for houdini environment
         """
@@ -106,7 +95,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getPathVariables(self):
         """gets the file name from houdini environment
         """
@@ -178,7 +167,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setEnvironmentVariables(self):
         """sets the environment variables according to the given assetObject
         """
@@ -204,7 +193,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getRecentFileList(self):
         """returns the recent HIP files list from the houdini
         """
@@ -219,7 +208,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getFrameRange(self):
         """returns the frame range of the
         """
@@ -236,7 +225,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setFrameRange(self, startFrame=1, endFrame=100):
         """sets the frame range
         """
@@ -262,7 +251,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getOutputNodes(self):
         """returns the rop nodes in the scene
         """
@@ -283,7 +272,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getTimeUnit(self):
         """returns the current time unit
         """
@@ -304,7 +293,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setRenderFileName(self):
         """sets the render file name
         """
@@ -361,7 +350,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
                 
                 print "outputFileFullPath: ", outputFileFullPath 
                 
-                oyAux.createFolder(
+                utils.createFolder(
                     os.path.expandvars(
                         os.path.expandvars(outputFilePath)
                     )
@@ -369,7 +358,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setTimeUnit(self, timeUnit='pal'):
         """sets the time unit of the environment
         """
@@ -391,7 +380,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def replace_paths(self):
         """replaces all the paths in all the path related nodes
         """
@@ -406,7 +395,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
 
 
 
-########################################################################
+
 class FileHistory( abstractClasses.Singleton ):
     """a houdini recent file history parser
     
@@ -414,7 +403,7 @@ class FileHistory( abstractClasses.Singleton ):
     values are string list of recent file paths of that type
     """
     
-    #----------------------------------------------------------------------
+    
     def __init__(self):
         self._historyFileName = 'file.history'
         
@@ -439,7 +428,7 @@ class FileHistory( abstractClasses.Singleton ):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _read(self):
         """reads the history file to a buffer
         """
@@ -458,7 +447,7 @@ class FileHistory( abstractClasses.Singleton ):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _parse(self):
         """parses the data in self._buffer
         """
@@ -497,7 +486,7 @@ class FileHistory( abstractClasses.Singleton ):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getRecentFiles(self, typeName=''):
         """returns the file list of the given file type
         """

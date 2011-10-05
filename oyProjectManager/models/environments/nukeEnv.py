@@ -4,25 +4,20 @@
 
 import os
 import nuke
-import oyAuxiliaryFunctions as oyAux
 from oyProjectManager.models import asset, project, abstractClasses, repository
 from oyProjectManager import utils
+from oyProjectManager.models.asset import Asset
 
 
-
-
-
-
-########################################################################
 class NukeEnvironment(abstractClasses.Environment):
     """the nuke environment class
     """
     
     
     
-    #----------------------------------------------------------------------
+    
     def __init__(self, asset=None, name='', extensions=None ):
-        """nuke spesific init
+        """nuke specific init
         """
         # call the supers __init__
         super(NukeEnvironment, self).__init__(asset, name, extensions)
@@ -34,17 +29,11 @@ class NukeEnvironment(abstractClasses.Environment):
         self._main_output_node_name = "MAIN_OUTPUT"
     
     
-    
-    #----------------------------------------------------------------------
     def getRootNode(self):
         """returns the root node of the current nuke session
         """
-        
         return nuke.toNode("root")
     
-    
-    
-    #----------------------------------------------------------------------
     def save(self):
         """"the save action for nuke environment
         
@@ -70,7 +59,7 @@ class NukeEnvironment(abstractClasses.Environment):
         try:
             os.makedirs(os.path.dirname(fullPath))
         except OSError:
-            # path already existsOSErro
+            # path already exists OSError
             pass
         
         nuke.scriptSaveAs(fullPath)
@@ -79,26 +68,25 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
-    def export(self):
+    
+    def export(self, asset):
         """the export action for nuke environment
         """
-        
         # set the extension to 'nk'
-        self._asset.extension = 'nk'
+        asset.extension = 'nk'
         
-        fullPath = self._asset.fullPath
+        fullPath = asset.fullPath
         
         # replace \\ with /
         fullPath = fullPath.replace('\\','/')
         
-        nuke.nodeCopy( fullPath )
+        nuke.nodeCopy(fullPath)
         
         return True
     
     
     
-    #----------------------------------------------------------------------
+    
     def open_(self, force=False):
         """the open action for nuke environment
         """
@@ -113,7 +101,7 @@ class NukeEnvironment(abstractClasses.Environment):
         # set the project_directory
         self.project_directory = self._asset.sequenceFullPath
         
-        # TODO:
+        # TODO: file paths in different OS'es should be replaced with the current one
         # Check if the file paths are starting with a string matching one of the
         # OS'es project_directory path and replace them with a relative one
         # matching the current OS 
@@ -125,22 +113,22 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
-    def import_(self):
+    
+    def import_(self, asset):
         """the import action for nuke environment
         """
-        
-        fullPath = self._asset.fullPath
+        fullPath = asset.fullPath
         
         # replace \\ with /
         fullPath = fullPath.replace('\\','/')
         
         nuke.nodePaste( fullPath )
+        
         return True
     
     
     
-    #----------------------------------------------------------------------
+    
     def getPathVariables(self):
         """gets the file name from nuke
         """
@@ -149,8 +137,8 @@ class NukeEnvironment(abstractClasses.Environment):
         fullPath = self._root.knob('name').value()
         
         
-        if fullPath != None and fullPath != '':
-            # for winodws replace the path seperator
+        if fullPath is not None and fullPath != '':
+            # for windows replace the path separator
             if os.name == 'nt':
                 fullPath = fullPath.replace('/','\\')
             
@@ -161,18 +149,18 @@ class NukeEnvironment(abstractClasses.Environment):
             # use the last file from the recent file list
             fullPath = nuke.recentFile(1)
             
-            # for winodws replace the path seperator
+            # for windows replace the path separator
             if os.name == 'nt':
                 fullPath = fullPath.replace('/','\\')
             
             fileName = os.path.basename( fullPath )
             path = os.path.dirname( fullPath )
-            
+        
         return fileName, path
     
     
     
-    #----------------------------------------------------------------------
+    
     def getFrameRange(self):
         """returns the current frame range
         """
@@ -182,8 +170,6 @@ class NukeEnvironment(abstractClasses.Environment):
         return startFrame, endFrame
     
     
-    
-    #----------------------------------------------------------------------
     def setFrameRange(self, startFrame=1, endFrame=100):
         """sets the start and end frame range
         """
@@ -192,11 +178,9 @@ class NukeEnvironment(abstractClasses.Environment):
         self._root.knob('last_frame').setValue(endFrame)
     
     
-    #----------------------------------------------------------------------
     def setTimeUnit(self, timeUnit='pal'):
         """sets the current time unit
         """
-        
         # get the fps value of the given time unit
         repo = repository.Repository()
         
@@ -210,11 +194,9 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
     def getTimeUnit(self):
         """returns the current time unit
         """
-        
         currentFps = int(self._root.knob('fps').getValue())
         
         repo = repository.Repository()
@@ -232,15 +214,12 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def get_main_write_node(self):
         """Returns the main write node in the scene or None.
         """
-        
         # list all the write nodes in the current file
         all_write_nodes = nuke.allNodes("Write")
-        
-        main_write_node = None
         
         for write_node in all_write_nodes:
             if write_node.name().startswith(self._main_output_node_name):
@@ -251,7 +230,7 @@ class NukeEnvironment(abstractClasses.Environment):
     
     
     
-    #----------------------------------------------------------------------
+    
     def create_main_write_node(self):
         """creates the default write node if there is no one created before.
         """
@@ -311,23 +290,17 @@ class NukeEnvironment(abstractClasses.Environment):
         main_write_node["channels"].setValue("rgb")
     
     
-    
-    #----------------------------------------------------------------------
     def replace_file_path(self):
         """replaces file paths with environment variable scripts
         """
         
-        repo = repository.Repository()
-        
-        # TODO:
+        # TODO: replace file paths if project_directory changes
         # check if the project_directory is still the same
         # if it is do the regular replacement
         # but if it is not then expand all the paths to absolute paths
         
-        
         # convert the given path to tcl environment script
         def repPath(path):
-            #return path.replace(repo.server_path, env_str)
             return utils.relpath(self.project_directory, path, "/", "..")
         
         # get all read nodes
@@ -361,28 +334,35 @@ class NukeEnvironment(abstractClasses.Environment):
         nodeRep(writeGeoNodes)
     
     
-    
-    #----------------------------------------------------------------------
-    def project_directory():
-        def fget(self):
-            #return self._project_directory
-            root = self.getRootNode()
-            return root["project_directory"].getValue()
-        
-        def fset(self, project_directory_in):
-            
-            project_directory_in = project_directory_in.replace("\\", "/")
-            
-            root = self.getRootNode()
-            root["project_directory"].setValue(project_directory_in)
-        
-        doc = """The project directory.
+    @property
+    def project_directory(self):
+        """The project directory.
         
         Set it to the project root, and set all your paths relative to this
         directory.
         """
         
-        return locals()
+        root = self.getRootNode()
+        
+        # TODO: root node gets lost, fix it
+        # there is a bug in Nuke, the root node get lost time to time find 
+        # the source and fix it.
+        if root is None:
+            # there is a bug about Nuke,
+            # sometimes it losses the root node, while it shouldn't
+            # I can't find the source
+            # so instead of using the root node,
+            # just return the sequence.fullPath
+            
+            return self.asset.sequence.fullPath
+        
+        return root["project_directory"].getValue()
     
-    project_directory = property(**project_directory())
     
+    @project_directory.setter
+    def project_directory(self, project_directory_in):
+        
+        project_directory_in = project_directory_in.replace("\\", "/")
+        
+        root = self.getRootNode()
+        root["project_directory"].setValue(project_directory_in)

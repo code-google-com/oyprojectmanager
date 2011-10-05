@@ -17,14 +17,14 @@ projects, sequences and assets, it works very fine for small groups of artists.
 
 Another aim of this code is to prevent the user to use the OSes own file
 manager (ie. Windows Explorer on Windows ) to define the name and placement of
-the asset file. In normal circumstances the user is not allowed to defien the
+the asset file. In normal circumstances the user is not allowed to define the
 file name.
 
-While working for a project, everytime we create an asset the files can
+While working for a project, every time we create an asset the files can
 generally be grouped with the aim of that file. For example we create files for
 models, animations, renders etc.. So it is easy to define a file name that can
-spesify the type of that asset, and we can place the same types of the files
-in to same folders, in a predifined folder structure. So this project manager
+specify the type of that asset, and we can place the same types of the files
+in to same folders, in a predefined folder structure. So this project manager
 creates the folder structure and the file name whenever a user uses this code
 while saving its asset.
 
@@ -39,7 +39,7 @@ Project  : A project is a folder under the default projects folder that
            contains sequence folders
 
 Sequence : A sequence is a structure of child folders. All of these child
-           folders created for a spesific task. Like a folder for Models, a
+           folders created for a specific task. Like a folder for Models, a
            folder for Animations etc. But the structure can be freely edited
            by changing the .settings.xml file under the sequences root.
            
@@ -84,7 +84,7 @@ Asset names consists from these parts:
 BaseName     : The base name that specifies the asset, for shot dependent asset
                types it is the ShotString ( e.g. SH010 ), for shot independent
                assets it is user dependent. It always starts with capital
-               letter, numbers are not allowed in the begginging
+               letter, numbers are not allowed in the beginning
 
 SubName      : For assets that doesn't have a subName it is MAIN, for other
                assets it is user dependent. The main purpose of SubName field
@@ -112,7 +112,7 @@ TypeName     : The asset types are defined in the sequence settings, and the
                
                Basically the asset type defines two things:
                * the place it needs to be saved under
-               * desides whether to show the asset to the current environment
+               * decides whether to show the asset to the current environment
                  ( the application itself, MAYA, NUKE, HOUDINI etc. ) or not
                
                The second feature exists to prevent the applications to try to
@@ -160,7 +160,7 @@ Command Line Options :
 ----------------------
 
 The system can be used under shell ( command line in Windows ) with this flags,
-without runnning the python interpreter exclusively.
+without running the python interpreter exclusively.
 
 -e, --environment    specifies the working environment, currently it accepts
                      values like:
@@ -184,6 +184,4 @@ without runnning the python interpreter exclusively.
 -------------------------------------------------------------------------------
 """
 
-
-
-__version__ = "0.1.1"
+__version__ = "0.1.2"
