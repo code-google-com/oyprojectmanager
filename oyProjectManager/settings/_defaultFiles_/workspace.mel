@@ -1,4 +1,4 @@
-//Maya 2009 Project Definition
+//Maya 2011 Project Definition
 
 workspace -fr "scene" "OTHERS/";
 workspace -fr "mayaAscii" "OTHERS/";

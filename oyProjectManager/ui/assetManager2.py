@@ -453,7 +453,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
         
         # ----------------------------------------------------------------------
         # sub Name
-        if not currentSequence.noSubNameField: # remove this block when the support for old version becomes obsolute
+        if not currentSequence.no_sub_name_field: # remove this block when the support for old version becomes obsolute
             
             itemIndex = self.findListItemWithText( self.assetCreatorUI.subName_listWidget, subName )
             if itemIndex != -1:
@@ -631,7 +631,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
         currentSequence = self._sequence
         
         # if the current sequence doesn't support subName field just return
-        if currentSequence.noSubNameField:
+        if currentSequence.no_sub_name_field:
             self.assetCreatorUI.subName_listWidget.clear()
             return
         
@@ -761,7 +761,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
             baseName = self.getCurrentBaseName()
         
         
-        if not currentSequence.noSubNameField:
+        if not currentSequence.no_sub_name_field:
             subName = self.getCurrentSubName()
         else:
             subName = ''
@@ -1171,8 +1171,8 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
         self._updateSequenceObject()
         currentSequence = self._sequence
         
-        self.assetCreatorUI.subName_listWidget.setEnabled(not currentSequence.noSubNameField)
-        self.assetCreatorUI.subName_lineEdit.setEnabled(not currentSequence.noSubNameField)
+        self.assetCreatorUI.subName_listWidget.setEnabled(not currentSequence.no_sub_name_field)
+        self.assetCreatorUI.subName_lineEdit.setEnabled(not currentSequence.no_sub_name_field)
     
     
     

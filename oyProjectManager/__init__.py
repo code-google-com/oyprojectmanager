@@ -185,3 +185,10 @@ without running the python interpreter exclusively.
 """
 
 __version__ = "0.1.2"
+
+
+import logging
+logging.basicConfig(format='%(asctime)s:%(levelname)s:%(funcName)s:%(message)s',
+                    datefmt="%Y-%d-%m %H:%M:%S")
+
+logging.info("Init oyProjectManager")

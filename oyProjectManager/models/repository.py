@@ -11,8 +11,6 @@ from beaker import cache
 from oyProjectManager import utils
 from oyProjectManager.models import user
 
-
-
 # create a cache manager
 bCache = cache.CacheManager()
 
@@ -22,12 +20,6 @@ logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
 
 
-
-
-
-
-########################################################################
-#class Repository(abstractClasses.Singleton):
 class Repository(object):
     """Repository class gives information about the servers, projects, users
     etc.
@@ -195,7 +187,6 @@ class Repository(object):
                  attributes:
                  
                     * initials: the initials of the users
-                   
                     * name: the full name of the user
     """
     
@@ -303,8 +294,6 @@ class Repository(object):
         self._parse_repository_settings()
         self._parse_users()
         # ---------------------------------------------------
-    
-    
     
     
     def _init_repository_path_environment_variable(self):
@@ -722,26 +711,19 @@ class Repository(object):
     
     
     
-    
-    def settings_dir_path():
-        def fget(self):
-            if self._settings_dir_path is None:
-                self._settings_dir_path = os.path.expandvars(
-                    os.path.expanduser(
-                        os.environ[self.settings_path_env_key]
-                    )
-                )
-            
-            return self._settings_dir_path
-        
-        doc = """Returns the settings dir path.
+    @property
+    def settings_dir_path(self):
+        """Returns the settings dir path.
         """
         
-        return locals()
-    
-    settings_dir_path = property(**settings_dir_path())
-    
-    
+        if self._settings_dir_path is None:
+            self._settings_dir_path = os.path.expandvars(
+                os.path.expanduser(
+                    os.environ[self.settings_path_env_key]
+                )
+            )
+            
+        return self._settings_dir_path
     
     
     

@@ -9,11 +9,14 @@ from beaker import cache
 import jinja2
 
 from xml.dom import minidom
+from sqlalchemy import Column, String, Integer, PickleType, ForeignKey, orm
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm.mapper import validates
 
-from oyProjectManager import utils
+from oyProjectManager import utils, conf
+from oyProjectManager import db
+from oyProjectManager.db.declarative import Base
 from oyProjectManager.models import asset, repository
-
-
 
 
 # create a cache with the CacheManager
@@ -24,6 +27,10 @@ import logging
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
+
+logger = logging.getLogger(__name__)
+logger.info("inside oyProjectManager.models.project")
+logger.setLevel(logging.DEBUG)
 
 class DefaultSettingsParser(object):
     """A parser for the default settings for the sequence.
@@ -59,7 +66,7 @@ class DefaultSettingsParser(object):
                
                * revPrefix: default is "r", it is the revision variable prefix
               
-               * revpadding: default is 2, it is the revision number padding,
+               * revPadding: default is 2, it is the revision number padding,
                  for revision 3 the default values will output a string of
                  "r03" for the revision string variable
               
@@ -162,11 +169,8 @@ class DefaultSettingsParser(object):
         pass
 
 
-class Project(object):
+class Project(Base):
     """Manages project related data.
-    
-    .. versionadded:: 0.1.2
-       Project Settings
     
     A Project is simply a holder of Sequences.
     
@@ -174,7 +178,8 @@ class Project(object):
       can not be None, a TypeError will be raised when it is given as None.
       The default value is None, so it will raise a TypeError.
       
-      TODO: update the error messages for project.name=None
+      TODO: update the error messages for project.name=None, it should return
+            TypeError instead of ValueErrors.
       
       The given project name is validated against the following rules:
         
@@ -212,31 +217,115 @@ class Project(object):
       * etc.
     
     Every project has its own settings file to hold the different and evolving
-    directory structure of the projects.
-    
-    Even though it is not recommended the file can be edited by a text editor
-    to change the project settings. But care must be taken while doing so.
+    directory structure of the projects and the data created in that project.
     
     The pre version 0.1.2 projects are going to be converted from sequence
     based project structure to project based project structure upon parsing
     the project.
-    
     """
     
+    __tablename__ = "Projects"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(256), unique=True)
+    description = Column(String)
+    path = Column(String)
+    fullPath = Column(String)
+    
+    sequences = relationship(
+        "Sequence",
+        primaryjoin="Sequences.c.project_id==Projects.c.id"
+    )
+    
+    def __new__(cls, *args):
+        """the overridden __new__ method to manage the creation of a Project
+        instance
+        
+        If the Project is created before than calling Project() for the second
+        time will return the project from the database.
+        """
+        
+        # check the name argument
+        if len(args):
+            
+            print "there is an arg"
+            
+            name = args[0]
+            
+            repo = repository.Repository()
+            path = repo.server_path
+            fullPath = os.path.join(path, name)
+            
+            metadata_db_name = conf.DATABASE_FILE_NAME
+            metadata_full_path = os.path.join(
+                fullPath,
+                metadata_db_name
+            ).replace("\\", "/")
+            
+            # now get the instance from the db
+            if os.path.exists(metadata_full_path):
+                session = db.setup(metadata_full_path)
+                
+                proj_obj = session.query(Project).filter_by(name=name).first()
+                
+                if proj_obj is not None:
+                    # return the database instance
+                    print "found the project in the database"
+                    print "returning the object from the database"
+                    return proj_obj
+            else:
+                print "project doesn't exists"
+        
+        # just create it normally
+        print "returning a normal Project instance"
+        return super(Project, cls).__new__(cls, *args)
+        
+    
+    
     def __init__(self, name=None):
+        
+        print "inside __init__"
+        
+        self.path = ""
+        self.fullPath = ""
+        
         self._repository = repository.Repository()
-
-        self._name = ""
-        self._path = ""
-        self._fullPath = ""
-
-        self.name = self._validate_name(name)
-
+        self.session = None
+        
+        self.name = name
+        
+        self.metadata_db_name = conf.DATABASE_FILE_NAME
+        self.metadata_full_path = os.path.join(
+            self.fullPath,
+            self.metadata_db_name
+        ).replace("\\", "/")
+        
         self._sequenceList = []
-
+        
         self._exists = None
-
-
+        
+#        self.read_settings()
+    
+    
+    @orm.reconstructor
+    def __init_on_load__(self):
+        """init when loaded from the db
+        """
+        
+        self._repository = repository.Repository()
+        self.session = None
+        
+        self.metadata_db_name = conf.DATABASE_FILE_NAME
+        self.metadata_full_path = os.path.join(
+            self.fullPath,
+            self.metadata_db_name
+        ).replace("\\", "/")
+        
+        self._sequenceList = []
+        
+        self._exists = None
+    
+    
+    
     def __str__(self):
         """the string representation of the project
         """
@@ -248,9 +337,41 @@ class Project(object):
         """
 
         return isinstance(other, Project) and self.name == other.name
-
-
-    def _validate_name(self, name_in):
+    
+    
+    def read_settings(self):
+        """reads the settings from the database
+        """
+        
+        if os.path.exists(self.metadata_full_path):
+            print "project exists at %s" % self.fullPath
+            
+            if self.session is None:
+                print "session is None creating one"
+                self.session = db.setup(self.metadata_full_path)
+            
+            # get the project from the db
+            proj_DB = self.session.query(Project).first()
+            
+            temp_session = self.session
+            
+            print "hex(id(self))", hex(id(self))
+            self.__dict__ = proj_DB.__dict__
+            print "hex(id(self))", hex(id(self))
+            
+            if self not in self.session:
+                print "project is not attached to a session"
+            
+            self.session = temp_session
+    
+    
+    def update_paths(self, name_in):
+        self.path = self._repository.server_path
+        self.fullPath = os.path.join(self.path, name_in)
+    
+    
+    @validates("name")
+    def _validate_name(self, key, name_in):
         """validates the given name_in value
         """
 
@@ -259,19 +380,19 @@ class Project(object):
 
         if name_in is "":
             raise ValueError("The name can not be an empty string")
-
+        
         # strip the name
         name_in = name_in.strip()
 
         # convert all the "-" signs to "_"
         name_in = name_in.replace("-", "_")
-
+        
         # replace camel case letters
         name_in = re.sub(r"(.+?[a-z]+)([A-Z])", r"\1_\2", name_in)
 
         # remove unnecessary characters from the string
         name_in = re.sub("([^a-zA-Z0-9\s_]+)", r"", name_in)
-
+        
         # remove all the characters from the beginning which are not alphabetic
         name_in = re.sub("(^[^a-zA-Z]+)", r"", name_in)
 
@@ -285,30 +406,31 @@ class Project(object):
         if name_in is "":
             raise ValueError("The name is not valid after validation")
 
+        self.update_paths(name_in)
+        
         return name_in
-
-
-    def _initPathVariables(self):
-        self._path = self._repository.server_path
-        if self._name != '' or self._name is not None:
-            self._fullPath = os.path.join(self._path, self._name)
 
 
     def create(self):
         """Creates the project directory in the repository.
         """
-
-        # check if the project object has a name
-        if self._name is None:
-            raise RuntimeError("Please give a proper name to the project")
-
+        
         # check if the folder already exists
-        utils.mkdir(self._fullPath)
-        self._exists = 1
+        utils.mkdir(self.fullPath)
+        self._exists = True
+        
+        # create the database
+        if self.session is None:
+            self.session = db.setup(self.metadata_full_path)
+        
+        self.session.add(self)
+        self.session.commit()
 
 
     def createSequence(self, sequenceName, shots):
-        """creates a sequence and returns the sequence object
+        """creates a sequence and returns the sequence object.
+        
+        Raises a RuntimeError if the project is not created yet.
         
         :param sequenceName: The name of the newly created Sequence
         
@@ -316,10 +438,21 @@ class Project(object):
         
         :returns: Sequence
         """
+        
+        # raise a RuntimeError if the project is not created yet
+        if not self.exists:
+            raise RuntimeError("A Sequence can not be created for a Project "
+                               "which is not created yet, please call "
+                               "Project.create() before creating any new "
+                               "Sequences")
+        
         newSequence = Sequence(self, sequenceName)
         newSequence.addShots(shots)
         newSequence.create()
-
+        
+#        self.session.add(newSequence)
+#        self.commit()
+        
         return newSequence
 
 
@@ -331,20 +464,20 @@ class Project(object):
         return self._sequenceList
 
 
-    @bCache.cache(expire=60)
-    def sequences(self):
-        """Returns the sequences of the project as sequence objects.
-        
-        It utilizes the caching system.
-        """
-
-        self.updateSequenceList()
-        sequences = [] * 0
-
-        for sequenceName in self._sequenceList:
-            sequences.append(Sequence(self, sequenceName))
-
-        return sequences
+#    @bCache.cache(expire=60)
+#    def sequences(self):
+#        """Returns the sequences of the project as sequence objects.
+#        
+#        It utilizes the caching system.
+#        """
+#
+#        self.updateSequenceList()
+#        sequences = [] * 0
+#
+#        for sequenceName in self._sequenceList:
+#            sequences.append(Sequence(self, sequenceName))
+#
+#        return sequences
 
 
     def updateSequenceList(self):
@@ -353,7 +486,7 @@ class Project(object):
 
         # filter other folders like .DS_Store
         try:
-            for folder in os.listdir(self._fullPath):
+            for folder in os.listdir(self.fullPath):
                 filtered_folder_name = re.sub(
                     r".*?(^[^A-Z_]+)([A-Z0-9_]+)",
                     r"\2",
@@ -367,31 +500,6 @@ class Project(object):
             # the path doesn't exist
             pass
 
-
-    @property
-    def fullPath(self):
-        """returns the fullPath
-        """
-        return self._fullPath
-
-
-    @property
-    def path(self):
-        """returns the path
-        """
-        return self._path
-
-
-    @property
-    def name(self):
-        """the name of the current Project
-        """
-        return self._name
-
-    @name.setter
-    def name(self, name_in):
-        self._name = self._validate_name(name_in)
-        self._initPathVariables()
 
     @property
     def repository(self):
@@ -408,12 +516,12 @@ class Project(object):
         """returns True if the project folder exists
         """
         if self._exists is None:
-            self._exists = os.path.exists(self._fullPath)
-
+            self._exists = os.path.exists(self.fullPath)
+        
         return self._exists
 
 
-class Sequence(object):
+class Sequence(Base):
     """Sequence object to help manage sequence related data.
     
     By definition a Sequence is a group of
@@ -447,7 +555,10 @@ class Sequence(object):
     :param project: The owner
       :class:`~oyProjectManager.models.project.Project`. A sequence can not be
       created without a proper
-      :class:`~oyProjectManager.models.project.Project`.
+      :class:`~oyProjectManager.models.project.Project`. If the
+      :class:`~oyProjectManager.models.project.Project` instance is not created
+      yet then a RuntimeError will be raised while creating a
+      :class:`~oyProjectManager.models.project.Sequence` instance.
     
     :type project: :class:`~oyProjectManager.models.project.Project`
     
@@ -455,144 +566,215 @@ class Sequence(object):
       the same naming rules with the
       :class:`~oyProjectManager.models.project.Project`.
     """
-
-
+    
+    __tablename__ = "Sequences"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(256), unique=True)
+    
+    project_id = Column(Integer, ForeignKey("Projects.id"))
+    project = relationship("Project")
+    
+    shotPrefix = Column(String(16), default=conf.SHOT_PREFIX)
+    shotPadding = Column(Integer, default=conf.SHOT_PADDING)
+    
+    revPrefix = Column(String(16), default=conf.REV_PREFIX)
+    revPadding = Column(Integer, default=conf.REV_PADDING)
+    
+    verPrefix = Column(String(16), default=conf.VER_PREFIX)
+    verPadding = Column(Integer, default=conf.VER_PADDING)
+    
+    timeUnit = Column(String(32), default=conf.TIME_UNIT)
+    
+    structure_id = Column(Integer, ForeignKey("Structures.id"))
+    structure = relationship("Structure")
+    
+    
     def __init__(self, project, name):
-        # create the parent project with projectName
-
-
-        assert(isinstance(project, Project))
-
-        self._project = project
-        self._repository = self._project.repository
-
-        self._name = utils.stringConditioner(
-            name,
-            allowUnderScores=True,
-            upperCaseOnly=True,
-            capitalize=False
-        )
-
-        self._path = self._project.fullPath
-        self._fullPath = os.path.join(self._path, self._name)
-
-        self._settingsFile = ".settings.xml"
-        self._settings_file_path = self._fullPath
-        self._settings_file_full_path = os.path.join(self._settings_file_path,
-                                                     self._settingsFile)
-        self._settingsFileExists = False
-        self._settings_dirty = False
-
-        #print self._settings_file_full_path
-
-        self._structure = Structure()
-        self._assetTypes = [asset.AssetType()] * 0
-        self._shotList = [] * 0 # should be a string
+        
+        if not project.exists:
+            raise RuntimeError(
+                "the given project should exist in the system, please call "
+                "Project.create() before passing it to a new Sequence instance"
+            )
+        
+        self.project = project
+        logging.debug("id(project.session): %s" % id(project.session))
+        
+        self.session = self.project.session
+        logging.debug("id(sequence.session): %s" % id(self.session))
+        
+        self.repository = self.project.repository
+        
+        self.name = name
+        
+        self._path = self.project.fullPath
+        self._fullPath = os.path.join(self._path, self.name).replace("\\", "/")
+        
+        
+        self.shotPrefix = conf.SHOT_PREFIX
+        self.shotPadding = conf.SHOT_PADDING
+        
+        self.revPrefix = conf.REV_PREFIX
+        self.revPadding = conf.REV_PADDING
+        
+        self.verPrefix = conf.VER_PREFIX
+        self.verPadding = conf.VER_PADDING
+        
+        self.timeUnit = conf.TIME_UNIT
+    
+        
+        
+#        self._settingsFile = ".settings.xml"
+#        self._settings_file_path = self._fullPath
+#        self._settings_file_full_path = os.path.join(
+#            self._settings_file_path,
+#            self._settingsFile
+#        ).replace("\\", "/")
+        
+#        self._settingsFileExists = False
+#        self._settings_dirty = False
+        
+#        self.structure = Structure()
+        self.structure = None
+        self._assetTypes = []
+        self._shotList = [] # should be a string
         self._shots = [] # the new shot objects
-
-        self._shotPrefix = 'SH'
-        self._shotPadding = 3
-        self._revPrefix = 'r' # revision number prefix
-        self._revPadding = 2
-        self._verPrefix = 'v' # version number prefix
-        self._verPadding = 3
-
+        
         #self._extensionsToIgnore = [] * 0
-        self._noSubNameField = False # to support the old types of projects
-
-        self._timeUnit = 'pal' # by default set it to pal - ugly default settings
-
-        self._environment = None # the working environment
-
+#        self._no_sub_name_field = False # to support the old types of projects
+        
+#        self._environment = None # the working environment
+        
         self._exists = False
-
+        
+        # TODO: conversion from old sequence type to new sequence type with db
+        #       try to read the database and if it doesn't exists convert the
+        #       old
+        #       project to a new one
+        
         self.readSettings()
+    
+    
+    @orm.reconstructor
+    def __init_on_load__(self):
+        """
+        """
+        
+        self._path = self.project.fullPath
+        self._fullPath = os.path.join(self._path, self.name).replace("\\", "/")
 
 
     def readSettings(self):
-        """reads the settingsFile
+        """reads the settings either from the database for new type Sequences
+        or from the .settings.xml file for older type Sequences
         """
-
-        # check if there is a settings file
-        if not os.path.exists(self._settings_file_full_path):
-            #print "ERROR: no settings file in the sequence..."
+        
+        seq_db = self.session.query(Sequence).filter_by(name=self.name).first()
+        
+        if seq_db is not None:
             
-            # TODO: assume that it is an old project and try to get the data 
-            # (just shot list) from the folders
-            return
-        else:
-            self._settingsFileExists = True
+            logging.debug("getting the Sequence from the database")
+            # copy the data
+            self.__dict__ = seq_db.__dict__
             self._exists = True
-
-        #print (self._settings_file_full_path)
-        settingsAsXML = minidom.parse(self._settings_file_full_path)
-
-        rootNode = settingsAsXML.childNodes[0]
-
-        # -----------------------------------------------------
-        # get main nodes
-
-        # remove databaseData if exists
-        doRemoveDatabaseDataNode = False
-        databaseDataNode = rootNode.getElementsByTagName('databaseData')
-
-        if len(databaseDataNode) > 0:
-            # there should be a databaseData node
-            doRemoveDatabaseDataNode = True
-
-            # parse the databaseData nodes attributes as if it is a
-            # sequenceDataNode
-            self._parseSequenceDataNode(databaseDataNode[0])
-
-        sequenceDataNode = rootNode.getElementsByTagName('sequenceData')[0]
-
-        if not doRemoveDatabaseDataNode:
-            self._parseSequenceDataNode(sequenceDataNode)
-
-            # -----------------------------------------------------
-            # get sequence nodes
-        structureNode = sequenceDataNode.getElementsByTagName('structure')[0]
-        assetTypesNode = sequenceDataNode.getElementsByTagName('assetTypes')[0]
-        shotDataNodes = sequenceDataNode.getElementsByTagName('shotData')
-
-        doConversionToShotData = False
-
-        if not len(shotDataNodes):
-            doConversionToShotData = True
-
-        # parse all nodes
-        self._parseAssetTypesNode(assetTypesNode)
-        self._parseStructureNode(structureNode)
-
-        if doConversionToShotData:
-            # 
-            # it should be an old type of settings file
-            # convert it to the new shotData concept
-            # 
-            shotListNode = sequenceDataNode.getElementsByTagName('shotList')[0]
-            #print "converting to shotData concept !!!"
-
-            # read the shot numbers from the shotList node and create appropriate
-            # shot data nodes
-
-            # parse the shotListNode to get the shot list
-            self._parseShotListNode(shotListNode)
-
-            self._convertShotListToShotData()
-
-            # update the settings file
-            #self.saveSettings()
-            self._settings_dirty = True
+            
         else:
-            self._parseShotDataNode(shotDataNodes[0])
+            logging.debug("the sequence is not created yet")
+            logging.debug("creating the structure for the sequence")
+            
+            if self.structure is None:
+                self.structure = Structure()
+            
+            self.structure.shotDependentFolders = conf.SHOT_DEPENDENT_FOLDERS
+            self.structure.shotIndependentFolders =\
+                conf.SHOT_INDEPENDENT_FOLDERS
+            self._exists = False
+        
+        
+        
+#    def read_old_settings(self):
+#        """parses the old XML settings file
+#        """
+#            
+#            print "there is no db file"
+#            # check if there is a settings file
+#            if os.path.exists(self._settings_file_full_path):
+#                print "there is a .settings.xml file"
+#                self._settingsFileExists = True
+#                self._exists = True
+#                
+#                #print (self._settings_file_full_path)
+#                settingsAsXML = minidom.parse(self._settings_file_full_path)
+#                
+#                rootNode = settingsAsXML.childNodes[0]
+#                
+#                # -----------------------------------------------------
+#                # get main nodes
+#        
+#                # remove databaseData if exists
+#                doRemoveDatabaseDataNode = False
+#                databaseDataNode = rootNode.getElementsByTagName('databaseData')
+#        
+#                if len(databaseDataNode) > 0:
+#                    # there should be a databaseData node
+#                    doRemoveDatabaseDataNode = True
+#        
+#                    # parse the databaseData nodes attributes as if it is a
+#                    # sequenceDataNode
+#                    self._parseSequenceDataNode(databaseDataNode[0])
+#        
+#                sequenceDataNode = rootNode.getElementsByTagName('sequenceData')[0]
+#        
+#                if not doRemoveDatabaseDataNode:
+#                    self._parseSequenceDataNode(sequenceDataNode)
+#        
+#                    # -----------------------------------------------------
+#                    # get sequence nodes
+#                structureNode = sequenceDataNode.getElementsByTagName('structure')[0]
+#                assetTypesNode = sequenceDataNode.getElementsByTagName('assetTypes')[0]
+#                shotDataNodes = sequenceDataNode.getElementsByTagName('shotData')
+#        
+#                doConversionToShotData = False
+#        
+#                if not len(shotDataNodes):
+#                    doConversionToShotData = True
+#        
+#                # parse all nodes
+#                self._parseAssetTypesNode(assetTypesNode)
+#                self._parseStructureNode(structureNode)
+#        
+#                if doConversionToShotData:
+#                    # 
+#                    # it should be an old type of settings file
+#                    # convert it to the new shotData concept
+#                    # 
+#                    shotListNode = sequenceDataNode.getElementsByTagName('shotList')[0]
+#                    #print "converting to shotData concept !!!"
+#        
+#                    # read the shot numbers from the shotList node and create appropriate
+#                    # shot data nodes
+#        
+#                    # parse the shotListNode to get the shot list
+#                    self._parseShotListNode(shotListNode)
+#        
+#                    self._convertShotListToShotData()
+#        
+#                    # update the settings file
+#                    #self.saveSettings()
+#                    self._settings_dirty = True
+#                else:
+#                    self._parseShotDataNode(shotDataNodes[0])
+#        
+#                if doRemoveDatabaseDataNode:
+#                    # just save the settings over it self, it should be fine
+#                    #self.saveSettings()
+#                    self._settings_dirty = True
 
-        if doRemoveDatabaseDataNode:
-            # just save the settings over it self, it should be fine
-            #self.saveSettings()
-            self._settings_dirty = True
+#        if self._settings_dirty:
+#            print "re-saving settings"
+#            self.saveSettings()
 
-        if self._settings_dirty:
-            self.saveSettings()
+# check if there is a database file
 
 
     def _parseSequenceDataNode(self, sequenceDataNode ):
@@ -601,22 +783,22 @@ class Sequence(object):
 
         #assert( isinstance( sequenceDataNode, minidom.Element) )
 
-        self._shotPrefix = sequenceDataNode.getAttribute('shotPrefix')
-        self._shotPadding = int(sequenceDataNode.getAttribute('shotPadding'))
-        self._revPrefix = sequenceDataNode.getAttribute('revPrefix')
-        self._revPadding = sequenceDataNode.getAttribute('revPadding')
-        self._verPrefix = sequenceDataNode.getAttribute('verPrefix')
-        self._verPadding = sequenceDataNode.getAttribute('verPadding')
+        self.shotPrefix = sequenceDataNode.getAttribute('shotPrefix')
+        self.shotPadding = int(sequenceDataNode.getAttribute('shotPadding'))
+        self.revPrefix = sequenceDataNode.getAttribute('revPrefix')
+        self.revPadding = sequenceDataNode.getAttribute('revPadding')
+        self.verPrefix = sequenceDataNode.getAttribute('verPrefix')
+        self.verPadding = sequenceDataNode.getAttribute('verPadding')
 
         #if sequenceDataNode.hasAttribute('extensionsToIgnore'):
         #self._extensionsToIgnore = sequenceDataNode.getAttribute('extensionsToIgnore').split(',')
-
+        
         if sequenceDataNode.hasAttribute('noSubNameField'):
-            self._noSubNameField = bool(
+            self._no_sub_name_field = bool(
                 eval(sequenceDataNode.getAttribute('noSubNameField')))
 
         if sequenceDataNode.hasAttribute('timeUnit'):
-            self._timeUnit = sequenceDataNode.getAttribute('timeUnit')
+            self.timeUnit = sequenceDataNode.getAttribute('timeUnit')
 
 
     def _parseStructureNode(self, structureNode):
@@ -629,8 +811,8 @@ class Sequence(object):
         # get shot dependent/independent folders
         shotDependentFoldersNode = \
             structureNode.getElementsByTagName('shotDependent')[0]
-        shotDependentFoldersList = shotDependentFoldersNode.childNodes[
-                                   0].wholeText.split('\n')
+        shotDependentFoldersList = \
+            shotDependentFoldersNode.childNodes[0].wholeText.split('\n')
 
         shotIndependentFoldersNode = \
             structureNode.getElementsByTagName('shotIndependent')[0]
@@ -649,15 +831,17 @@ class Sequence(object):
         osName = os.name
 
         if osName == 'nt':
-            shotDependentFoldersList = [utils.fixWindowsPath(path) for path in
-                                        shotDependentFoldersList]
-            shotIndependentFoldersList = [utils.fixWindowsPath(path) for path
-                                          in
-                                          shotIndependentFoldersList]
+            shotDependentFoldersList = \
+            [utils.fixWindowsPath(path)
+                for path in shotDependentFoldersList]
+            
+            shotIndependentFoldersList = \
+                [utils.fixWindowsPath(path) \
+                    for path in shotIndependentFoldersList]
 
         # set the structure
-        self._structure.shotDependentFolders = shotDependentFoldersList
-        self._structure.shotIndependentFolders = shotIndependentFoldersList
+        self.structure.shotDependentFolders = shotDependentFoldersList
+        self.structure.shotIndependentFolders = shotIndependentFoldersList
 
         try:
             # --------------------------------------------------------------------
@@ -757,8 +941,8 @@ class Sequence(object):
             endFrame = shotNode.getAttribute('endFrame')
             name = shotNode.getAttribute('name')
             description = \
-                shotNode.getElementsByTagName('description')[0].childNodes[
-            0].wholeText.strip()
+                shotNode.getElementsByTagName('description')[0].\
+                    childNodes[0].wholeText.strip()
 
             if startFrame != '':
                 startFrame = int(startFrame)
@@ -804,185 +988,44 @@ class Sequence(object):
     def saveSettings(self):
         """saves the settings as XML
         """
-
-        # create nodes
-        rootNode = minidom.Element('root')
-        sequenceDataNode = minidom.Element('sequenceData')
-        structureNode = minidom.Element('structure')
-        shotDependentNode = minidom.Element('shotDependent')
-        shotDependentNodeText = minidom.Text()
-        shotIndependentNode = minidom.Element('shotIndependent')
-        shotIndependentNodeText = minidom.Text()
-        assetTypesNode = minidom.Element('assetTypes')
-#        typeNode = minidom.Element('type')
-        shotDataNode = minidom.Element('shotData')
-
-
-
-
-        # SEQUENCE DATA and children
-
-        # set repository node attributes
-        sequenceDataNode.setAttribute('shotPrefix', self._shotPrefix)
-        sequenceDataNode.setAttribute('shotPadding', unicode(self._shotPadding))
-        sequenceDataNode.setAttribute('revPrefix', self._revPrefix)
-        sequenceDataNode.setAttribute('revPadding', unicode(self._revPadding))
-        sequenceDataNode.setAttribute('verPrefix', self._verPrefix)
-        sequenceDataNode.setAttribute('verPadding', unicode(self._verPadding))
-        sequenceDataNode.setAttribute('timeUnit', self._timeUnit)
-
-        if self._noSubNameField:
-            sequenceDataNode.setAttribute('noSubNameField',
-                                          unicode(self._noSubNameField))
-
-
-
-
-
-
-        # SHOT DEPENDENT / INDEPENDENT FOLDERS
-
-        # create shot dependent/independent folders
-        shotDependentNodeText.data = '\n'.join(
-            self._structure.shotDependentFolders).replace('\\', '/')
-        shotIndependentNodeText.data = '\n'.join(
-            self._structure.shotIndependentFolders).replace('\\', '/')
-
-
-
-
-
-        # SHOT DATA
-
-
-        # sort the list before saving
-        self._sortShots()
-
-        # create the new type of shotData nodes
-        for shot in self._shots:
-            # create a shot node
-            #assert(isinstance(shot,Shot))
-            shotNode = minidom.Element('shot')
-            shotNode.setAttribute('startFrame', str(shot.startFrame))
-            shotNode.setAttribute('endFrame', str(shot.endFrame))
-            shotNode.setAttribute('name', shot.name)
-
-            # create a description node and store the shot description as the node text
-            descriptionNode = minidom.Element('description')
-
-            # create the text node
-            descriptionText = minidom.Text()
-            descriptionText.data = shot.description
-
-            # append the nodes to appropriate parents
-            descriptionNode.appendChild(descriptionText)
-            shotNode.appendChild(descriptionNode)
-            shotDataNode.appendChild(shotNode)
-
-
-
-
-
-        # ASSET TYPE
-
-
-        # create asset types
-        for aType in self._assetTypes:
-            #assert( isinstance( aType, asset.AssetType ) )
-            typeNode = minidom.Element('type')
-            typeNode.setAttribute("name", aType.name)
-            typeNode.setAttribute("path", aType.path.replace("\\", "/"))
-
-            typeNode.setAttribute("shotDependent",
-                                  unicode(int(aType.isShotDependent)))
-
-            typeNode.setAttribute("environments", ",".join(aType.environments))
-            typeNode.setAttribute("output_path",
-                                  aType.output_path.replace("\\", "/"))
-
-            assetTypesNode.appendChild(typeNode)
-
-
-
-
-        # append children
-        rootNode.appendChild(sequenceDataNode)
-
-        sequenceDataNode.appendChild(structureNode)
-        sequenceDataNode.appendChild(assetTypesNode)
-        sequenceDataNode.appendChild(shotDataNode)
-
-        structureNode.appendChild(shotDependentNode)
-        structureNode.appendChild(shotIndependentNode)
-
-        shotDependentNode.appendChild(shotDependentNodeText)
-        shotIndependentNode.appendChild(shotIndependentNodeText)
-
-        # create XML file
-        settingsXML = minidom.Document()
-        settingsXML.appendChild(rootNode)
-
-        try:
-            # if there is a settings file back it up
-            # keep maximum of 5 backups
-            utils.backupFile(self._settings_file_full_path, 5)
-            settingsFile = open(self._settings_file_full_path, "w")
-            settingsXML.writexml(settingsFile, "\t", "\t", "\n")
-            settingsFile.close()
-        except IOError:
-            print "couldn't open the settings file"
-        finally:
-            self._settingsFileExists = True
-            self._settings_dirty = False
+        logging.debug("saving self to the database")
         
-        return
-
-
-    @property
-    def shotPadding(self):
-        """returns teh shotPadding
-        """
-        return self._shotPadding
-
-
-    @property
-    def shotPrefix(self):
-        """returns the shotPrefix
-        """
-        return self._shotPrefix
-
+        # there should be a session
+        # because a Sequence can not be created
+        # without an already created Project instance
+        
+        self.session.add(self)
+        self.session.commit()
 
     def create(self):
         """creates the sequence
         """
-
+        
         # if the sequence doesn't exist create the folder
-
+        
         if not self._exists:
+            logging.debug("the sequence doesn't exist yet, creating the folder")
+            
             # create a folder with sequenceName
             utils.mkdir(self._fullPath)
-
-            # copy the settings file to the root of the sequence
-            shutil.copy(self._repository.default_settings_file_full_path,
-                        self._settings_file_full_path)
-
-        # just read the structure from the XML
-        self.readSettings()
-
+            self._exists = True
+        
         # tell the sequence to create its own structure
+        logging.debug("creating the structure")
         self.createStructure()
-
+        
         # and create the shots
+        logging.debug("creating the shots")
         self.createShots()
-
+        
         # copy any file to the sequence
         # (like workspace.mel)
-
-        for _fileInfo in self._repository.defaultFiles:
+        logging.debug("copying default files")
+        for _fileInfo in self.repository.defaultFiles:
             sourcePath = os.path.join(_fileInfo[2], _fileInfo[0])
             targetPath = os.path.join(self._fullPath, _fileInfo[1],
                                       _fileInfo[0])
-
+            
             shutil.copy(sourcePath, targetPath)
         
         self.saveSettings()
@@ -1002,39 +1045,38 @@ class Sequence(object):
         
         you need to invoke self.createShots to make the changes permanent
         """
-
+        
         # for now consider the shots as a string of range
         # do the hard work later
-
+        
         newShotsList = utils.convertRangeToList(shots)
-
+        
         # convert the list to strings
         newShotsList = map(str, newShotsList)
-
+        
         # add the shotList to the current _shotList
         self._shotList.extend(newShotsList)
         self._shotList = utils.unique(self._shotList)
-
+        
         # sort the shotList
         self._shotList = utils.sort_string_numbers(self._shotList)
-
-        # just create shot objects with shot name and leave the start and end frame and
-        # description empty, it will be edited later
+        
+        # just create shot objects with shot name and leave the start and end
+        # frame and description empty, it will be edited later
         newShotObjects = []
-
-
+        
         # create a shot names buffer
         shotNamesBuffer = [shot.name for shot in self.shots]
-
+        
         for shotName in newShotsList:
             # check if the shot already exists
             if shotName not in shotNamesBuffer:
                 shot = Shot(shotName, self)
                 newShotObjects.append(shot)
-
+        
         # add the new shot objects to the existing ones
         self._shots.extend(newShotObjects)
-
+        
         # sort the shot objects
         self._shots = utils.sort_string_numbers(self._shots)
 
@@ -1074,12 +1116,12 @@ class Sequence(object):
         # get the shot list
         shotList = self.shotList
         alternateLetters = 'ABCDEFGHIJKLMNOPRSTUVWXYZ'
-
+        
         for letter in alternateLetters:
             #check if the alternate is in the list
-
+            
             newShotNumber = str(shot) + letter
-
+            
             if not newShotNumber in shotList:
                 return newShotNumber
 
@@ -1089,20 +1131,22 @@ class Sequence(object):
     def createShots(self):
         """creates the shot folders in the structure
         """
-
+        
         if not self._exists:
-            print "seq doesn't exist returning"
+            logging.warning("seq doesn't exist, not creating the shot folders")
             return
         
-        # create the structure
-        for folder in self._structure.shotDependentFolders:
+        # TODO: Update creation of shot folders from Jinja2 template
+        
+        # create the shot structure
+        for folder in self.structure.shotDependentFolders:
             # render jinja2 templates if necessary
             if "{{" in folder:
                 for shotNumber in self._shotList:
                     template = jinja2.Template(
                         os.path.join(self._fullPath, folder)
                     )
-
+                    
                     path = template.render(
                         assetBaseName=self.convertToShotString(shotNumber)
                     )
@@ -1111,7 +1155,7 @@ class Sequence(object):
             else:
                 path = os.path.join(self._fullPath, folder)
                 utils.createFolder(path)
-
+    
     @property
     def shots(self):
         """returns the shot objects as a list
@@ -1141,27 +1185,23 @@ class Sequence(object):
     def shotList(self):
         """returns the shot list object
         """
-        return self._shotList
-
-
-    @property
-    def structure(self):
-        """returns the structure object
-        """
-        return self._structure
-
+        return self._shotList 
 
     def createStructure(self):
         """creates the folders defined by the structure
         """
-
+        
         if not self._exists:
             return
-
-        # create shots
-        self.createShots()
-
-        for folder in self._structure.shotIndependentFolders:
+        
+#        # create shots
+#        self.createShots()
+        
+        # create the structure if it is not present
+        if self.structure is None:
+            self.structure = Structure()
+        
+        for folder in self.structure.shotIndependentFolders:
             utils.createFolder(os.path.join(self._fullPath, folder))
 
 
@@ -1189,16 +1229,20 @@ class Sequence(object):
         """
 
         pieces = utils.embedded_numbers(unicode(shotNumber))
-
+        
         if len(pieces) <= 1:
             return None
-
+        
         number = pieces[1]
         alternateLetter = pieces[2]
-
-        return_value = self._shotPrefix + utils.padNumber(
+        
+        print "shotNumber: ", shotNumber
+        print "number: ", number
+        print "self.shotPadding: ", self.shotPadding
+        
+        return_value = self.shotPrefix + utils.padNumber(
             number,
-            self._shotPadding
+            self.shotPadding
         ) + alternateLetter.upper()
         
         return return_value
@@ -1211,7 +1255,7 @@ class Sequence(object):
         1  --> r01
         10 --> r10
         """
-        return self._revPrefix + utils.padNumber(revNumber, self._revPadding)
+        return self.revPrefix + utils.padNumber(revNumber, self.revPadding)
 
 
     def convertToVerString(self, verNumber):
@@ -1221,7 +1265,7 @@ class Sequence(object):
         1  --> v001
         10 --> v010
         """
-        return self._verPrefix + utils.padNumber(verNumber, self._verPadding)
+        return self.verPrefix + utils.padNumber(verNumber, self.verPadding)
 
 
     def convertToShotNumber(self, shotString):
@@ -1236,7 +1280,7 @@ class Sequence(object):
         """
 
         # remove the shot prefix
-        remainder = shotString[len(self._shotPrefix): len(shotString)]
+        remainder = shotString[len(self.shotPrefix): len(shotString)]
 
         # get the integer part
         matchObj = re.match('[0-9]+', remainder)
@@ -1261,7 +1305,7 @@ class Sequence(object):
         r01 --> 1
         r10 --> 10
         """
-        return int(revString[len(self._revPrefix):len(revString)])
+        return int(revString[len(self.revPrefix):len(revString)])
 
 
     def convertToVerNumber(self, verString):
@@ -1271,7 +1315,7 @@ class Sequence(object):
         v001 --> 1
         v010 --> 10
         """
-        return int(verString[len(self._verPrefix):len(verString)])
+        return int(verString[len(self.verPrefix):len(verString)])
 
 
     @bCache.cache()
@@ -1329,17 +1373,10 @@ class Sequence(object):
 
 
     @property
-    def project(self):
-        """returns the parent project
-        """
-        return self._project
-
-
-    @property
     def projectName(self):
         """returns the parent projects name
         """
-        return self._project.name
+        return self.project.name
 
 
     @bCache.cache(expire=60)
@@ -1615,7 +1652,7 @@ class Sequence(object):
         osPathIsDir = os.path.isdir
         selfFullPath = self._fullPath
         assetAsset = asset.Asset
-        selfProject = self._project
+        selfProject = self.project
         assetsAppend = assets.append
 
         osPathBaseName = os.path.basename
@@ -1710,7 +1747,7 @@ class Sequence(object):
 
         # recreate assets and return
         # TODO: return without recreating the assets
-        return [asset.Asset(self._project, self, x['fileName']) for x in
+        return [asset.Asset(self.project, self, x['fileName']) for x in
                 filteredAssetInfos]
 
 
@@ -1734,17 +1771,6 @@ class Sequence(object):
         return [info['fileName'] for info in filteredAssetFileNames]
 
 
-    @property
-    def timeUnit(self):
-        """the time unit of the sequence
-        """
-        return self._timeUnit
-
-    @timeUnit.setter
-    def timeUnit(self, timeUnit):
-        self._timeUnit = timeUnit
-
-
     @bCache.cache()
     def generateFakeInfoVariables(self, assetFileName):
         """generates fake info variables from assetFileNames by splitting the file name
@@ -1760,7 +1786,7 @@ class Sequence(object):
         infoVars['subName'] = ''
         infoVars['typeName'] = ''
 
-        if not self._noSubNameField:
+        if not self._no_sub_name_field:
             if len(splits) > 3:
                 infoVars['baseName'] = splits[0]
                 infoVars['subName'] = splits[1]
@@ -1824,42 +1850,6 @@ class Sequence(object):
         return False
 
 
-
-        #
-        #def addExtensionToIgnoreList(self, extension):
-        #"""adds new extension to ignore list
-
-        #you need to invoke self.saveSettings to make the changes permanent
-        #"""
-        #self._extensionsToIgnore.append( extension )
-
-
-
-        #
-        #def removeExtensionFromIgnoreList(self, extension):
-        #"""remove the extension from the ignore list
-
-        #you need to invoke self.saveSettings to make the changes permanent
-        #"""
-
-        #if extension in self._extensionsToIgnore:
-        #self._extensionsToIgnore.remove( extension )
-
-
-    @property
-    def revPadding(self):
-        """returns the revPadding
-        """
-        return self._revPadding
-
-
-    @property
-    def revPrefix(self):
-        """returns the revPrefix
-        """
-        return self._revPrefix
-
-
     def addNewAssetType(self, name='', path='', shotDependent=False,
                         environments=None, output_path=""):
         """adds a new asset type to the sequence
@@ -1882,60 +1872,36 @@ class Sequence(object):
             # add it to the list
             self._assetTypes.append(newAType)
 
-
     @property
     def exists(self):
         """returns True if the sequence itself exists, False otherwise
         """
         return self._exists
 
-
     @property
-    def name(self):
-        """returns the sequence name
-        """
-        return self._name
-
-
-    @property
-    def noSubNameField(self):
+    def no_sub_name_field(self):
         """returns True if the sequence doesn't support subName fields (old-style)
         """
-        return self._noSubNameField
+        return self._no_sub_name_field
 
-
-    @property
-    def verPadding(self):
-        """returns the verPadding
-        """
-        return self._verPadding
-
-
-    @property
-    def verPrefix(self):
-        """returns the verPrefix
-        """
-        return self._verPrefix
-
-
-    def undoChange(self):
-        """undoes the last change to the .settings.xml file if there is a
-        backup of the .settings.xml file
-        """
-
-        # get the backup files of the .settings.xml
-        backupFiles = utils.getBackupFiles(self._settings_file_full_path)
-
-        if len(backupFiles) > 0:
-            #print backupFiles
-            # there is at least one backup file
-            # delete the current .settings.xml
-            # and rename the last backup to .settings.xml
-
-            print "replacing with : ", os.path.basename(backupFiles[-1])
-
-            shutil.copy(backupFiles[-1], self._settings_file_full_path)
-            os.remove(backupFiles[-1])
+#    def undoChange(self):
+#        """undoes the last change to the .settings.xml file if there is a
+#        backup of the .settings.xml file
+#        """
+#
+#        # get the backup files of the .settings.xml
+#        backupFiles = utils.getBackupFiles(self._settings_file_full_path)
+#
+#        if len(backupFiles) > 0:
+#            #print backupFiles
+#            # there is at least one backup file
+#            # delete the current .settings.xml
+#            # and rename the last backup to .settings.xml
+#
+#            print "replacing with : ", os.path.basename(backupFiles[-1])
+#
+#            shutil.copy(backupFiles[-1], self._settings_file_full_path)
+#            os.remove(backupFiles[-1])
 
 
     def __eq__(self, other):
@@ -1949,9 +1915,21 @@ class Sequence(object):
         """The in equality operator
         """
         return not self.__eq__(other)
+    
+    @validates("name")
+    def _validate_name(self, key, name):
+        """validates the given name
+        """
+        
+        return utils.stringConditioner(
+            name,
+            allowUnderScores=True,
+            upperCaseOnly=True,
+            capitalize=False
+        )
 
 
-class Structure(object):
+class Structure(Base):
     """The class that helps to hold data about structures in a sequence.
     
     Structure holds data about shot dependent and shot independent folders.
@@ -1961,9 +1939,17 @@ class Structure(object):
     to handle all the `project folder template` by using Jinja2 templates.
     """
     
-    def __init__(self, shotDependentFolders=None, shotIndependentFolders=None):
-        self._shotDependentFolders = shotDependentFolders # should be a list of str or unicode
-        self._shotIndependentFolders = shotIndependentFolders # should be a list of str or unicode
+    __tablename__ = "Structures"
+    id = Column(Integer, primary_key=True)
+    shotDependentFolders = Column(PickleType)
+    shotIndependentFolders = Column(PickleType)
+    
+    def __init__(self,
+                 shotDependentFolders=None,
+                 shotIndependentFolders=None):
+        
+        self.shotDependentFolders = shotDependentFolders # should be a list of str or unicode
+        self.shotIndependentFolders = shotIndependentFolders # should be a list of str or unicode
 
 
     def addShotDependentFolder(self, folderPath):
@@ -1971,9 +1957,9 @@ class Structure(object):
         
         folderPath should be relative to sequence root
         """
-        if folderPath not in self._shotDependentFolders:
-            self._shotDependentFolders.append(folderPath)
-            self._shotDependentFolders = sorted(self._shotDependentFolders)
+        if folderPath not in self.shotDependentFolders:
+            self.shotDependentFolders.append(folderPath)
+            self.shotDependentFolders = sorted(self.shotDependentFolders)
 
 
     def addShotIndependentFolder(self, folderPath):
@@ -1982,37 +1968,17 @@ class Structure(object):
         folderPath should be relative to sequence root
         """
 
-        if folderPath not in self._shotIndependentFolders:
-            self._shotIndependentFolders.append(folderPath)
-            self._shotIndependentFolders = sorted(self._shotIndependentFolders)
+        if folderPath not in self.shotIndependentFolders:
+            self.shotIndependentFolders.append(folderPath)
+            self.shotIndependentFolders = sorted(self.shotIndependentFolders)
 
-
-    @property
-    def shotDependentFolders(self):
-        """the shot dependent folders
-        """
-        return self._shotDependentFolders
-
-    @shotDependentFolders.setter
-    def shotDependentFolders(self, shotDependentFolders):
-        self._shotDependentFolders = shotDependentFolders
-
-    @property
-    def shotIndependentFolders(self):
-        """shot independent folders
-        """
-        return self._shotIndependentFolders
-
-    @shotIndependentFolders.setter
-    def shotIndependentFolders(self, folders):
-        self._shotIndependentFolders = folders
 
     def removeShotDependentFolder(self, folderPath):
         """removes the shot dependent folder from the structure
         beware that if the parent sequence uses that folder as a assetType folder
         you introduce an error to the sequence
         """
-        self._shotDependentFolders.remove(folderPath)
+        self.shotDependentFolders.remove(folderPath)
 
 
     def removeShotIndependentFolder(self, folderPath):
@@ -2021,28 +1987,28 @@ class Structure(object):
         beware that if the parent sequence uses that folder as a assetType folder
         you introduce an error to the sequence
         """
-        self._shotIndependentFolders.remove(folderPath)
+        self.shotIndependentFolders.remove(folderPath)
 
 
     def fixPathIssues(self):
         """fixes path issues in the folder data variables
         """
         # replaces "\" with "/"
-        for i, folder in enumerate(self._shotDependentFolders):
-            self._shotDependentFolders[i] = folder.replace('\\', '/')
+        for i, folder in enumerate(self.shotDependentFolders):
+            self.shotDependentFolders[i] = folder.replace('\\', '/')
 
-        for i, folder in enumerate(self._shotIndependentFolders):
-            self._shotIndependentFolders[i] = folder.replace('\\', '/')
+        for i, folder in enumerate(self.shotIndependentFolders):
+            self.shotIndependentFolders[i] = folder.replace('\\', '/')
 
 
     def removeDuplicate(self):
         """removes any duplicate entry
         """
         # remove any duplicates
-        self._shotDependentFolders = sorted(
-            utils.unique(self._shotDependentFolders))
-        self._shotIndependentFolders = sorted(
-            utils.unique(self._shotIndependentFolders))
+        self.shotDependentFolders = sorted(
+            utils.unique(self.shotDependentFolders))
+        self.shotIndependentFolders = sorted(
+            utils.unique(self.shotIndependentFolders))
 
 
 class Shot(object):

@@ -3,12 +3,14 @@
 
 
 import os
-import sys
 import shutil
 import tempfile
 import unittest
 from xml.dom import minidom
+from oyProjectManager import db
 from oyProjectManager.models import project, repository, asset
+from oyProjectManager.models.project import Project, Sequence
+from oyProjectManager import conf
 
 
 class SequenceTester(unittest.TestCase):
@@ -81,24 +83,24 @@ class SequenceTester(unittest.TestCase):
         """testing if a newly created sequence doesn't have any output_folders
         node in its settings
         """
-
+        
         # create a project
         test_proj = project.Project("TEST_PROJECT")
         test_proj.create()
-
+        
         self.created_projects.append(test_proj)
-
+        
         # create a sequence
         test_seq = test_proj.createSequence("TEST_SEQ", "1")
-
+        
         # now get the settings path and check if there is a node called
         # output folders by using the minidom
         document = minidom.parse(
             os.path.join(test_seq.fullPath, ".settings.xml")
         )
-
+        
         output_folders = document.getElementsByTagName("output_folders")
-
+        
         self.assertEqual(output_folders, [])
 
 
@@ -121,7 +123,7 @@ class SequenceTester(unittest.TestCase):
 
         # now by using the minidom add output_folders to the structure node
         settingsFileFullPath = os.path.join(test_seq.fullPath, ".settings.xml")
-
+        
         settings = minidom.parse(settingsFileFullPath)
 
         outputFoldersNode = minidom.Element("outputFolders")
@@ -184,11 +186,15 @@ class SequenceTester(unittest.TestCase):
         # with the other
 
         new_proj = project.Project("TEST_PROJECT")
+        new_proj.create()
+        
         seq1 = project.Sequence(new_proj, "SEQ1")
         seq2 = project.Sequence(new_proj, "SEQ1")
         seq3 = project.Sequence(new_proj, "SEQ2")
 
         new_proj2 = project.Project("TEST_PROJECT2")
+        new_proj2.create()
+        
         seq4 = project.Sequence(new_proj2, "SEQ3")
 
         self.assertTrue(seq1 == seq2)
@@ -206,11 +212,14 @@ class SequenceTester(unittest.TestCase):
         # with the other
 
         new_proj = project.Project("TEST_PROJECT")
+        new_proj.create()
+        
         seq1 = project.Sequence(new_proj, "SEQ1")
         seq2 = project.Sequence(new_proj, "SEQ1")
         seq3 = project.Sequence(new_proj, "SEQ2")
 
         new_proj2 = project.Project("TEST_PROJECT2")
+        new_proj2.create()
         seq4 = project.Sequence(new_proj2, "SEQ3")
 
         self.assertFalse(seq1 != seq2)
@@ -219,14 +228,18 @@ class SequenceTester(unittest.TestCase):
         self.assertTrue(seq3 != seq4)
 
 
-class SequenceTester_NewType(unittest.TestCase):
-    """tests the Project class
+class Sequence_To_NewType_Conversion(unittest.TestCase):
+    """tests the conversion of old type Sequences to new type Sequences with
+    SQLite3 databases.
     """
 
     def setUp(self):
         """testing the settings path from the environment variable
         """
-
+        
+        # create an old type sequence
+        # and check if it is correctly converted to a new type database
+        
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
@@ -251,8 +264,8 @@ class SequenceTester_NewType(unittest.TestCase):
         # copy the default files to the folder
         shutil.copytree(
             self._test_settings_folder,
-            self.temp_settings_folder,
-            )
+            self.temp_settings_folder
+        )
 
         # change the server path to a temp folder
         repository_settings_file_path = os.path.join(
@@ -290,13 +303,228 @@ class SequenceTester_NewType(unittest.TestCase):
     def tearDown(self):
         """remove the temp folders
         """
-
+        
         # delete the temp folder
         shutil.rmtree(self.temp_settings_folder)
         shutil.rmtree(self.temp_projects_folder)
 
 
-    def test_(self):
-        """
-        """
 
+class Sequence_NewType_Tester(unittest.TestCase):
+    """Tests the new type Sequence class
+    """
+    
+    #----------------------------------------------------------------------
+    def setUp(self):
+        
+        # create the environment variable and point it to a temp directory
+        self.temp_settings_folder = tempfile.mktemp()
+        self.temp_projects_folder = tempfile.mkdtemp()
+        
+        # copy the test settings
+        import oyProjectManager
+
+        self._test_settings_folder = os.path.join(
+            os.path.dirname(
+                os.path.dirname(
+                    oyProjectManager.__file__
+                )
+            ),
+            "tests", "test_settings"
+        )
+
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
+        os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
+
+        # copy the default files to the folder
+        shutil.copytree(
+            self._test_settings_folder,
+            self.temp_settings_folder
+        )
+
+        # change the server path to a temp folder
+        repository_settings_file_path = os.path.join(
+            self.temp_settings_folder, 'repositorySettings.xml')
+
+        # change the repositorySettings.xml by using the minidom
+        xmlDoc = minidom.parse(repository_settings_file_path)
+
+        serverNodes = xmlDoc.getElementsByTagName("server")
+        for serverNode in serverNodes:
+            serverNode.setAttribute("windows_path", self.temp_projects_folder)
+            serverNode.setAttribute("linux_path", self.temp_projects_folder)
+            serverNode.setAttribute("osx_path", self.temp_projects_folder)
+
+        repository_settings_file = file(repository_settings_file_path,
+                                        mode='w')
+        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
+    
+    
+    def tearDown(self):
+        """clean up the test
+        """
+        
+        # delete the temp folder
+        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_projects_folder)
+    
+    
+    def test_sequence_raises_error_when_the_given_project_is_not_created_yet(self):
+        """testing if the sequence raises an error when the project is not
+        created yet
+        """
+        
+        new_proj = Project(name="TEST_PROJECT")
+        self.assertRaises(RuntimeError, Sequence, new_proj, name="TEST_SEQ")
+    
+    
+    
+#    def test_database_file_is_created(self):
+#        """testing if a database file is created
+#        """
+#        
+#        new_proj = Project(name="TEST_PROJECT")
+#        new_proj.create()
+#        
+#        new_seq = Sequence(new_proj, "TEST_SEQ1")
+#        new_seq.create()
+#        
+#        self.assertTrue(
+#            os.path.exists(
+#                os.path.join(
+#                    new_seq.fullPath,
+#                    conf.DATABASE_FILE_NAME
+#                )
+#            )
+#        )
+    
+    def test_sequence_session_is_project_session(self):
+        """testing if the session instance is passed correctly to the sequence
+        instance
+        """
+        
+        new_proj = Project(name="TEST_PROJECT")
+        new_proj.create()
+        
+        new_seq = Sequence(new_proj, name="TEST_SEQ")
+        new_seq.create()
+        
+        self.assertIs(new_proj.session, new_seq.session)
+    
+    
+    def test_database_simple_data(self):
+        """testing if the database file has the necessary information related to
+        the Sequence
+        """
+        
+        new_proj = Project(name="TEST_PROJECT")
+        new_proj.create()
+        
+        test_seq_name = "TEST_SEQ1"
+        new_seq = Sequence(new_proj, test_seq_name)
+        new_seq.create()
+        
+        # fill it with some non default values
+        shotPrefix = new_seq.shotPrefix = "PL"
+        shotPadding = new_seq.shotPadding = 13
+        revPrefix = new_seq.revPrefix = "rev"
+        revPadding = new_seq.revPadding = 18
+        verPrefix = new_seq.verPrefix = "ver"
+        verPadding = new_seq.verPadding = 8
+        
+        print new_seq.fullPath
+        
+        new_seq.create()
+        
+        # now check if the database is created correctly
+        del new_seq
+        
+        # create the seq from scratch and let it read the database
+        new_seq = db.session.query(Sequence).first()
+        
+        # now check if it was able to get these data
+        self.assertEqual(shotPrefix, new_seq.shotPrefix)
+        self.assertEqual(shotPadding, new_seq.shotPadding)
+        self.assertEqual(revPrefix, new_seq.revPrefix)
+        self.assertEqual(revPadding, new_seq.revPadding)
+        self.assertEqual(verPrefix, new_seq.verPrefix)
+        self.assertEqual(verPadding, new_seq.verPadding)
+
+    
+    def test_database_recreation_of_sequence_object(self):
+        """testing if the database file has the necessary information related to
+        the Sequence
+        """
+        
+        new_proj = Project(name="TEST_PROJECT")
+        new_proj.create()
+        
+        print "new_proj.fullPath: ", new_proj.fullPath
+        
+        test_seq_name = "TEST_SEQ1"
+        new_seq = Sequence(new_proj, test_seq_name)
+        
+        # fill it with some non default values
+        shotPrefix = new_seq.shotPrefix = "PL"
+        shotPadding = new_seq.shotPadding = 13
+        revPrefix = new_seq.revPrefix = "rev"
+        revPadding = new_seq.revPadding = 18
+        verPrefix = new_seq.verPrefix = "ver"
+        verPadding = new_seq.verPadding = 8
+        
+        print "new_seq.fullPath: ", new_seq.fullPath
+        
+        new_seq.create()
+        
+        # now check if the database is created correctly
+        del new_seq
+        
+        # create the seq from scratch and let it read the database
+        print "TEST CREATING A NEW SEQ"
+        new_seq = Sequence(new_proj, test_seq_name)
+        
+        # now check if it was able to get these data
+        self.assertEqual(shotPrefix, new_seq.shotPrefix)
+        self.assertEqual(shotPadding, new_seq.shotPadding)
+        self.assertEqual(revPrefix, new_seq.revPrefix)
+        self.assertEqual(revPadding, new_seq.revPadding)
+        self.assertEqual(verPrefix, new_seq.verPrefix)
+        self.assertEqual(verPadding, new_seq.verPadding)
+    
+    
+    def test_calling_create_multiple_times(self):
+        """testing if no error will be raised when calling Sequence.create
+        multiple times
+        """
+        
+        new_proj = Project(name="TEST_PROJECT")
+        new_proj.create()
+        
+        new_seq = Sequence(new_proj, "TEST_SEQ")
+        
+        # now call create multiple times
+        new_seq.create()
+        new_seq.create()
+        new_seq.create()
+        new_seq.create()
+        new_seq.create()
+    
+    
+    def test_creating_two_different_shots_and_calling_create(self):
+        """testing if no error will be raised when creating two different
+        sequences for the same Project and calling the create of the Sequences
+        in mixed order
+        """
+        
+        new_proj = Project(name="TEST_PROJECT")
+        new_proj.create()
+        
+        new_seq1 = Sequence(new_proj, "TEST_SEQ1")
+        new_seq2 = Sequence(new_proj, "TEST_SEQ2")
+        
+        print "calling new_seq1.create"
+        new_seq1.create()
+        print "calling new_seq2.create"
+        new_seq2.create()
+        
+    

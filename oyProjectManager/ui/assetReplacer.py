@@ -98,7 +98,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
                                 QtCore.SIGNAL("currentIndexChanged(int)"),
                                 self.updateSequenceList )
         
-        # sequence change ---> update _noSubNameField
+        # sequence change ---> update _no_sub_name_field
         QtCore.QObject.connect( self.sequence_comboBox,
                                 QtCore.SIGNAL("currentIndexChanged(int)"),
                                 self._updateSequenceObject )
@@ -419,7 +419,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         currentSequence = self._sequence
         
         # if the current sequence doesn't support subName field just return
-        if currentSequence.noSubNameField:
+        if currentSequence.no_sub_name_field:
             self.subName_comboBox.clear()
             return
         
@@ -513,7 +513,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         baseName = self.getCurrentBaseName()
         
         
-        if not currentSequence.noSubNameField:
+        if not currentSequence.no_sub_name_field:
             subName = self.getCurrentSubName()
         else:
             subName = ''

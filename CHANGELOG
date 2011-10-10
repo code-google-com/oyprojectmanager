@@ -1,6 +1,13 @@
 Version History
 ===============
 
+0.2.0
+-----
+
+* The system now uses SQLAlchemy Declarative in its data models. And a new
+  settings file located in the Project root with the name .metadata.db is
+  governed to hold the related data for that Project.
+
 0.1.2
 -----
 

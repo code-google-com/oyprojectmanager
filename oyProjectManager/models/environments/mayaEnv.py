@@ -282,7 +282,7 @@ class MayaEnvironment(abstractClasses.Environment):
         assetBaseName = self._asset.baseName
         renderFileName = ''
         
-        if parentSeq.noSubNameField:
+        if parentSeq.no_sub_name_field:
             render_file_full_path = parentSeqFullPath + "/" + \
                 renderOutputFolder + "/<Layer>/" + \
                 assetBaseName + "_<Layer>_<RenderPass>_<Version>"

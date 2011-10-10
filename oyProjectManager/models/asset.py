@@ -486,8 +486,8 @@ class Asset(object):
         #beware that it is the project path not the sequence path
         #"""
         #from oyProjectManager.models import project
-        #assert(isinstance(self._project, project.Project))
-        #return self._project.fullPath
+        #assert(isinstance(self.project, project.Project))
+        #return self.project.fullPath
 
 
     @property
@@ -1120,7 +1120,7 @@ class SuperAsset(object):
 
         ## search the path for the baseName + subName
 
-        #searchPath = self._path
+        #searchPath = self.path
         #pattern = self._baseName + '*'
         
         
