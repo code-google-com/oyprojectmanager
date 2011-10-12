@@ -11,6 +11,10 @@ from oyProjectManager import db
 from oyProjectManager.models import project, repository
 from oyProjectManager.models.project import Project, Sequence
 
+import logging
+logger = logging.getLogger("oyProjectManager.models.project")
+logger.setLevel(logging.DEBUG)
+
 
 class ProjectTester(unittest.TestCase):
     """tests the Project class
@@ -80,21 +84,15 @@ class ProjectTester(unittest.TestCase):
             ("FUL_3D", "FUL_3D"),
         ]
     
-    
-    
-    
     def tearDown(self):
         """remove the temp folders
         """
         
         # delete the temp folder
-#        shutil.rmtree(self.temp_settings_folder)
-#        shutil.rmtree(self.temp_projects_folder)
+        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_projects_folder)
     
-    
-    
-    
-    def test_name_argument_formating(self):
+    def test_name_argument_formatting(self):
         """testing if the name will be formatted correctly when creating a
         new project.
         """
@@ -108,10 +106,7 @@ class ProjectTester(unittest.TestCase):
             
             self.assertEqual(new_project.name, expected_project_name)
     
-    
-    
-    
-    def test_name_property_formating(self):
+    def test_name_attribute_formatting(self):
         """testing if the name property will be formatted correctly.
         """
         
@@ -124,52 +119,31 @@ class ProjectTester(unittest.TestCase):
             
             self.assertEqual(new_project.name, expected_project_name)
     
-    
-    
-    
     def test_name_argument_is_None(self):
-        """testing if a ValueError will be raised when the name argument is
+        """testing if a TypeError will be raised when the name argument is
         None.
         """
-        
-        self.assertRaises(ValueError, project.Project, None)
+        self.assertRaises(TypeError, project.Project, None)
     
-    
-    
-    
-    def test_name_property_is_None(self):
-        """testing if a ValueError will be raised when the name property is
+    def test_name_attribute_is_None(self):
+        """testing if a TypeError will be raised when the name property is
         tried to be set to None
         """
-        
         proj = project.Project("TEST_PROJECT")
-        
-        self.assertRaises(ValueError, setattr, proj, "name", None)
-    
-    
-    
+        self.assertRaises(TypeError, setattr, proj, "name", None)
     
     def test_name_argument_is_empty_string(self):
         """testing if a ValueError will be raised when the name arugment is
         an empty string
         """
-        
         self.assertRaises(ValueError, project.Project, "")
     
-    
-    
-    
-    def test_name_property_is_set_to_empty_string(self):
+    def test_name_attribute_is_set_to_empty_string(self):
         """testing if a ValueError will be raised when the name property is
         tried to be set to empty string
         """
-        
         proj = project.Project("TEST_PROJECT")
-        
         self.assertRaises(ValueError, setattr, proj, "name", "")
-    
-    
-    
     
     def test_name_argument_is_empty_string_after_validation(self):
         """testing if a ValueError will be raised when the name argument is not
@@ -178,13 +152,9 @@ class ProjectTester(unittest.TestCase):
         
         # this is obviously not a valid name for a project
         test_name = "+++++^^^"
-        
         self.assertRaises(ValueError, project.Project, test_name)
     
-    
-    
-    
-    def test_name_property_is_empty_string_after_validation(self):
+    def test_name_attribute_is_empty_string_after_validation(self):
         """testing if a ValueError will be raised when the name property is
         an empty string after validation
         """
@@ -199,7 +169,6 @@ class ProjectTester(unittest.TestCase):
         
         for test_name in test_names:
             self.assertRaises(ValueError, setattr, proj, "name", test_name)
-
     
     def test_create_sequence_raises_RuntimeError_if_the_project_is_not_created_yet(self):
         """testing createSequence raises a RuntimeError if the project is not
@@ -209,8 +178,8 @@ class ProjectTester(unittest.TestCase):
         # create a new project and create a sequence
         
         test_proj = Project("TEST_PROJECT1221")
-        print "test_proj.fullPath", test_proj.fullPath
-        print "test_proj.exists:", test_proj.exists
+#        print "test_proj.fullPath", test_proj.fullPath
+#        print "test_proj.exists:", test_proj.exists
         
         self.assertRaises(RuntimeError, test_proj.createSequence, "TEST_SEQ",
                           "1")
@@ -220,69 +189,17 @@ class ProjectTester(unittest.TestCase):
         test_proj2.create()
         test_proj2.createSequence("TEST_SEQ2", "1")
     
-    
-    
-    
-    def test_updateSequenceList_working_properly(self):
-        """testing if updateSequenceList is working properly
-        """
-        
-        # create a new project and create a sequence
-        proj_and_seq_names = [("B", "FUL_3D")]
-        
-        repo = repository.Repository()
-        
-        # create the projects
-        for proj_and_seq_name in proj_and_seq_names:
-            proj_name = proj_and_seq_name[0]
-            seq_name = proj_and_seq_name[1]
-            
-            # create the project
-            newProj = repo.createProject(proj_name)
-            newSeq = newProj.createSequence(seq_name, "1")
-            
-            # now create another project instance to get the sequences
-            newProj2 = project.Project(proj_name)
-            print "hex(id(newProj2))", hex(id(newProj2))
-            
-            self.assertEqual(newProj2.sequences, [newSeq])
-    
-    
-    
-    
     def test___eq__operator(self):
         """testing the __eq__ (equal) operator
         """
         
         # create two projects
-    
-    
-    
-    
-    def test_updateSequenceList_project_name_is_not_valid_but_there_is_a_project_directory(self):
-        """testing if the OSError will be handled correctly by
-        updateSequenceList when there is a folder in the repository path which
-        is not in the correct format
-        """
+        proj1 = Project(name="TEST_PROJ1")
+        proj2 = Project(name="TEST_PROJ1")
         
-        # create a folder in the project path which is not in the correct
-        # format
-        
-        folder_name = "ProjectName"
-        
-        # create the folder
-        repo = repository.Repository()
-        os.makedirs(os.path.join(repo.server_path, folder_name))
-        
-        # now create a project with the name and ask seuqences
-        new_project = project.Project(folder_name)
-        
-        # the OSError should be handled correctly by the
-        # updateSequenceList method
-        new_project.updateSequenceList()
+        self.assertEqual(proj1, proj2)
 
-
-
+   
 class Project_DB_Tester(unittest.TestCase):
     """Tests the design of the Projects after v0.2.0
     """
@@ -342,21 +259,19 @@ class Project_DB_Tester(unittest.TestCase):
         shutil.rmtree(self.temp_settings_folder)
         shutil.rmtree(self.temp_projects_folder)
     
-    
     def test_project_initialization_with_database(self):
         """testing the project initialization occurs without any problem
         """
 
         test_value = "TEST_PROJECT"
-        new_proj = Project(name=test_value)
+        new_proj = Project(test_value)
         self.assertEqual(new_proj.name, test_value)
-
 
     def test_project_creation_for_new_project(self):
         """testing if the project creation occurs without any problem
         """
 
-        new_proj = Project(name="TEST_PROJECT")
+        new_proj = Project("TEST_PROJECT")
         new_proj.create()
 
         # now check if the folder is created
@@ -384,38 +299,33 @@ class Project_DB_Tester(unittest.TestCase):
         self.assertEqual(new_proj_DB.path, path)
         self.assertEqual(new_proj_DB.fullPath, fullPath)
     
-    
-    
     def test_project_restores_from_database_1(self):
         """testing if a project restores it self from the database with all its
         connections
         """
         
         # we need to create a new project and a sequence
-        new_proj = Project(name="TEST_PROJECT")
+        new_proj = Project("TEST_PROJECT")
         new_proj.create()
-
+        
         test_description = "test description"
         new_proj.description = test_description
-        
-        db.session.add(new_proj)
-        db.session.commit()
+        new_proj.save()
         
         del new_proj
         
         # now retrieve the project by recreating it
-        new_proj2 = Project(name="TEST_PROJECT")
+        new_proj2 = Project("TEST_PROJECT")
         
         self.assertEqual(new_proj2.description, test_description)
 
-    
     def test_project_restores_from_database_2(self):
         """testing if a project restores it self from the database with all its
         connections
         """
         
         # we need to create a new project and a sequence
-        new_proj = Project(name="TEST_PROJECT")
+        new_proj = Project("TEST_PROJECT")
         new_proj.create()
         
         new_seq = Sequence(new_proj, "TEST_SEQ")
@@ -438,7 +348,7 @@ class Project_DB_Tester(unittest.TestCase):
         """
         
         # we need to create a new project and a sequence
-        new_proj = Project(name="TEST_PROJECT")
+        new_proj = Project("TEST_PROJECT")
         new_proj.create()
         new_proj.create()
         new_proj.create()
@@ -451,24 +361,42 @@ class Project_DB_Tester(unittest.TestCase):
         and calling their create method in mixed order
         """
         
-        new_proj1 = Project(name="TEST_PROJECT1")
-        new_proj2 = Project(name="TEST_PROJECT2")
+        new_proj1 = Project("TEST_PROJECT1")
+        new_proj2 = Project("TEST_PROJECT2")
         
         new_proj1.create()
         new_proj2.create()
-        
     
     def test_creating_two_different_projects_with_same_name_and_calling_create_in_mixed_order(self):
         """testing no error will be raised when creating two Project instances
         and calling their create method in mixed order
         """
         
-        new_proj1 = Project(name="TEST_PROJECT1")
-        new_proj2 = Project(name="TEST_PROJECT1")
+        new_proj1 = Project("TEST_PROJECT1")
+        new_proj2 = Project("TEST_PROJECT1")
         
         new_proj1.create()
         self.assertRaises(IntegrityError, new_proj2.create)
     
+    def test_calling_save_multiple_times(self):
+        """testing if there is no problem of calling Project.save() multiple
+        times
+        """
+        
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
+        new_proj.save()
+        new_proj.save()
     
-    
-    
+    def test_calling_create_on_a_project_which_is_retrieved_from_db(self):
+        """testing if there will be no error messages generated when the new
+        project is retrieved from the database and the create method of this
+        project is called
+        """
+        
+        project_name = "TEST_PROJECT1"
+        new_proj1 = Project(project_name)
+        new_proj1.create()
+        
+        new_proj2 = Project(project_name)
+        new_proj2.create()

@@ -6,7 +6,13 @@ Version History
 
 * The system now uses SQLAlchemy Declarative in its data models. And a new
   settings file located in the Project root with the name .metadata.db is
-  governed to hold the related data for that Project.
+  governed to hold the related data for that Project. There are a lot of
+  interface changes in the classes:
+  
+  * The Project.sequenceNames and Project.updateSequenceList methods are no
+    longer needed and they don't exist anymore.
+    
+  * 
 
 0.1.2
 -----

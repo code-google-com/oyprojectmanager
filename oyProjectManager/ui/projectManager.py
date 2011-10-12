@@ -219,7 +219,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         newSeq.addShots(shotRange)
         newSeq.create()
         newSeq.timeUnit = timeUnit
-        newSeq.saveSettings()
+        newSeq.save()
         
         # inform the user if it is created
         QtGui.QMessageBox.information( self, 'Sequence Created', sequenceName + '\n\nSequence is successfuly created' )
@@ -240,7 +240,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         seq.addShots(shotRange)
         seq.createShots()
-        seq.saveSettings()
+        seq.save()
         
         # inform the user if it is created
         QtGui.QMessageBox.information( self, 'Shots Added', 'Shots are successfuly added!' )
@@ -372,7 +372,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         # create and save
         sequenceObj.createShots()
-        sequenceObj.saveSettings()
+        sequenceObj.save()
         
         # update the fields
         self.updateShotLists()

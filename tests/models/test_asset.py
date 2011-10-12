@@ -122,7 +122,7 @@ class AssetTester(unittest.TestCase):
         asset_type.output_path = "TEST/{{assetBaseName}}/OUTPUT"
         
         # save the settings
-        seq.saveSettings()
+        seq.save()
         
         # for convenience get the first asset type again
         seq = project.Sequence(proj, "TEST_SEQ")
@@ -157,7 +157,6 @@ class AssetTester(unittest.TestCase):
         # check if the asset file name will be correctly calculated
         
         pass
-    
     
     
     

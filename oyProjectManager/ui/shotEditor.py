@@ -382,7 +382,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
             shots[i].description = description.strip()
         
         # save the sequence settings
-        seq.saveSettings()
+        seq.save()
         
         self._newDataOnShotDataTable = False
     

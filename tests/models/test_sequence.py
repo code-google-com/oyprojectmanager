@@ -7,10 +7,13 @@ import shutil
 import tempfile
 import unittest
 from xml.dom import minidom
-from oyProjectManager import db
+from oyProjectManager import db, conf
 from oyProjectManager.models import project, repository, asset
 from oyProjectManager.models.project import Project, Sequence
-from oyProjectManager import conf
+
+import logging
+logger = logging.getLogger("oyProjectManager.models.project")
+logger.setLevel(logging.DEBUG)
 
 
 class SequenceTester(unittest.TestCase):
@@ -77,38 +80,92 @@ class SequenceTester(unittest.TestCase):
 
         # BUG: works only under linux fix it later
         self.assertEqual(repo.server_path, "/tmp/JOBs")
-
-
-    def test_if_a_newly_created_sequence_dont_have_output_folders_object(self):
-        """testing if a newly created sequence doesn't have any output_folders
-        node in its settings
+    
+    
+    def test_project_argument_is_skipped(self):
+        """testing if a TypeError will be raised when the project argument is
+        skipped
+        """
+        self.assertRaises(TypeError, Sequence, name="test_seq")
+    
+    def test_project_argument_is_None(self):
+        """testing if a TypeError will be raised when a None passed with the
+        project argument
+        """
+        self.assertRaises(TypeError, Sequence, project=None)
+    
+    def test_project_attribute_is_None(self):
+        """testing if a TypeError will be raised when the project attribute is
+        set to None
+        """
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
+        new_seq = Sequence(new_proj, "TEST_SEQ1")
+        self.assertRaises(TypeError, setattr, new_seq, "project", None)
+    
+    def test_project_argument_is_not_a_Project_instance(self):
+        """testing if a TypeError will be raised when the project argument is
+        not a oyProjectManager.models.project.Project instance
         """
         
-        # create a project
-        test_proj = project.Project("TEST_PROJECT")
-        test_proj.create()
+        self.assertRaises(TypeError, Sequence, 1231, "TEST_SEQ1")
+    
+    def test_project_argument_is_a_string(self):
+        """testing if a sequence can be created by passing the name of the
+        project as a string
+        """
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
         
-        self.created_projects.append(test_proj)
+        # it should be possible to create a sequence
+        # with a string in the project argument
+        new_seq = Sequence("TEST_PROJECT", "TEST_SEQUENCE1")
         
-        # create a sequence
-        test_seq = test_proj.createSequence("TEST_SEQ", "1")
+        # now check if the sequence.project is a Project instance
+        self.assertIsInstance(new_seq.project, Project)
+    
+    def test_project_argument_is_a_string_and_the_project_is_not_created(self):
+        """testing if a RuntimeError will be generated when the project argument
+        is string and the project is not created yet
+        """
         
-        # now get the settings path and check if there is a node called
-        # output folders by using the minidom
-        document = minidom.parse(
-            os.path.join(test_seq.fullPath, ".settings.xml")
-        )
+        self.assertRaises(RuntimeError, Sequence, "TEST_PROJ", "TEST_SEQ")
         
-        output_folders = document.getElementsByTagName("output_folders")
+    
+    
+    def test_shotPrefix_attribute_initialization(self):
+        """testing the shotPrefix attribute is initialized correctly for a newly
+        created Sequence instance
+        """
         
-        self.assertEqual(output_folders, [])
-
-
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
+        
+        new_seq = Sequence(new_proj, "TEST_SEQ")
+        self.assertEqual(new_seq.shotPrefix, conf.SHOT_PREFIX)
+    
+    def test_shotPrefix_attribute_initialization_from_DB(self):
+        """testing if the shotPrefix attribute is initialized correctly for a
+        Sequence which is already in the database
+        """
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
+        
+        new_seq = Sequence(new_proj, "TEST_SEQ")
+        new_seq.shotPrefix = "PL"
+        new_seq.create()
+        new_seq.save()
+        
+        # now get it back from db
+        new_seq = Sequence(new_proj, "TEST_SEQ")
+        self.assertEqual(new_seq.shotPrefix, "PL")
+    
+    
     def test_if_an_old_sequence_with_and_old_settings_is_parsed_correctly(self):
         """testing if an old sequence which has an output_folders node is
         parsed without any problem
         """
-
+        
         # create a new project and by using the minidom add output_folders node
         # and some output nodes as children
 
@@ -228,7 +285,7 @@ class SequenceTester(unittest.TestCase):
         self.assertTrue(seq3 != seq4)
 
 
-class Sequence_To_NewType_Conversion(unittest.TestCase):
+class Sequence_To_NewType_Conversion_Tester(unittest.TestCase):
     """tests the conversion of old type Sequences to new type Sequences with
     SQLite3 databases.
     """
@@ -377,27 +434,6 @@ class Sequence_NewType_Tester(unittest.TestCase):
         new_proj = Project(name="TEST_PROJECT")
         self.assertRaises(RuntimeError, Sequence, new_proj, name="TEST_SEQ")
     
-    
-    
-#    def test_database_file_is_created(self):
-#        """testing if a database file is created
-#        """
-#        
-#        new_proj = Project(name="TEST_PROJECT")
-#        new_proj.create()
-#        
-#        new_seq = Sequence(new_proj, "TEST_SEQ1")
-#        new_seq.create()
-#        
-#        self.assertTrue(
-#            os.path.exists(
-#                os.path.join(
-#                    new_seq.fullPath,
-#                    conf.DATABASE_FILE_NAME
-#                )
-#            )
-#        )
-    
     def test_sequence_session_is_project_session(self):
         """testing if the session instance is passed correctly to the sequence
         instance
@@ -432,8 +468,6 @@ class Sequence_NewType_Tester(unittest.TestCase):
         verPrefix = new_seq.verPrefix = "ver"
         verPadding = new_seq.verPadding = 8
         
-        print new_seq.fullPath
-        
         new_seq.create()
         
         # now check if the database is created correctly
@@ -459,8 +493,6 @@ class Sequence_NewType_Tester(unittest.TestCase):
         new_proj = Project(name="TEST_PROJECT")
         new_proj.create()
         
-        print "new_proj.fullPath: ", new_proj.fullPath
-        
         test_seq_name = "TEST_SEQ1"
         new_seq = Sequence(new_proj, test_seq_name)
         
@@ -472,15 +504,12 @@ class Sequence_NewType_Tester(unittest.TestCase):
         verPrefix = new_seq.verPrefix = "ver"
         verPadding = new_seq.verPadding = 8
         
-        print "new_seq.fullPath: ", new_seq.fullPath
-        
         new_seq.create()
         
         # now check if the database is created correctly
         del new_seq
         
         # create the seq from scratch and let it read the database
-        print "TEST CREATING A NEW SEQ"
         new_seq = Sequence(new_proj, test_seq_name)
         
         # now check if it was able to get these data
@@ -510,9 +539,9 @@ class Sequence_NewType_Tester(unittest.TestCase):
         new_seq.create()
     
     
-    def test_creating_two_different_shots_and_calling_create(self):
+    def test_creating_two_different_sequences_and_calling_create(self):
         """testing if no error will be raised when creating two different
-        sequences for the same Project and calling the create of the Sequences
+        Sequences for the same Project and calling the Sequences.create()
         in mixed order
         """
         
@@ -522,9 +551,9 @@ class Sequence_NewType_Tester(unittest.TestCase):
         new_seq1 = Sequence(new_proj, "TEST_SEQ1")
         new_seq2 = Sequence(new_proj, "TEST_SEQ2")
         
-        print "calling new_seq1.create"
+#        print "calling new_seq1.create"
         new_seq1.create()
-        print "calling new_seq2.create"
+#        print "calling new_seq2.create"
         new_seq2.create()
         
     
