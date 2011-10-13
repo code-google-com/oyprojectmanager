@@ -7,9 +7,9 @@ from PyQt4 import QtGui, QtCore
 import shotEditor_UI
 
 from oyProjectManager import utils
-from oyProjectManager.models import project, repository
+from oyProjectManager.core.models import Project, Sequence, Repository
 from oyProjectManager.ui import singletonQApplication
-from oyProjectManager.models.environments import environmentFactory
+from oyProjectManager.environments import environmentFactory
 
 
 def UI(environmentName=''):
@@ -42,7 +42,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         super(MainDialog,self).__init__(parent)
         self.setupUi(self)
         
-        self.repo = repository.Repository()
+        self.repo = Repository()
         
         self._envFactory = environmentFactory.EnvironmentFactory()
         self._environment = None

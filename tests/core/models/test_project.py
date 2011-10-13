@@ -8,11 +8,10 @@ from xml.dom import minidom
 from sqlalchemy.exc import IntegrityError
 
 from oyProjectManager import db
-from oyProjectManager.models import project, repository
-from oyProjectManager.models.project import Project, Sequence
+from oyProjectManager.core.models import Project, Sequence, Repository
 
 import logging
-logger = logging.getLogger("oyProjectManager.models.project")
+logger = logging.getLogger("oyProjectManager.core.models")
 logger.setLevel(logging.DEBUG)
 
 
@@ -102,7 +101,7 @@ class ProjectTester(unittest.TestCase):
             project_name = test_value[0]
             expected_project_name = test_value[1]
             
-            new_project = project.Project(project_name)
+            new_project = Project(project_name)
             
             self.assertEqual(new_project.name, expected_project_name)
     
@@ -110,7 +109,7 @@ class ProjectTester(unittest.TestCase):
         """testing if the name property will be formatted correctly.
         """
         
-        new_project = project.Project("TEST_NAME")
+        new_project = Project("TEST_NAME")
         
         for test_value in self._name_test_values:
             
@@ -123,26 +122,26 @@ class ProjectTester(unittest.TestCase):
         """testing if a TypeError will be raised when the name argument is
         None.
         """
-        self.assertRaises(TypeError, project.Project, None)
+        self.assertRaises(TypeError, Project, None)
     
     def test_name_attribute_is_None(self):
         """testing if a TypeError will be raised when the name property is
         tried to be set to None
         """
-        proj = project.Project("TEST_PROJECT")
+        proj = Project("TEST_PROJECT")
         self.assertRaises(TypeError, setattr, proj, "name", None)
     
     def test_name_argument_is_empty_string(self):
         """testing if a ValueError will be raised when the name arugment is
         an empty string
         """
-        self.assertRaises(ValueError, project.Project, "")
+        self.assertRaises(ValueError, Project, "")
     
     def test_name_attribute_is_set_to_empty_string(self):
         """testing if a ValueError will be raised when the name property is
         tried to be set to empty string
         """
-        proj = project.Project("TEST_PROJECT")
+        proj = Project("TEST_PROJECT")
         self.assertRaises(ValueError, setattr, proj, "name", "")
     
     def test_name_argument_is_empty_string_after_validation(self):
@@ -152,7 +151,7 @@ class ProjectTester(unittest.TestCase):
         
         # this is obviously not a valid name for a project
         test_name = "+++++^^^"
-        self.assertRaises(ValueError, project.Project, test_name)
+        self.assertRaises(ValueError, Project, test_name)
     
     def test_name_attribute_is_empty_string_after_validation(self):
         """testing if a ValueError will be raised when the name property is
@@ -165,29 +164,29 @@ class ProjectTester(unittest.TestCase):
             "__",
         ]
         
-        proj = project.Project("TEST_PROJECT")
+        proj = Project("TEST_PROJECT")
         
         for test_name in test_names:
             self.assertRaises(ValueError, setattr, proj, "name", test_name)
     
-    def test_create_sequence_raises_RuntimeError_if_the_project_is_not_created_yet(self):
-        """testing createSequence raises a RuntimeError if the project is not
-        created yet
-        """
-        
-        # create a new project and create a sequence
-        
-        test_proj = Project("TEST_PROJECT1221")
-#        print "test_proj.fullPath", test_proj.fullPath
-#        print "test_proj.exists:", test_proj.exists
-        
-        self.assertRaises(RuntimeError, test_proj.createSequence, "TEST_SEQ",
-                          "1")
-        
-        # and not when the test_proj is created
-        test_proj2 = Project("TEST_PROJECT13")
-        test_proj2.create()
-        test_proj2.createSequence("TEST_SEQ2", "1")
+#    def test_create_sequence_raises_RuntimeError_if_the_project_is_not_created_yet(self):
+#        """testing createSequence raises a RuntimeError if the project is not
+#        created yet
+#        """
+#        
+#        # create a new project and create a sequence
+#        
+#        test_proj = Project("TEST_PROJECT1221")
+##        print "test_proj.fullPath", test_proj.fullPath
+##        print "test_proj.exists:", test_proj.exists
+#        
+#        self.assertRaises(RuntimeError, test_proj.createSequence, "TEST_SEQ",
+#                          "1")
+#        
+#        # and not when the test_proj is created
+#        test_proj2 = Project("TEST_PROJECT13")
+#        test_proj2.create()
+#        test_proj2.createSequence("TEST_SEQ2", "1")
     
     def test___eq__operator(self):
         """testing the __eq__ (equal) operator

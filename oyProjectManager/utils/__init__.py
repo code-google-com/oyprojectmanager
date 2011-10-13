@@ -162,7 +162,7 @@ def unique(s):
     return u
 
 
-def convertRangeToList(_range):
+def uncompress_range(_range):
     """a shotRange is a string that contains numeric data with "," and "-"
     characters
     

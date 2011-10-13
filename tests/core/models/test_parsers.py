@@ -4,22 +4,14 @@
 
 import sys
 import unittest
-from oyProjectManager.models import project
+from oyProjectManager.core.models import Project
 from xml.dom import minidom
 
 
-
-
-
-
-########################################################################
 class DefaultSettingsParserTester(unittest.TestCase):
     """tests the DefaultSettingsParser class
     """
     
-    
-    
-    #----------------------------------------------------------------------
     def setUp(self):
         """setup the test
         """
@@ -116,7 +108,7 @@ class DefaultSettingsParserTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_default_settings(self):
         """
         """

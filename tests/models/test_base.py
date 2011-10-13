@@ -1,2 +1,0 @@
-class TestBase:
-    pass

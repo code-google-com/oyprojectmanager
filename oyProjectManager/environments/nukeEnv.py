@@ -4,12 +4,12 @@
 
 import os
 import nuke
-from oyProjectManager.models import asset, project, abstractClasses, repository
+from oyProjectManager.environments import EnvironmentBase
+from oyProjectManager.core.models import Asset, Sequence, Repository
 from oyProjectManager import utils
-from oyProjectManager.models.asset import Asset
 
 
-class NukeEnvironment(abstractClasses.Environment):
+class NukeEnvironment(EnvironmentBase):
     """the nuke environment class
     """
     
@@ -182,7 +182,7 @@ class NukeEnvironment(abstractClasses.Environment):
         """sets the current time unit
         """
         # get the fps value of the given time unit
-        repo = repository.Repository()
+        repo = Repository()
         
         try:
             fps = repo.time_units[timeUnit]
@@ -199,7 +199,7 @@ class NukeEnvironment(abstractClasses.Environment):
         """
         currentFps = int(self._root.knob('fps').getValue())
         
-        repo = repository.Repository()
+        repo = Repository()
         time_units = repo.time_units
         
         # by default set it to pal
@@ -245,10 +245,10 @@ class NukeEnvironment(abstractClasses.Environment):
         
         # set the output path
         
-        assert(isinstance(self._asset, asset.Asset))
+        assert(isinstance(self._asset, Asset))
         
         seq = self._asset.sequence
-        assert(isinstance(seq, project.Sequence))
+        assert(isinstance(seq, Sequence))
         
         output_file_name = self._asset.baseName + "_" + \
                            self._asset.subName + "_" + \

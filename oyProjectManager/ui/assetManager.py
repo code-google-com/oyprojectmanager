@@ -8,11 +8,9 @@ import assetManager_UI
 
 import oyProjectManager
 from oyProjectManager import utils
-from oyProjectManager.models import asset, project, repository
-from oyProjectManager.models.environments import environmentFactory
+from oyProjectManager.core.models import Asset, Project, Sequence, Repository
+from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import assetUpdater, singletonQApplication
-
-
 
 
 def UI(environmentName=None):
@@ -25,12 +23,12 @@ def UI(environmentName=None):
     mainDialog.show()
     #app.setStyle('Plastique')
     app.exec_()
-    app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
-
-
-
-
-
+    app.connect(
+        app,
+        QtCore.SIGNAL("lastWindowClosed()"),
+        app,
+        QtCore.SLOT("quit()")
+    )
 
 
 class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
@@ -46,7 +44,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         # change the window title
         environmentTitle = ''
-        if environmentName != None:
+        if environmentName is not None:
             environmentTitle = environmentName
         
         self._environmentFactory = environmentFactory.EnvironmentFactory()
@@ -64,7 +62,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self._setupValidators()
         
         # create a repository object
-        self._repo = repository.Repository()
+        self._repo = Repository()
         
         # fill them later
         self._asset = None
@@ -93,7 +91,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     def _setEnvironment(self, environmentName):
-        """sets the environment object from the environemnt name
+        """sets the environment object from the environment name
         """
         self._environment = self._environmentFactory.create(self._asset, environmentName)
     
@@ -349,7 +347,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         last_user = self._repo.last_user
         
         userIndex = -1
-        if last_user != '' and last_user != None:
+        if last_user != '' and last_user is not None:
             userIndex = self.user_comboBox1.findText(last_user) 
         
         if userIndex == -1:
@@ -368,25 +366,28 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     def fillFieldsFromFileInfo(self):
-        """fills the ui fields from the data that comes from the fileName and path
+        """fills the ui fields from the data that comes from the fileName and
+        path
         """
         
         # no use without the path
-        if self.path == None or self.path == '':
+        if self.path is None or self.path == '':
             return
         
         # get the project and sequence names
-        projectName, sequenceName = self._repo.get_project_and_sequence_name_from_file_path( self.path )
-                
-        if projectName == None or projectName == '' or sequenceName == None or sequenceName == '':
+        projectName, sequenceName = \
+            self._repo.get_project_and_sequence_name_from_file_path( self.path )
+        
+        if projectName is None or projectName == '' or sequenceName is None \
+            or sequenceName == '':
             return
         
-        currentProject = project.Project( projectName )
+        currentProject = Project( projectName )
         
         if not currentProject.exists:
             return
         
-        currentSequence = project.Sequence( currentProject, sequenceName )
+        currentSequence = Sequence( currentProject, sequenceName )
         
         if not currentSequence.exists:
             return
@@ -396,13 +397,13 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.setSequenceName( sequenceName )
         
         # no file name no use of the rest
-        if self.fileName == None:
+        if self.fileName is None:
             return
         
         # fill the fields with those info
         # create an asset with the file name and get the information from that asset object
         
-        assetObj = asset.Asset( currentProject, currentSequence, self.fileName )
+        assetObj = Asset( currentProject, currentSequence, self.fileName )
         
         if not assetObj.isValidAsset and not assetObj.exists:
             return
@@ -498,11 +499,11 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """
         
         self._updateProjectObject()
-        currentProjet = self._project
+        currentProject = self._project
         
         # create a project and ask the child sequences
         self.sequence_comboBox.clear()
-        sequences = currentProjet.sequenceNames()
+        sequences = currentProject.sequenceNames()
         
         self.sequence_comboBox.addItems( sequences )
         
@@ -545,7 +546,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self._updateSequenceObject()
         
         # try to keep the selection
-        lastSelectedShot = self.shot_comboBox1.currentText()
+#        lastSelectedShot = self.shot_comboBox1.currentText()
         
         # clear and update the list
         self.shot_comboBox1.clear()
@@ -553,7 +554,8 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         index = -1
         
-        if self._lastValidShotSelection != "" and self._lastValidShotSelection != None:
+        if self._lastValidShotSelection != "" and \
+           self._lastValidShotSelection is not None:
             index = self.assetType_comboBox1.findText( self._lastValidShotSelection )
             
             if index != -1:
@@ -578,12 +580,12 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         currentTypeName = self.getCurrentAssetType()
         
-        if currentTypeName == None:
+        if currentTypeName is None:
             return
         
         currentType = currentSequence.getAssetTypeWithName( currentTypeName )
         
-        if currentType == None or currentType.isShotDependent:
+        if currentType is None or currentType.isShotDependent:
             # do nothing
             return
         
@@ -636,7 +638,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         assetTypeObj = currentSequence.getAssetTypeWithName( currentAssetTypeName )
         
-        if assetTypeObj == None:
+        if assetTypeObj is None:
             # clear the current subName field and return
             self.subName_listWidget.clear()
             return
@@ -648,12 +650,12 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         self.subName_listWidget.clear()
         
-        if currentAssetTypeName == None or currentBaseName == None:
+        if currentAssetTypeName is None or currentBaseName is None:
             return
         
         currentAssetType = currentSequence.getAssetTypeWithName( currentAssetTypeName )
         
-        if currentAssetType == None:
+        if currentAssetType is None:
             # do nothing
             return
         
@@ -722,7 +724,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         assetType = currentSequence.getAssetTypeWithName( assetTypeName )
         
-        if assetType == None:
+        if assetType is None:
             return
         
         # enable the shot if the asset type is shot dependent
@@ -747,7 +749,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         typeName = self.getCurrentAssetType()
         
-        if typeName == '' or typeName == None:
+        if typeName == '' or typeName is None:
             return
         
         # if the type is shot dependent get the shot number
@@ -790,7 +792,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """just updates if the number of maximum displayable entry is changed
         """
         
-        _buffer = []
         if self.showLastNEntry_checkBox.isChecked():
             
             # get the number of entry
@@ -822,16 +823,16 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         data = []
         
-        if assetCount == 0 :
+        if not assetCount:
             return
         
         for i,assetFileName in enumerate(assetFileNames):
-            #assert( isinstance(asset, asset.Asset))
+            #assert( isinstance(asset, Asset))
             
             if assetFileName is None:
                 continue
             
-            assetObj = asset.Asset( self._project, self._sequence, assetFileName )
+            assetObj = Asset( self._project, self._sequence, assetFileName )
             
             fileName = assetObj.fileName
             fileSize = assetObj.fileSizeFormated
@@ -846,7 +847,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             # ------------------------------------
             # asset fileName
             assetFileName_tableWI = QtGui.QTableWidgetItem( fileName )
-            # align to left and verticle center
+            # align to left and vertical center
             assetFileName_tableWI.setTextAlignment( 0x0001 | 0x0080  )
             self.assets_tableWidget1.setItem( i, 0, assetFileName_tableWI )
             # ------------------------------------
@@ -854,7 +855,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             # ------------------------------------
             # asset fileSize
             assetFileSize_tableWI = QtGui.QTableWidgetItem( fileSize )
-            # align to center and verticle center
+            # align to center and vertical center
             assetFileSize_tableWI.setTextAlignment( 0x0002 | 0x0080  )
             self.assets_tableWidget1.setItem( i, 1, assetFileSize_tableWI )
             # ------------------------------------
@@ -862,7 +863,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             # ------------------------------------
             # asset dateUpdated
             assetDateUpdated_tableWI = QtGui.QTableWidgetItem( dateUpdated )
-            # align to left and verticle center
+            # align to left and vertical center
             assetDateUpdated_tableWI.setTextAlignment( 0x0004 | 0x0080  )
             self.assets_tableWidget1.setItem( i, 2, assetDateUpdated_tableWI )
             # ------------------------------------
@@ -973,13 +974,13 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # get the asset object from fields
         self._createAssetObjectFromSaveFields()
         
-        if self._asset == None or not self._asset.isValidAsset:
+        if self._asset is None or not self._asset.isValidAsset:
             self.setRevisionNumberField( 0 )
             return
         
         maxRevAsset, maxRevNumber = self._asset.latestRevision2
         
-        if maxRevNumber == None:
+        if maxRevNumber is None:
             maxRevNumber = 0
             
         # update the field
@@ -992,16 +993,16 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """ tries to get the latest version
         """
         
-        # get the asset objet from fields
+        # get the asset object from fields
         self._createAssetObjectFromSaveFields()
         
-        if self._asset == None or not self._asset.isValidAsset:
+        if self._asset is None or not self._asset.isValidAsset:
             self.setVersionNumberField( 1 )
             return
         
         maxVerAsset, maxVerNumber = self._asset.latestVersion2
         
-        if maxVerNumber == None:
+        if maxVerNumber is None:
             maxVerNumber = 0
         
         # update the field
@@ -1013,7 +1014,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     def setProjectName(self, projectName):
         """sets the project in the combobox
         """
-        if projectName == None:
+        if projectName is None:
             return
         
         index = self.project_comboBox.findText( projectName )
@@ -1030,7 +1031,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     def setSequenceName(self, sequenceName):
         """sets the sequence in the combobox
         """
-        if sequenceName == None:
+        if sequenceName is None:
             return
         
         currentIndex = self.sequence_comboBox.currentIndex()
@@ -1050,17 +1051,17 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """returns the asset object from the fields
         """
         
-        if self._project == None or self._sequence == None:
+        if self._project is None or self._sequence is None:
             return None
         
-        assetObj = asset.Asset( self._project, self._sequence )
+        assetObj = Asset( self._project, self._sequence )
         
         # gather information
         typeName = self.getCurrentAssetType()
         
         assetTypeObj = self._sequence.getAssetTypeWithName(typeName)
         
-        if assetTypeObj == None:
+        if assetTypeObj is None:
             return
         
         isShotDependent = assetTypeObj.isShotDependent
@@ -1101,28 +1102,28 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     def _createAssetObjectFromOpenFields(self):
-        """retriewes the file name from the open asset fields
+        """retrieves the file name from the open asset fields
         """
         
         index = self.assets_tableWidget1.currentIndex().row()
         assetFileName = unicode(self.assets_tableWidget1.tableData[index][1])
         self._updateProjectObject()
         self._updateSequenceObject()
-        self._asset = asset.Asset(self._project, self._sequence, assetFileName)
+        self._asset = Asset(self._project, self._sequence, assetFileName)
         #self._environment.asset = self._asset
 
 
 
     
     def _getAssetObjectFromOpenFields(self):
-        """retriewes the file name from the open asset fields
+        """retrieves the file name from the open asset fields
         """
         
         index = self.assets_tableWidget1.currentIndex().row()
         assetFileName = unicode(self.assets_tableWidget1.tableData[index][1])
         self._updateProjectObject()
         self._updateSequenceObject()
-        return asset.Asset(self._project, self._sequence, assetFileName)
+        return Asset(self._project, self._sequence, assetFileName)
     
     
     
@@ -1133,7 +1134,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # get the asset object from fields
         self._createAssetObjectFromSaveFields()
         
-        if self._asset == None:
+        if self._asset is None:
             return None, None
         
         return self._asset.pathVariables, self._asset
@@ -1189,15 +1190,15 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     def _updateProjectObject(self):
         """updates the project object if it is changed
-        it is introduced to take advantege of the cache system
+        it is introduced to take advantage of the cache system
         """
         
         currentProjectName = self.getCurrentProjectName()
         
-        if self._project == None or \
+        if self._project is None or \
            self._project.name != currentProjectName or \
-           (currentProjectName != "" or currentProjectName != None ):
-            self._project = project.Project( currentProjectName )
+           (currentProjectName != "" or currentProjectName is not None ):
+            self._project = Project( currentProjectName )
     
     
     
@@ -1209,12 +1210,12 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         currentSequenceName = self.getCurrentSequenceName()
         
         #assert(isinstance(self._sequence,Sequence))
-        if self._sequence == None or \
+        if self._sequence is None or \
            self._sequence.name != currentSequenceName and \
-           (currentSequenceName != "" or currentSequenceName != None ) or \
+           (currentSequenceName != "" or currentSequenceName is not None ) or \
            self._sequence.projectName != self._project.name:
             self._updateProjectObject()
-            newSeq = project.Sequence( self._project, currentSequenceName )
+            newSeq = Sequence( self._project, currentSequenceName )
             if newSeq._exists:
                 self._sequence = newSeq
     
@@ -1222,7 +1223,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     def validateSubName(self, text):
-        """validates the subName field by removing unneccessary characters
+        """validates the subName field by removing unnecessary characters
         """
         
         # just replace the validated text
@@ -1232,7 +1233,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     
     
     def validateBaseName(self, text):
-        """validates the baseName field by removing unneccessary characters
+        """validates the baseName field by removing unnecessary characters
         """
         
         # just replace the validated text
@@ -1279,7 +1280,11 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             
             if inputItemText == checkItemText:
                 # pop up an input form to ask the user for the new item name
-                newItemName, ok = QtGui.QInputDialog.getText( self, 'Enter new item name', 'Enter a new item name please:' )
+                newItemName, ok = QtGui.QInputDialog.getText(
+                    self,
+                    'Enter new item name',
+                    'Enter a new item name please:'
+                )
                 
                 if ok:
                     # validate the input
@@ -1316,7 +1321,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         """gets the data from environment
         """
         
-        if self._environment.name != None and self._environment.name != '':
+        if self._environment.name is not None and self._environment.name != '':
             self.fileName, self.path = self._environment.getPathVariables()
             
             # update the interface
@@ -1346,7 +1351,14 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         if not assetObject.isNewVersion():
             
             # ask permission to update the fields automatically
-            answer = QtGui.QMessageBox.question(self, 'Version Error', 'it is not the latest version\nshould I increase the version number?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            answer = QtGui.QMessageBox.question(
+                self,
+                "Version Error",
+                "it is not the latest version\nshould I increase the "
+                "version number?",
+                QtGui.QMessageBox.Yes,
+                QtGui.QMessageBox.No
+            )
             
             if answer == QtGui.QMessageBox.Yes:
                 assetObject.setVersionToNextAvailable()
@@ -1371,7 +1383,14 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # check for latest revision
         if not assetObject.isLatestRevision():
             # ask permission to update the fields automatically
-            answer = QtGui.QMessageBox.question(self, 'Revision Error', 'it is not the latest revision\nshould I increase the revision number?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            answer = QtGui.QMessageBox.question(
+                self,
+                "Revision Error",
+                "it is not the latest revision\nshould I increase the "
+                "revision number?",
+                QtGui.QMessageBox.Yes,
+                QtGui.QMessageBox.No
+            )
             
             if answer == QtGui.QMessageBox.Yes:
                 assetObject.setRevisionToNextAvailable()
@@ -1395,7 +1414,14 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         # check for overwrites
         if assetObject.exists:
-            answer = QtGui.QMessageBox.question(self, 'File Error', 'owerwrite?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            answer = QtGui.QMessageBox.question(
+                self,
+                'File Error',
+                'overwrite?',
+                QtGui.QMessageBox.Yes,
+                QtGui.QMessageBox.No
+            )
+            
             if answer == QtGui.QMessageBox.Yes:
                 overwriteStatus = True
         else:
@@ -1469,7 +1495,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # get the asset object
         self._createAssetObjectFromSaveFields()
         
-        if self._asset == None:
+        if self._asset is None:
             return
         
         # check the file conditions
@@ -1494,7 +1520,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                     self,
                     'Asset Export',
                     'Asset :\n\n'+ self._asset.fileName + \
-                        '\n\nis exported successfuly',
+                        '\n\nis exported successfully',
                     QtGui.QMessageBox.Ok
                 )
                 
@@ -1512,7 +1538,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self._createAssetObjectFromOpenFields()
         self._environment.asset = self._asset
         
-        # check the file existancy
+        # check the file existence
         exists = os.path.exists( self._asset.fullPath )
         
         envStatus = False
@@ -1521,12 +1547,20 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         if exists:
             if self._environment.name == 'MAYA':
                 
-                toUpdateList = [] # the list that holds the assets those needs to be updated
+                # the list that holds the assets those needs to be updated
+                toUpdateList = []
                 
                 try:
                     envStatus, toUpdateList = self._environment.open_()
                 except RuntimeError:
-                    answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There are <b>unsaved changes</b> in the current scene<br><br>Do you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
+                    answer = QtGui.QMessageBox.question(
+                        self,
+                        'RuntimeError',
+                        "There are <b>unsaved changes</b> in the current "
+                        "scene<br><br>Do you really want to open the file?",
+                        QtGui.QMessageBox.Yes,
+                        QtGui.QMessageBox.No
+                    )
                     
                     envStatus = False
                     
@@ -1551,7 +1585,14 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 try:
                     envStatus = self._environment.open_()
                 except RuntimeError:
-                    answer = QtGui.QMessageBox.question(self, 'RuntimeError', "There are unsaved changes in the current scene\n\nDo you really want to open the file?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No )
+                    answer = QtGui.QMessageBox.question(
+                        self,
+                        'RuntimeError',
+                        "There are unsaved changes in the current "
+                        "scene\n\nDo you really want to open the file?",
+                        QtGui.QMessageBox.Yes,
+                        QtGui.QMessageBox.No
+                    )
                     
                     if answer== QtGui.QMessageBox.Yes:
                         envStatus = self._environment.open_( True )
@@ -1570,7 +1611,12 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         else:
             # warn the user for non existing asset files
-            answer = QtGui.QMessageBox.question(self, 'File Error', self._asset.fullPath + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
+            answer = QtGui.QMessageBox.question(
+                self,
+                'File Error',
+                self._asset.fullPath + "\n\nAsset doesn't exist !!!",
+                QtGui.QMessageBox.Ok
+            )
     
     
     
@@ -1583,7 +1629,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # get the asset object
         self._createAssetObjectFromOpenFields()
         
-        # check the file existancy
+        # check the file existence
         exists = os.path.exists(self._asset.fullPath)
         
         envStatus = False
@@ -1594,11 +1640,22 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             
             if envStatus:
                 #self.close()
-                QtGui.QMessageBox.information(self, 'Asset Import', 'Asset :\n\n'+ self._asset.fileName +'\n\nis imported successfuly', QtGui.QMessageBox.Ok)
+                QtGui.QMessageBox.information(
+                    self,
+                    'Asset Import',
+                    'Asset :\n\n'+ self._asset.fileName + \
+                       '\n\nis imported successfully',
+                    QtGui.QMessageBox.Ok
+                )
         
         else:
             # warn the user for non existing asset files
-            answer = QtGui.QMessageBox.question(self, 'File Error', self._asset.fullPath + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
+            answer = QtGui.QMessageBox.question(
+                self,
+                'File Error',
+                self._asset.fullPath + "\n\nAsset doesn't exist !!!",
+                QtGui.QMessageBox.Ok
+            )
     
     
     
@@ -1616,7 +1673,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         #self._createAssetObjectFromOpenFields()
         referenced_asset = self._getAssetObjectFromOpenFields()
         
-        # check the file existancy
+        # check the file existence
         #exists = os.path.exists(self._asset.fullPath)
         exists = os.path.exists(referenced_asset.fullPath)
         
@@ -1627,13 +1684,22 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             envStatus = self._environment.reference(referenced_asset)
             
             if envStatus:
-                QtGui.QMessageBox.information(self, 'Asset Reference', 'Asset :\n\n'+ self._asset.fileName +'\n\nis referenced successfuly', QtGui.QMessageBox.Ok)
+                QtGui.QMessageBox.information(
+                    self,
+                    'Asset Reference',
+                    'Asset :\n\n'+ self._asset.fileName + \
+                          '\n\nis referenced successfully',
+                    QtGui.QMessageBox.Ok
+                )
         
         else:
             # warn the user for non existing asset files
-            answer = QtGui.QMessageBox.question(self, 'File Error', self._asset.fullPath + "\n\nAsset doesn't exist !!!", QtGui.QMessageBox.Ok )
-    
-    
+            answer = QtGui.QMessageBox.question(
+                self,
+                'File Error',
+                self._asset.fullPath + "\n\nAsset doesn't exist !!!",
+                QtGui.QMessageBox.Ok
+            )
     
     
     def printInfo(self, assetObject, actionName):
@@ -1643,7 +1709,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         print "-----------------------------------"
         print "AssetManager"
         print assetObject.fileName
-        print actionName + " succesfully"
+        print actionName + " successfully"
     
     
     
@@ -1663,18 +1729,27 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         # get the frame range from the sequence settings
         seq = self._asset.sequence
-        #assert(isinstance(seq, project.Sequence))
+        #assert(isinstance(seq, Sequence))
         shot = seq.getShot( self._asset.shotNumber )
         
-        if shot != None and envStart != None and envEnd != None:
+        if shot is not None and envStart is not None and envEnd is not None:
             shotStart = shot.startFrame
             shotEnd = shot.endFrame
             
             if envStart != shotStart or envEnd != shotEnd:
-                answer = QtGui.QMessageBox.question(self, 'FrameRange Error', "The current frame range is:<br><b>" + \
-                                                    str(envStart) + "-" + str(envEnd) + "</b><br><br>The frame range of shot <b>" + shot.name + "</b> is:<br><b>" + \
-                                                    str(shotStart) + "-" + str(shotEnd) + "</b><br><br>should your frame range be adjusted?", \
-                                                    QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.Cancel )
+                answer = QtGui.QMessageBox.question(
+                    self, 'FrameRange Error',
+                    
+                    "The current frame range is:<br><b>" + \
+                    str(envStart) + "-" + str(envEnd) + \
+                    "</b><br><br>The frame range of shot <b>" + shot.name + \
+                    "</b> is:<br><b>" + str(shotStart) + "-" + str(shotEnd) + \
+                    "</b><br><br>should your frame range be adjusted?",
+                    
+                    QtGui.QMessageBox.Yes,
+                    QtGui.QMessageBox.No,
+                    QtGui.QMessageBox.Cancel
+                )
                 
                 if answer == QtGui.QMessageBox.Yes:
                     self._environment.setFrameRange( shotStart, shotEnd )
@@ -1682,7 +1757,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 if answer == QtGui.QMessageBox.Cancel:
                     # do nothing
                     return -1
-            else: # set it incase the render frames are wrong
+            else: # set it in case the render frames are wrong
                 self._environment.setFrameRange( shotStart, shotEnd )
                 return 1
     
@@ -1699,16 +1774,18 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # get the timeUnit of the sequence
         seq = self._asset.sequence
         
-        assert(isinstance(seq, project.Sequence))
+        assert(isinstance(seq, Sequence))
         
         seqTimeUnit = seq.timeUnit
         
         if seq.timeUnit != timeUnit:
-            answer = QtGui.QMessageBox.question(self, 'TimeUnit Error', "The current time unit is:<br><b>" + \
-                                                timeUnit + \
-                                                "</b><br><br>The time unit of the sequence is :<br><b>" + \
-                                                seqTimeUnit + \
-                                                "</b><br><br>your time unit will be adjusted!", \
-                                                QtGui.QMessageBox.Ok )
+            answer = QtGui.QMessageBox.question(
+                self, 'TimeUnit Error',
+                "The current time unit is:<br><b>" + timeUnit + \
+                "</b><br><br>The time unit of the sequence is :<br><b>" + \
+                seqTimeUnit + "</b><br><br>your time unit will be adjusted!",
+                QtGui.QMessageBox.Ok
+            )
+            
             # adjust the time unit
             self._environment.setTimeUnit( seqTimeUnit )

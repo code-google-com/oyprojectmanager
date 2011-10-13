@@ -5,14 +5,55 @@ Version History
 -----
 
 * The system now uses SQLAlchemy Declarative in its data models. And a new
-  settings file located in the Project root with the name .metadata.db is
-  governed to hold the related data for that Project. There are a lot of
-  interface changes in the classes:
+  settings file located in the Project root with the name ``.metadata.db`` is
+  governed to hold the related data for that Project. The system doesn't scan
+  the file system anymore but instead uses this ``.metadata.db`` SQLite3 file.
+  There are a lot of interface changes in the classes:
   
   * The Project.sequenceNames and Project.updateSequenceList methods are no
     longer needed and they don't exist anymore.
+  
+  * There is no ``readSettings`` method in any of the classes anymore. All the
+    settings are read from the database (by retrieving an instance from the db)
+    as the instance is created.
+  
+  * All the XML parsing code is moved to the
+    :class:`~oyProjectManager.core.models.XMLSettingsParser` class. The
+    :class:`~oyProjectManager.core.models.Project` uses this parser to parse
+    the old settings and convert them to new one.
+  
+  * The methods:
     
-  * 
+    * ``getAssetTypes``
+    * ``getAssetTypeWithName``
+    * ``getAssetFolders``
+    * ``projectName``
+    * ``getAllAssets``
+    * ``getAllAssetsForType``
+    * ``getAllAssetFileNamesForType``
+    * ``getAssetBaseNamesForType``
+    * ``getAllAssetsForTypeAndBaseName``
+    * ``filterAssets``
+    * ``filterAssetNames``
+    * ``generateFakeInfoVariables``
+    * ``aFilter``
+    * ``undoChange``
+    
+    of the :class:`~oyProjectManager.core.models.Sequence` are removed. They
+    were preliminarily used for fake database query like behaviour which is
+    greatly handled by SQLAlchemy right now.
+
+* All the models are now placed under one module called
+  :mod:`oyProjectManager.core.models`. Thus deleted the old
+  ``oyProjectManager.models.project``, ``oyProjectManager.models.asset``,
+  ``oyProjectManager.models.user`` modules and the ``oyProjectManager.models``
+  module itself.
+
+* ``utils.convertRangeToList`` is renamed to
+  :func:`~oyProjectManager.utils.uncompress_range`\ .
+
+
+
 
 0.1.2
 -----

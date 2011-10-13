@@ -5,7 +5,7 @@ from PyQt4 import QtGui, QtCore
 import projectManager_UI
 
 import oyProjectManager
-from oyProjectManager.models import project, repository
+from oyProjectManager.core.models import Project, Sequence, Repository
 from oyProjectManager import utils
 from oyProjectManager.ui import singletonQApplication
 
@@ -65,7 +65,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         QtCore.QObject.connect(self.addAlternativeShot_pushButton, QtCore.SIGNAL("clicked()"), self.addAlternativeShot )
         
-        self.repo = repository.Repository()
+        self.repo = Repository()
         
         self._timeFpsDivider = ' - '
         

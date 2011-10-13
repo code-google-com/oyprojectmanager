@@ -5,8 +5,8 @@
 import sys
 from PyQt4 import QtGui, QtCore
 from oyProjectManager.ui import singletonQApplication, projectSetter_UI
-from oyProjectManager.models import project, repository
-from oyProjectManager.models.environments import environmentFactory
+from oyProjectManager.core.models import Project, Sequence, Repository
+from oyProjectManager.environments import environmentFactory
 
 
 
@@ -67,14 +67,18 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         super(MainDialog, self).__init__( parent )
         self.setupUi(self)
         
-        self._repo = repository.Repository()
+        self._repo = Repository()
         
         self._envFactory = environmentFactory.EnvironmentFactory()
         
-        self._environment = self._envFactory.create( None, environmentName )
+        self._environment = self._envFactory.create(None, environmentName)
         
         # SIGNALS
-        QtCore.QObject.connect( self.project_comboBox, QtCore.SIGNAL("currentIndexChanged(int)"), self.updateSequenceList )
+        QtCore.QObject.connect(
+            self.project_comboBox,
+            QtCore.SIGNAL("currentIndexChanged(int)"),
+            self.updateSequenceList
+        )
         
         # fill the fields with default values
         self.setDefaults()

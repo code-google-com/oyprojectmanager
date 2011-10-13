@@ -8,8 +8,8 @@ import assetManager2_UI
 
 import oyProjectManager
 from oyProjectManager import utils
-from oyProjectManager.models import asset, project, repository
-from oyProjectManager.models.environments import environmentFactory
+from oyProjectManager.core.models import Asset, Project, Sequence, Repository
+from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import assetUpdater, singletonQApplication
 from oyProjectManager.ui import assetCreator_UI
 
@@ -408,7 +408,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
         # fill the fields with those info
         # create an asset with the file name and get the information from that asset object
         
-        assetObj = asset.Asset( currentProject, currentSequence, self.fileName )
+        assetObj = Asset( currentProject, currentSequence, self.fileName )
         
         if not assetObj.isValidAsset and not assetObj.exists:
             return
@@ -834,7 +834,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
             if assetFileName is None:
                 continue
             
-            assetObj = asset.Asset( self._project, self._sequence, assetFileName )
+            assetObj = Asset( self._project, self._sequence, assetFileName )
             
             fileName = assetObj.fileName
             fileSize = assetObj.fileSizeFormated
@@ -1057,7 +1057,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
         if self._project == None or self._sequence == None:
             return None
         
-        assetObj = asset.Asset( self._project, self._sequence )
+        assetObj = Asset( self._project, self._sequence )
         
         # gather information
         typeName = self.getCurrentAssetType()
@@ -1111,7 +1111,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
         
         index = self.assets_tableWidget1.currentIndex().row()
         assetFileName = unicode(self.assets_tableWidget1.tableData[index][1])
-        self._asset = asset.Asset( self._project, self._sequence, assetFileName )
+        self._asset = Asset( self._project, self._sequence, assetFileName )
         self._environment.asset = self._asset
     
     

@@ -8,8 +8,8 @@ import assetReplacer_UI
 
 import oyProjectManager
 from oyProjectManager import utils
-from oyProjectManager.models import asset, project, repository
-from oyProjectManager.models.environments import environmentFactory
+from oyProjectManager.core.models import Asset, Project, Sequence, Repository
+from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import singletonQApplication
 
 
@@ -224,7 +224,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         for i, refData in enumerate(self._refDatas):
             
             assetObj = refData[0]
-            assert(isinstance(assetObj, asset.Asset))
+            assert(isinstance(assetObj, Asset))
             
             #----------------
             # the referenced asset file
@@ -619,7 +619,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         """retriewes the file name from the open asset fields
         """
         assetFileName = unicode(self.assetFile_comboBox.currentText())
-        self._asset = asset.Asset( self._project, self._sequence, assetFileName )
+        self._asset = Asset( self._project, self._sequence, assetFileName )
         self._environment.asset = self._asset
     
     
@@ -663,7 +663,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         if cellColoumnId == 0:
             assetObj = self._assetsToReplaceList[cellRowId][0][0]
             
-            assert(isinstance(assetObj, asset.Asset))
+            assert(isinstance(assetObj, Asset))
             
             projectName = assetObj.sequence.project.name
             sequenceName = assetObj.sequence.name

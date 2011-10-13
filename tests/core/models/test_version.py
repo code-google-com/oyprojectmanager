@@ -6,8 +6,8 @@ from xml.dom import minidom
 import oyProjectManager
 
 
-class ShotTester(unittest.TestCase):
-    """tests the Shot class
+class VersionTester(unittest.TestCase):
+    """tests the Version class
     """
     
     def setUp(self):
@@ -80,79 +80,3 @@ class ShotTester(unittest.TestCase):
         shutil.rmtree(self.temp_settings_folder)
         shutil.rmtree(self.temp_projects_folder)
     
-    def test_name_argument_is_skipped(self):
-        """testing if a TypeError will be raised when the name argument is
-        skipped
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_name_argument_is_None(self):
-        """testing if a TypeError will be raised when the name argument is None
-        """
-        self.fail("test is not implemented yet")
-
-    def test_name_attribute_is_None(self):
-        """testing if a TypeError will be raised when the name attribute is set
-        to None
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_name_argument_is_not_a_string(self):
-        """testing if a TypeError will be raised when the name argument is not
-        a string
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_name_attribute_is_not_a_string(self):
-        """testing if a TypeError will be raised when the name attribute is not
-        a string
-        """
-        self.fail("test is not implemented yet")
-    
-    
-    def test_name_argument_formatted_correctly(self):
-        """testing if the name attribute is formatted correctly when the class
-        is initialized
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_name_attribute_formatted_correctly(self):
-        """testing if the name attribute is formatted correctly
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_sequence_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the sequence argument
-        is skipped
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_sequence_argument_is_None(self):
-        """testing if a RuntimeError will be raised when the sequence argument
-        is None
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_sequence_argument_is_not_a_Sequence_instance(self):
-        """testing if a TypeError will be raised when the sequence argument is
-        not a Sequence instance
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_sequence_argument_is_working_properly(self):
-        """testing if the sequence argument is working correctly
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_sequence_attribute_is_read_only(self):
-        """testing if the sequence attribute is read-only
-        """
-        
-        self.fail("test is not implemented yet")
-        
-    
-    
-    
-        
-    
-        

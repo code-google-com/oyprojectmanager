@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from xml.dom import minidom
 
-from oyProjectManager.models import project, repository, asset
+from oyProjectManager.core.models import Project, Sequence, Repository, Asset
 
 
 
@@ -132,9 +132,9 @@ class AssetTester(unittest.TestCase):
         
         # then probe if it is rendered correctly
         # now create a new asset with the given asset type
-        new_asset = asset.Asset(proj, seq,
-                                "SH001_MAIN_" + asset_type.name + \
-                                "_r00_v001_oy.nk")
+        new_asset = Asset(proj, seq,
+                          "SH001_MAIN_" + asset_type.name + \
+                          "_r00_v001_oy.nk")
         
         # now get the output folder
         self.assertEqual(

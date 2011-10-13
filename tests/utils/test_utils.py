@@ -86,9 +86,8 @@ class UtilsTester(unittest.TestCase):
         
         for test_value in test_values:
             self.assertEqual(
-                utils.convertRangeToList(test_value[0]),
+                utils.uncompress_range(test_value[0]),
                 test_value[1]
             )
-    
     
     

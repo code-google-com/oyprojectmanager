@@ -6,7 +6,8 @@ import os
 from pymel import versions
 from pymel import core as pm
 import maya.cmds as mc
-from oyProjectManager.models import asset, project, repository, abstractClasses
+from oyProjectManager.environments import EnvironmentBase
+from oyProjectManager.core.models import Asset, Project, Sequence, Repository
 from oyProjectManager import utils
 
 
@@ -15,7 +16,7 @@ from oyProjectManager import utils
 
 
 ########################################################################
-class MayaEnvironment(abstractClasses.Environment):
+class MayaEnvironment(EnvironmentBase):
     """the maya environment class
     """
     
@@ -194,10 +195,10 @@ class MayaEnvironment(abstractClasses.Environment):
             #print "seqName", seqName
 
             if projName != None and seqName != None:
-                proj = project.Project(projName)
-                seq = project.Sequence(proj, seqName)
+                proj = Project(projName)
+                seq = Sequence(proj, seqName)
 
-                testAsset = asset.Asset(proj, seq, fileName)
+                testAsset = Asset(proj, seq, fileName)
                 
                 if testAsset.isValidAsset:
                     fileName = testAsset.fileName
@@ -227,10 +228,10 @@ class MayaEnvironment(abstractClasses.Environment):
                     
                     if projName != None and seqName != None:
                         
-                        proj = project.Project(projName)
-                        seq = project.Sequence(proj, seqName)
+                        proj = Project(projName)
+                        seq = Sequence(proj, seqName)
                         
-                        testAsset = asset.Asset(proj, seq, fileName)
+                        testAsset = Asset(proj, seq, fileName)
                         
                         if testAsset.isValidAsset and testAsset.exists:
                             path = testAsset.path
@@ -266,7 +267,7 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         parentSeq = self._asset.sequence
-        assert(isinstance(parentSeq, project.Sequence))
+        assert(isinstance(parentSeq, Sequence))
         
         parentSeqFullPath = parentSeq.fullPath.replace("\\", "/")
         renderOutputFolder = self._asset.output_path # RENDERED_IMAGES/{{assetBaseName}}/{{assetSubName}}
@@ -373,7 +374,7 @@ class MayaEnvironment(abstractClasses.Environment):
         
         playblastFolderPath = self._asset.output_path
         
-        assert(isinstance(self._asset, asset.Asset))
+        assert(isinstance(self._asset, Asset))
         
         seqFullPath = self._asset.sequence.fullPath
         
@@ -408,8 +409,8 @@ class MayaEnvironment(abstractClasses.Environment):
         
         pm.workspace.open(mayaProjectPath)
         
-        proj = project.Project(projectName)
-        seq = project.Sequence(proj, sequenceName)
+        proj = Project(projectName)
+        seq = Sequence(proj, sequenceName)
         
         # set the current timeUnit to match with the environments
         self.setTimeUnit(seq.timeUnit)
@@ -463,7 +464,6 @@ class MayaEnvironment(abstractClasses.Environment):
         updateList = []
         
         for assetTuple in assetTupleList:
-            #assert(isinstance(asset, asset.Asset))
             
             asset = assetTuple[0]
             
@@ -537,11 +537,11 @@ class MayaEnvironment(abstractClasses.Environment):
                 projName, seqName = \
                     repo.get_project_and_sequence_name_from_file_path(fullPath)
                 
-                proj = project.Project(projName)
-                seq = project.Sequence(proj, seqName)
+                proj = Project(projName)
+                seq = Sequence(proj, seqName)
                 
                 tempAssetPath = os.path.basename(fullPath)
-                tempAsset = asset.Asset(proj, seq, tempAssetPath)
+                tempAsset = Asset(proj, seq, tempAssetPath)
                 
                 if tempAsset.isValidAsset:
                     validAssets.append((tempAsset, ref, fullPath))
@@ -568,7 +568,7 @@ class MayaEnvironment(abstractClasses.Environment):
             ref = assetTuple[1]
             assetPath =  assetTuple[2]
             
-            #assert(isinstance(asset, asset.Asset))
+            #assert(isinstance(asset, Asset))
             #assert(isinstance(ref, pm.FileReference))
             
             if assetPath != previousAssetPath:
@@ -623,7 +623,7 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         # check if the given unit is in repository
-        repo = repository.Repository()
+        repo = Repository()
         
         if not repo.time_units.has_key(timeUnit):
             raise KeyError(timeUnit)
@@ -809,7 +809,7 @@ class MayaEnvironment(abstractClasses.Environment):
         """
         
         # create a repository
-        repo = repository.Repository()
+        repo = Repository()
         
         repo_env_key = "$" + repo.repository_path_env_key
         

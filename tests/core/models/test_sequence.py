@@ -8,11 +8,10 @@ import tempfile
 import unittest
 from xml.dom import minidom
 from oyProjectManager import db, conf
-from oyProjectManager.models import project, repository, asset
-from oyProjectManager.models.project import Project, Sequence
+from oyProjectManager.core.models import Project, Sequence, Repository
 
 import logging
-logger = logging.getLogger("oyProjectManager.models.project")
+logger = logging.getLogger("oyProjectManager.core.models")
 logger.setLevel(logging.DEBUG)
 
 
@@ -76,7 +75,7 @@ class SequenceTester(unittest.TestCase):
 
         # now create a repository and ask the server path and check if it
         # matches the test_settings
-        repo = repository.Repository()
+        repo = Repository()
 
         # BUG: works only under linux fix it later
         self.assertEqual(repo.server_path, "/tmp/JOBs")
@@ -94,18 +93,22 @@ class SequenceTester(unittest.TestCase):
         """
         self.assertRaises(TypeError, Sequence, project=None)
     
-    def test_project_attribute_is_None(self):
-        """testing if a TypeError will be raised when the project attribute is
-        set to None
+    def test_project_attribute_is_read_only(self):
+        """testing if the project attribute is read-only
         """
-        new_proj = Project("TEST_PROJECT")
+        new_proj = Project("TEST_PROJECT1")
         new_proj.create()
-        new_seq = Sequence(new_proj, "TEST_SEQ1")
-        self.assertRaises(TypeError, setattr, new_seq, "project", None)
+        new_seq = Sequence(new_proj, "TEST_SEQ")
+        new_seq.create()
+        
+        new_proj2 = Project("TEST_PROJECT2")
+        new_proj2.create()
+        self.assertRaises(AttributeError, setattr, new_seq, "project",
+                          new_proj2)
     
     def test_project_argument_is_not_a_Project_instance(self):
         """testing if a TypeError will be raised when the project argument is
-        not a oyProjectManager.models.project.Project instance
+        not a oyProjectManager.core.models.Project instance
         """
         
         self.assertRaises(TypeError, Sequence, 1231, "TEST_SEQ1")
@@ -170,7 +173,7 @@ class SequenceTester(unittest.TestCase):
         # and some output nodes as children
 
         # create a project
-        test_proj = project.Project("TEST_PROJECT")
+        test_proj = Project("TEST_PROJECT")
         test_proj.create()
 
         self.created_projects.append(test_proj)
@@ -221,11 +224,11 @@ class SequenceTester(unittest.TestCase):
         # and check if it is going to be able to read the file
         new_seq = test_proj.sequences()[0]
 
-        assert(isinstance(new_seq, project.Sequence))
+        assert(isinstance(new_seq, Sequence))
 
         # check if for every assetType defined there is an output_path 
         for asset_type in new_seq.getAssetTypes(None):
-            assert(isinstance(asset_type, asset.AssetType))
+            assert(isinstance(asset_type, AssetType))
             self.assertNotEqual(asset_type.output_path, "")
 
         # by using the dom check if the settings is converted to the new format
@@ -242,17 +245,17 @@ class SequenceTester(unittest.TestCase):
         # then create three new sequence objects to compare each of them
         # with the other
 
-        new_proj = project.Project("TEST_PROJECT")
+        new_proj = Project("TEST_PROJECT")
         new_proj.create()
         
-        seq1 = project.Sequence(new_proj, "SEQ1")
-        seq2 = project.Sequence(new_proj, "SEQ1")
-        seq3 = project.Sequence(new_proj, "SEQ2")
+        seq1 = Sequence(new_proj, "SEQ1")
+        seq2 = Sequence(new_proj, "SEQ1")
+        seq3 = Sequence(new_proj, "SEQ2")
 
-        new_proj2 = project.Project("TEST_PROJECT2")
+        new_proj2 = Project("TEST_PROJECT2")
         new_proj2.create()
         
-        seq4 = project.Sequence(new_proj2, "SEQ3")
+        seq4 = Sequence(new_proj2, "SEQ3")
 
         self.assertTrue(seq1 == seq2)
         self.assertFalse(seq1 == seq3)
@@ -268,16 +271,16 @@ class SequenceTester(unittest.TestCase):
         # then create three new sequence objects to compare each of them
         # with the other
 
-        new_proj = project.Project("TEST_PROJECT")
+        new_proj = Project("TEST_PROJECT")
         new_proj.create()
         
-        seq1 = project.Sequence(new_proj, "SEQ1")
-        seq2 = project.Sequence(new_proj, "SEQ1")
-        seq3 = project.Sequence(new_proj, "SEQ2")
+        seq1 = Sequence(new_proj, "SEQ1")
+        seq2 = Sequence(new_proj, "SEQ1")
+        seq3 = Sequence(new_proj, "SEQ2")
 
-        new_proj2 = project.Project("TEST_PROJECT2")
+        new_proj2 = Project("TEST_PROJECT2")
         new_proj2.create()
-        seq4 = project.Sequence(new_proj2, "SEQ3")
+        seq4 = Sequence(new_proj2, "SEQ3")
 
         self.assertFalse(seq1 != seq2)
         self.assertTrue(seq1 != seq3)

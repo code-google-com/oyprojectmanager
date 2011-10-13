@@ -10,11 +10,12 @@ The houdini part of the asset management system...
 import os
 import hou
 import re
-from oyProjectManager.models import asset, project, repository, abstractClasses
+from oyProjectManager.environments import EnvironmentBase
+from oyProjectManager.core.models import Asset, Project, Sequence, Repository
 from oyProjectManager import utils
 
 
-class HoudiniEnvironment(abstractClasses.Environment):
+class HoudiniEnvironment(EnvironmentBase):
     """the houdini environment class
     """
     
@@ -104,8 +105,7 @@ class HoudiniEnvironment(abstractClasses.Environment):
         readRecentFile = True
         fileName = path = None
         
-        #db = project.Database()
-        repo = repository.Repository()
+        repo = Repository()
         
         fullPath = hou.hipFile.name()
         
@@ -122,11 +122,11 @@ class HoudiniEnvironment(abstractClasses.Environment):
             projName, seqName = repo.get_project_and_sequence_name_from_file_path( fullPath )
             
             if not projName is None and not seqName is None: 
-                proj = project.Project(projName)
-                seq = project.Sequence(proj, seqName)
+                proj = Project(projName)
+                seq = Sequence(proj, seqName)
             
             
-                testAsset = asset.Asset(proj, seq, fileName)
+                testAsset = Asset(proj, seq, fileName)
             
                 if testAsset.isValidAsset:
                     fileName = testAsset.fileName
@@ -153,10 +153,10 @@ class HoudiniEnvironment(abstractClasses.Environment):
                 
                 if projName != None and seqName != None:
                     
-                    proj = project.Project( projName )
-                    seq = project.Sequence( proj, seqName )
+                    proj = Project( projName )
+                    seq = Sequence( proj, seqName )
                     
-                    testAsset = asset.Asset( proj, seq, fileName )
+                    testAsset = Asset( proj, seq, fileName )
                     
                     if testAsset.isValidAsset:
                         path = testAsset.path

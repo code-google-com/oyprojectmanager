@@ -1,28 +1,20 @@
 # -*- coding: utf-8 -*-
 
-
-
 import os
 from xml.dom import minidom
-from oyProjectManager.models import abstractClasses, repository
+from oyProjectManager.core.abstractClasses import Singleton
+from oyProjectManager.core.models import Repository
 
 
-
-
-
-
-########################################################################
-class EnvironmentFactory( abstractClasses.Singleton ):
+class EnvironmentFactory(Singleton):
     """creates environments
     """
     
     
-    
-    #----------------------------------------------------------------------
     def __init__(self):
         
         # create the repository and then delete it
-        self._repo = repository.Repository()
+        self._repo = Repository()
         
         # we should know where the settings file is
         # get the settings dir path
@@ -41,7 +33,7 @@ class EnvironmentFactory( abstractClasses.Singleton ):
         
     
     
-    #----------------------------------------------------------------------
+    
     def _parseSettings(self):
         """parses the setting file
         """
@@ -64,12 +56,12 @@ class EnvironmentFactory( abstractClasses.Singleton ):
                 self._virtualEnvironments[envName] = \
                     VirtualEnvironment(envName, extensions)
             
-            # don't reparse it over and over again
+            # don't parse it over and over again
             self._hasReadSettings = True
     
     
     
-    #----------------------------------------------------------------------
+    
     def create(self, asset=None, environmentName=''):
         """creates an environment with given name
         """
@@ -78,15 +70,15 @@ class EnvironmentFactory( abstractClasses.Singleton ):
         env = None
         
         if environmentName == 'MAYA':
-            from oyProjectManager.models.environments import mayaEnv
+            from oyProjectManager.environments import mayaEnv
             envClass = mayaEnv.MayaEnvironment
             
         elif environmentName == 'NUKE':
-            from oyProjectManager.models.environments import nukeEnv
+            from oyProjectManager.environments import nukeEnv
             envClass = nukeEnv.NukeEnvironment
             
         elif environmentName == 'HOUDINI':
-            from oyProjectManager.models.environments import houdiniEnv
+            from oyProjectManager.environments import houdiniEnv
             envClass = houdiniEnv.HoudiniEnvironment
         
         # create the environment if the envClass is not None
@@ -109,14 +101,18 @@ class VirtualEnvironment(object):
     
     
     
-    #----------------------------------------------------------------------
-    def __init__(self, name=None, _extensions=[]):
+    
+    def __init__(self, name=None, _extensions=None):
+        
+        if _extensions is None:
+            _extensions = []
+        
         self._name = name
         self._extensions = _extensions # the list of extensions that this environment supports
     
     
     
-    #----------------------------------------------------------------------
+    
     def __str__(self):
         """the string
         """
@@ -124,7 +120,7 @@ class VirtualEnvironment(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _getExtensions(self):
         """returns the extensions
         """
@@ -132,7 +128,7 @@ class VirtualEnvironment(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _setExtensions(self, extensions):
         """sets the extensions
         """
@@ -142,7 +138,7 @@ class VirtualEnvironment(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _getName(self):
         """returns teh name of the environment
         """
@@ -150,13 +146,12 @@ class VirtualEnvironment(object):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _setName(self, name):
         """sets the virtual environment name
         """
         self._name = name
     
     name = property( _getName, _setName )
-    
     
     

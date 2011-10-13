@@ -6,7 +6,7 @@ import os, sys
 from PyQt4 import QtGui, QtCore
 import assetUpdater_UI
 
-from oyProjectManager.models.environments import environmentFactory
+from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import singletonQApplication
 
 

@@ -9,7 +9,7 @@ import tempfile
 from xml.dom import minidom
 import mocker
 
-from oyProjectManager.models import repository, project, user
+from oyProjectManager.core.models import Repository, Project, User
 
 
 
@@ -90,7 +90,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing project creation
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         
         project_name = 'TEST_PROJECT'
         
@@ -120,7 +120,7 @@ class RepositoryTester(mocker.MockerTestCase):
             ("test project", "TEST_PROJECT")
         ]
         
-        repo = repository.Repository()
+        repo = Repository()
         
         for test_value in test_values:
             project_name = test_value[0]
@@ -184,7 +184,7 @@ class RepositoryTester(mocker.MockerTestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = new_path
         
         # now test if the path is expanded
-        repo = repository.Repository()
+        repo = Repository()
         
         self.assertEqual(repo.settings_dir_path, expanded_new_path)
         
@@ -199,7 +199,7 @@ class RepositoryTester(mocker.MockerTestCase):
         properly
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         
         self.assertEqual(repo._default_settings_file_full_path,
                           repo.default_settings_file_full_path)
@@ -211,7 +211,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if the default_settings_file_full_path property is read only
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         
         self.assertRaises(AttributeError,
                           setattr,
@@ -228,7 +228,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """
         
         # create a fictional asset path
-        repo = repository.Repository()
+        repo = Repository()
         
         project_name = "Proj1"
         sequence_name = "Seq1"
@@ -249,7 +249,7 @@ class RepositoryTester(mocker.MockerTestCase):
         (None, None) for irrelative paths.
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         
         self.assertEqual(
             repo.get_project_and_sequence_name_from_file_path(
@@ -265,7 +265,7 @@ class RepositoryTester(mocker.MockerTestCase):
         (None, None) for None
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         
         self.assertEqual(
             repo.get_project_and_sequence_name_from_file_path(None),
@@ -279,7 +279,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if get_home path works properly
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         
         self.assertEqual(repo.home_path, os.environ["HOME"])
     
@@ -290,7 +290,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if the home_path property is read only
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         
         self.assertRaises(AttributeError,
                           setattr,
@@ -305,7 +305,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if the last_user property is working properly
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         
         # get the last user from the repo
         last_user = repo.last_user
@@ -331,7 +331,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if the last_user property is properly setting the last user
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         # store the current user
         current_last_user = repo.last_user
         
@@ -373,7 +373,7 @@ class RepositoryTester(mocker.MockerTestCase):
             # the path exists
             pass
         
-        repo = repository.Repository()
+        repo = Repository()
         
         repo.server_path = new_server_path
         
@@ -391,7 +391,7 @@ class RepositoryTester(mocker.MockerTestCase):
         
         # for now just check if it is the same with the linux_path
         
-        repo = repository.Repository()
+        repo = Repository()
         
         self.assertEqual(repo.server_path, repo.linux_path)
     
@@ -403,7 +403,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """
         
         # for now just test it for linux
-        repo = repository.Repository()
+        repo = Repository()
         
         new_server_path = tempfile.mkdtemp()
         
@@ -442,7 +442,7 @@ class RepositoryTester(mocker.MockerTestCase):
         
         # set this dir to the linux path and check if it is also changing the
         # server_path
-        repo = repository.Repository()
+        repo = Repository()
         
         repo.linux_path = new_server_path
         
@@ -467,7 +467,7 @@ class RepositoryTester(mocker.MockerTestCase):
             )
         )
         
-        repo = repository.Repository()
+        repo = Repository()
         
         self.assertEqual(repo.settings_dir_path, settings_dir_path_from_env)
     
@@ -478,7 +478,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if settings_dir_path property is read only
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "settings_dir_path",
                           "")
     
@@ -496,7 +496,7 @@ class RepositoryTester(mocker.MockerTestCase):
                          "TEST_PROJECT1",
                          ]
         
-        repo = repository.Repository()
+        repo = Repository()
         
         for project_name in project_names:
             proj = project.Project(project_name)
@@ -539,7 +539,7 @@ class RepositoryTester(mocker.MockerTestCase):
         
         expected_list.sort()
         
-        repo = repository.Repository()
+        repo = Repository()
         
         # create a folder in the projects folder
         for folder_name in folder_names:
@@ -564,7 +564,7 @@ class RepositoryTester(mocker.MockerTestCase):
             test_folder_name
         )
         
-        repo = repository.Repository()
+        repo = Repository()
         
         expected_path = os.path.join(
             "$" + repo.repository_path_env_key,
@@ -592,7 +592,7 @@ class RepositoryTester(mocker.MockerTestCase):
         shots = "1"
         extra_folders = ["PROJ4", "PROJ5", "PROJ6"]
         
-        repo = repository.Repository()
+        repo = Repository()
         
         # create the projects
         for project_name in project_names:
@@ -638,7 +638,7 @@ class RepositoryTester(mocker.MockerTestCase):
             os.environ.pop(key)
         
         # create another repo and check if it is going to create the key
-        repo = repository.Repository()
+        repo = Repository()
         self.assertTrue(os.environ.has_key(key))
         
         # restore the value
@@ -669,7 +669,7 @@ class RepositoryTester(mocker.MockerTestCase):
         # now create a Repository and check if it is going to get the value
         # for the repository_path
         
-        repo = repository.Repository()
+        repo = Repository()
         
         # the value should be still there intact
         self.assertEqual(os.environ[key], value)
@@ -737,10 +737,10 @@ class RepositoryTester(mocker.MockerTestCase):
         orig_file_path, backup_file_path = self._create_new_users_settings()
         
         # now do you magic
-        repo = repository.Repository()
+        repo = Repository()
         
         for userObj in repo.users:
-            self.assertTrue(isinstance(userObj, user.User))
+            self.assertTrue(isinstance(userObj, User))
         
         # the users count should be 5 for our settings file
         self.assertEqual(len(repo.users), 5)
@@ -760,7 +760,7 @@ class RepositoryTester(mocker.MockerTestCase):
         orig_file_path, backup_file_path = self._create_new_users_settings()
         
         # now create a repository and check for the users
-        repo = repository.Repository()
+        repo = Repository()
         
         users = repo.users
         
@@ -780,7 +780,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if the users property is read-only
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "users", [])
     
     
@@ -794,7 +794,7 @@ class RepositoryTester(mocker.MockerTestCase):
         orig_file_path, backup_file_path = self._create_new_users_settings()
         
         # now create a repository and check for the users
-        repo = repository.Repository()
+        repo = Repository()
         
         user_names = repo.user_names
         
@@ -814,7 +814,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if the user_names property is read only
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "user_names", [])
     
     
@@ -853,7 +853,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if the user_initials property is read only
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "user_initials", [])
     
     
@@ -865,7 +865,7 @@ class RepositoryTester(mocker.MockerTestCase):
         
         # it should return
         user_initials = ["u1", "u2", "u3", "u4", "u5"]
-        repo = repository.Repository()
+        repo = Repository()
         self.assertEqual(repo.user_initials, user_initials)
     
     
@@ -875,7 +875,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if time_units returns a dictionary
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         
         self.assertIsInstance(repo.time_units, dict)
     
@@ -886,7 +886,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if time_units is read only
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "time_units", None)
     
     
@@ -907,7 +907,7 @@ class RepositoryTester(mocker.MockerTestCase):
             "ntscf":60,
         }
         
-        repo = repository.Repository()
+        repo = Repository()
         self.assertEqual(repo.time_units, time_units)
     
     
@@ -917,7 +917,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if the defaultFiles method returns a list of tuples
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         
         for defaultFileInfo in repo.defaultFiles:
             self.assertIsInstance(defaultFileInfo, tuple)
@@ -929,7 +929,7 @@ class RepositoryTester(mocker.MockerTestCase):
         """testing if the defaultFiles property is read only
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "defaultFiles", [])
     
     
@@ -940,7 +940,7 @@ class RepositoryTester(mocker.MockerTestCase):
         the default file locations
         """
         
-        repo = repository.Repository()
+        repo = Repository()
         defFiles_list = repo.defaultFiles
         
         # for the default setup it should return only one element and it is
@@ -949,6 +949,5 @@ class RepositoryTester(mocker.MockerTestCase):
         self.assertEqual(len(defFiles_list), 1)
         self.assertEqual(defFiles_list[0][0], "workspace.mel")
         self.assertEqual(defFiles_list[0][1], ".")
-    
     
     
