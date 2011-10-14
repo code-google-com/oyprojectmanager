@@ -12,10 +12,9 @@ import jinja2
 from beaker import cache
 
 from xml.dom import minidom
-
-from sqlalchemy import orm, Column, String, Integer, PickleType, ForeignKey
+from sqlalchemy import func, orm, Column, String, Integer, PickleType, ForeignKey
 from sqlalchemy.ext.declarative import synonym_for
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, synonym
 from sqlalchemy.orm.mapper import validates
 from sqlalchemy.schema import UniqueConstraint
 
@@ -38,142 +37,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-class XMLSettingsParser(object):
-    """A parser for the default settings for the sequence.
-    
-    Parses the given settings xml and fills the attributes of the given
-    :class:`~oyProjectManager.core.models.Sequence` class.
-    
-    :param sequence: a :class:`~oyProjectManager.core.models.Sequence`
-      instance. The default is None and this causes a ValueError to be raised.
-    
-    :type sequence: :class:`~oyProjectManager.core.models.Sequence`
-    
-    :param str content: the settings content as a string. Default is None
-      and this causes a ValueError to be raised.
-    
-    The version 1 specification of the default settings consists of the
-    following nodes:
-      
-       * root: The root node
-         
-          * sequenceData node:
-            
-            Attributes:
-              
-               * shotPrefix: default is "SH", it is the prefix to be added
-                 before the shot number
-              
-               * shotPadding: default is 3, it is the number of padding going
-                 to be applied to find the string representation of the shot
-                 number. If the shot number is 5 and the shotPadding is set to
-                 3 and the shotPrefix is "SH" then the final shot name will be
-                 SH005
-               
-               * revPrefix: default is "r", it is the revision variable prefix
-              
-               * revPadding: default is 2, it is the revision number padding,
-                 for revision 3 the default values will output a string of
-                 "r03" for the revision string variable
-              
-               * verPrefix: default is "v", it is the version variable prefix
-              
-               * verPadding: default is 3, it is the version number padding for
-                 default values a file version of 14 will output a string of
-                 "v014" for the version string variable.
-              
-               * timeUnit: default is pal, it is the time unit for the project,
-                 possible values are "pal, film, ntsc, game". This variable
-                 follows the Maya's time unit format.
-            
-            Child elements:
-              
-               * structure: it is the child of sequenceData. Structure element
-                 holds the project structure information. Every project will be
-                 created by using this project structure.
-                 
-                 Child elements:
-                   
-                    * shotDependent: show the shot dependent folders. A shot
-                      dependent folder will contain shot folders. For example
-                      a folder called ANIMATION could be defined under
-                      shotDependent folders, then oyProjectManager will
-                      automatically place folders for every shot of the project.
-                      So if the project has three shots with shot numbers 10,
-                      14, 21 then the structure of the ANIMATION folder will be
-                      like:
-                        
-                        ANIMATION/
-                        ANIMATION/SH010/
-                        ANIMATION/SH013/
-                        ANIMATION/SH021/
-                   
-                    * shotIndependent: show the shot independent folder, or the
-                      rest of the project structure. So any other folder which
-                      doesn't have a direct relation with shots can be placed
-                      here. For example you can place folders for MODELS, RIGS,
-                      OUTGOING_FILES etc.
-                   
-               * assetTypes: This element contains information about asset
-                 types.
-                 
-                 Attributes: None
-                 
-                 Child elements:
-                   
-                    * type: this is an asset type
-                      
-                      Attributes:
-                        
-                         * name: the name of the type
-                         
-                         * path: the project relative path for the asset files
-                           in this type.
-                        
-                         * shotDependent: it is a boolean value that specifies
-                           if this asset type is shot dependent.
-                        
-                         * environments: this attribute lists the environment
-                           names where this asset type is valid through. It
-                           should list the environment names in a comma
-                           separated value (CSV) format
-                        
-                         * output_path: shows the output folder of this asset
-                           type. For example you can set the render output
-                           folder by setting the output folder of the RENDER
-                           asset type to a specific folder relative to the
-                           project root.
-              
-              
-               * shotData: This is the element that shows the current projects
-                 shot information.
-                 
-                 Child Elements:
-                   
-                    * shot: The shot it self
-                      
-                      Attributes:
-                        
-                         * name: this is the name of the shot, it just shows
-                           the number and alternate letter part of the shot
-                           name, so for a shot named "SH001A" the name
-                           attribute is "1A"
-                        
-                         * start: this is the global start frame of the shot
-                        
-                         * end: this is the global end frame of the shot
-                        
-                      Child Elements:
-                        
-                         * description: This is the text element that has the
-                           description of the current shot. You can place any
-                           amount of text inside this text element.
-    """
-
-
-    def __init__(self):
-        pass
-
 class Repository(object):
     """Repository class gives information about the servers, projects, users
     etc.
@@ -181,19 +44,14 @@ class Repository(object):
     The Repository class helps:
     
      * Get a list of projects in the current repository
-    
      * Parse several settings like:
-       
+     
         * environmentSettings.xml
-        
         * repositorySettings.xml
-        
         * users.xml
     
      * Get the last logged in user
-    
      * Find server paths
-    
      * and some auxiliary things like:
     
         * convert the given path to repository relative path which contains
@@ -350,9 +208,7 @@ class Repository(object):
     def __init__(self):
         
         # initialize default variables
-        
-        # user name STALKER for forward compability
-        self.repository_path_env_key = "STALKER_REPOSITORY_PATH" # use just $REPO
+        self.repository_path_env_key = "REPO"
         self.settings_path_env_key = "OYPROJECTMANAGER_PATH"
         
         self._init_repository_path_environment_variable()
@@ -585,7 +441,7 @@ class Repository(object):
     
     @property
     def user_initials(self):
-        """returns the user intials
+        """returns the user initials
         """
         return sorted([userObj.initials for userObj in self._users])
     
@@ -637,7 +493,7 @@ class Repository(object):
             self._projects.sort()
         
         except IOError:
-            print "server path doesn't exists, %s" % self.server_path
+            logger.warning("server path doesn't exists, %s" % self.server_path)
     
     
     
@@ -672,7 +528,7 @@ class Repository(object):
         """
         
         # add a trailing separator
-        # in any cases os.path.join adds a trailing seperator
+        # in any cases os.path.join adds a trailing separator
 
         server_path_in = os.path.expanduser(
             os.path.expandvars(
@@ -750,7 +606,7 @@ class Repository(object):
     
     @property
     def defaultFiles(self):
-        """returns the default files list as list of tuples, the first element
+        """returns the default files list as list of tuple, the first element
         contains the file name, the second the project relative path, the third
         the source path
         
@@ -891,7 +747,7 @@ class Repository(object):
         """Converts the given path to repository relative path.
         
         If "M:/JOBs/EXPER/_PROJECT_SETUP_" is given it will return
-        "$STALKER_REPOSITORY_PATH/EXPER/_PROJECT_SETUP_"
+        "$REPO/EXPER/_PROJECT_SETUP_"
         
         The environment key name is read from the self.repository_path_env_key
         variable
@@ -905,7 +761,7 @@ class Project(Base):
     
     A Project is simply a holder of Sequences.
     
-    .. versionadded:: 0.1.2
+    .. versionadded:: 0.2.0
         SQLite3 Database:
         
         To hold the information about all the data created, there is a
@@ -1279,6 +1135,10 @@ class Sequence(Base):
     
     project_id = Column(Integer, ForeignKey("Projects.id"))
     _project = relationship("Project")
+    
+    shots = relationship("Shot")
+    
+    # TODO: move all the settings variables to Project class
     
     shotPrefix = Column(String(16), default=conf.SHOT_PREFIX)
     shotPadding = Column(Integer, default=conf.SHOT_PADDING)
@@ -1931,6 +1791,9 @@ class VersionableBase(Base):
     version_id = Column(Integer)
     _versions = relationship("Version")
     
+    project_id = Column(Integer, ForeignKey("Projects.id"))
+    _project = relationship("Project")
+    
     @synonym_for("_versions")
     @property
     def versions(self):
@@ -1940,6 +1803,17 @@ class VersionableBase(Base):
         """
         
         return self._versions
+    
+    @synonym_for("_project")
+    @property
+    def project(self):
+        """the Project instance which this object is related to
+        
+        It is a read-only attribute
+        """
+        
+        return self._project
+
 
 class Shot(VersionableBase):
     """The class that enables the system to manage shot data.
@@ -1966,6 +1840,9 @@ class Shot(VersionableBase):
     """
     
     __tablename__ = "Shots"
+    __table_args__  = (
+        UniqueConstraint("sequence_id", "name"), {}
+    )
     __mapper_args__ = {"polymorphic_identity": "Shot"}
     
     shot_id =  Column("id", Integer, ForeignKey("Versionables.id") ,primary_key=True)
@@ -1989,9 +1866,12 @@ class Shot(VersionableBase):
         
 #        super(Shot, self).__init__()
         
+        self._sequence = self._validate_sequence(sequence)
         self.name = name
         self.description = description
-        self._sequence = self._validate_sequence(sequence)
+        
+        # update the project attribute
+        self._project = self._sequence.project
         
         self._duration = 1
         self.start_frame = start_frame
@@ -2003,7 +1883,7 @@ class Shot(VersionableBase):
     def __str__(self):
         """returns the string representation of the object
         """
-        return self._name
+        return self.name
 
 #    def __repr__(self):
 #        """returns the representation of the class
@@ -2024,6 +1904,16 @@ class Shot(VersionableBase):
         
         if name == "":
             raise ValueError("Shot.name can not be empty string")
+        
+        # now check if the name is present for the current Sequence
+        shot_instance = self.sequence.session.query(Shot).\
+            filter(Shot.name==name).\
+            filter(Shot.sequence_id==self.sequence.id).\
+            first()
+        
+        if shot_instance is not None:
+            raise ValueError("Shot.name already exists for the given sequence "
+                             "please give a unique shot name")
         
         return name
     
@@ -2133,6 +2023,16 @@ class Shot(VersionableBase):
         """
         
         return self._versions
+    
+    def save(self):
+        """commits the shot to the database
+        """
+        logger.debug("saving shot to the database")
+        if self not in self.sequence.session:
+            self.sequence.session.add(self)
+        
+        self.sequence.session.commit()
+
 
 class Asset(VersionableBase):
     """to work properly it needs a valid project and sequence objects
@@ -3098,7 +2998,40 @@ class Asset(VersionableBase):
             #pass
 
 class Version(Base):
-    """Holds versions of assets or shots
+    """Holds versions of assets or shots.
+    
+    In oyProjectManager a Version is the file created for an
+    :class:`~oyProjectManager.core.models.Asset` or
+    :class:`~oyProjectManager.core.models.Shot`\ . The placement of this file
+    is automatically handled by the connected
+    :class:`~oyProjectManager.core.models.VersionType` instance.
+    
+    The values given for
+    :attr:`~oyProjectManager.core.models.Version.base_name` and
+    :attr:`~oyProjectManager.core.models.Version.take_name` are conditioned as
+    follows:
+      
+      * Each word in the string should start with an upper-case letter (title)
+      * It can have all upper-case letters
+      * CamelCase is allowed
+      * Valid characters are ([A-Z])([a-zA-Z0-9_])
+      * No white space characters are allowed, if a string is given with
+        white spaces, it will be replaced with underscore ("_") characters.
+      * No numbers are allowed at the beginning of the string
+      * No leading or trailing underscore character is allowed
+    
+    So, with these rules are given, the examples for input and conditioned
+    strings are as follows:
+      
+      * "BaseName" -> "BaseName"
+      * "baseName" -> "BaseName"
+      * " baseName" -> "BaseName"
+      * " base name" -> "Base_Name"
+      * " 12base name" -> "Base_Name"
+      * " 12 base name" -> "Base_Name"
+      * " 12 base name 13" -> "Base_Name_13"
+      * ">£#>$#£½$ 12 base £#$£#$£½¾{½{ name 13" -> "Base_Name_13"
+      * "_base_name_" -> "Base_Name"
     
     :param version_of: A :class:`~oyProjectManager.core.models.VersionableBase`
       instance (:class:`~oyProjectManager.core.models.Asset` or
@@ -3141,13 +3074,17 @@ class Version(Base):
       number. It should be an increasing number among the Versions with the
       same base_name and take_name values. If skipped a proper value will be
       used by looking at the previous versions created with the same base_name
-      and take_name values from the database.
+      and take_name values from the database. If the given value already exists
+      then it will be replaced with the next available version number from the
+      database.
     
     :param str note: A string holding the related note for this version. Can be
       used for anything the user desires.
     
     :param created_by: A :class:`~oyProjectManager.core.models.User` instance
-      showing who created this version.
+      showing who created this version. It can not be skipepd or set to None or
+      anything other than a :class:`~oyProjectManager.core.models.User`
+      instance.
     
     :type created_by: :class:`~oyProjectManager.core.models.User`
     """
@@ -3157,9 +3094,8 @@ class Version(Base):
     __tablename__ = "Versions"
     
     __table_args__  = (
-        UniqueConstraint("base_name", "take_name", "version_number"),
-            {}
-        )
+        UniqueConstraint("base_name", "take_name", "_version_number"), {}
+    )
 
     id = Column(Integer, primary_key=True)
     version_of_id = Column(Integer, ForeignKey("Versionables.id"),
@@ -3175,7 +3111,7 @@ class Version(Base):
     base_name = Column(String)
     take_name = Column(String, default="MAIN")
     revision_number = Column(Integer, default=0)
-    version_number = Column(Integer, default=1)
+    _version_number = Column(Integer, default=1, nullable=False)
 
     note = Column(String)
     created_by_id = Column(Integer, ForeignKey("Users.id"))
@@ -3186,14 +3122,18 @@ class Version(Base):
         version_of=None,
         type=None,
         base_name=None,
-        take_name=None,
-        version_number=None,
-        note=None,
+        take_name="MAIN",
+        version_number=1,
+        note="",
         created_by=None,
-        revision_number=None,
     ):
         self._version_of = version_of
         self._type = type
+        self.base_name = base_name
+        self.take_name = take_name
+        self.version_number = version_number
+        self.note = note
+        self.created_by = created_by
         
     
     @validates("_version_of")
@@ -3217,10 +3157,9 @@ class Version(Base):
         Generally it is a Shot or an Asset instance or anything which derives
         from VersionableBase class
         """
-        
         return self._version_of
     
-    @validates("type")
+    @validates("_type")
     def _validate_type(self, key, type):
         """validates the given type value
         """
@@ -3270,6 +3209,169 @@ class Version(Base):
         :attr:`~oyProjectManager.core.models.Version.path`.
         """
         pass
+    
+    def _condition_name(self, name):
+        """conditions the base name, see the
+        :class:`~oyProjectManager.core.models.Version` documentation for
+        details
+        """
+        
+        # strip the name
+        name = name.strip()
+        # convert all the "-" signs to "_"
+        name = name.replace("-", "_")
+        # remove unnecessary characters from the string
+        name = re.sub("([^a-zA-Z0-9\s_]+)", r"", name)
+        # remove all the characters from the beginning which are not alphabetic
+        name = re.sub("(^[^a-zA-Z]+)", r"", name)
+        # substitute all spaces with "_" characters
+        name = re.sub("([\s])+", "_", name)
+        # make each words first letter uppercase
+        name = "_".join([ word[0].upper() + word[1:]
+                               for word in name.split("_")
+                               if len(word)
+        ])
+        
+        return name
+        
+    
+    @validates("base_name")
+    def _validate_base_name(self, key, base_name):
+        """validates the given base_name value
+        """
+        if base_name is None:
+            raise RuntimeError("Version.base_name can not be None, please "
+                               "supply a proper string or unicode value")
+        
+        if not isinstance(base_name, (str, unicode)):
+            raise TypeError("Version.base_name should be an instance of "
+                            "string or unicode")
+        
+        base_name = self._condition_name(base_name)
+        
+        if base_name == "":
+            raise ValueError("Version.base_name is either given as an empty "
+                             "string or it became empty after formatting")
+        
+        return base_name
+    
+    @validates("take_name")
+    def _validate_take_name(self, key, take_name):
+        """validates the given take_name value
+        """
+        
+        if take_name is None:
+            take_name = conf.TAKE_NAME
+        
+        if not isinstance(take_name, (str, unicode)):
+            raise TypeError("Version.take_name should be an instance of "
+                            "string or unicode")
+        
+        take_name = self._condition_name(take_name)
+        
+        if take_name == "":
+            raise ValueError("Version.take_name is either given as an empty "
+                             "string or it became empty after formatting")
+        
+        return take_name
+    
+    @property
+    def max_version(self):
+        """returns the maximum version number for this Version from the
+        database.
+        """
+        
+        a_version = self.version_of.project.session.\
+        query(
+            Version
+        ).filter(
+            Version.base_name == self.base_name
+        ).filter(
+            Version.take_name == self.take_name
+        ).order_by(
+            Version.version_number.desc() # sort descending
+        ).first()
+        if a_version:
+            max_version = a_version.version_number
+        else:
+            max_version = 0
+        
+        return max_version
+
+    def _validate_version_number(self, version_number):
+        """validates the given version number
+        """
+
+        max_version = self.max_version
+        
+        if version_number is None:
+            # get the smallest possible value for the version_number
+            # from the database
+            version_number = max_version + 1
+        
+        if version_number <= max_version:
+            version_number = max_version + 1
+        
+        return version_number
+    
+    def _version_number_getter(self):
+        """returns the version_number of this Version instance
+        """
+        return self._version_number
+    
+    def _version_number_setter(self, version_number):
+        """sets the version_number of this Version instance
+        """
+        self._version_number = self._validate_version_number(version_number)
+    
+    version_number = synonym(
+        "_version_number",
+        descriptor=property(
+            _version_number_getter,
+            _version_number_setter
+        )
+    )
+    
+    def save(self):
+        """commits the changes to the database
+        """
+        
+        session = self.version_of.project.session
+        
+        if self not in session:
+            session.add(self)
+        
+        session.commit()
+    
+    @validates("note")
+    def _validate_note(self, key, note):
+        """validates the given note value
+        """
+        
+        if note is None:
+            note = ""
+        
+        if not isinstance(note, (str, unicode)):
+            raise TypeError("Version.note should be an instance of "
+                            "string or unicode")
+        return note
+    
+    @validates("created_by")
+    def _validate_created_by(self, key, created_by):
+        """validates the created_by value
+        """
+        if created_by is None:
+            raise RuntimeError("Version.created_by can not be None, please "
+                               "set it to oyProjectManager.core.models.User "
+                               "instance")
+        
+        if not isinstance(created_by, User):
+            raise TypeError("Version.created_by should be an instance of"
+                               "oyProjectManager.core.models.User")
+        
+        return created_by
+    
+    
 
 
 class VersionType(Base):
@@ -3303,7 +3405,6 @@ class VersionType(Base):
         """
 
         return "<VersionType %s %s>" % (self.name, self.path)
-
     
     @property
     def name(self):
@@ -3345,7 +3446,6 @@ class VersionType(Base):
     def isShotDependent(self, shotDependency):
         self._shotDependency = shotDependency
 
-
     @property
     def output_path(self):
         """The output path of this asset type
@@ -3366,7 +3466,11 @@ class User(Base):
     
     name = Column(String)
     initials = Column(String)
+    email = Column(String)
     
-    def __init__(self, name='', initials=''):
-        self._name = name
-        self._initials = initials
+    versions_created = relationship("Version")
+    
+    def __init__(self, name=None, initials=None, email=None):
+        self.name = name
+        self.initials = initials
+        self.email = email

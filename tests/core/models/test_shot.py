@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import unittest
 from xml.dom import minidom
+from sqlalchemy.exc import IntegrityError
 import oyProjectManager
 from oyProjectManager.core.models import Project, Sequence, Shot, Version
 
@@ -154,6 +155,26 @@ class ShotTester(unittest.TestCase):
         """
         self.fail("test is not implemented yet")
     
+    def test_name_is_already_defined_in_the_sequence(self):
+        """testing if an IntegrityError will be raised when the shot name is
+        already defined in the given Sequence
+        """
+        self.kwargs["name"] = "SH101"
+        new_shot1 = Shot(**self.kwargs)
+        new_shot2 = Shot(**self.kwargs)
+        new_shot2.sequence.session.add_all([new_shot1, new_shot2])
+        self.assertRaises(IntegrityError, new_shot3.sequence.session.commit)
+    
+    def test_name_is_already_defined_in_the_sequence_for_an_already_created_one(self):
+        """testing if a ValueError will be raised when the name is already
+        defined for a Shot in the same Sequence instance
+        """
+        self.kwargs["name"] = "SH101"
+        new_shot1 = Shot(**self.kwargs)
+        new_shot1.save()
+        
+        self.assertRaises(ValueError, Shot, **self.kwargs)
+    
     def test_sequence_argument_is_skipped(self):
         """testing if a RuntimeError will be raised when the sequence argument
         is skipped
@@ -183,10 +204,8 @@ class ShotTester(unittest.TestCase):
     def test_sequence_attribute_is_read_only(self):
         """testing if the sequence attribute is read-only
         """
-        
         new_seq = Sequence(self.test_proj, "TEST_SEQ2")
         new_seq.create()
-        
         self.assertRaises(AttributeError, setattr, self.test_shot, "sequence",
                           new_seq)
     
@@ -242,7 +261,6 @@ class ShotTester(unittest.TestCase):
         self.test_shot.start_frame = 10
         self.assertEqual(self.test_shot.end_frame, 100)
         self.assertEqual(self.test_shot.duration, 91)
-        
     
     def test_end_frame_argument_is_skipped(self):
         """testing if the end_frame attribute will be set to the default
@@ -295,7 +313,7 @@ class ShotTester(unittest.TestCase):
         self.test_shot.end_frame = 200
         self.assertEqual(self.test_shot.start_frame, 1)
         self.assertEqual(self.test_shot.duration, 200)
-    
+       
     def test_description_argument_is_skipped(self):
         """testing if the description attribute will be set to an empty string
         when the description argument is skipped
@@ -363,6 +381,11 @@ class ShotTester(unittest.TestCase):
         
         new_shot.end_frame = 110
         self.assertEqual(new_shot.duration, 101)
+    
+    def test_project_attribute_is_initialized_correctly(self):
+        """testing if the project attribute is initialized correctly
+        """
+        self.assertIs(self.test_shot.project, self.kwargs["sequence"].project)
 
 
 class ShotDBTester(unittest.TestCase):

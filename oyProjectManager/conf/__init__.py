@@ -13,6 +13,8 @@ VER_PADDING = 3
 
 TIME_UNIT = "pal"
 
+TAKE_NAME = "MAIN"
+
 # Default Project Structure
 
 SHOT_DEPENDENT_FOLDERS = [

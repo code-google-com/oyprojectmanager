@@ -377,7 +377,7 @@ class Project_DB_Tester(unittest.TestCase):
         new_proj1.create()
         self.assertRaises(IntegrityError, new_proj2.create)
     
-    def test_calling_save_multiple_times(self):
+    def test_calling_commit_multiple_times(self):
         """testing if there is no problem of calling Project.save() multiple
         times
         """

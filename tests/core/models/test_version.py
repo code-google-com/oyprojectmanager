@@ -1,10 +1,14 @@
+#-*- coding: utf-8 -*-
+
 import os
 import shutil
 import tempfile
 import unittest
 from xml.dom import minidom
 import oyProjectManager
-from oyProjectManager.core.models import VersionableBase, Version, VersionType
+from oyProjectManager import conf
+from oyProjectManager.core.models import (VersionableBase, Version,
+                                          VersionType, User, Project)
 
 
 class VersionTester(unittest.TestCase):
@@ -34,6 +38,8 @@ class VersionTester(unittest.TestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
         os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
         
+#        print self.temp_projects_folder
+        
         # copy the default files to the folder
         shutil.copytree(
             self._test_settings_folder,
@@ -58,7 +64,13 @@ class VersionTester(unittest.TestCase):
         xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
         repository_settings_file.close()
         
+        self.test_project = Project("TEST_PROJ1")
+        self.test_project.create()
+        self.test_project.save()
+        
+        # set it just for testing purposes
         self.test_vbase = VersionableBase()
+        self.test_vbase._project = self.test_project
         
         self.test_type = VersionType(
             name="Animation",
@@ -71,32 +83,46 @@ class VersionTester(unittest.TestCase):
              "SHOTS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
         )
         
+        self.test_user = User(
+            name="Test User",
+            initials="tu",
+            email="testuser@test.com"
+        )
+        
         self.kwargs = {
             "version_of": self.test_vbase,
-            "filename": "random_name.ma",
-            "path": "/server/projects/proj1",
+            "type": self.test_type,
             "base_name": "SH001",
             "take_name": "MAIN",
-            "type": self.test_type,
-            "revision_number": 0,
             "version_number": 1,
+            "note": "this is the note for this version",
+            "created_by": self.test_user
         }
         
         self.test_version = Version(**self.kwargs)
         
         self._name_test_values = [
-            ("test project", "TEST_PROJECT"),
-            ("123123 test_project", "TEST_PROJECT"),
-            ("123432!+!'^+Test_PRoject323^+'^%&+%&324", "TEST_PROJECT323324"),
-            ("    ---test 9s_project", "TEST_9S_PROJECT"),
-            ("    ---test 9s-project", "TEST_9S_PROJECT"),
+            ("base name", "Base_Name"),
+            ("123123 base_name", "Base_Name"),
+            ("123432!+!'^+Base_NAme323^+'^%&+%&324", "Base_NAme323324"),
+            ("    ---base 9s_name", "Base_9s_Name"),
+            ("    ---base 9s-name", "Base_9s_Name"),
             (" multiple     spaces are    converted to under     scores",
-             "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
-            ("camelCase", "CAMEL_CASE"),
-            ("CamelCase", "CAMEL_CASE"),
-            ("_Project_Setup_", "PROJECT_SETUP_"),
-            ("_PROJECT_SETUP_", "PROJECT_SETUP_"),
+             "Multiple_Spaces_Are_Converted_To_Under_Scores"),
+            ("camelCase", "CamelCase"),
+            ("CamelCase", "CamelCase"),
+            ("_Project_Setup_", "Project_Setup"),
+            ("_PROJECT_SETUP_", "PROJECT_SETUP"),
             ("FUL_3D", "FUL_3D"),
+            ("BaseName", "BaseName"),
+            ("baseName", "BaseName"),
+            (" baseName", "BaseName"),
+            (" base name", "Base_Name"),
+            (" 12base name", "Base_Name"),
+            (" 12 base name", "Base_Name"),
+            (" 12 base name 13", "Base_Name_13"),
+            (">£#>$#£½$ 12 base £#$£#$£½¾{½{ name 13", "Base_Name_13"),
+            ("_base_name_", "Base_Name"),
         ]
     
     def tearDown(self):
@@ -181,6 +207,366 @@ class VersionTester(unittest.TestCase):
         self.assertRaises(AttributeError, setattr, self.test_version, "type",
                           new_type)
     
-    def test_filename_argument_is_None(self):
+    def test_base_name_argument_is_skipped(self):
+        """testing if a RuntimeError will be raised when the base_name argument
+        is skipped
         """
+        self.kwargs.pop("base_name")
+        self.assertRaises(RuntimeError, Version, **self.kwargs)
+    
+    def test_base_name_argument_is_None(self):
+        """testing if a RuntimeError will be raised when the base_name argument
+        is None
         """
+        self.kwargs["base_name"] = None
+        self.assertRaises(RuntimeError, Version, **self.kwargs)
+    
+    def test_base_name_attribute_is_None(self):
+        """testing if a RuntimeError will be raised when the base_name
+        attribute is set to None
+        """
+        self.assertRaises(RuntimeError, setattr, self.test_version,
+                          "base_name", None)
+    
+    def test_base_name_argument_is_not_a_string(self):
+        """testing if a TypeError will be raised when the base_name argument is
+        not a string or unicode instance
+        """
+        self.kwargs["base_name"] = 12
+        self.assertRaises(TypeError, Version, **self.kwargs)
+    
+    def test_base_name_attribute_is_not_a_string(self):
+        """testing if a TypeError will be raised when the base_name argument is
+        not a string or unicode instance
+        """
+        self.assertRaises(TypeError, setattr, self.test_version, "base_name",
+                          12)
+    
+    def test_base_name_attribute_is_initialized_correctly(self):
+        """testing if the base_name attribute is initialized correctly
+        """
+        self.assertEqual(self.test_version.base_name, self.kwargs["base_name"])
+    
+    def test_base_name_attribute_is_working_properly(self):
+        """testing if the base_name attribute is working properly
+        """
+        test_value = "NewBaseName"
+        self.test_version.base_name = test_value
+        self.assertEqual(self.test_version.base_name, test_value)
+    
+    def test_base_name_attribute_is_formatted_correctly_on_new_Version(self):
+        """testing if the base_name attribute is formatted correctly when it is
+        initialized
+        """
+        
+        for test_value in self._name_test_values:
+            self.kwargs["base_name"] = test_value[0]
+            new_version = Version(**self.kwargs)
+            self.assertEqual(new_version.base_name, test_value[1])
+    
+    def test_base_name_attribute_is_formatted_correctly(self):
+        """testing if the base_name attribute is formatted correctly when it is
+        set to a value
+        """
+        for test_value in self._name_test_values:
+            self.test_version.base_name = test_value[0]
+            self.assertEqual(self.test_version.base_name, test_value[1])
+    
+    def test_base_name_argument_is_empty_string_after_formatting(self):
+        """testing if a ValueError will be raised when the base_name argument
+        is an empty string after it is formatted
+        """
+        self.kwargs["base_name"] = "'^+'^23423"
+        self.assertRaises(ValueError, Version, **self.kwargs)
+    
+    def test_base_name_attribute_is_empty_string_after_formatting(self):
+        """testing if a ValueError will be raised when the base_name attribute
+        is an empty string after it is formatted
+        """
+        self.assertRaises(ValueError, setattr, self.test_version, "base_name",
+                          "'^+'^23423")
+
+    def test_take_name_argument_is_skipped(self):
+        """testing if the default value MAIN is used when the take_name
+        argument is skipped
+        """
+        self.kwargs.pop("take_name")
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.take_name, conf.TAKE_NAME)
+    
+    def test_take_name_argument_is_None(self):
+        """testing if the default value MAIN is used when the take_name
+        argument is None
+        """
+        self.kwargs["take_name"] = None
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.take_name, conf.TAKE_NAME)
+    
+    def test_take_name_attribute_is_None(self):
+        """testing if a RuntimeError will be raised when the take_name
+        attribute is set to None
+        """
+        self.test_version.take_name = None
+        self.assertEqual(self.test_version.take_name, conf.TAKE_NAME)
+    
+    def test_take_name_argument_is_not_a_string(self):
+        """testing if a TypeError will be raised when the take_name argument is
+        not a string or unicode instance
+        """
+        self.kwargs["take_name"] = 12
+        self.assertRaises(TypeError, Version, **self.kwargs)
+    
+    def test_take_name_attribute_is_not_a_string(self):
+        """testing if a TypeError will be raised when the take_name argument is
+        not a string or unicode instance
+        """
+        self.assertRaises(TypeError, setattr, self.test_version, "take_name",
+                          12)
+    
+    def test_take_name_attribute_is_initialized_correctly(self):
+        """testing if the take_name attribute is initialized correctly
+        """
+        self.assertEqual(self.test_version.take_name, self.kwargs["take_name"])
+    
+    def test_take_name_attribute_is_working_properly(self):
+        """testing if the take_name attribute is working properly
+        """
+        test_value = "NewBaseName"
+        self.test_version.take_name = test_value
+        self.assertEqual(self.test_version.take_name, test_value)
+    
+    def test_take_name_attribute_is_formatted_correctly_on_new_Version(self):
+        """testing if the take_name attribute is formatted correctly when it is
+        initialized
+        """
+        
+        for test_value in self._name_test_values:
+            self.kwargs["take_name"] = test_value[0]
+            new_version = Version(**self.kwargs)
+            self.assertEqual(new_version.take_name, test_value[1])
+    
+    def test_take_name_attribute_is_formatted_correctly(self):
+        """testing if the take_name attribute is formatted correctly when it is
+        set to a value
+        """
+        for test_value in self._name_test_values:
+            self.test_version.take_name = test_value[0]
+            self.assertEqual(self.test_version.take_name, test_value[1])
+    
+    def test_take_name_argument_is_empty_string_after_formatting(self):
+        """testing if a ValueError will be raised when the take_name argument
+        is an empty string after it is formatted
+        """
+        self.kwargs["take_name"] = "'^+'^23423"
+        self.assertRaises(ValueError, Version, **self.kwargs)
+    
+    def test_take_name_attribute_is_empty_string_after_formatting(self):
+        """testing if a ValueError will be raised when the take_name attribute
+        is an empty string after it is formatted
+        """
+        self.assertRaises(ValueError, setattr, self.test_version, "take_name",
+                          "'^+'^23423")
+    
+    def test_version_number_argument_is_skipped_for_new_Version(self):
+        """testing if the default value is used for the version attribute if
+        the version argument is skipped for a new Version
+        """
+        self.kwargs.pop("version_number")
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.version_number, 1)
+    
+    def test_version_number_argument_is_skipped_for_non_new_Version(self):
+        """testing if the smallest possible integer is used for the version
+        attribute if the version argument is skipped for a non new Version
+        """
+        self.kwargs.pop("version_number")
+        new_version1 = Version(**self.kwargs)
+        new_version1.save()
+        
+        new_version2 = Version(**self.kwargs)
+        new_version2.save()
+
+        new_version3 = Version(**self.kwargs)
+        new_version3.save()
+        
+        new_version4 = Version(**self.kwargs)
+        new_version4.save()
+        
+        self.assertEqual(new_version1.version_number, 1)
+        self.assertEqual(new_version2.version_number, 2)
+        self.assertEqual(new_version3.version_number, 3)
+        self.assertEqual(new_version4.version_number, 4)
+    
+    def test_version_is_given_smaller_than_the_max_in_db(self):
+        """testing if the version is updated with the smallest available number
+        if it is smaller than the maximum version number in the database
+        """
+        
+        # lets create two Versions with same version and expect to see the last
+        # one has a bigger version_number
+        self.kwargs["base_name"] = "A"
+        self.kwargs["version_number"] = 100
+        new_version1 = Version(**self.kwargs)
+        new_version1.save()
+        
+        self.assertEqual(new_version1.version_number, 100)
+        
+        new_version2 = Version(**self.kwargs)
+        self.assertEqual(new_version2.version_number, 101)
+    
+    def test_version_number_is_zero(self):
+        """testing if the version number will be updated with the smallest
+        possible version_number value from the db if it is zero
+        """
+        self.kwargs["base_name"] = "A"
+        self.kwargs["version_number"] = 0
+        versA1 = Version(**self.kwargs)
+        versA1.save()
+        self.assertEqual(versA1.version_number, 1)
+        
+        versA2 = Version(**self.kwargs)
+        versA2.save()
+        self.assertEqual(versA2.version_number, 2)
+    
+    def test_version_number_is_negative(self):
+        """testing if the version number will be updated with the smallest
+        possible positive version_number value from the db if it is negative
+        """
+        self.kwargs["base_name"] = "A"
+        self.kwargs["version_number"] = -100
+        versA1 = Version(**self.kwargs)
+        versA1.save()
+        self.assertEqual(versA1.version_number, 1)
+        
+        versA2 = Version(**self.kwargs)
+        versA2.save()
+        self.assertEqual(versA2.version_number, 2)
+    
+    def test_max_version_returns_the_maximum_version_number_from_the_database(self):
+        """testing if the max_version is returning the maximum version number
+        for the current Version from the database
+        """
+        
+        self.kwargs.pop("version_number")
+        
+        self.kwargs["base_name"] = "A"
+        for i in range(50):
+            new_A = Version(**self.kwargs)
+            new_A.save()
+        
+        self.kwargs["base_name"] = "B"
+        for i in range(100):
+            new_B = Version(**self.kwargs)
+            new_B.save()
+        
+        # now try to create a new A and expect the version number to be 51
+        self.kwargs["base_name"] = "A"
+        A_new = Version(**self.kwargs)
+        A_new.save()
+        self.assertEqual(A_new.version_number, 51)
+        
+        # and B should be 101
+        self.kwargs["base_name"] = "B"
+        B_new = Version(**self.kwargs)
+        B_new.save()
+        self.assertEqual(B_new.version_number, 101)
+    
+    def test_note_argument_skipped(self):
+        """testing if the note attribute will be an empty string if the note
+        attribute is skipped
+        """
+        self.kwargs.pop("note")
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.note, "")
+    
+    def test_note_argument_is_set_to_None(self):
+        """testing if the note attribute will be an empty string if the note
+        argument is set to None
+        """
+        self.kwargs["note"] = None
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.note, "")
+    
+    def test_note_attribute_is_set_to_None(self):
+        """testing if the note attribute will be an empty string if it is set
+        to None
+        """
+        self.test_version.note = None
+        self.assertEqual(self.test_version.note, "")
+    
+    def test_note_argument_is_not_a_string(self):
+        """testing if a TypeError will be raised when the note argument is not
+        a string or unicode instance
+        """
+        self.kwargs["note"] = 123123
+        self.assertRaises(TypeError, Version, **self.kwargs)
+    
+    def test_note_attribute_is_set_to_a_non_string(self):
+        """testing if a TypeError will be raised when the note attribute is set
+        to a value which is neither string or unicode
+        """
+        self.assertRaises(TypeError, setattr, self.test_version, "note", 123)
+    
+    def test_note_argument_is_working_properly(self):
+        """testing if the note attribute is initialized correctly with the
+        given note argument value
+        """
+        self.assertEqual(self.test_version.note, self.kwargs["note"])
+    
+    def test_note_attribute_is_working_properly(self):
+        """testing if the note attribute is working properly
+        """
+        test_value = "test value goes here"
+        self.test_version.note = test_value
+        self.assertEqual(self.test_version.note, test_value)
+    
+    def test_created_by_argument_is_skipped(self):
+        """testing if a RuntimeError will be raised when the created_by
+        argument is skipped
+        """
+        self.kwargs.pop("created_by")
+        self.assertRaises(RuntimeError, Version, **self.kwargs)
+    
+    def test_created_by_argument_is_None(self):
+        """testing if a RuntimeError will be raised when the created_by
+        argument is set to None
+        """
+        self.kwargs["created_by"] = None
+        self.assertRaises(RuntimeError, Version, **self.kwargs)
+    
+    def test_created_by_attribute_is_set_to_None(self):
+        """testing if a RuntimeError will be raised when the created_by
+        attribute is set to None
+        """
+        self.assertRaises(RuntimeError, setattr, self.test_version,
+                          "created_by", None)
+    
+    def test_created_by_argument_is_not_a_User_instance(self):
+        """testing if a TypeError will be raised when the created_by argument
+        is not a oyProjectManager.core.models.User instance
+        """
+        self.kwargs["created_by"] = 1231
+        self.assertRaises(TypeError, Version, **self.kwargs)
+    
+    def test_created_by_attribute_is_not_a_User_instance(self):
+        """testing if a TypeError will be raised when the created_by attribute
+        is set to a value other than a oyProjectManager.core.models.User
+        instance
+        """
+        self.assertRaises(TypeError, setattr, self.test_version, "created_by",
+                          12314)
+    
+    def test_created_by_argument_is_working_properly(self):
+        """testing if the created_by attribute is initialized correctly with
+        the correct value given to created_by argument
+        """
+        self.assertEqual(self.test_version.created_by,
+                         self.kwargs["created_by"])
+    
+    def test_created_by_attribute_is_working_properly(self):
+        """testing if the created_by attribute is working properly
+        """
+        new_user = User(name="Test User 2", initials="tu2",
+                        email="test_user2@test.com")
+        self.test_version.created_by = new_user
+        self.assertEqual(self.test_version.created_by, new_user)

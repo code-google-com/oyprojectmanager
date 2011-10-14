@@ -84,8 +84,14 @@ class VersionableBaseTester(unittest.TestCase):
     def test_versions_attribute_is_read_only(self):
         """testing if the versions attribute is read-only
         """
-        
         new_vbase = VersionableBase()
-        
         self.assertRaises(AttributeError, setattr, new_vbase, "versions",
                           12312)
+    
+    def test_project_attribute_is_read_only(self):
+        """testing if the project attribute is read-only
+        """
+        
+        new_vbase = VersionableBase()
+        self.assertRaises(AttributeError, setattr, new_vbase, "project",
+                          123124)

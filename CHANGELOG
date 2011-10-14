@@ -17,10 +17,11 @@ Version History
     settings are read from the database (by retrieving an instance from the db)
     as the instance is created.
   
-  * All the XML parsing code is moved to the
-    :class:`~oyProjectManager.core.models.XMLSettingsParser` class. The
-    :class:`~oyProjectManager.core.models.Project` uses this parser to parse
-    the old settings and convert them to new one.
+  * All the XML parsing code is removed. So there is no backward compatibility.
+  
+  * It was very hard keep the compatibility with the previous versions. So,
+    the version 0.2.0 is not backward compatible. The system will look with
+    blinking eyes if you try to use it with an old Project.
   
   * The methods:
     
@@ -64,9 +65,8 @@ Version History
   :class:`~oyProjectManager.core.models.Asset` is derived from. Thus allow them
   to hold references to :class:`~oyProjectManager.core.models.Version`\ s.
 
-* It was very hard keep the compatibility with the previous versions. So,
-  the version 0.2.0 is not backward compatible. The system will look with
-  blinking eyes if you try to use it with an old Project.
+* The :class:`~oyProjectManager.core.models.Repository` now uses the ``REPO``
+  environment variable instead of ``STALKER_REPOSITORY_PATH``.
 
 0.1.2
 -----
