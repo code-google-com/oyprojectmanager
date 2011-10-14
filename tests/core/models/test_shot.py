@@ -363,12 +363,6 @@ class ShotTester(unittest.TestCase):
         
         new_shot.end_frame = 110
         self.assertEqual(new_shot.duration, 101)
-    
-    def test_versions_attribute_is_read_only(self):
-        """testing if the versions attribute is read-only
-        """
-        self.assertRaises(AttributeError, setattr, self.test_shot, "versions",
-                          12312)
 
 
 class ShotDBTester(unittest.TestCase):

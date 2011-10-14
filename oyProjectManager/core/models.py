@@ -17,7 +17,7 @@ from sqlalchemy import orm, Column, String, Integer, PickleType, ForeignKey
 from sqlalchemy.ext.declarative import synonym_for
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.mapper import validates
-
+from sqlalchemy.schema import UniqueConstraint
 
 from oyProjectManager import db
 from oyProjectManager.db.declarative import Base
@@ -173,7 +173,6 @@ class XMLSettingsParser(object):
 
     def __init__(self):
         pass
-
 
 class Repository(object):
     """Repository class gives information about the servers, projects, users
@@ -901,7 +900,6 @@ class Repository(object):
         return path.replace(self.server_path,
                             "$" + self.repository_path_env_key)
 
-
 class Project(Base):
     """Manages project related data.
     
@@ -916,12 +914,12 @@ class Project(Base):
         :class:`~oyProjectManager.core.models.Sequence`\ s,
         :class:`~oyProjectManager.core.models.Shot`\ s,
         :class:`~oyProjectManager.core.models.Asset`\ s and
-        :class:`~oyProjectManager.core.models.AssetType` created within
+        :class:`~oyProjectManager.core.models.VersionType` created within
         the Project. So anytime a new
         :class:`~oyProjectManager.core.models.Sequence`\ s,
         :class:`~oyProjectManager.core.models.Shot`\ s,
         :class:`~oyProjectManager.core.models.Asset`\ s or
-        :class:`~oyProjectManager.core.models.AssetType` is created the
+        :class:`~oyProjectManager.core.models.VersionType` is created the
         related data is saved to this SQLite3 database.
         
         For previously created objects, the retrieving of the data from the
@@ -1242,7 +1240,6 @@ class Project(Base):
         
         return self._exists
 
-
 class Sequence(Base):
     """Sequence object to help manage sequence related data.
     
@@ -1297,7 +1294,6 @@ class Sequence(Base):
     structure_id = Column(Integer, ForeignKey("Structures.id"))
     structure = relationship("Structure")
     
-    
     def __new__(cls, project=None, name=None):
         """the overridden __new__ method to manage the creation of Sequence
         instances.
@@ -1333,7 +1329,6 @@ class Sequence(Base):
         logger.debug("returning a normal Sequence instance")
         return super(Sequence, cls).__new__(cls, project, name)
     
-    
     def __init__(self, project=None, name=None):
         
         # skip initialization if this is coming from DB
@@ -1355,7 +1350,6 @@ class Sequence(Base):
         self._path = self.project.fullPath
         self._fullPath = os.path.join(self._path, self.name).replace("\\", "/")
         
-        
         self.shotPrefix = conf.SHOT_PREFIX
         self.shotPadding = conf.SHOT_PADDING
         
@@ -1366,16 +1360,6 @@ class Sequence(Base):
         self.verPadding = conf.VER_PADDING
         
         self.timeUnit = conf.TIME_UNIT
-        
-#        self._settingsFile = ".settings.xml"
-#        self._settings_file_path = self._fullPath
-#        self._settings_file_full_path = os.path.join(
-#            self._settings_file_path,
-#            self._settingsFile
-#        ).replace("\\", "/")
-        
-#        self._settingsFileExists = False
-#        self._settings_dirty = False
         
 #        self.structure = Structure()
         self.structure = None
@@ -1388,350 +1372,16 @@ class Sequence(Base):
         self._shotList = [] # should be a string
         self._shots = [] # the new shot objects
         
-        #self._extensionsToIgnore = [] * 0
-#        self._no_sub_name_field = False # to support the old types of projects
-        
 #        self._environment = None # the working environment
         
         self._exists = False
-        
-        # TODO: conversion from old sequence type to new sequence type with db
-        #       try to read the database and if it doesn't exists convert the
-        #       old
-        #       project to a new one
-        
-#        self.readSettings()
-    
     
     @orm.reconstructor
     def __init_on_load__(self):
+        """run when an object is get from the db
         """
-        """
-        
         self._path = self.project.fullPath
         self._fullPath = os.path.join(self._path, self.name).replace("\\", "/")
-
-
-#    def readSettings(self):
-#        """reads the settings either from the database for new type Sequences
-#        or from the .settings.xml file for older type Sequences
-#        """
-#        
-#        seq_db = self.session.query(Sequence).filter_by(name=self.name).first()
-#        
-#        if seq_db is not None:
-#            
-#            logger.debug("getting the Sequence from the database")
-#            # copy the data
-#            self.__dict__ = seq_db.__dict__
-#            self._exists = True
-#            
-#        else:
-#            logger.debug("the sequence is not created yet")
-#            logger.debug("creating the structure for the sequence")
-#            
-#            if self.structure is None:
-#                self.structure = Structure()
-#            
-#            self.structure.shotDependentFolders = conf.SHOT_DEPENDENT_FOLDERS
-#            self.structure.shotIndependentFolders =\
-#                conf.SHOT_INDEPENDENT_FOLDERS
-#            self._exists = False
-        
-        
-        
-#    def read_old_settings(self):
-#        """parses the old XML settings file
-#        """
-#            
-#            print "there is no db file"
-#            # check if there is a settings file
-#            if os.path.exists(self._settings_file_full_path):
-#                print "there is a .settings.xml file"
-#                self._settingsFileExists = True
-#                self._exists = True
-#                
-#                #print (self._settings_file_full_path)
-#                settingsAsXML = minidom.parse(self._settings_file_full_path)
-#                
-#                rootNode = settingsAsXML.childNodes[0]
-#                
-#                # -----------------------------------------------------
-#                # get main nodes
-#        
-#                # remove databaseData if exists
-#                doRemoveDatabaseDataNode = False
-#                databaseDataNode = rootNode.getElementsByTagName('databaseData')
-#        
-#                if len(databaseDataNode) > 0:
-#                    # there should be a databaseData node
-#                    doRemoveDatabaseDataNode = True
-#        
-#                    # parse the databaseData nodes attributes as if it is a
-#                    # sequenceDataNode
-#                    self._parseSequenceDataNode(databaseDataNode[0])
-#        
-#                sequenceDataNode = rootNode.getElementsByTagName('sequenceData')[0]
-#        
-#                if not doRemoveDatabaseDataNode:
-#                    self._parseSequenceDataNode(sequenceDataNode)
-#        
-#                    # -----------------------------------------------------
-#                    # get sequence nodes
-#                structureNode = sequenceDataNode.getElementsByTagName('structure')[0]
-#                assetTypesNode = sequenceDataNode.getElementsByTagName('assetTypes')[0]
-#                shotDataNodes = sequenceDataNode.getElementsByTagName('shotData')
-#        
-#                doConversionToShotData = False
-#        
-#                if not len(shotDataNodes):
-#                    doConversionToShotData = True
-#        
-#                # parse all nodes
-#                self._parseAssetTypesNode(assetTypesNode)
-#                self._parseStructureNode(structureNode)
-#        
-#                if doConversionToShotData:
-#                    # 
-#                    # it should be an old type of settings file
-#                    # convert it to the new shotData concept
-#                    # 
-#                    shotListNode = sequenceDataNode.getElementsByTagName('shotList')[0]
-#                    #print "converting to shotData concept !!!"
-#        
-#                    # read the shot numbers from the shotList node and create appropriate
-#                    # shot data nodes
-#        
-#                    # parse the shotListNode to get the shot list
-#                    self._parseShotListNode(shotListNode)
-#        
-#                    self._convertShotListToShotData()
-#        
-#                    # update the settings file
-#                    #self.saveSettings()
-#                    self._settings_dirty = True
-#                else:
-#                    self._parseShotDataNode(shotDataNodes[0])
-#        
-#                if doRemoveDatabaseDataNode:
-#                    # just save the settings over it self, it should be fine
-#                    #self.saveSettings()
-#                    self._settings_dirty = True
-
-#        if self._settings_dirty:
-#            print "re-saving settings"
-#            self.saveSettings()
-
-# check if there is a database file
-
-
-#    def _parseSequenceDataNode(self, sequenceDataNode ):
-#        """parses sequenceDataNode nodes attributes
-#        """
-#
-#        #assert( isinstance( sequenceDataNode, minidom.Element) )
-#
-#        self.shotPrefix = sequenceDataNode.getAttribute('shotPrefix')
-#        self.shotPadding = int(sequenceDataNode.getAttribute('shotPadding'))
-#        self.revPrefix = sequenceDataNode.getAttribute('revPrefix')
-#        self.revPadding = sequenceDataNode.getAttribute('revPadding')
-#        self.verPrefix = sequenceDataNode.getAttribute('verPrefix')
-#        self.verPadding = sequenceDataNode.getAttribute('verPadding')
-#
-#        #if sequenceDataNode.hasAttribute('extensionsToIgnore'):
-#        #self._extensionsToIgnore = sequenceDataNode.getAttribute('extensionsToIgnore').split(',')
-#        
-#        if sequenceDataNode.hasAttribute('noSubNameField'):
-#            self._no_sub_name_field = bool(
-#                eval(sequenceDataNode.getAttribute('noSubNameField')))
-#
-#        if sequenceDataNode.hasAttribute('timeUnit'):
-#            self.timeUnit = sequenceDataNode.getAttribute('timeUnit')
-
-
-#    def _parseStructureNode(self, structureNode):
-#        """parses structure node from the XML file
-#        """
-#
-#        #assert( isinstance( structureNode, minidom.Element ) )
-#
-#        # -----------------------------------------------------
-#        # get shot dependent/independent folders
-#        shotDependentFoldersNode = \
-#            structureNode.getElementsByTagName('shotDependent')[0]
-#        shotDependentFoldersList = \
-#            shotDependentFoldersNode.childNodes[0].wholeText.split('\n')
-#
-#        shotIndependentFoldersNode = \
-#            structureNode.getElementsByTagName('shotIndependent')[0]
-#        shotIndependentFoldersList = shotIndependentFoldersNode.childNodes[
-#                                     0].wholeText.split('\n')
-#
-#        # strip the elements and remove empty elements
-#        shotDependentFoldersList = [folder.strip() for folder in
-#                                    shotDependentFoldersList if
-#                                    folder.strip() != ""]
-#        shotIndependentFoldersList = [folder.strip() for folder in
-#                                      shotIndependentFoldersList if
-#                                      folder.strip() != ""]
-#
-#        # fix path issues for windows
-#        osName = os.name
-#
-#        if osName == 'nt':
-#            shotDependentFoldersList = \
-#            [utils.fixWindowsPath(path)
-#                for path in shotDependentFoldersList]
-#            
-#            shotIndependentFoldersList = \
-#                [utils.fixWindowsPath(path) \
-#                    for path in shotIndependentFoldersList]
-#
-#        # set the structure
-#        self.structure.shotDependentFolders = shotDependentFoldersList
-#        self.structure.shotIndependentFolders = shotIndependentFoldersList
-#
-#        try:
-#            # --------------------------------------------------------------------
-#            # THIS PART BELOW IS DEPRECATED REMOVE IT IN THE NEXT RELEASE
-#            # --------------------------------------------------------------------
-#            # read the output folders node
-#            outputFoldersNode =\
-#            structureNode.getElementsByTagName('outputFolders')[0]
-#
-#            outputNodes = outputFoldersNode.getElementsByTagName('output')
-#
-#            for outputNode in outputNodes:
-#                #assert(isinstance(outputNode, minidom.Element))
-#                name = outputNode.getAttribute('name')
-#                path = outputNode.getAttribute('path')
-#
-#                # fix path issues for windows
-#                if osName == 'nt':
-#                    path = utils.fixWindowsPath(path)
-#
-#                # instead add the output folder to the asset types
-#                # get the asset type by name and append the path to the
-#                # output folder of the found asset type
-#                aType = self.getAssetTypeWithName(name)
-#                try:
-#                    aType.output_path = path
-#                except AttributeError:
-#                    # it means there is no asset type with the given name
-#                    pass
-#
-#            # do a saveSettings to save the settings in new format
-#            #self.saveSettings()
-#            self._settings_dirty = True
-#
-#        except IndexError:
-#            # there is no output_folder in this project so don't parse it in
-#            # this way
-#            pass
-
-
-#    def _parseAssetTypesNode(self, assetTypesNode):
-#        """parses assetTypes node from the XML file
-#        """
-#
-#        #assert( isinstance( assetTypesNode, minidom.Element) )
-#
-#        # -----------------------------------------------------
-#        # read asset types
-#        self._assetTypes = [] * 0
-#        for node in assetTypesNode.getElementsByTagName('type'):
-#            #assert( isinstance( node, minidom.Element) )
-#
-#            name = node.getAttribute('name')
-#            path = node.getAttribute('path')
-#            shotDependency = bool(int(node.getAttribute('shotDependent')))
-#            environments = node.getAttribute('environments').split(",")
-#            output_path = node.getAttribute("output_path")
-#
-#            # fix path issues for windows
-#            if os.name == 'nt':
-#                path = utils.fixWindowsPath(path)
-#
-#            self._assetTypes.append(
-#                AssetType(name, path, shotDependency, environments,
-#                                output_path)
-#            )
-#
-#
-#    def _parseShotListNode(self, shotListNode):
-#        """parses shotList node from the XML file
-#        """
-#
-#        #assert( isinstance( shotListNode, minidom.Element) )
-#
-#        # -----------------------------------------------------
-#        # get shot list only if the current shot list is empty
-#        if not len(self._shotList):
-#            if len(shotListNode.childNodes):
-#                self._shotList = [shot.strip() for shot in
-#                                  shotListNode.childNodes[0].wholeText.split(
-#                                      '\n') if shot.strip() != ""]
-#
-#        # sort the shot list
-#        self._shotList = utils.sort_string_numbers(self._shotList)
-#
-#
-#    def _parseShotDataNode(self, shotDataNode):
-#        """parses shotData node from the XML file
-#        """
-#
-#        #assert( isinstance( shotDataNode, minidom.Element) )
-#
-#        for shotNode in shotDataNode.getElementsByTagName('shot'):
-#            #assert( isinstance( shotNode, minidom.Element ) )
-#
-#            startFrame = shotNode.getAttribute('startFrame')
-#            endFrame = shotNode.getAttribute('endFrame')
-#            name = shotNode.getAttribute('name')
-#            description = \
-#                shotNode.getElementsByTagName('description')[0].\
-#                    childNodes[0].wholeText.strip()
-#
-#            if startFrame != '':
-#                startFrame = int(startFrame)
-#            else:
-#                startFrame = 0
-#
-#            if endFrame != '':
-#                endFrame = int(endFrame)
-#            else:
-#                endFrame = 0
-#
-#            # create shot objects with the data
-#            newShot = Shot(name, self, startFrame, endFrame, description)
-#            #newShot.startFrame = startFrame
-#            #newShot.endFrame = endFrame
-#            #newShot.name = name
-#            #newShot.description = description
-#
-#            # append the shot to the self._shots
-#            self._shots.append(newShot)
-#
-#            # also append the name to the shotList
-#            self._shotList.append(name)
-#
-#        # sort the shot list
-#        self._sortShots()
-#
-#
-#    def _convertShotListToShotData(self):
-#        """converts the shot list node in the settings to shotData node
-#        """
-#
-#        # now we should have the self._shotList filled
-#        # create the shot objects with default values and the shot names from
-#        # the shotList
-#
-#        for shotName in self._shotList:
-#            newShot = Shot(shotName, self)
-#            #newShot.name = shotName
-#            self._shots.append(newShot)
-
 
     def save(self):
         """persists the sequence in the database
@@ -1778,7 +1428,6 @@ class Sequence(Base):
             shutil.copy(sourcePath, targetPath)
         
         self.save()
-
 
     def addShots(self, shots):
         """adds new shots to the sequence
@@ -1829,7 +1478,6 @@ class Sequence(Base):
         # sort the shot objects
         self._shots = utils.sort_string_numbers(self._shots)
 
-
     def addAlternativeShot(self, shotNumber):
         """adds a new alternative to the given shot
         
@@ -1857,7 +1505,6 @@ class Sequence(Base):
 
         return alternativeShotName
 
-
     def getNextAlternateShotName(self, shot):
         """returns the next alternate shot number for the given shot number
         """
@@ -1875,7 +1522,6 @@ class Sequence(Base):
                 return newShotNumber
 
         return None
-
 
     def createShots(self):
         """creates the shot folders in the structure
@@ -1911,12 +1557,10 @@ class Sequence(Base):
         """
         return self._shots
 
-
     def _sortShots(self):
         """sorts the internal shot list
         """
         self._shots = sorted(self._shots, key=utils.embedded_numbers)
-
 
     def getShot(self, shotNumber):
         """returns the shot with given shotNumber
@@ -1929,7 +1573,6 @@ class Sequence(Base):
 
         return None
 
-
     @property
     def shotList(self):
         """returns the shot list object
@@ -1939,12 +1582,8 @@ class Sequence(Base):
     def createStructure(self):
         """creates the folders defined by the structure
         """
-        
         if not self._exists:
             return
-        
-#        # create shots
-#        self.createShots()
         
         # create the structure if it is not present
         if self.structure is None:
@@ -1952,7 +1591,6 @@ class Sequence(Base):
         
         for folder in self.structure.shotIndependentFolders:
             utils.createFolder(os.path.join(self._fullPath, folder))
-
 
     def convertToShotString(self, shotNumber ):
         """ converts the input shot number to a padded shot string
@@ -1993,7 +1631,6 @@ class Sequence(Base):
         
         return return_value
 
-
     def convertToRevString(self, revNumber):
         """converts the input revision number to a padded revision string
         
@@ -2003,7 +1640,6 @@ class Sequence(Base):
         """
         return self.revPrefix + utils.padNumber(revNumber, self.revPadding)
 
-
     def convertToVerString(self, verNumber):
         """converts the input version number to a padded version string
         
@@ -2012,7 +1648,6 @@ class Sequence(Base):
         10 --> v010
         """
         return self.verPrefix + utils.padNumber(verNumber, self.verPadding)
-
 
     def convertToShotNumber(self, shotString):
         """beware that it returns a string, it returns the number plus the
@@ -2044,7 +1679,6 @@ class Sequence(Base):
         # alternate letter
         return unicode(int(numberAsStr)) + alternateLetter
 
-
     def convertToRevNumber(self, revString):
         """converts the input revision string to a revision number
         
@@ -2053,7 +1687,6 @@ class Sequence(Base):
         r10 --> 10
         """
         return int(revString[len(self.revPrefix):len(revString)])
-
 
     def convertToVerNumber(self, verString):
         """converts the input version string to a version number
@@ -2064,482 +1697,17 @@ class Sequence(Base):
         """
         return int(verString[len(self.verPrefix):len(verString)])
 
-
-#    @bCache.cache()
-#    def getAssetTypes(self, environment):
-#        """returns a list of AssetType objects that this project has
-#        
-#        if the environment is set something other then None only the
-#        assetTypes for that environment is returned.
-#        
-#        :param environment: The name of the current environment. Ex: MAYA,
-#          NUKE, HOUDINI etc.
-#        
-#        :returns: 
-#        :rtype: oyProjectManager.core.models.AssetType
-#        """
-#
-#        if environment is None:
-#            return self._assetTypes
-#        else:
-#            aTypesList = [] * 0
-#
-#            for aType in self._assetTypes:
-#                #assert(isinstance(aType, AssetType) )
-#                if environment in aType.environments:
-#                    aTypesList.append(aType)
-#
-#            return aTypesList
-
-
-#    @bCache.cache()
-#    def getAssetTypeWithName(self, typeName):
-#        """returns the assetType object that has the name typeName.
-#        if it can't find any assetType that has the name typeName it returns
-#        None
-#        """
-#
-#        for aType in self._assetTypes:
-#            if aType.name == typeName:
-#                return aType
-#
-#        return None
-
-
     @property
     def path(self):
         """returns the path of the sequence
         """
         return self._path
 
-
     @property
     def fullPath(self):
         """returns the full path of the sequence
         """
         return self._fullPath
-
-
-#    @property
-#    def projectName(self):
-#        """returns the parent projects name
-#        """
-#        return self.project.name
-
-
-#    @bCache.cache(expire=60)
-#    def getAssetFolders(self):
-#        """returns all asset folders
-#        """
-#
-#        # look at the assetType folders
-#        assetFolders = [] * 0
-#
-#        for aType in self._assetTypes:
-#            #assert(isinstance(aType, AssetType))
-#            assetFolders.append(aType.path)
-#
-#        return assetFolders
-
-
-#    @bCache.cache(expire=60)
-#    def getAllAssets(self):
-#        """returns Asset objects for all the assets of the sequence
-#        beware that this method uses a very simple caching algorithm, so it
-#        tries to reduce file system overhead
-#        """
-#
-#        # get asset folders
-#        # look at the child folders
-#        # and then look at the files under the child folders
-#        # if a file starts with the folder name
-#        # mark it as an asset
-#
-#        assets = [] * 0
-#
-#        # get the asset folders
-#        assetFolders = self.getAssetFolders()
-#
-#
-#        # optimization variables
-#        osPathJoin = os.path.join
-#        getChildFolders = utils.getChildFolders
-#        osPathBaseName = os.path.basename
-#        osPathIsDir = os.path.isdir
-#        globGlob = glob.glob
-#        assetAsset = Asset
-#        assetsAppend = assets.append
-#        selfFullPath = self._fullPath
-#        selfProject = self.project
-#
-#        # for each folder search child folders
-#        for folder in assetFolders:
-#            fullPath = osPathJoin(selfFullPath, folder)
-#
-#            # 
-#            # skip if the folder doesn't exists
-#            # 
-#            # it is a big problem in terms of management but some old type 
-#            # projects has missing folders, because the folders will be 
-#            # created whenever somebody uses that folder while saving an 
-#            # asset, we don't care about its existence
-#            #
-#            #if not os.path.exists( fullPath ):
-#            ##            if not osPathExists( fullPath ):
-#            ##                continue
-#
-#            # use glob instead of doing it by hand
-#            childFolders = getChildFolders(fullPath, True)
-#
-#            for folder in childFolders:
-#                # get possible asset files directly by using glob
-#                pattern = osPathBaseName(folder) + '*'
-#
-#                # files are in fullpath format
-#                matchedFiles = [file_ for file_ in
-#                                globGlob(osPathJoin(folder, pattern)) if
-#                                not osPathIsDir(file_)]
-#
-#                matchedFileCount = len(matchedFiles)
-#
-#                if matchedFileCount > 0:
-#                    # there should be some files matching the pattern
-#                    # check if they are valid assets
-#
-#                    matchedAssets = map(assetAsset,
-#                                        [selfProject] * matchedFileCount,
-#                                        [self] * matchedFileCount,
-#                                        map(osPathBaseName, matchedFiles))
-#
-#                    # append them to the main assets list
-#                    [assetsAppend(matchedAsset) for matchedAsset in
-#                     matchedAssets if matchedAsset.isValidAsset]
-#
-#        return assets
-
-
-#    @bCache.cache()
-#    def getAllAssetsForType(self, typeName):
-#        """returns Asset objects for just the given type of the sequence
-#        """
-#
-#        # get asset folders
-#        # look at the child folders
-#        # and then look at the files under the child folders
-#        # if a file starts with the folder name
-#        # mark it as an asset
-#
-#        assets = [] * 0
-#
-#        # get the asset folders
-#        #assetFolders = self.getAssetFolders()
-#
-#        aType = self.getAssetTypeWithName(typeName)
-#
-#        #assert(isinstance(aType,AssetType))
-#        assetFolder = aType.path
-#
-#        # optimization variables
-#        osPathExists = os.path.exists
-#        osPathJoin = os.path.join
-#        osPathIsDir = os.path.isdir
-#        getChildFolders = utils.getChildFolders
-#        osPathBaseName = os.path.basename
-#        globGlob = glob.glob
-#        assetAsset = Asset
-#        assetsAppend = assets.append
-#        selfFullPath = self._fullPath
-#        selfProject = self.project
-#
-#        fullPath = osPathJoin(selfFullPath, assetFolder)
-#
-#        # 
-#        # skip if the folder doesn't exists
-#        # 
-#        # it is a big problem in terms of management but some old type
-#        # projects has missing folder, because the folders will be created
-#        # whenever somebody uses that folder while saving an asset, 
-#        # we don't care about its existence
-#        #
-#        #if not os.path.exists( fullPath ):
-#        
-#        if not osPathExists(fullPath):
-#            return []
-#
-#        # use glob instead of doing it by hand
-#        childFolders = getChildFolders(fullPath, True)
-#
-#        for folder in childFolders:
-#            # get possible asset files directly by using glob
-#            pattern = osPathBaseName(folder) + '*'
-#
-#            # files are in fullpath format
-#            matchedFiles = [file_ for file_ in
-#                            globGlob(osPathJoin(folder, pattern)) if
-#                            not osPathIsDir(file_)]
-#
-#            matchedFileCount = len(matchedFiles)
-#
-#            if matchedFileCount > 0:
-#                # there should be some files matching the pattern
-#                # check if they are valid assets
-#
-#                matchedAssets = map(assetAsset, [selfProject] * matchedFileCount
-#                                    , [self] * matchedFileCount,
-#                                    map(osPathBaseName, matchedFiles))
-#
-#                # append them to the main assets list
-#                [assetsAppend(matchedAsset) for matchedAsset in matchedAssets if
-#                 matchedAsset.isValidAsset]
-#        return assets
-
-
-#    @bCache.cache()
-#    def getAllAssetFileNamesForType(self, typeName):
-#        """returns Asset objects for just the given type of the sequence
-#        """
-#
-#        # get asset folders
-#        # look at the child folders
-#        # and then look at the files under the child folders
-#        # if a file starts with the folder name
-#        # mark it as an asset
-#
-#        assetFiles = []
-#
-#        # get the asset folders
-#        aType = self.getAssetTypeWithName(typeName)
-#
-#        #assert(isinstance(aType,AssetType))
-#        assetFolder = aType.path
-#
-#        # optimization variables
-#        osPathExists = os.path.exists
-#        osPathJoin = os.path.join
-#        osPathBaseName = os.path.basename
-#        osPathIsDir = os.path.isdir
-#        globGlob = glob.glob
-##        assetFilesAppend = assetFiles.append
-#        selfFullPath = self._fullPath
-##        selfProject = self.project
-#
-#        fullPath = osPathJoin(selfFullPath, assetFolder)
-#
-#        # 
-#        # skip if the folder doesn't exists
-#        # 
-#        # it is a big problem in terms of management but some old type projects
-#        # has missing folder, because the folders will be created whenever
-#        # somebody uses that folder while saving an asset, 
-#        # we don't care about its existence
-#        #
-#        #if not os.path.exists( fullPath ):
-#        if not osPathExists(fullPath):
-#            return []
-#
-#        childFolders = utils.getChildFolders(fullPath, True)
-#
-#        for folder in childFolders:
-#            pattern = osPathBaseName(folder) + '_*'
-#
-#            matchedFiles = [file_ for file_ in
-#                            globGlob(osPathJoin(folder, pattern)) if
-#                            not osPathIsDir(file_)]
-#
-#            matchedFileCount = len(matchedFiles)
-#
-#            if matchedFileCount > 0:
-#                #[ assetFilesAppend(matchedFile) for matchedFile in matchedFiles if self.isValidExtension( os.path.splitext(matchedFile)[1].split('.')[1] ) ]
-#                #map( assetFilesAppend, matchedFiles )
-#                assetFiles.extend(matchedFiles)
-#
-#        assetFiles = map(os.path.basename, assetFiles)
-#
-#        return assetFiles
-
-
-#    def getAssetBaseNamesForType(self, typeName):
-#        """returns all asset baseNames for the given type
-#        """
-#
-#        # get the asset files of that type
-#        allAssetFileNames = self.getAllAssetFileNamesForType(typeName)
-#
-#        # filter for base name
-#        sGFIV = self.generateFakeInfoVariables
-#        baseNamesList = [sGFIV(assetFileName)['baseName'] for assetFileName in
-#                         allAssetFileNames]
-#
-#        # remove duplicates
-#        baseNamesList = utils.unique(baseNamesList)
-#
-#        return baseNamesList
-
-
-#    @bCache.cache()
-#    def getAllAssetsForTypeAndBaseName(self, typeName, baseName):
-#        """returns Asset objects of the sequence for just the given type and
-#        basename
-#        """
-#
-#        # get asset folders
-#        # look at the child folders
-#        # and then look at the files under the child folders
-#        # if a file starts with the folder name
-#        # mark it as an asset
-#
-#        assets = [] * 0
-#
-#        # get the asset folder
-#        aType = self.getAssetTypeWithName(typeName)
-#        assetFolder = aType.path
-#
-#        # optimization variables
-#        osPathJoin = os.path.join
-#        osPathExists = os.path.exists
-#        osPathIsDir = os.path.isdir
-#        selfFullPath = self._fullPath
-#        assetAsset = Asset
-#        selfProject = self.project
-#        assetsAppend = assets.append
-#
-#        osPathBaseName = os.path.basename
-#        globGlob = glob.glob
-#
-#        fullPath = osPathJoin(selfFullPath, assetFolder)
-#
-#        # 
-#        # skip if the folder doesn't exists
-#        # 
-#        # it is a big problem in terms of management but some old type projects
-#        # has missing folder, because the folders will be created whenever 
-#        # somebody uses that folder while saving an asset, 
-#        # we don't care about its existence
-#        #
-#        if not osPathExists(fullPath):
-#            return []
-#
-#        childFolder = baseName
-#        childFolderFullPath = osPathJoin(fullPath, childFolder)
-#
-#        # use glob instead of doing it by hand
-#
-#        # get possible asset files directly by using glob
-#        pattern = osPathBaseName(baseName) + '_*'
-#
-#        # files are in fullpath format
-#        matchedFiles = [file_ for file_ in
-#                        globGlob(osPathJoin(childFolderFullPath, pattern)) if
-#                        not osPathIsDir(file_)]
-#
-#        matchedFileCount = len(matchedFiles)
-#
-#        if matchedFileCount > 0:
-#            # there should be some files matching the pattern
-#            # check if they are valid assets
-#
-#            matchedAssets = map(assetAsset, [selfProject] * matchedFileCount,
-#                                [self] * matchedFileCount,
-#                                map(osPathBaseName, matchedFiles))
-#
-#            # append them to the main assets list
-#            [assetsAppend(matchedAsset) for matchedAsset in matchedAssets if
-#             matchedAsset.isValidAsset]
-#
-#        return assets
-
-
-#    def filterAssets(self, assetList, **kwargs):
-#        """filters the given asset list with the key word arguments
-#        
-#        the kwargs should have at least on of these keywords:
-#        
-#        baseName
-#        subName
-#        typeName
-#        rev
-#        revString
-#        ver
-#        verString
-#        userInitials
-#        notes
-#        fileName
-#        """
-#
-#        newKwargs = dict()
-#
-#        # remove empty keywords
-#        for k in kwargs:
-#            if kwargs[k] != '':
-#                newKwargs[k] = kwargs[k]
-#
-#        # get all the info variables of the assets
-#        assetInfos = map(Asset.infoVariables, assetList)
-#
-#        filteredAssetInfos = self.aFilter(assetInfos, **kwargs)
-#
-#        # recreate assets and return
-#        # TODO: return without recreating the assets
-#        return [Asset(self.project, self, x['fileName']) for x in
-#                filteredAssetInfos]
-
-
-#    def filterAssetNames(self, assetFileNames, **kwargs):
-#        """a fake filter for quick retrieval of info from asset file names
-#        
-#        use filterAsset for filtering with asset objects as input
-#        
-#        the kwargs should have at least on of these keywords:
-#        
-#        baseName
-#        subName
-#        typeName
-#        """
-#
-#        # generate dictionaries
-#        assetInfos = map(self.generateFakeInfoVariables, assetFileNames)
-#
-#        filteredAssetFileNames = self.aFilter(assetInfos, **kwargs)
-#
-#        return [info['fileName'] for info in filteredAssetFileNames]
-
-
-#    @bCache.cache()
-#    def generateFakeInfoVariables(self, assetFileName):
-#        """generates fake info variables from assetFileNames by splitting the file name
-#        from '_' characters and trying to get information from those splits
-#        """
-#        #assert(isinstance(assetFileName, str))
-#        splits = assetFileName.split('_') # replace it with data separator
-#
-#        infoVars = dict()
-#
-#        infoVars['fileName'] = assetFileName
-#        infoVars['baseName'] = ''
-#        infoVars['subName'] = ''
-#        infoVars['typeName'] = ''
-#
-#        if not self._no_sub_name_field:
-#            if len(splits) > 3:
-#                infoVars['baseName'] = splits[0]
-#                infoVars['subName'] = splits[1]
-#                infoVars['typeName'] = splits[2]
-#        else:
-#            if len(splits) > 2:
-#                infoVars['baseName'] = splits[0]
-#                infoVars['subName'] = ''
-#                infoVars['typeName'] = splits[1]
-#
-#        return infoVars
-
-
-#    def aFilter(self, dicts, **kwargs):
-#        """filters dictionaries for criteria
-#        dicts is a list of dictionaries
-#        the function returns the dictionaries that has all the kwargs
-#        """
-#        return [d for d in dicts if all(d.get(k) == kwargs[k] for k in kwargs)]
-
 
     def isValid(self):
         """checks if the sequence is valid
@@ -2549,11 +1717,10 @@ class Sequence(Base):
         # - be exist
         # - have a .settings.xml file inside it
 
-        if self._exists and self._settingsFileExists:
+        if self._exists:
             return True
 
         return False
-
 
     def addNewAssetType(self, name='', path='', shotDependent=False,
                         environments=None, output_path=""):
@@ -2572,7 +1739,7 @@ class Sequence(Base):
 
         if name.upper() not in assetTypeName:
             # create the assetType object with the input
-            newAType = AssetType(name, path, shotDependent, environments)
+            newAType = VersionType(name, path, shotDependent, environments)
 
             # add it to the list
             self._assetTypes.append(newAType)
@@ -2583,38 +1750,11 @@ class Sequence(Base):
         """
         return self._exists
 
-    @property
-    def no_sub_name_field(self):
-        """returns True if the sequence doesn't support subName fields (old-style)
-        """
-        return self._no_sub_name_field
-
-#    def undoChange(self):
-#        """undoes the last change to the .settings.xml file if there is a
-#        backup of the .settings.xml file
-#        """
-#
-#        # get the backup files of the .settings.xml
-#        backupFiles = utils.getBackupFiles(self._settings_file_full_path)
-#
-#        if len(backupFiles) > 0:
-#            #print backupFiles
-#            # there is at least one backup file
-#            # delete the current .settings.xml
-#            # and rename the last backup to .settings.xml
-#
-#            print "replacing with : ", os.path.basename(backupFiles[-1])
-#
-#            shutil.copy(backupFiles[-1], self._settings_file_full_path)
-#            os.remove(backupFiles[-1])
-
-
     def __eq__(self, other):
         """The equality operator
         """
         return isinstance(other, Sequence) and other.name == self.name and\
                other.project.name == self.project.name
-
 
     def __ne__(self, other):
         """The in equality operator
@@ -2636,17 +1776,6 @@ class Sequence(Base):
         """
         
         return self.condition_name(name)
-    
-    
-#    @validates("project")
-#    def _validate_project(self, key, project):
-#        """validates the given project value
-#        """
-#        # check the given project
-#        project = Sequence._check_project(project)
-#        
-#        return project
-    
     
     @classmethod
     def _check_project(cls, project):
@@ -2695,10 +1824,6 @@ class Sequence(Base):
         """
         
         return self._project
-        
-        
-    
-    
 
 
 class Structure(Base):
@@ -2782,7 +1907,6 @@ class Structure(Base):
         self.shotIndependentFolders = sorted(
             utils.unique(self.shotIndependentFolders))
 
-
 class VersionableBase(Base):
     """A base class for :class:`~oyProjectManager.core.models.Shot` and
     :class:`~oyProjectManager.core.models.Asset` classes.
@@ -2791,6 +1915,12 @@ class VersionableBase(Base):
     :class:`~oyProjectManager.core.models.Version` to the
     :class:`~oyProjectManager.core.models.Shot` and
     :class:`~oyProjectManager.core.models.Asset` instances.
+    
+    It doesn't need any parameter while initialization.
+    
+    It supplies only one read-only attribute called
+    :attr:`~oyProjectManager.core.models.VersionableBase.versions` which is a
+    list and holds :class:`~oyProjectManager.core.models.Version` instances.
     """
     
     __tablename__ = "Versionables"
@@ -2799,8 +1929,17 @@ class VersionableBase(Base):
     id = Column(Integer, primary_key=True)
     
     version_id = Column(Integer)
-    version = relationship("Version")
-
+    _versions = relationship("Version")
+    
+    @synonym_for("_versions")
+    @property
+    def versions(self):
+        """the Version instances attached to this object
+        
+        It is a read-only attribute
+        """
+        
+        return self._versions
 
 class Shot(VersionableBase):
     """The class that enables the system to manage shot data.
@@ -2994,8 +2133,6 @@ class Shot(VersionableBase):
         """
         
         return self._versions
-    
-
 
 class Asset(VersionableBase):
     """to work properly it needs a valid project and sequence objects
@@ -3962,50 +3099,200 @@ class Asset(VersionableBase):
 
 class Version(Base):
     """Holds versions of assets or shots
-    """
     
+    :param version_of: A :class:`~oyProjectManager.core.models.VersionableBase`
+      instance (:class:`~oyProjectManager.core.models.Asset` or
+      :class:`~oyProjectManager.core.models.Shot`) which is the owner of this
+      version. Can not be skipped or set to None.
+    
+    :type type: :class:`~oyProjectManager.core.models.Asset`,
+      :class:`~oyProjectManager.core.models.Shot` or
+      :class:`~oyProjectManager.core.models.VersionableBase`
+    
+    :param type: A :class:`~oyProjectManager.core.models.VersionType` instance
+      which is showing the type of the current version. The type is also
+      responsible of the placement of this Version in the repository. So the
+      :attr:`~oyProjectManager.core.models.Version.filename` and the
+      :attr:`~oyProjectManager.core.models.Version.path` is defined by the
+      related :class:`~oyProjectManager.core.models.VersionType` and the
+      :class:`~oyProjectManager.core.models.Project` settings. Can not be
+      skipped or can not be set to None.
+    
+    :type type: :class:`~oyProjectManager.core.models.VersionType`
+    
+    :param str base_name: A string showing the base name of this Version
+      instance. Generally used to create an appropriate 
+      :attr:`~oyProjectManager.core.models.Version.filename` and a
+      :attr:`~oyProjectManager.core.models.Version.path` value. Can not be
+      skipped, can not be None or empty string.
+    
+    :param str take_name: A string showing the take name. The default value is
+      "MAIN" and it will be used in case it is skipped or it is set to None
+      or an empty string. Generally used to create an appropriate
+      :attr:`~oyProjectManager.core.models.Version.filename` and a
+      :attr:`~oyProjectManager.core.models.Version.path` value. 
+    
+    :param int revision_number: It is an integer number showing the client
+      revision number. The default value is 0 and it is used when the argument
+      is skipped or set to None. It should be an increasing number with the
+      newly created versions.
+    
+    :param int version_number: An integer number showing the current version
+      number. It should be an increasing number among the Versions with the
+      same base_name and take_name values. If skipped a proper value will be
+      used by looking at the previous versions created with the same base_name
+      and take_name values from the database.
+    
+    :param str note: A string holding the related note for this version. Can be
+      used for anything the user desires.
+    
+    :param created_by: A :class:`~oyProjectManager.core.models.User` instance
+      showing who created this version.
+    
+    :type created_by: :class:`~oyProjectManager.core.models.User`
+    """
+
+
+
     __tablename__ = "Versions"
     
+    __table_args__  = (
+        UniqueConstraint("base_name", "take_name", "version_number"),
+            {}
+        )
+
     id = Column(Integer, primary_key=True)
-    version_of_id = Column(Integer, ForeignKey("Versionables.id"))
-    version_of = relationship("VersionableBase")
+    version_of_id = Column(Integer, ForeignKey("Versionables.id"),
+                           nullable=False)
+    _version_of = relationship("VersionableBase")
     
-    file_name = Column(String)
+    type_id = Column(Integer, ForeignKey("VersionTypes.id"))
+    _type = relationship("VersionType")
+    
+    filename = Column(String)
+
     path = Column(String)
-    full_path = Column(String)
-    
     base_name = Column(String)
-    take_name = Column(String)
-    
-    type_id = Column(Integer, ForeignKey("AssetTypes.id"))
-    type = relationship("AssetType")
-    
-    revision_number = Column(Integer)
-    version_number = Column(Integer)
-    
-    notes = Column(String)
-    
+    take_name = Column(String, default="MAIN")
+    revision_number = Column(Integer, default=0)
+    version_number = Column(Integer, default=1)
+
+    note = Column(String)
     created_by_id = Column(Integer, ForeignKey("Users.id"))
     created_by = relationship("User")
     
+    def __init__(
+        self,
+        version_of=None,
+        type=None,
+        base_name=None,
+        take_name=None,
+        version_number=None,
+        note=None,
+        created_by=None,
+        revision_number=None,
+    ):
+        self._version_of = version_of
+        self._type = type
+        
     
+    @validates("_version_of")
+    def _validate_version_of(self, key, version_of):
+        """validates the given version of value
+        """
+        if version_of is None:
+            raise RuntimeError("Version.version_of can not be None")
+        
+        if not isinstance(version_of, VersionableBase):
+            raise TypeError("Version.version_of should be an Asset or Shot "
+                            "or anything derives from VersionableBase class")
+        
+        return version_of
+    
+    @synonym_for("_version_of")
+    @property
+    def version_of(self):
+        """The instance that this version belongs to.
+        
+        Generally it is a Shot or an Asset instance or anything which derives
+        from VersionableBase class
+        """
+        
+        return self._version_of
+    
+    @validates("type")
+    def _validate_type(self, key, type):
+        """validates the given type value
+        """
+        if type is None:
+            raise RuntimeError("Version.type can not be None")
+        
+        if not isinstance(type, VersionType):
+            raise TypeError("Version.type should be an instance of "
+                            "VersionType class")
+        
+        return type
+    
+    @synonym_for("_type")
+    @property
+    def type(self):
+        """The type of this Version instance.
+        
+        It is a VersionType object.
+        """
+        
+        return self._type
+    
+    @property
+    def filename(self):
+        """The filename of this version.
+        
+        It is automatically created by rendering the VersionType.filename
+        template with the information supplied with this Version instance.
+        """
+        pass
+    
+    @property
+    def path(self):
+        """The path of this version.
+        
+        It is automatically created by rendering the VersionType.path template
+        with the information supplied with this Version instance.
+        """
+        pass
+    
+    @property
+    def fullpath(self):
+        """The fullpath of this version.
+        
+        It is the join of the
+        :attr:`~oyProjectManager.core.models.Version.filename` and
+        :attr:`~oyProjectManager.core.models.Version.path`.
+        """
+        pass
 
 
-class AssetType(Base):
+class VersionType(Base):
     """Holds data like:\n
     - the asset type name
     - relative path of that type
-    - the shot dependency of that AssetType
+    - the shot dependency of that VersionType
     - the environments (list) that the asset is available to
     """
     
-    __tablename__ = "AssetTypes"
+    __tablename__ = "VersionTypes"
     id = Column(Integer, primary_key=True)
     
-    
-    def __init__(self, name="", path="", shotDependent=False, environments=None,
+    def __init__(self,
+                 name="",
+                 code="",
+                 path="",
+                 filename="",
+                 shotDependent=False,
+                 environments=None,
                  output_path=""):
         self._name = name
+        self._code = code
         self._path = path
         self._shotDependency = shotDependent
         self._environments = environments
@@ -4015,7 +3302,7 @@ class AssetType(Base):
         """string representation of the asset type
         """
 
-        return "<AssetType %s %s>" % (self.name, self.path)
+        return "<VersionType %s %s>" % (self.name, self.path)
 
     
     @property
@@ -4069,7 +3356,6 @@ class AssetType(Base):
     def output_path(self, output_path_in):
         self._output_path = output_path_in
 
-
 class User(Base):
     """a class for managing users
     """
@@ -4078,32 +3364,9 @@ class User(Base):
     
     id = Column(Integer, primary_key=True)
     
+    name = Column(String)
+    initials = Column(String)
+    
     def __init__(self, name='', initials=''):
         self._name = name
         self._initials = initials
-        self._type = '' # userType object
-        pass
-    
-    def name():
-        def fget(self):
-            return self._name
-        
-        def fset(self, name):
-            self._name = name
-        
-        return locals()
-    
-    name = property( **name() )
-    
-    def initials():
-        def fget(self):
-            return self._initials
-        
-        def fset(self, initials):
-            self._initials = initials
-        
-        return locals()
-    
-    initials = property( **initials() )
-
-    

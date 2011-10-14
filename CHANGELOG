@@ -52,8 +52,21 @@ Version History
 * ``utils.convertRangeToList`` is renamed to
   :func:`~oyProjectManager.utils.uncompress_range`\ .
 
+* Introduced the new :class:`~oyProjectManager.core.models.Version` class
+  which from now on will hold the references to the individual files for every
+  version created for an :class:`~oyProjectManager.core.models.Asset` or
+  :class:`~oyProjectManager.core.models.Shot` in the repository. So contrary to
+  the previous implementation an :class:`~oyProjectManager.core.models.Asset`
+  is not the reference of the individual versions files of itself any more.
 
+* Introduced the :class:`~oyProjectManager.core.models.VersionableBase` class
+  in which the :class:`~oyProjectManager.core.models.Shot` and
+  :class:`~oyProjectManager.core.models.Asset` is derived from. Thus allow them
+  to hold references to :class:`~oyProjectManager.core.models.Version`\ s.
 
+* It was very hard keep the compatibility with the previous versions. So,
+  the version 0.2.0 is not backward compatible. The system will look with
+  blinking eyes if you try to use it with an old Project.
 
 0.1.2
 -----
@@ -286,8 +299,8 @@ Version History
   renamed to
   :class:`~oyProjectManager.models.environment.photoshopEnv.PhotoshopEnvironment`
 
-* the output path is now handled by the AssetType class instead of the
-  Structure class, it is much suitable to have the AssetType class to handle
+* the output path is now handled by the VersionType class instead of the
+  Structure class, it is much suitable to have the VersionType class to handle
   the output paths (still not finished).
 
 * started to block out the
@@ -1520,7 +1533,7 @@ Version History
 
 * renamed the current mainWindow to assetIO_mainWindow
 
-* added the environment variable to the AssetType object
+* added the environment variable to the VersionType object
 
 * added the output attribute to the Structure node, and updated the
   defaultSettings.xml. The output attribute will hold the output folder

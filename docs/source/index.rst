@@ -24,41 +24,38 @@ Summary
    :nosignatures:
    
    oyProjectManager
-   oyProjectManager.models
-   oyProjectManager.models.abstractClasses
-   oyProjectManager.models.abstractClasses.Singleton
-   oyProjectManager.models.abstractClasses.Environment
-   oyProjectManager.models.asset
-   oyProjectManager.models.asset.Asset
-   oyProjectManager.models.asset.AssetType
-   oyProjectManager.models.project.DefaultSettingsParser
-   oyProjectManager.models.project
-   oyProjectManager.models.project.Project
-   oyProjectManager.models.project.Sequence
-   oyProjectManager.models.project.Shot
-   oyProjectManager.models.project.Structure
-   oyProjectManager.models.repository
-   oyProjectManager.models.repository.Repository
-   oyProjectManager.models.user
-   oyProjectManager.models.user.User
-   oyProjectManager.models.user.UserType
+   oyProjectManager.core.abstractClasses
+   oyProjectManager.core.abstractClasses.Singleton
+   oyProjectManager.core.models
+   oyProjectManager.core.models.Asset
+   oyProjectManager.core.models.Project
+   oyProjectManager.core.models.Sequence
+   oyProjectManager.core.models.Shot
+   oyProjectManager.core.models.Structure
+   oyProjectManager.core.models.Repository
+   oyProjectManager.core.models.User
+   oyProjectManager.core.models.VersionableBase
+   oyProjectManager.core.models.VersionType
+   oyProjectManager.core.models.XMLSettingsParser
+   oyProjectManager.environments.EnvironmentBase
    oyProjectManager.utils
+   oyProjectManager.utils.uncompress_range
 
 .. this is not working
     oyProjectManager.models.asset.SuperAsset
     oyProjectManager.models.environments
-    oyProjectManager.models.environments.environmentFactory
-    oyProjectManager.models.environments.environmentFactory.EnvironmentFactory
-    oyProjectManager.models.environments.environmentFactory.VirtualEnvironment
-    oyProjectManager.models.environments.houdiniEnv
-    oyProjectManager.models.environments.houdiniEnv.FileHistory
-    oyProjectManager.models.environments.houdiniEnv.HoudiniEnvironment
-    oyProjectManager.models.environments.mayaEnv
-    oyProjectManager.models.environments.mayaEnv.MayaEnvironment
-    oyProjectManager.models.environments.nukeEnv
-    oyProjectManager.models.environments.nukeEnv.NukeEnvironment
-    oyProjectManager.models.environments.photoshopEnv
-    oyProjectManager.models.environments.photoshopEnv.PhotoshopEnv
+    oyProjectManager.environments.environmentFactory
+    oyProjectManager.environments.environmentFactory.EnvironmentFactory
+    oyProjectManager.environments.environmentFactory.VirtualEnvironment
+    oyProjectManager.environments.houdiniEnv
+    oyProjectManager.environments.houdiniEnv.FileHistory
+    oyProjectManager.environments.houdiniEnv.HoudiniEnvironment
+    oyProjectManager.environments.mayaEnv
+    oyProjectManager.environments.mayaEnv.MayaEnvironment
+    oyProjectManager.environments.nukeEnv
+    oyProjectManager.environments.nukeEnv.NukeEnvironment
+    oyProjectManager.environments.photoshopEnv
+    oyProjectManager.environments.photoshopEnv.PhotoshopEnvironment
     
 
 

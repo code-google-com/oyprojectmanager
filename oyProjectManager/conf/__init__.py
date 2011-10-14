@@ -59,9 +59,10 @@ SHOT_INDEPENDENT_FOLDERS = [
 ]
 
 
-ASSET_TYPES = [
+VERSION_TYPES = [
     {
-        "name": "ANIM",
+        "name": "Animation",
+        "code": "ANIM",
         "path": "SHOTS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": True,
         "environments": "MAYA,HOUDINI",
@@ -69,7 +70,8 @@ ASSET_TYPES = [
             "SHOTS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "CAMERA",
+        "name": "Camera",
+        "code": "CAMERA",
         "path": "SHOTS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": True,
         "environments": "MAYA,HOUDINI",
@@ -77,7 +79,8 @@ ASSET_TYPES = [
             "SHOTS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "COMP",
+        "name": "Composition",
+        "code": "COMP",
         "path": "SHOTS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": True,
         "environments": "NUKE",
@@ -85,7 +88,8 @@ ASSET_TYPES = [
             "SHOTS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}",
     },
     {
-        "name": "EDIT",
+        "name": "Edit",
+        "code": "EDIT",
         "path": "SHOTS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent":True,
         "environments": "NUKE",
@@ -94,6 +98,7 @@ ASSET_TYPES = [
     },
     {
         "name":"FX",
+        "code": "FX",
         "path": "SHOTS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": True,
         "environments": "MAYA,HOUDINI",
@@ -101,7 +106,8 @@ ASSET_TYPES = [
             "SHOTS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name":"MODEL",
+        "name":"Model",
+        "code": "MODEL",
         "path": "ASSETS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": False,
         "environments": "MAYA,HOUDINI",
@@ -109,7 +115,8 @@ ASSET_TYPES = [
             "ASSETS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "OTHER",
+        "name": "Other",
+        "code": "OTHER",
         "path": "OTHERS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": False,
         "environments": "MAYA,HOUDINI,NUKE",
@@ -117,7 +124,8 @@ ASSET_TYPES = [
             "OTHERS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name":"PREVIS",
+        "name": "Previs",
+        "code": "PREVIS",
         "path": "SHOTS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": True,
         "environments": "MAYA,HOUDINI",
@@ -125,7 +133,8 @@ ASSET_TYPES = [
             "SHOTS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "LIGHTING",
+        "name": "Lighting",
+        "code": "LIGHTING",
         "path": "SHOTS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": True,
         "environments": "MAYA,HOUDINI",
@@ -133,7 +142,8 @@ ASSET_TYPES = [
             "SHOTS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "RIG",
+        "name": "Rig",
+        "code": "RIG",
         "path": "ASSETS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": "0",
         "environments": "MAYA,HOUDINI",
@@ -141,7 +151,8 @@ ASSET_TYPES = [
             "ASSETS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "SCENE_ASSEMBLY",
+        "name": "Scene Assembly",
+        "name": "SCNASS",
         "path":"SHOTS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": "1",
         "environments": "MAYA,HOUDINI",
@@ -149,7 +160,8 @@ ASSET_TYPES = [
             "SHOTS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "MATTE",
+        "name": "Matte Paint",
+        "code": "MATTE",
         "path": "SHOTS/{{assetBaseName}}/PAINTINGS/{{assetTypeName}}",
         "shotDependent": False,
         "environments": "PHOTOSHOP",
@@ -157,7 +169,8 @@ ASSET_TYPES = [
             "ASSETS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "TEXTURE",
+        "name": "Texture Paint",
+        "code": "TEXTURE",
         "path": "ASSETS/{{assetBaseName}}/PAINTINGS/{{assetTypeName}}",
         "shotDependent": "0",
         "environments": "PHOTOSHOP",
@@ -165,7 +178,8 @@ ASSET_TYPES = [
             "ASSETS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "ILLUSTRATION",
+        "name": "Illustration",
+        "code": "ILLUSTRATION",
         "path": "ASSETS/{{assetBaseName}}/PAINTINGS/{{assetTypeName}}",
         "shotDependent": False,
         "environments": "PHOTOSHOP",
@@ -173,7 +187,8 @@ ASSET_TYPES = [
             "ASSETS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "SHADING",
+        "name": "Shading",
+        "code": "SHADING",
         "path": "ASSETS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": False,
         "environments": "MAYA,HOUDINI",
@@ -181,7 +196,8 @@ ASSET_TYPES = [
             "ASSETS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
     },
     {
-        "name": "TRACKING",
+        "name": "Tracking",
+        "code": "TRACKING",
         "path": "SHOTS/{{assetBaseName}}/{{assetTypeName}}",
         "shotDependent": True,
         "environments": "3DEQUALIZER",
