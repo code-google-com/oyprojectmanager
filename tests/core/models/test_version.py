@@ -71,16 +71,15 @@ class VersionTester(unittest.TestCase):
         # set it just for testing purposes
         self.test_vbase = VersionableBase()
         self.test_vbase._project = self.test_project
-        
+
         self.test_type = VersionType(
             name="Animation",
             code="ANIM",
-            path="SHOTS/{{assetBaseName}}/{{assetTypeName}}",
-            filename="{{base_name}}_{{take_name}}_{{type_name}}_v{{version}}_{{created_by.initials}}",
+            path="SHOTS/{{version.base_name}}/{{version.type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_{{version.type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
             shotDependent=True,
             environments="MAYA,HOUDINI",
-            output_path=\
-             "SHOTS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
+            output_path="SHOTS/{{version.base_name}}/{{version.type.code}}/OUTPUT/{{version.take_name}}"
         )
         
         self.test_user = User(
@@ -158,7 +157,6 @@ class VersionTester(unittest.TestCase):
         """testing if the version_of attribute initialized correctly
         """
         self.assertIs(self.test_version.version_of, self.kwargs["version_of"])
-        
     
     def test_version_of_attribute_is_read_only(self):
         """testing if the version_of attribute is read-only
@@ -570,3 +568,56 @@ class VersionTester(unittest.TestCase):
                         email="test_user2@test.com")
         self.test_version.created_by = new_user
         self.assertEqual(self.test_version.created_by, new_user)
+    
+    def test_filename_attribute_is_rendered_properly(self):
+        """testing if the filename attribute is rendered properly with the
+        given VersionType's filename template
+        """
+        
+        # filename=
+        # "{{version.base_name}}_{{version.take_name}}_{{version.type.code}}_v{{version.version_number.zfill(3)}}_{{version.created_by.initials}}",
+        
+        self.assertEqual(
+            self.test_version.filename,
+            self.kwargs["base_name"] + "_" + \
+            self.kwargs["take_name"] + "_" + \
+            self.kwargs["type"].code + "_" + \
+            "v" + str(self.kwargs["version_number"]).zfill(3) + "_" + \
+            self.kwargs["created_by"].initials
+        )
+    
+    def test_filename_attribute_is_read_only(self):
+        """testing if the filename attribute is read-only
+        """
+        self.assertRaises(AttributeError, setattr, self.test_version,
+                          "filename", "test_file_name")
+    
+    def test_path_attribute_is_rendered_properly(self):
+        """testing if the path attribute is rendered properly with the given
+        VersionType's path template
+        """
+        # path = "SHOTS/{{version.base_name}}/{{version.type.code}}"
+        self.assertEqual(
+            self.test_version.path,
+            "SHOTS/" + self.kwargs["base_name"] + "/" + self.kwargs["type"].code
+        )
+    
+    def test_path_attribute_is_read_only(self):
+        """testing if the path attribute is read-only
+        """
+        self.assertRaises(AttributeError, setattr, self.test_version, "path",
+                          "test_file_name")
+    
+    def test_fullpath_attribute_is_rendered_properly(self):
+        """testing if the fullpath attribute is rendered properly
+        """
+        self.assertEqual(
+            self.test_version.fullpath,
+            "SHOTS/SH001/ANIM/SH001_MAIN_ANIM_v001_tu"
+        )
+
+    def test_fullpath_attribute_is_read_only(self):
+        """testing if the fullpath attribute is read-only
+        """
+        self.assertRaises(AttributeError, setattr, self.test_version,
+                          "fullpath", "test/full/name")

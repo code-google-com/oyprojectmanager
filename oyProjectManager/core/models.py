@@ -902,7 +902,6 @@ class Project(Base):
                                  id(session))
                     
                     # skip the __init__
-                    # TODO: find a good way to skip __init__
                     proj_db.__skip_init__ = None
                     
                     return proj_db
@@ -1685,7 +1684,6 @@ class Sequence(Base):
         
         return self._project
 
-
 class Structure(Base):
     """The class that helps to hold data about structures in a sequence.
     
@@ -1813,7 +1811,6 @@ class VersionableBase(Base):
         """
         
         return self._project
-
 
 class Shot(VersionableBase):
     """The class that enables the system to manage shot data.
@@ -2033,7 +2030,6 @@ class Shot(VersionableBase):
         
         self.sequence.session.commit()
 
-
 class Asset(VersionableBase):
     """to work properly it needs a valid project and sequence objects
     
@@ -2041,7 +2037,6 @@ class Asset(VersionableBase):
     
     ProjectsFolder / ProjectName / SequenceName / TypePath / BaseName / assetFileName
     """
-
 
     def __init__(self, project, sequence, fileName=None):
         self._project = project
@@ -2380,339 +2375,22 @@ class Asset(VersionableBase):
         """
         return self._project
 
-
-    def _initPathVariables(self):
-        """sets path variables
-        needs the info variables to be set before
-        """
-
-        # if it has just the base info update some of the variables
-        if self._hasBaseInfo:
-            seqFullPath = self._sequence.fullPath
-
-            typePath = self._type.path
-
-            assert(isinstance(typePath, (str, unicode)))
-
-            # check if it has any jinja2 template variable
-            if "{{" in typePath:
-                self._path = os.path.join(seqFullPath, typePath)
-
-                # and render the jinja2 template
-                self._path = jinja2.Template(self._path).render(
-                    assetBaseName=self.baseName,
-                    assetSubName=self.subName,
-                    assetTypeName=self.typeName,
-                    assetRevNumber=self.revisionNumber,
-                    assetRevString=self.revisionString,
-                    assetVerNumber=self.versionNumber,
-                    assetVerString=self.versionString,
-                    assetUserInitials=self.userInitials,
-                    assetExtension=self.extension
-                )
-            else:
-                # fallback to the previous design where there is no
-                # jinja2 template support
-                self._path = os.path.join(seqFullPath, typePath)
-                self._path = os.path.join(self._path, self._baseName)
-
-            # if it has full info update the rest of the variables
-            if self._hasFullInfo:
-                self._fileName = self.fileName
-                self._fullPath = os.path.join(self._path, self._fileName)
-
-                self.updateExistence()
-
-
-    @property
-    def allVersions(self):
-        """returns all versions as a list of asset objects
-        """
-        # return if we can't even get some little information
-        if not self._baseExists and not self._hasBaseInfo:
-            return []
-
-        # use the Sequence object instead of letting the Asset object to dive
-        # in to the file system to get other versions
-
-        #import project
-        sProj = self._project
-        sSeq = self._sequence
-        #assert(isinstance(selfseq, Sequence))
-
-        assetVersionNames = self.allVersionNames
-
-        sProjList = [sProj] * len(assetVersionNames)
-        sSeqList = [sSeq] * len(assetVersionNames)
-
-        return map(Asset, sProjList, sSeqList, assetVersionNames)
-
-
-    @property
-    def allVersionNames(self):
-        """returns all version names for that asset as a list of string
-        """
-
-        if not self._baseExists and not self._hasBaseInfo:
-            return []
-
-        sSeq = self._sequence
-
-        sSeqFAN = sSeq.filterAssetNames
-        sSeqGAAFNFT = sSeq.getAllAssetFileNamesForType
-
-        typeName = self._typeName
-        baseName = self._baseName
-        subName = self._subName
-
-        if not self._sequence._noSubNameField:
-            return sorted([assetFileName for assetFileName in
-                           sSeqFAN(sSeqGAAFNFT(typeName), baseName=baseName,
-                                   subName=subName)])
-        else:
-            return sorted([assetFileName for assetFileName in
-                           sSeqFAN(sSeqGAAFNFT(typeName), baseName=baseName)])
-
-
-    def _getCritiqueName(self):
-        """returns the critique part of the asset name, which is:
-        BaseName_SubName_TypeName
-        """
-
-        if not self._sequence._noSubNameField:
-            if self._baseName is None or self._subName is None or \
-               self._typeName is None:
-                return None
-
-            return self._dataSeparator.join(
-                [self._baseName, self._subName, self._typeName])
-
-        else: # remove this block when the support for old version becomes
-              # obsolete
-            if self._baseName is None or self._typeName is None:
-                return None
-
-            return self._dataSeparator.join([self._baseName, self._typeName])
-
-
-    @property
-    def sequenceFullPath(self):
-        """returns the parent sequence full path
-        """
-        return self._sequence.fullPath
-
-
-
-    #
-    #def getProjectPath(self):
-        #"""returns the parent project path
-
-        #beware that it is the project path not the sequence path
-        #"""
-        #return self.project.fullPath
-
-
     @property
     def latestVersion(self):
         """returns the lastest version of an asset as an asset object and the number as an integer
         if the asset file doesn't exists yet it returns None, None
         """
-
-        if not self._baseExists:
-            return None, None
-
-        allVersions = self.allVersions
-
-        if len(allVersions) == 0:
-            return None, None
-
-        maxVerNumber = -1
-        currentVerNumber = -1
-        maxVerAsset = self
-
-        for asset in allVersions:
-            currentVerNumber = asset.versionNumber
-
-            if currentVerNumber > maxVerNumber:
-                maxVerNumber = currentVerNumber
-                maxVerAsset = asset
-
-        return maxVerAsset, maxVerNumber
-
-
-    @property
-    def latestVersion2(self):
-        """the second version of the older one, it uses file names instead of
-        asset objects.
         
-        returns the latest version of an asset as an asset object and the
-        number as an integer
-        """
-
-        if not self._baseExists:
-            return None, None
-
-        # get all version names
-        allVersionNames = self.allVersionNames
-
-        # return the last one as an asset
-        if len(allVersionNames) > 0:
-            assetObj = Asset(self._project, self._sequence, allVersionNames[-1])
-        else:
-            return None, None
-
-        return assetObj, assetObj.versionNumber
-
+        # TODO: update this
+        return None
 
     @property
     def latestRevision(self):
         """returns the latest revision of an asset as an asset object and the number as an integer
         if the asset doesn't exists yet it returns None, None
         """
-
-        if not self._baseExists:
-            return None, None
-
-        allVersions = self.allVersions
-
-        if len(allVersions) == 0:
-            return None, None
-
-        maxRevNumber = -1
-        currentRevNumber = -1
-        maxRevAsset = self
-
-        for asset in allVersions:
-            currentRevNumber = asset.revisionNumber
-
-            if currentRevNumber > maxRevNumber:
-                maxRevNumber = currentRevNumber
-                maxRevAsset = asset
-
-        return maxRevAsset, maxRevNumber
-
-
-    @property
-    def latestRevision2(self):
-        """the second version of the older one, it uses file names instead of
-        asset objects.
-        
-        returns the latest revision of an asset as an asset object and the
-        number as an integer
-        """
-
-        if not self._baseExists:
-            return None, None
-
-        # get all version names
-        allVersionNames = self.allVersionNames
-
-        # return the last one as an asset
-        assetObj = Asset(self._project, self._sequence, allVersionNames[-1])
-
-        return assetObj, assetObj.revisionNumber
-
-
-    def isLatestVersion(self):
-        """checks if the asset is the latest version in its series
-        """
-
-        # return False if there is no such asset initialized yet
-        if not self._baseExists:
-            return True
-
-        latestAssetObject, latestVersionNumber = self.latestVersion2
-
-        # return True if it is the last in the list
-        if self.versionNumber < latestVersionNumber:
-            return False
-
-        return True
-
-
-    def isNewVersion(self):
-        """checks if the asset is a new version in its series
-        """
-        # return True if there is no such asset initialized yet
-        if not self._baseExists:
-            return True
-
-        latestAssetObject, latestVersionNumber = self.latestVersion2
-
-        if self.versionNumber <= latestVersionNumber:
-            return False
-
-        return True
-
-
-    def isLatestRevision(self):
-        """checks if the asset is the latest revision in its series
-        """
-
-        # return False if there is no such asset initialized yet
-        if not self._baseExists:
-            return True
-
-        latestAssetObject, latestRevisionNumber = self.latestRevision2
-
-        # return True if it is the last in the list
-        if self.revisionNumber < latestRevisionNumber:
-            return False
-
-        return True
-
-
-    def isNewRevision(self):
-        """checks if the asset is a new revision in its series
-        """
-
-        # return True if there is no such asset initialized yet
-        if not self._baseExists:
-            return True
-
-        latestAssetObject, latestRevisionNumber = self.latestRevision2
-
-        if self.revisionNumber <= latestRevisionNumber:
-            return False
-
-        return True
-
-
-    def setVersionToNextAvailable(self):
-        """sets the version number to the latest number + 1
-        """
-
-        latestAsset, latestVersionNumber = self.latestVersion2
-        self._ver = latestVersionNumber + 1
-        self._verString = self._sequence.convertToVerString(self._ver)
-        self._initPathVariables()
-
-
-    def setRevisionToNextAvailable(self):
-        """sets the revision number to the latest number
-        """
-
-        latestAsset, latestRevisionNumber = self.latestRevision2
-        self._rev = latestRevisionNumber
-        self._revString = self._sequence.convertToRevString(self._rev)
-        self._initPathVariables()
-
-
-    def increaseVersion(self):
-        """increases the version by 1
-        """
-        self._ver += 1
-        self._verString = self._sequence.convertToVerString(self._ver)
-        self._initPathVariables()
-
-
-    def increaseRevision(self):
-        """increases the revision by 1
-        """
-        self._rev += 1
-        self._revString = self._sequence.convertToRevString(self._rev)
-        self._initPathVariables()
-
+        # TODO: update this
+        return None
 
     @property
     def isShotDependent(self):
@@ -3088,9 +2766,9 @@ class Version(Base):
     
     :type created_by: :class:`~oyProjectManager.core.models.User`
     """
-
-
-
+    
+    # TODO: add relation attributes like, references and referenced_by
+    
     __tablename__ = "Versions"
     
     __table_args__  = (
@@ -3105,9 +2783,9 @@ class Version(Base):
     type_id = Column(Integer, ForeignKey("VersionTypes.id"))
     _type = relationship("VersionType")
     
-    filename = Column(String)
-
-    path = Column(String)
+    _filename = Column(String)
+    _path = Column(String)
+    
     base_name = Column(String)
     take_name = Column(String, default="MAIN")
     revision_number = Column(Integer, default=0)
@@ -3182,6 +2860,7 @@ class Version(Base):
         
         return self._type
     
+    @synonym_for("_filename")
     @property
     def filename(self):
         """The filename of this version.
@@ -3189,8 +2868,10 @@ class Version(Base):
         It is automatically created by rendering the VersionType.filename
         template with the information supplied with this Version instance.
         """
-        pass
+        
+        return jinja2.Template(self.type.filename).render(version=self)
     
+    @synonym_for("_path")
     @property
     def path(self):
         """The path of this version.
@@ -3198,7 +2879,7 @@ class Version(Base):
         It is automatically created by rendering the VersionType.path template
         with the information supplied with this Version instance.
         """
-        pass
+        return jinja2.Template(self.type.path).render(version=self)
     
     @property
     def fullpath(self):
@@ -3208,7 +2889,7 @@ class Version(Base):
         :attr:`~oyProjectManager.core.models.Version.filename` and
         :attr:`~oyProjectManager.core.models.Version.path`.
         """
-        pass
+        return os.path.join(self.path, self.filename).replace("\\", "/")
     
     def _condition_name(self, name):
         """conditions the base name, see the
@@ -3370,9 +3051,6 @@ class Version(Base):
                                "oyProjectManager.core.models.User")
         
         return created_by
-    
-    
-
 
 class VersionType(Base):
     """Holds data like:\n
@@ -3383,6 +3061,7 @@ class VersionType(Base):
     """
     
     __tablename__ = "VersionTypes"
+    
     id = Column(Integer, primary_key=True)
     
     def __init__(self,
@@ -3395,6 +3074,7 @@ class VersionType(Base):
                  output_path=""):
         self._name = name
         self._code = code
+        self._filename = filename
         self._path = path
         self._shotDependency = shotDependent
         self._environments = environments
@@ -3455,6 +3135,18 @@ class VersionType(Base):
     @output_path.setter
     def output_path(self, output_path_in):
         self._output_path = output_path_in
+    
+    @property
+    def code(self):
+        """returns the code of this VersionType
+        """
+        return self._code
+    
+    @property
+    def filename(self):
+        """returns the filename property
+        """
+        return self._filename
 
 class User(Base):
     """a class for managing users
