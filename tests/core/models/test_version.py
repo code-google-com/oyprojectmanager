@@ -72,14 +72,13 @@ class VersionTester(unittest.TestCase):
         self.test_vbase = VersionableBase()
         self.test_vbase._project = self.test_project
 
-        self.test_type = VersionType(
+        self.test_versionType = VersionType(
             name="Animation",
             code="ANIM",
-            path="SHOTS/{{version.base_name}}/{{version.type.code}}",
-            filename="{{version.base_name}}_{{version.take_name}}_{{version.type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
-            shotDependent=True,
-            environments="MAYA,HOUDINI",
-            output_path="SHOTS/{{version.base_name}}/{{version.type.code}}/OUTPUT/{{version.take_name}}"
+            path="SHOTS/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
+            output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/{{version.take_name}}",
+            environments="MAYA, HOUDINI"
         )
         
         self.test_user = User(
@@ -90,7 +89,7 @@ class VersionTester(unittest.TestCase):
         
         self.kwargs = {
             "version_of": self.test_vbase,
-            "type": self.test_type,
+            "type": self.test_versionType,
             "base_name": "SH001",
             "take_name": "MAIN",
             "version_number": 1,

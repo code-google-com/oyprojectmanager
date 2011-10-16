@@ -7,7 +7,7 @@ import unittest
 from xml.dom import minidom
 from sqlalchemy.exc import IntegrityError
 
-from oyProjectManager import db
+from oyProjectManager import db, conf
 from oyProjectManager.core.models import Project, Sequence, Repository
 
 import logging
@@ -197,6 +197,30 @@ class ProjectTester(unittest.TestCase):
         proj2 = Project(name="TEST_PROJ1")
         
         self.assertEqual(proj1, proj2)
+    
+    def test_shotPrefix_attribute_initialization(self):
+        """testing the shotPrefix attribute is initialized correctly for a newly
+        created Sequence instance
+        """
+        
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
+        
+        self.assertEqual(new_proj.shot_prefix, conf.SHOT_PREFIX)
+    
+    def test_shotPrefix_attribute_initialization_from_DB(self):
+        """testing if the shotPrefix attribute is initialized correctly for a
+        Sequence which is already in the database
+        """
+        new_proj = Project("TEST_PROJECT")
+        new_proj.shot_prefix = "PL"
+        new_proj.create()
+        new_proj.save()
+        
+        # now get it back from db
+        new_proj = Project("TEST_PROJECT")
+        self.assertEqual(new_proj.shot_prefix, "PL")
+    
 
    
 class Project_DB_Tester(unittest.TestCase):

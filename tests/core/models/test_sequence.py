@@ -18,8 +18,7 @@ logger.setLevel(logging.DEBUG)
 class SequenceTester(unittest.TestCase):
     """tests the Sequence class
     """
-
-
+    
     @classmethod
     def setUpClass(cls):
         """set up the test in class level
@@ -43,7 +42,6 @@ class SequenceTester(unittest.TestCase):
         # create the test folder
         os.makedirs("/tmp/JOBs")
 
-
     @classmethod
     def tearDownClass(cls):
         """cleanup test
@@ -52,13 +50,11 @@ class SequenceTester(unittest.TestCase):
         # remove the temp project path
         shutil.rmtree("/tmp/JOBs")
 
-
     def setUp(self):
         """set up the per test level
         """
 
         self.created_projects = []
-
 
     def tearDown(self):
         """clean the tests
@@ -67,7 +63,6 @@ class SequenceTester(unittest.TestCase):
         # clean up projects
         for proj in self.created_projects:
             shutil.rmtree(proj.fullPath)
-
 
     def test_setup_is_working_fine(self):
         """testing if test setup is working fine
@@ -79,7 +74,6 @@ class SequenceTester(unittest.TestCase):
 
         # BUG: works only under linux fix it later
         self.assertEqual(repo.server_path, "/tmp/JOBs")
-    
     
     def test_project_argument_is_skipped(self):
         """testing if a TypeError will be raised when the project argument is
@@ -133,36 +127,6 @@ class SequenceTester(unittest.TestCase):
         """
         
         self.assertRaises(RuntimeError, Sequence, "TEST_PROJ", "TEST_SEQ")
-        
-    
-    
-    def test_shotPrefix_attribute_initialization(self):
-        """testing the shotPrefix attribute is initialized correctly for a newly
-        created Sequence instance
-        """
-        
-        new_proj = Project("TEST_PROJECT")
-        new_proj.create()
-        
-        new_seq = Sequence(new_proj, "TEST_SEQ")
-        self.assertEqual(new_seq.shotPrefix, conf.SHOT_PREFIX)
-    
-    def test_shotPrefix_attribute_initialization_from_DB(self):
-        """testing if the shotPrefix attribute is initialized correctly for a
-        Sequence which is already in the database
-        """
-        new_proj = Project("TEST_PROJECT")
-        new_proj.create()
-        
-        new_seq = Sequence(new_proj, "TEST_SEQ")
-        new_seq.shotPrefix = "PL"
-        new_seq.create()
-        new_seq.save()
-        
-        # now get it back from db
-        new_seq = Sequence(new_proj, "TEST_SEQ")
-        self.assertEqual(new_seq.shotPrefix, "PL")
-    
     
     def test_if_an_old_sequence_with_and_old_settings_is_parsed_correctly(self):
         """testing if an old sequence which has an output_folders node is
@@ -236,7 +200,6 @@ class SequenceTester(unittest.TestCase):
 
         self.assertEqual(settings.getElementsByTagName("outputFolders"), [])
 
-
     def test___eq___operator(self):
         """testing the __eq__ (equal) operator
         """
@@ -262,7 +225,6 @@ class SequenceTester(unittest.TestCase):
         self.assertFalse(seq1 == seq4)
         self.assertFalse(seq3 == seq4)
 
-
     def test___ne___operator(self):
         """testing the __ne__ (not equal) operator
         """
@@ -286,7 +248,26 @@ class SequenceTester(unittest.TestCase):
         self.assertTrue(seq1 != seq3)
         self.assertTrue(seq1 != seq4)
         self.assertTrue(seq3 != seq4)
-
+    
+    def test_code_argument_is_skipped(self):
+        """testing if the code attribute will equal to name argument if it is
+        skipped
+        """
+        new_proj1 = Project("TEST_PROJ1")
+        new_proj1.create()
+        
+        new_seq1 = Sequence(new_proj1, "TEST_SEQ1")
+        self.assertEqual(new_seq1.code, new_seq1,name)
+    
+    def test_code_argument_is_None(self):
+        """testing if the code argument is given as None the code attribute
+        will be set to the same value with the name attribute
+        """
+        new_proj1 = Project("TEST_PROJ1")
+        new_proj1.create()
+        
+        new_seq1 = Sequence(project=new_proj1, name="TEST_SEQ1", code=None)
+        self.assertEqual(new_seq1.code, new_seq1.name)
 
 class Sequence_To_NewType_Conversion_Tester(unittest.TestCase):
     """tests the conversion of old type Sequences to new type Sequences with

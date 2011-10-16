@@ -441,7 +441,7 @@ def sort_strings_with_embedded_numbers(alist):
 def padNumber(number, pad):
     """pads a number with zeros
     """
-    return str(number).zfill(int(pad))
+    return ("%0" + str(pad) + "d") % number
 
 def invalidCharacterRemover( text, validChars ):
     """its a more stupid way to condition a text

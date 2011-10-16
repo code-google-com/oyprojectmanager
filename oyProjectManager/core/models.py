@@ -778,21 +778,10 @@ class Project(Base):
         :class:`~oyProjectManager.core.models.VersionType` is created the
         related data is saved to this SQLite3 database.
         
-        For previously created objects, the retrieving of the data from the
-        database is transparent. Thus creating lets say a Sequence object which
-        is created and saved to the database before, the data retrieved
-        automatically.
-        
         With this new extension it is much faster to query any data needed.
-        
-        To support previous projects, which doesn't have this technology,
-        whenever a :class:`~oyProjectManager.core.models.Project`
-        instance is created to an old project, all the ``.settings.xml`` files
-        from all the child Sequences are parsed and then the data is written to
-        the newly created database.
-        
-        For the migrated sequences, the old ".settings.xml*" files will be
-        removed from the sequence root folder.
+    
+    The Project class is the creator of the session instance. And all the other
+    classes retrieve the session from the Project class.
     
     :param name: The name of the project. Should be a string or unicode. Name
       can not be None, a TypeError will be raised when it is given as None.
@@ -845,11 +834,31 @@ class Project(Base):
     """
     
     __tablename__ = "Projects"
+    
     id = Column(Integer, primary_key=True)
+    
     name = Column(String(256), unique=True)
+    code = Column(String(256), unique=True)
     description = Column(String)
     path = Column(String)
     fullPath = Column(String)
+    
+    shot_prefix = Column(String(16), default=conf.SHOT_PREFIX)
+    shot_padding = Column(Integer, default=conf.SHOT_PADDING)
+    
+    rev_prefix = Column(String(16), default=conf.REV_PREFIX)
+    rev_padding = Column(Integer, default=conf.REV_PADDING)
+    
+    ver_prefix = Column(String(16), default=conf.VER_PREFIX)
+    ver_padding = Column(Integer, default=conf.VER_PADDING)
+    
+    fps = Column(String(32), default=conf.FPS)
+    
+    width = Column(String, default=conf.RESOLUTION_WIDTH)
+    height = Column(String, default=conf.RESOLUTION_HEIGHT)
+    pixel_aspect = Column(String, default=conf.RESOLUTION_PIXEL_ASPECT)
+    
+    structure = Column(PickleType)
     
     sequences = relationship(
         "Sequence",
@@ -912,7 +921,6 @@ class Project(Base):
         logger.debug("returning a normal Project instance")
         return super(Project, cls).__new__(cls, name=name)
     
-    
     def __init__(self, name=None):
         
         # do not initialize if it is created from the DB
@@ -938,10 +946,23 @@ class Project(Base):
             self.metadata_db_name
         ).replace("\\", "/")
         
-        self._sequenceList = []
+        self.shot_prefix = conf.SHOT_PREFIX
+        self.shot_padding = conf.SHOT_PADDING
+        
+        self.rev_prefix = conf.REV_PREFIX
+        self.rev_padding = conf.REV_PADDING
+        
+        self.ver_prefix = conf.VER_PREFIX
+        self.ver_padding = conf.VER_PADDING
+        
+        self.fps = conf.FPS
+        self.width = conf.RESOLUTION_WIDTH
+        self.height = conf.RESOLUTION_HEIGHT
+        self.pixel_aspect = conf.RESOLUTION_PIXEL_ASPECT
+        
+        self.structure = conf.STRUCTURE
         
         self._exists = None
-    
     
     @orm.reconstructor
     def __init_on_load__(self):
@@ -961,13 +982,10 @@ class Project(Base):
         
         self._exists = None
     
-    
-    
     def __str__(self):
         """the string representation of the project
         """
         return self.name
-
 
     def __eq__(self, other):
         """equality of two projects
@@ -975,11 +993,9 @@ class Project(Base):
 
         return isinstance(other, Project) and self.name == other.name
     
-    
     def update_paths(self, name_in):
         self.path = self._repository.server_path
         self.fullPath = os.path.join(self.path, name_in)
-
 
     @classmethod
     def condition_name(cls, name):
@@ -1011,7 +1027,6 @@ class Project(Base):
         
         return name
     
-    
     @validates("name")
     def _validate_name(self, key, name_in):
         """validates the given name_in value
@@ -1022,7 +1037,6 @@ class Project(Base):
         self.update_paths(name_in)
         
         return name_in
-
 
     def save(self):
         
@@ -1038,43 +1052,24 @@ class Project(Base):
         
         self.session.commit()
     
-    
     def create(self):
         """Creates the project directory in the repository.
         """
         
         # check if the folder already exists
         utils.mkdir(self.fullPath)
+        
+        # create the structure if it is not present
+        
+        rendered_structure = jinja2.Template(self.structure).\
+                             render(project=self)
+        
+        for folder in rendered_structure.split("\n"):
+            utils.createFolder(os.path.join(self.fullPath, folder.strip()))
+        
         self._exists = True
         
         self.save()
-
-
-    def createSequence(self, sequenceName, shots):
-        """creates a sequence and returns the sequence object.
-        
-        Raises a RuntimeError if the project is not created yet.
-        
-        :param sequenceName: The name of the newly created Sequence
-        
-        :param shots: A string showing the shot list. Ex: "1-5"
-        
-        :returns: Sequence
-        """
-        
-        # raise a RuntimeError if the project is not created yet
-        if not self.exists:
-            raise RuntimeError("A Sequence can not be created for a Project "
-                               "which is not created yet, please call "
-                               "Project.create() before creating any new "
-                               "Sequences")
-        
-        newSequence = Sequence(self, sequenceName)
-        newSequence.addShots(shots)
-        newSequence.create()
-        
-        return newSequence
-
 
     @property
     def repository(self):
@@ -1121,7 +1116,7 @@ class Sequence(Base):
       argument also accepts a string value holding the name of the
       :class:`~oyProjectManager.core.models.Project`.
     
-    :type project: :class:`~oyProjectManager.core.models.Project`
+    :type project: :class:`~oyProjectManager.core.models.Project` or string
     
     :param str name: The name of the sequence. It is heavily formatted. Follows
       the same naming rules with the
@@ -1131,29 +1126,14 @@ class Sequence(Base):
     __tablename__ = "Sequences"
     id = Column(Integer, primary_key=True)
     name = Column(String(256), unique=True)
+    code = Column(String(256), unique=True)
     
     project_id = Column(Integer, ForeignKey("Projects.id"))
     _project = relationship("Project")
     
     shots = relationship("Shot")
     
-    # TODO: move all the settings variables to Project class
-    
-    shotPrefix = Column(String(16), default=conf.SHOT_PREFIX)
-    shotPadding = Column(Integer, default=conf.SHOT_PADDING)
-    
-    revPrefix = Column(String(16), default=conf.REV_PREFIX)
-    revPadding = Column(Integer, default=conf.REV_PADDING)
-    
-    verPrefix = Column(String(16), default=conf.VER_PREFIX)
-    verPadding = Column(Integer, default=conf.VER_PADDING)
-    
-    timeUnit = Column(String(32), default=conf.TIME_UNIT)
-    
-    structure_id = Column(Integer, ForeignKey("Structures.id"))
-    structure = relationship("Structure")
-    
-    def __new__(cls, project=None, name=None):
+    def __new__(cls, project=None, name=None, code=None):
         """the overridden __new__ method to manage the creation of Sequence
         instances.
         
@@ -1186,9 +1166,9 @@ class Sequence(Base):
         
         # in any other case just return the normal __new__
         logger.debug("returning a normal Sequence instance")
-        return super(Sequence, cls).__new__(cls, project, name)
+        return super(Sequence, cls).__new__(cls, project, name, code)
     
-    def __init__(self, project=None, name=None):
+    def __init__(self, project=None, name=None, code=None):
         
         # skip initialization if this is coming from DB
         if hasattr(self, "__skip_init__"):
@@ -1206,41 +1186,15 @@ class Sequence(Base):
         
         self.name = name
         
-        self._path = self.project.fullPath
-        self._fullPath = os.path.join(self._path, self.name).replace("\\", "/")
+        if code is None:
+            code = name
         
-        self.shotPrefix = conf.SHOT_PREFIX
-        self.shotPadding = conf.SHOT_PADDING
+        self.code = code
         
-        self.revPrefix = conf.REV_PREFIX
-        self.revPadding = conf.REV_PADDING
-        
-        self.verPrefix = conf.VER_PREFIX
-        self.verPadding = conf.VER_PADDING
-        
-        self.timeUnit = conf.TIME_UNIT
-        
-#        self.structure = Structure()
-        self.structure = None
-        
-        self.structure = Structure()
-        self.structure.shotDependentFolders = conf.SHOT_DEPENDENT_FOLDERS
-        self.structure.shotIndependentFolders = conf.SHOT_INDEPENDENT_FOLDERS
-        
-        self._assetTypes = []
-        self._shotList = [] # should be a string
-        self._shots = [] # the new shot objects
-        
-#        self._environment = None # the working environment
+#        self._path = self.project.fullPath
+#        self._fullPath = os.path.join(self._path, self.name).replace("\\", "/")
         
         self._exists = False
-    
-    @orm.reconstructor
-    def __init_on_load__(self):
-        """run when an object is get from the db
-        """
-        self._path = self.project.fullPath
-        self._fullPath = os.path.join(self._path, self.name).replace("\\", "/")
 
     def save(self):
         """persists the sequence in the database
@@ -1254,39 +1208,6 @@ class Sequence(Base):
         
         self.session.add(self)
         self.session.commit()
-
-    def create(self):
-        """creates the sequence
-        """
-        
-        # if the sequence doesn't exist create the folder
-        
-        if not self._exists:
-            logger.debug("the sequence doesn't exist yet, creating the folder")
-            
-            # create a folder with sequenceName
-            utils.mkdir(self._fullPath)
-            self._exists = True
-        
-        # tell the sequence to create its own structure
-        logger.debug("creating the structure")
-        self.createStructure()
-        
-        # and create the shots
-        logger.debug("creating the shots")
-        self.createShots()
-        
-        # copy any file to the sequence
-        # (like workspace.mel)
-        logger.debug("copying default files")
-        for _fileInfo in self.repository.defaultFiles:
-            sourcePath = os.path.join(_fileInfo[2], _fileInfo[0])
-            targetPath = os.path.join(self._fullPath, _fileInfo[1],
-                                      _fileInfo[0])
-            
-            shutil.copy(sourcePath, targetPath)
-        
-        self.save()
 
     def addShots(self, shots):
         """adds new shots to the sequence
@@ -1344,24 +1265,24 @@ class Sequence(Base):
         
         returns the alternative shot number
         """
-
+        
         # shotNumber could be an int convert it to str
         shotNumberAsString = str(shotNumber)
-
+        
         # get the first integer as int in the string
         shotNumber = utils.embedded_numbers(shotNumberAsString)[1]
-
+        
         # get the next available alternative shot number for that shot
         alternativeShotName = self.getNextAlternateShotName(shotNumber)
-
+        
         # add that alternative shot to the shot list
         if alternativeShotName is not None:
             self._shotList.append(alternativeShotName)
-
+            
             # create a new shot object
             alternativeShot = Shot(alternativeShotName, self)
             self._shots.append(alternativeShot)
-
+        
         return alternativeShotName
 
     def getNextAlternateShotName(self, shot):
@@ -1381,234 +1302,7 @@ class Sequence(Base):
                 return newShotNumber
 
         return None
-
-    def createShots(self):
-        """creates the shot folders in the structure
-        """
-        
-        if not self._exists:
-            logging.warning("seq doesn't exist, not creating the shot folders")
-            return
-        
-        # TODO: Update creation of shot folders from Jinja2 template
-        
-        # create the shot structure
-        for folder in self.structure.shotDependentFolders:
-            # render jinja2 templates if necessary
-            if "{{" in folder:
-                for shotNumber in self._shotList:
-                    template = jinja2.Template(
-                        os.path.join(self._fullPath, folder)
-                    )
-                    
-                    path = template.render(
-                        assetBaseName=self.convertToShotString(shotNumber)
-                    )
-
-                    utils.createFolder(path)
-            else:
-                path = os.path.join(self._fullPath, folder)
-                utils.createFolder(path)
     
-    @property
-    def shots(self):
-        """returns the shot objects as a list
-        """
-        return self._shots
-
-    def _sortShots(self):
-        """sorts the internal shot list
-        """
-        self._shots = sorted(self._shots, key=utils.embedded_numbers)
-
-    def getShot(self, shotNumber):
-        """returns the shot with given shotNumber
-        """
-
-        for shot in self._shots:
-            assert(isinstance(shot, Shot))
-            if shot.name == shotNumber:
-                return shot
-
-        return None
-
-    @property
-    def shotList(self):
-        """returns the shot list object
-        """
-        return self._shotList 
-
-    def createStructure(self):
-        """creates the folders defined by the structure
-        """
-        if not self._exists:
-            return
-        
-        # create the structure if it is not present
-        if self.structure is None:
-            self.structure = Structure()
-        
-        for folder in self.structure.shotIndependentFolders:
-            utils.createFolder(os.path.join(self._fullPath, folder))
-
-    def convertToShotString(self, shotNumber ):
-        """ converts the input shot number to a padded shot string
-        
-        for example it converts:
-        1   --> SH001
-        10  --> SH010
-        
-        if there is an alternate letter it will add it to the end of the
-        shot string, like:
-        1a  --> SH001A
-        10S --> SH010S
-        
-        it also properly converts inputs like this
-        abc92a --> SH092A
-        abc323d432e --> SH323D
-        abc001d --> SH001D
-        
-        if the shotNumber argument is None it will return None
-        
-        for now it can't convert properly if there is more than one letter at
-        the end like:
-        abc23defg --> SH023DEFG
-        """
-
-        pieces = utils.embedded_numbers(unicode(shotNumber))
-        
-        if len(pieces) <= 1:
-            return None
-        
-        number = pieces[1]
-        alternateLetter = pieces[2]
-        
-        return_value = self.shotPrefix + utils.padNumber(
-            number,
-            self.shotPadding
-        ) + alternateLetter.upper()
-        
-        return return_value
-
-    def convertToRevString(self, revNumber):
-        """converts the input revision number to a padded revision string
-        
-        for example it converts:
-        1  --> r01
-        10 --> r10
-        """
-        return self.revPrefix + utils.padNumber(revNumber, self.revPadding)
-
-    def convertToVerString(self, verNumber):
-        """converts the input version number to a padded version string
-        
-        for example it converts:
-        1  --> v001
-        10 --> v010
-        """
-        return self.verPrefix + utils.padNumber(verNumber, self.verPadding)
-
-    def convertToShotNumber(self, shotString):
-        """beware that it returns a string, it returns the number plus the
-        alternative letter (if exists) as a string
-        
-        for example it converts:
-        
-        SH001 --> 1
-        SH041a --> 41a
-        etc.
-        """
-
-        # remove the shot prefix
-        remainder = shotString[len(self.shotPrefix): len(shotString)]
-
-        # get the integer part
-        matchObj = re.match('[0-9]+', remainder)
-
-        if matchObj:
-            numberAsStr = matchObj.group()
-        else:
-            return None
-
-        alternateLetter = ''
-        if len(numberAsStr) < len(remainder):
-            alternateLetter = remainder[len(numberAsStr):len(remainder)]
-
-        # convert the numberAsStr to a number then to a string then add the
-        # alternate letter
-        return unicode(int(numberAsStr)) + alternateLetter
-
-    def convertToRevNumber(self, revString):
-        """converts the input revision string to a revision number
-        
-        for example it converts:
-        r01 --> 1
-        r10 --> 10
-        """
-        return int(revString[len(self.revPrefix):len(revString)])
-
-    def convertToVerNumber(self, verString):
-        """converts the input version string to a version number
-        
-        for example it converts:
-        v001 --> 1
-        v010 --> 10
-        """
-        return int(verString[len(self.verPrefix):len(verString)])
-
-    @property
-    def path(self):
-        """returns the path of the sequence
-        """
-        return self._path
-
-    @property
-    def fullPath(self):
-        """returns the full path of the sequence
-        """
-        return self._fullPath
-
-    def isValid(self):
-        """checks if the sequence is valid
-        """
-
-        # a valid should:
-        # - be exist
-        # - have a .settings.xml file inside it
-
-        if self._exists:
-            return True
-
-        return False
-
-    def addNewAssetType(self, name='', path='', shotDependent=False,
-                        environments=None, output_path=""):
-        """adds a new asset type to the sequence
-        
-        you need to invoke self.saveSettings to make the changes permanent
-        """
-
-        assert(isinstance(environments, list))
-
-        # check if there is already an assetType with the same name
-
-        # get the names of the asset types and convert them to upper case
-        assetTypeName = [assetType.name.upper()
-                         for assetType in self._assetTypes]
-
-        if name.upper() not in assetTypeName:
-            # create the assetType object with the input
-            newAType = VersionType(name, path, shotDependent, environments)
-
-            # add it to the list
-            self._assetTypes.append(newAType)
-
-    @property
-    def exists(self):
-        """returns True if the sequence itself exists, False otherwise
-        """
-        return self._exists
-
     def __eq__(self, other):
         """The equality operator
         """
@@ -1684,87 +1378,6 @@ class Sequence(Base):
         
         return self._project
 
-class Structure(Base):
-    """The class that helps to hold data about structures in a sequence.
-    
-    Structure holds data about shot dependent and shot independent folders.
-    Shot dependent folders has shot folders, and the others not.
-    
-    This class is going to change a lot in the future releases and it is going
-    to handle all the `project folder template` by using Jinja2 templates.
-    """
-    
-    __tablename__ = "Structures"
-    id = Column(Integer, primary_key=True)
-    shotDependentFolders = Column(PickleType)
-    shotIndependentFolders = Column(PickleType)
-    
-    def __init__(self,
-                 shotDependentFolders=None,
-                 shotIndependentFolders=None):
-        
-        self.shotDependentFolders = shotDependentFolders
-        self.shotIndependentFolders = shotIndependentFolders
-
-
-    def addShotDependentFolder(self, folderPath):
-        """adds new shot dependent folder
-        
-        folderPath should be relative to sequence root
-        """
-        if folderPath not in self.shotDependentFolders:
-            self.shotDependentFolders.append(folderPath)
-            self.shotDependentFolders = sorted(self.shotDependentFolders)
-
-
-    def addShotIndependentFolder(self, folderPath):
-        """adds new shot independent folder
-        
-        folderPath should be relative to sequence root
-        """
-
-        if folderPath not in self.shotIndependentFolders:
-            self.shotIndependentFolders.append(folderPath)
-            self.shotIndependentFolders = sorted(self.shotIndependentFolders)
-
-
-    def removeShotDependentFolder(self, folderPath):
-        """removes the shot dependent folder from the structure
-        beware that if the parent sequence uses that folder as a assetType folder
-        you introduce an error to the sequence
-        """
-        self.shotDependentFolders.remove(folderPath)
-
-
-    def removeShotIndependentFolder(self, folderPath):
-        """removes the shot independent folder from the structure
-        
-        beware that if the parent sequence uses that folder as a assetType folder
-        you introduce an error to the sequence
-        """
-        self.shotIndependentFolders.remove(folderPath)
-
-
-    def fixPathIssues(self):
-        """fixes path issues in the folder data variables
-        """
-        # replaces "\" with "/"
-        for i, folder in enumerate(self.shotDependentFolders):
-            self.shotDependentFolders[i] = folder.replace('\\', '/')
-
-        for i, folder in enumerate(self.shotIndependentFolders):
-            self.shotIndependentFolders[i] = folder.replace('\\', '/')
-
-
-    def removeDuplicate(self):
-        """removes any duplicate entry
-        """
-        # remove any duplicates
-        self.shotDependentFolders = sorted(
-            utils.unique(self.shotDependentFolders))
-        self.shotIndependentFolders = sorted(
-            utils.unique(self.shotIndependentFolders))
-
 class VersionableBase(Base):
     """A base class for :class:`~oyProjectManager.core.models.Shot` and
     :class:`~oyProjectManager.core.models.Asset` classes.
@@ -1821,8 +1434,10 @@ class Shot(VersionableBase):
       other than a :class:`~oyProjectManager.core.models.Sequence` will raise
       a TypeError.
     
-    :param name: A string holding the name of this shot. Can not be None or
-      can not be skipped, a TypeError will be raised either way.
+    :param number: A string or integer holding the number of this shot. Can not
+      be None or can not be skipped, a TypeError will be raised either way. It
+      will be used to create the
+      :attr:`~oyProjectManager.core.models.Shot.code` attribute.
     
     :param start_frame: The start frame of this shot. Should be an integer, any
       other type will raise TypeError. The default value is 1 and skipping it
@@ -1838,13 +1453,14 @@ class Shot(VersionableBase):
     
     __tablename__ = "Shots"
     __table_args__  = (
-        UniqueConstraint("sequence_id", "name"), {}
+        UniqueConstraint("sequence_id", "number"), {}
     )
     __mapper_args__ = {"polymorphic_identity": "Shot"}
     
     shot_id =  Column("id", Integer, ForeignKey("Versionables.id") ,primary_key=True)
     
-    name = Column(String)
+    number = Column(String)
+    _code = Column(String)
     start_frame = Column(Integer, default=1)
     end_frame = Column(Integer, default=1)
     description = Column(String)
@@ -1852,19 +1468,20 @@ class Shot(VersionableBase):
     sequence_id = Column(Integer, ForeignKey("Sequences.id"))
     _sequence = relationship("Sequence")
     
-    _versions = relationship("Version")
-    
+    # TODO: shot.__init__ should use ``number`` instead of ``code``
     def __init__(self,
                  sequence=None,
-                 name=None,
+                 number=None,
                  start_frame=1,
                  end_frame=1,
                  description=''):
         
-#        super(Shot, self).__init__()
-        
         self._sequence = self._validate_sequence(sequence)
-        self.name = name
+        
+        # TODO: shot.name should use project.shotPrefix + a number string
+#        self.code = code
+        self.number = number
+        
         self.description = description
         
         # update the project attribute
@@ -1880,39 +1497,39 @@ class Shot(VersionableBase):
     def __str__(self):
         """returns the string representation of the object
         """
-        return self.name
+        return self.code
 
 #    def __repr__(self):
 #        """returns the representation of the class
 #        """
 #        return "< oyProjectManager.core.models.Shot object: " + self._name + ">"
 
-    @validates("name")
-    def _validate_name(self, key, name):
-        """validates the given name value
-        """
-        
-        if name is None:
-            raise TypeError("Shot.name can not be None")
-        
-        if not isinstance(name, (str, unicode)):
-            raise TypeError("Shot.name should be an instance of str or "
-                            "unicode")
-        
-        if name == "":
-            raise ValueError("Shot.name can not be empty string")
-        
-        # now check if the name is present for the current Sequence
-        shot_instance = self.sequence.session.query(Shot).\
-            filter(Shot.name==name).\
-            filter(Shot.sequence_id==self.sequence.id).\
-            first()
-        
-        if shot_instance is not None:
-            raise ValueError("Shot.name already exists for the given sequence "
-                             "please give a unique shot name")
-        
-        return name
+#    @validates("code")
+#    def _validate_name(self, key, name):
+#        """validates the given code value
+#        """
+#        
+#        if name is None:
+#            raise TypeError("Shot.code can not be None")
+#        
+#        if not isinstance(name, (str, unicode)):
+#            raise TypeError("Shot.code should be an instance of str or "
+#                            "unicode")
+#        
+#        if name == "":
+#            raise ValueError("Shot.code can not be empty string")
+#        
+#        # now check if the name is present for the current Sequence
+#        shot_instance = self.sequence.session.query(Shot).\
+#            filter(Shot.code==name).\
+#            filter(Shot.sequence_id==self.sequence.id).\
+#            first()
+#        
+#        if shot_instance is not None:
+#            raise ValueError("Shot.code already exists for the given sequence "
+#                             "please give a unique shot code")
+#        
+#        return name
     
     def _validate_sequence(self, sequence):
         """validates the given sequence value
@@ -1997,29 +1614,44 @@ class Shot(VersionableBase):
         return self._duration
     
     
-    @property
-    def number(self):
-        """Returns the number part of the shot name::
-          
-          >> shot.name
-            "SH001"
-          >> shot.number
-            "1"
-          >> shot.name
-            "SH012A"
-          >> shot.number
-            "12A"
+    @validates("number")
+    def _validates_number(self, key, number):
+        """validates the given number value
         """
         
-        pass
-    
-    @synonym_for("_versions")
-    @property
-    def versions(self):
-        """returns the list of versions of this Shot instance
-        """
+        if not isinstance(number, (int, str, unicode)):
+            raise TypeError("Shot.number should be and instance of integer, "
+                            "string or unicode")
         
-        return self._versions
+        # first convert it to a string
+        number = str(number)
+        
+        # then format it
+        # remove anything which is not a number or letter
+        number = re.sub(r"[^0-9a-zA-Z]+", "", number)
+        
+        # remove anything which is not a number from the beginning
+        number = re.sub(
+            r"(^[^0-9]*)([0-9]*)([a-zA-Z]{0,1})([a-zA-Z0-9]*)",
+            r"\2\3",
+            number
+        ).upper()
+        
+        if number == "":
+            raise ValueError("Shot.number is not in good format, please "
+                             "supply something like 1, 2, 3A, 10B")
+        
+        # now check if the number is present for the current Sequence
+        shot_instance = self.sequence.session.query(Shot).\
+            filter(Shot.number==number).\
+            filter(Shot.sequence_id==self.sequence.id).\
+            first()
+        
+        if shot_instance is not None:
+            raise ValueError("Shot.number already exists for the given "
+                             "sequence please give a unique shot code")
+        
+        return number
     
     def save(self):
         """commits the shot to the database
@@ -2029,7 +1661,31 @@ class Shot(VersionableBase):
             self.sequence.session.add(self)
         
         self.sequence.session.commit()
-
+    
+    @synonym_for("_code")
+    @property
+    def code(self):
+        """Returns the code of this shot by composing the
+         :attr:`~oyProjectManager.core.models.Shot.number` with the
+        :attr:`~oyProjectManager.core.models.Project.shot_prefix` attribute of
+        the :class:`~oyProjectManager.core.models.Project` ::
+          
+          >> shot.number
+            "1"
+          >> shot.code
+            "SH001"
+          >> shot.number
+            "12A"
+          >> shot.code
+            "SH012A"
+        """
+        number = re.sub(r"[A-Z]+", "", self.number)
+        alter = re.sub(r"[0-9]+", "", self.number)
+        
+        return self.project.shot_prefix + \
+               number.zfill(self.project.shot_padding) + \
+               alter
+        
 class Asset(VersionableBase):
     """to work properly it needs a valid project and sequence objects
     
@@ -2807,6 +2463,7 @@ class Version(Base):
     ):
         self._version_of = version_of
         self._type = type
+        # TODO: base_name should be get from VersionableBase.name
         self.base_name = base_name
         self.take_name = take_name
         self.version_number = version_number
@@ -2859,7 +2516,17 @@ class Version(Base):
         """
         
         return self._type
-    
+
+    def _template_variables(self):
+        kwargs = {
+            "project": self.version_of.project,
+            "sequence": self.version_of.sequence\
+            if isinstance(self.version_of, Shot) else "",
+            "version": self,
+            "type": self.type
+        }
+        return kwargs
+
     @synonym_for("_filename")
     @property
     def filename(self):
@@ -2868,8 +2535,8 @@ class Version(Base):
         It is automatically created by rendering the VersionType.filename
         template with the information supplied with this Version instance.
         """
-        
-        return jinja2.Template(self.type.filename).render(version=self)
+        kwargs = self._template_variables()
+        return jinja2.Template(self.type.filename).render(**kwargs)
     
     @synonym_for("_path")
     @property
@@ -2879,7 +2546,8 @@ class Version(Base):
         It is automatically created by rendering the VersionType.path template
         with the information supplied with this Version instance.
         """
-        return jinja2.Template(self.type.path).render(version=self)
+        kwargs = self._template_variables()
+        return jinja2.Template(self.type.path).render(**kwargs)
     
     @property
     def fullpath(self):
@@ -3053,30 +2721,172 @@ class Version(Base):
         return created_by
 
 class VersionType(Base):
-    """Holds data like:\n
-    - the asset type name
-    - relative path of that type
-    - the shot dependency of that VersionType
-    - the environments (list) that the asset is available to
+    """A template for :class:`~oyProjectManager.core.models.Version` class.
+    
+    A VersionType is basically a template object for the
+    :class:`~oyProjectManager.core.models.Version` instances. It gives the
+    information about the filename template, path template and output path
+    template for the :class:`~oyProjectManager.core.models.Version` class. Then
+    the :class:`~oyProjectManager.core.models.Version` class renders this
+    Jinja2 templates and places itself (or the produced files) in to the
+    appropriate folders in the
+    :class:`~oyProjectManager.core.models.Repository`.
+    
+    All the template variables (
+    :attr:`~oyProjectManager.core.models.VersionType.filename`,
+    :attr:`~oyProjectManager.core.models.VersionType.path`,
+    :attr:`~oyProjectManager.core.models.VersionType.output_path`) can use the
+    following variables in their template codes.
+    
+    .. _table:
+    
+    +---------------+-----------------------------+--------------------------+
+    | Variable Name | Variable Source             | Description              |
+    +===============+=============================+==========================+
+    | project       | version.version_of.project  | The project that the     |
+    |               |                             | Version belongs to       |
+    +---------------+-----------------------------+--------------------------+
+    | sequence      | version.version_of.sequence | Only available for Shot  |
+    |               |                             | versions                 |
+    +---------------+-----------------------------+--------------------------+
+    | version       | version                     | The version itself       |
+    +---------------+-----------------------------+--------------------------+
+    | type          | version.type                | The VersionType instance |
+    |               |                             | attached to the this     |
+    |               |                             | Version                  |
+    +---------------+-----------------------------+--------------------------+
+    
+    :param str name: The name of this template. The name is not formatted in
+      anyway. It can not be skipped or it can not be None or it can not be an
+      empty string.
+    
+    :param str code: The code is a shorthand form of the name. For example,
+      if the name is "Animation" than the code can be "ANIM" or "Anim" or
+      "anim". Because the code is generally used in filename, path or
+      output_path templates it is going to be a part of the filename or path,
+      so be carefull about what you give as a code. For formatting, these rules
+      are current:
+        
+        * no white space characters are allowed
+        * can not start with a number
+        * can not start or end with an underscore character
+        * both lowercase or uppercase letters are allowed
+        
+      A good code is the short form of the
+      :attr:`~oyProjectManager.core.models.VersionType.name` attribute.
+      Examples:
+        
+        +----------------+----------------------+
+        | Name           | Code                 |
+        +================+======================+
+        | Animation      | Anim or ANIM         | 
+        +----------------+----------------------+
+        | Composition    | Comp or COMP         | 
+        +----------------+----------------------+
+        | Match Move     | MM                   |
+        +----------------+----------------------+
+        | Camera Track   | Track or TACK        |
+        +----------------+----------------------+
+        | Model          | Model or MODEL       |
+        +----------------+----------------------+
+        | Rig            | Rig or RIG           |
+        +----------------+----------------------+
+        | Scene Assembly | Asmbly or ASMBLY     |
+        +----------------+----------------------+
+        | Lighting       | Lighting or LIGHTING |
+        +----------------+----------------------+
+        | Camera         | Cam or CAM           |
+        +----------------+----------------------+
+    
+    :param filename: The filename template. It is a single line Jinja2 template
+      showing the filename of the
+      :class:`~oyProjectManager.core.models.Version` which is using this
+      VersionType. Look for the above `table`_ for possible variables those can
+      be used in the template code.
+      
+      For an example the following is a nice example for Asset version
+      filename::
+      
+        {{version.base_name}}_{{version.take_name}}_{{type.code}}_\\
+           v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}
+      
+      Which will render something like that::
+        
+        Car_MAIN_MODEL_v001_oy
+      
+      Now all the versions for the same asset will have a consistent name.
+    
+    :param str path: The path template. It is a single line Jinja2 template
+      showing the path of the :class:`~oyProjectManager.core.models.Version`
+      instance. Look for the above `table`_ for possible variables those can be
+      used in the template code.
+        
+      For an example the following is a nice template for a Shot version::
+      
+        Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}
+      
+      This will place a Shot Version whose base_name is SH001 and let say that
+      the type is Animation (where the code is ANIM) to a path like::
+      
+        Sequences/SEQ1/Shots/SH001/ANIM
+      
+      All the animation files will be saved inside that folder.
+    
+    :param str output_path: It is a single line Jinja2 template which shows
+      where to place the outputs of this kind of
+      :class:`~oyProjectManager.core.models.Version`\ s. An output is simply
+      anything that is rendered out from the source file, it can be the renders
+      or playblast/flipbook outputs for Maya, Nuke or Houdini and can be
+      different file type versions (tga, jpg, etc.) for Photoshop files.
+      
+      Generally it is a good idea to store the output right beside the source
+      file. So for a Shot the following is a good example::
+      
+        {{version.path}}/Outputs
+      
+      Which will render as::
+        
+        Sequences/SEQ1/Shots/SH001/ANIM/Outputs
+    
+    :param str extra_folders: It is a list of single line Jinja2 template codes
+      which are showing the extra folders those need to be created. It is
+      generally created in the :class:`~oyProjectManager.core.models.Project`
+      creation phase.
+      
+      The following is an extra folder hierarchy created for the FX version
+      type::
+        
+        {{version.path}}/cache
+        {{version.path}}/
+    
+    :param environments: A list of environments that this VersionType is valid
+      for. The idea behind is to limit the possible list of types for the
+      program that the user is working on. So let say it may not possible to
+      create a camera track in Photoshop then what one can do is to add a
+      Camera Track type but exclude the Photoshop from the list of environments
+      that this type is valid for.
+    
+    :type environments: list of
+      :class:`~oyProjectManager.core.models.Environment`\ s
     """
     
     __tablename__ = "VersionTypes"
-    
     id = Column(Integer, primary_key=True)
+    
+    
     
     def __init__(self,
                  name="",
                  code="",
-                 path="",
                  filename="",
-                 shotDependent=False,
-                 environments=None,
-                 output_path=""):
+                 path="",
+                 output_path="",
+                 extra_folders="",
+                 environments=None):
         self._name = name
         self._code = code
-        self._filename = filename
         self._path = path
-        self._shotDependency = shotDependent
+        self._filename = filename
         self._environments = environments
         self._output_path = output_path
 

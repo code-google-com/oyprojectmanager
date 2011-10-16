@@ -25,6 +25,26 @@ Version History
   
   * The methods:
     
+    * ``_parseSequenceDataNode``
+    * ``_parseStructureNode``
+    * ``_parseAssetTypesNode``
+    * ``_parseShotListNode``
+    * ``_parseShotDataNode``
+    * ``create``
+    * ``createShots``
+    * ``_sortShots``
+    * ``getShot``
+    * ``shotList``
+    * ``structure``
+    * ``createStructure``
+    * ``convertToShotString``
+    * ``convertToRevString``
+    * ``convertToVerString``
+    * ``convertToShotNumber``
+    * ``convertToRevNumber``
+    * ``convertToVerNumber``
+    * ``shotPadding``
+    * ``shotPrefix``
     * ``getAssetTypes``
     * ``getAssetTypeWithName``
     * ``getAssetFolders``
@@ -39,7 +59,16 @@ Version History
     * ``generateFakeInfoVariables``
     * ``aFilter``
     * ``undoChange``
+    * ``path``
+    * ``fullpath``
+    * ``projectName``
+    * ``timeUnit``
+    * ``isValid``
+    * ``addNewAssetType``
+    * ``exists``
+    * ``noSubNameField``
     
+
     of the :class:`~oyProjectManager.core.models.Sequence` are removed. They
     were preliminarily used for fake database query like behaviour which is
     greatly handled by SQLAlchemy right now.
@@ -67,6 +96,20 @@ Version History
 
 * The :class:`~oyProjectManager.core.models.Repository` now uses the ``REPO``
   environment variable instead of ``STALKER_REPOSITORY_PATH``.
+
+* All the project settings are now stored in the
+  :class:`~oyProjectManager.core.models.Project` class.
+
+* The ``timeUnit`` concept is replaced with ``fps``. To define the timeUnit
+  (which is very much a specific naming for Maya) set the
+  :attr:`~oyProjectManager.core.models.Project.fps` of the
+  :class:`~oyProjectManager.core.models.Project` class.
+
+* It is now possible to set a project image format by setting the
+  :attr:`~oyProjectManager.core.models.width`,
+  :attr:`~oyProjectManager.core.models.height`,
+  :attr:`~oyProjectManager.core.models.pixel_aspect` attributes of the
+  :class:`~oyProjectManager.core.models.Project` class.
 
 0.1.2
 -----

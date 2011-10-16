@@ -5,6 +5,7 @@ syntax: glob
 
 docs/build/*
 docs/source/generated/*
+docs/source/static/.backup/*
 *.pyc
 *~
 .~*

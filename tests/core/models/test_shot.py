@@ -64,11 +64,11 @@ class ShotTester(unittest.TestCase):
         self.test_proj.create()
         
         self.test_seq = Sequence(self.test_proj, "TEST_SEQ")
-        self.test_seq.create()
+        self.test_seq.save()
         
         self.kwargs = {
             "sequence": self.test_seq,
-            "name": "SH001",
+            "number": 1,
             "start_frame": 1,
             "end_frame": 100,
             "description": "Test shot"
@@ -76,20 +76,20 @@ class ShotTester(unittest.TestCase):
         
         self.test_shot = Shot(**self.kwargs)
         
-        self._name_test_values = [
-            ("test project", "TEST_PROJECT"),
-            ("123123 test_project", "TEST_PROJECT"),
-            ("123432!+!'^+Test_PRoject323^+'^%&+%&324", "TEST_PROJECT323324"),
-            ("    ---test 9s_project", "TEST_9S_PROJECT"),
-            ("    ---test 9s-project", "TEST_9S_PROJECT"),
-            (" multiple     spaces are    converted to under     scores",
-             "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
-            ("camelCase", "CAMEL_CASE"),
-            ("CamelCase", "CAMEL_CASE"),
-            ("_Project_Setup_", "PROJECT_SETUP_"),
-            ("_PROJECT_SETUP_", "PROJECT_SETUP_"),
-            ("FUL_3D", "FUL_3D"),
+        self._number_test_values = [
+            (23, "23"),
+            ("23", "23"),
+            ("324ASF", "324A"),
+            ("AD43", "43"),
+            ("AS43A", "43A"),
+            ("afasfas fasf asdf67", "67"),
+            ("45a", "45A"),
+            ("45acafs","45A"),
+            ("45'^+'^+a", "45A"),
+            ("45asf78wr", "45A"),
+            ("'^+'afsd2342'^+'asdFGH", "2342A"),
         ]
+        
     
     def tearDown(self):
         """remove the temp folders
@@ -99,81 +99,161 @@ class ShotTester(unittest.TestCase):
         shutil.rmtree(self.temp_settings_folder)
         shutil.rmtree(self.temp_projects_folder)
     
-    def test_name_argument_is_skipped(self):
-        """testing if a TypeError will be raised when the name argument is
+    def test_number_argument_is_skipped(self):
+        """testing if a TypeError will be raised when the number argument is
         skipped
         """
-        self.kwargs.pop("name")
+        self.kwargs.pop("number")
         self.assertRaises(TypeError, Shot, **self.kwargs)
     
-    def test_name_argument_is_None(self):
-        """testing if a TypeError will be raised when the name argument is None
+    def test_number_argument_is_None(self):
+        """testing if a TypeError will be raised when the number argument is
+        None
         """
-        self.kwargs["name"] = None
+        self.kwargs["number"] = None
         self.assertRaises(TypeError, Shot, **self.kwargs)
 
-    def test_name_attribute_is_None(self):
-        """testing if a TypeError will be raised when the name attribute is set
-        to None
+    def test_number_attribute_is_None(self):
+        """testing if a TypeError will be raised when the number attribute is
+        set to None
         """
-        self.assertRaises(TypeError, setattr, self.test_shot, "name", None)
+        self.assertRaises(TypeError, setattr, self.test_shot, "number", None)
     
-    def test_name_argument_is_empty_string(self):
-        """testing if a ValueError will be raised when the name argument is an
-        empty string
+    def test_number_argument_is_empty_string(self):
+        """testing if a ValueError will be raised when the number argument is
+        an empty string
         """
-        self.kwargs["name"] = ""
+        self.kwargs["number"] = ""
         self.assertRaises(ValueError, Shot, **self.kwargs)
     
-    def test_name_attribute_is_set_to_empty_string(self):
-        """testing if a ValueError will be raised when the name attribute is
+    def test_number_attribute_is_set_to_empty_string(self):
+        """testing if a ValueError will be raised when the number attribute is
         set to an empty string
         """
-        self.assertRaises(ValueError, setattr, self.test_shot, "name", "")
+        self.assertRaises(ValueError, setattr, self.test_shot, "number", "")
     
-    def test_name_argument_is_not_a_string(self):
-        """testing if a TypeError will be raised when the name argument is not
-        a string
+    def test_number_argument_is_not_a_string_or_integer(self):
+        """testing if a TypeError will be raised when the number argument is
+        not a string or integer
         """
-        self.kwargs["name"] = 1231
+        self.kwargs["number"] = [123]
         self.assertRaises(TypeError, Shot, **self.kwargs)
     
-    def test_name_attribute_is_not_a_string(self):
-        """testing if a TypeError will be raised when the name attribute is not
-        a string
+    def test_number_attribute_is_not_a_string_integer(self):
+        """testing if a TypeError will be raised when the number attribute is
+        not a string or integer
         """
-        self.assertRaises(TypeError, setattr, self.test_shot, "name", 123)
+        self.assertRaises(TypeError, setattr, self.test_shot, "number", [])
     
-    def test_name_argument_formatted_correctly(self):
-        """testing if the name attribute is formatted correctly when the class
+    def test_number_argument_formatted_correctly(self):
+        """testing if the number attribute is formatted correctly when the class
         is initialized
         """
-        self.fail("test is not implemented yet")
+        for test_value in self._number_test_values:
+            self.kwargs["number"] = test_value[0]
+            new_shot = Shot(**self.kwargs)
+            self.assertEqual(test_value[1], new_shot.number)
+            
     
-    def test_name_attribute_formatted_correctly(self):
-        """testing if the name attribute is formatted correctly
-        """
-        self.fail("test is not implemented yet")
+#    def test_number_attribute_formatted_correctly(self):
+#        """testing if the number attribute is formatted correctly
+#        """
+#        for test_value in self._number_test_values:
+#            self.kwargs["number"] = test_value[0]
+#            new_shot = Shot(**self.kwargs)
+#            self.assertEqual(test_value[1], new_shot.number)
     
-    def test_name_is_already_defined_in_the_sequence(self):
-        """testing if an IntegrityError will be raised when the shot name is
+    def test_number_is_already_defined_in_the_sequence(self):
+        """testing if an IntegrityError will be raised when the shot number is
         already defined in the given Sequence
         """
-        self.kwargs["name"] = "SH101"
+        self.kwargs["number"] = 101
         new_shot1 = Shot(**self.kwargs)
         new_shot2 = Shot(**self.kwargs)
         new_shot2.sequence.session.add_all([new_shot1, new_shot2])
-        self.assertRaises(IntegrityError, new_shot3.sequence.session.commit)
+        self.assertRaises(IntegrityError, new_shot2.sequence.session.commit)
     
-    def test_name_is_already_defined_in_the_sequence_for_an_already_created_one(self):
-        """testing if a ValueError will be raised when the name is already
+    def test_number_is_already_defined_in_the_sequence_for_an_already_created_one(self):
+        """testing if a ValueError will be raised when the number is already
         defined for a Shot in the same Sequence instance
         """
-        self.kwargs["name"] = "SH101"
+        self.kwargs["number"] = 101
         new_shot1 = Shot(**self.kwargs)
         new_shot1.save()
         
         self.assertRaises(ValueError, Shot, **self.kwargs)
+    
+    def test_number_argument_is_string_or_integer(self):
+        """testing if both strings and integers are ok to pass to the number
+        argument
+        """
+        self.kwargs["number"] = 10
+        new_shot1 = Shot(**self.kwargs)
+        self.assertEqual(new_shot1.number, "10")
+        
+        self.kwargs["number"] = "11A"
+        new_shot2 = Shot(**self.kwargs)
+        self.assertEqual(new_shot2.number, "11A")
+    
+    def test_code_attribute_is_calculated_from_the_number_argument(self):
+        """testing if the code attribute is calculated from the number
+        argument
+        """
+        
+        self.kwargs["number"] = 10
+        new_shot1 = Shot(**self.kwargs)
+        self.assertEqual(new_shot1.code, "SH010")
+        
+        
+        self.kwargs["number"] = "10A"
+        new_shot1 = Shot(**self.kwargs)
+        self.assertEqual(new_shot1.code, "SH010A")
+    
+    def test_code_attribute_is_calculated_from_the_number_attribute(self):
+        """testing if the code attribute is calculated from the number
+        attribute
+        """
+        
+        self.test_shot.number = 10
+        self.assertEqual(self.test_shot.code, "SH010")
+        
+        self.test_shot.number = "10A"
+        self.assertEqual(self.test_shot.code, "SH010A")
+    
+    def test_code_attribute_is_read_only(self):
+        """testing if the code attribute is read_only
+        """
+        self.assertRaises(AttributeError, setattr, self.test_shot, "code",
+                          "SH010A")
+    
+#    def test_code_argument_is_not_in_good_format(self):
+#        """testing if a ValueError will be raised when the code argument format
+#        is not correct
+#        """
+#        self.kwargs["code"] = "wrong format"
+#        self.assertRaises(ValueError, Shot, **self.kwargs)
+#    
+#    def test_code_attribute_is_not_in_good_format(self):
+#        """testing if a ValueError will be raised when the code attribute
+#        format is not correct
+#        """
+#        self.assertRaises(ValueError, setattr, self.test_shot, "code",
+#                          "wrong format")
+#    
+#    def test_code_argument_is_formatted_correctly(self):
+#        """testing if the code argument is formatted correctly
+#        """
+#        for test_value in self._code_test_values:
+#            self.kwargs["code"] = test_value[0]
+#            new_shot = Shot(**self.kwargs)
+#            self.assertEqual(new_shot.code, test_value[1])
+#    
+#    def test_code_attribute_is_formatted_correctly(self):
+#        """testing if the code attribute is formatted correctly
+#        """
+#        for test_value in self._code_test_values:
+#            self.test_shot.code = test_value[0]
+#            self.assertEqual(self.test_shot.code, test_value[1])
     
     def test_sequence_argument_is_skipped(self):
         """testing if a RuntimeError will be raised when the sequence argument
@@ -205,7 +285,7 @@ class ShotTester(unittest.TestCase):
         """testing if the sequence attribute is read-only
         """
         new_seq = Sequence(self.test_proj, "TEST_SEQ2")
-        new_seq.create()
+        new_seq.save()
         self.assertRaises(AttributeError, setattr, self.test_shot, "sequence",
                           new_seq)
     
