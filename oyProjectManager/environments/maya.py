@@ -1,28 +1,17 @@
 # -*- coding: utf-8 -*-
 
-
-
 import os
 from pymel import versions
 from pymel import core as pm
 import maya.cmds as mc
-from oyProjectManager.environments import EnvironmentBase
-from oyProjectManager.core.models import Asset, Project, Sequence, Repository
+from oyProjectManager.core.models import Asset, Project, Sequence, Repository, EnvironmentBase
 from oyProjectManager import utils
 
 
-
-
-
-
-########################################################################
-class MayaEnvironment(EnvironmentBase):
+class Maya(EnvironmentBase):
     """the maya environment class
     """
     
-    
-    
-    #----------------------------------------------------------------------
     def save(self):
         """the save action for maya environment
 
@@ -59,9 +48,6 @@ class MayaEnvironment(EnvironmentBase):
         
         return True
     
-    
-    
-    #----------------------------------------------------------------------
     def export(self, asset):
         """the export action for maya environment
         """
@@ -82,9 +68,6 @@ class MayaEnvironment(EnvironmentBase):
         
         return True
     
-    
-    
-    #----------------------------------------------------------------------
     def open_(self, force=False):
         """the open action for maya environment
         
@@ -112,9 +95,6 @@ class MayaEnvironment(EnvironmentBase):
         
         return True, toUpdateList
     
-    
-    
-    #----------------------------------------------------------------------
     def import_(self, asset):
         """the import action for maya environment
         """
@@ -122,9 +102,6 @@ class MayaEnvironment(EnvironmentBase):
         
         return True
     
-    
-    
-    #----------------------------------------------------------------------
     def reference(self, asset):
         """the reference action for maya environment
         """
@@ -163,9 +140,6 @@ class MayaEnvironment(EnvironmentBase):
         
         return True
     
-    
-    
-    #----------------------------------------------------------------------
     def getPathVariables(self):
         """gets the file name from maya environment
         """
@@ -258,10 +232,7 @@ class MayaEnvironment(EnvironmentBase):
                 
                 
         return fileName, path
-
-
-
-    #----------------------------------------------------------------------
+    
     def setRenderFileName(self):
         """sets the render file name
         """
@@ -326,9 +297,6 @@ class MayaEnvironment(EnvironmentBase):
         
         self.setOutputFileFormat()
     
-    
-    
-    #----------------------------------------------------------------------
     def setOutputFileFormat(self):
         """sets the output file format
         """
@@ -365,9 +333,6 @@ class MayaEnvironment(EnvironmentBase):
             ## if the renderer is set to mayaSoftware (which is very rare)
             #if dRG.getAttr('currentRenderer') == 'mayaSoftware':
     
-    
-    
-    #----------------------------------------------------------------------
     def setPlayblastFileName(self):
         """sets the playblast file name
         """
@@ -393,9 +358,6 @@ class MayaEnvironment(EnvironmentBase):
         
         pm.optionVar['playblastFile'] = playblastFullPath
     
-    
-    
-    #----------------------------------------------------------------------
     def setProject(self, projectName, sequenceName ):
         """sets the project
         """
@@ -415,9 +377,6 @@ class MayaEnvironment(EnvironmentBase):
         # set the current timeUnit to match with the environments
         self.setTimeUnit(seq.timeUnit)
     
-    
-    
-    #----------------------------------------------------------------------
     def getWorkspacePath(self):
         """returns the workspace path
         tries to fix the path separator for windows
@@ -430,9 +389,6 @@ class MayaEnvironment(EnvironmentBase):
         
         return path
     
-    
-    
-    #----------------------------------------------------------------------
     def appendToRecentFiles(self, path):
         """appends the given path to the recent files list
         """
@@ -448,10 +404,7 @@ class MayaEnvironment(EnvironmentBase):
             
         #assert(isinstance(recentFiles,pm.OptionVarList))
         recentFiles.appendVar( path )
-
-
-
-    #----------------------------------------------------------------------
+    
     def checkReferenceVersions(self):
         """checks the referenced assets versions
         
@@ -475,10 +428,7 @@ class MayaEnvironment(EnvironmentBase):
         
         # sort the list according to assetFilepath
         return sorted(updateList, None, lambda x: x[2])
-
-
-
-    #----------------------------------------------------------------------
+    
     def getReferencedAssets(self):
         """returns the valid assets those been referenced to the current scene
         
@@ -552,10 +502,6 @@ class MayaEnvironment(EnvironmentBase):
         # return a sorted list
         return sorted(validAssets, None, lambda x: x[2])
     
-    
-    
-    
-    #----------------------------------------------------------------------
     def updateAssets(self, assetTupleList):
         """update assets to the latest version
         """
@@ -577,9 +523,6 @@ class MayaEnvironment(EnvironmentBase):
             
             ref.replaceWith(latestAsset.fullPath)
     
-    
-    
-    #----------------------------------------------------------------------
     def getFrameRange(self):
         """returns the current playback frame range
         """
@@ -587,9 +530,6 @@ class MayaEnvironment(EnvironmentBase):
         endFrame = int( pm.playbackOptions(q=True, aet=True) )
         return startFrame, endFrame
     
-    
-    
-    #----------------------------------------------------------------------
     def setFrameRange(self, startFrame=1, endFrame=100, adjust_frame_range=False):
         """sets the start and end frame range
         """
@@ -605,9 +545,6 @@ class MayaEnvironment(EnvironmentBase):
         dRG.setAttr('startFrame', startFrame )
         dRG.setAttr('endFrame', endFrame )
     
-    
-    
-    #----------------------------------------------------------------------
     def getTimeUnit(self):
         """returns the timeUnit of the environment
         """
@@ -615,9 +552,6 @@ class MayaEnvironment(EnvironmentBase):
         # return directly from maya, it uses the same format
         return (pm.currentUnit(q=1, t=1)).lower()
     
-    
-    
-    #----------------------------------------------------------------------
     def setTimeUnit(self, timeUnit='pal'):
         """sets the timeUnit of the environment
         """
@@ -648,9 +582,6 @@ class MayaEnvironment(EnvironmentBase):
         pm.playbackOptions(ast=pAst, aet=pAet)
         pm.playbackOptions(min=pMin, max=pMax)
 
-
-
-    #----------------------------------------------------------------------
     def loadReferences(self):
         """loads all the references
         """
@@ -661,9 +592,6 @@ class MayaEnvironment(EnvironmentBase):
         for reference in allReferences:
             reference.load()
     
-    
-    
-    #----------------------------------------------------------------------
     def replaceAssets(self, sourceRef, targetFile):
         """replaces the source asset with the target asset
         
@@ -750,9 +678,6 @@ class MayaEnvironment(EnvironmentBase):
                 # apply all the failed edits again
                 pm.referenceEdit( baseRefNode, applyFailedEdits=True )
     
-    
-    
-    #----------------------------------------------------------------------
     def getAllSubReferences(self, ref):
         """returns the recursive sub references as a list of FileReference
         objects for the given file reference
@@ -771,18 +696,12 @@ class MayaEnvironment(EnvironmentBase):
         
         return allRefs
     
-    
-    
-    #----------------------------------------------------------------------
     def getFullNamespaceFromNodeName(self, node):
         """dirty way of getting the namespace from node name
         """
         
         return ':'.join( (node.name().split(':'))[:-1] )
     
-    
-    
-    #----------------------------------------------------------------------
     def hasStereoCamera(self):
         """checks if the scene has a stereo camera setup
         returns True if any
@@ -796,9 +715,6 @@ class MayaEnvironment(EnvironmentBase):
             # to have a stereoCamera rig
             return False
     
-    
-    
-    #----------------------------------------------------------------------
     def replace_external_paths(self):
         """replaces all the external paths
         

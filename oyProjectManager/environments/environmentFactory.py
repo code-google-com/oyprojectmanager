@@ -70,22 +70,22 @@ class EnvironmentFactory(Singleton):
         env = None
         
         if environmentName == 'MAYA':
-            from oyProjectManager.environments import mayaEnv
-            envClass = mayaEnv.MayaEnvironment
+            from oyProjectManager.environments import maya
+            envClass = maya.Maya
             
         elif environmentName == 'NUKE':
-            from oyProjectManager.environments import nukeEnv
-            envClass = nukeEnv.NukeEnvironment
+            from oyProjectManager.environments import nuke
+            envClass = nuke.Nuke
             
         elif environmentName == 'HOUDINI':
-            from oyProjectManager.environments import houdiniEnv
-            envClass = houdiniEnv.HoudiniEnvironment
+            from oyProjectManager.environments import houdini
+            envClass = houdini.Houdini
         
         # create the environment if the envClass is not None
         if envClass is not None:
             # get the virtual environment and set variables
             extensions = self._virtualEnvironments[ environmentName ].extensions
-            env = envClass( asset, environmentName, extensions )
+            env = envClass( asset, environmentName, extensions)
             
         return env
 

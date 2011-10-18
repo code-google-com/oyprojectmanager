@@ -41,7 +41,6 @@ def all_equal(elements):
     
     return True
 
-
 def common_prefix(*sequences):
     """return a list of common elements at the start of all sequences, then a
     list of lists that are the unique tails of each sequence.
@@ -60,7 +59,6 @@ def common_prefix(*sequences):
     
     # return the common prefix and unique tails
     return common, [sequence[len(common):] for sequence in sequences]
-
 
 def relpath(p1, p2, sep=os.path.sep, pardir=os.path.pardir):
     """return a relative path from p1 equivalent to path p2.
@@ -82,7 +80,6 @@ def relpath(p1, p2, sep=os.path.sep, pardir=os.path.pardir):
     
     return sep.join([pardir]*len(u1) + u2 )
 
-
 def abspath(p1, p2):
     """Converts the p2 to abspath by joining it with p1
     
@@ -95,7 +92,6 @@ def abspath(p1, p2):
     
     return p2
 
-
 def createFolder(folderPath):
     """utility method that creates a folder if it doesn't exists
     """
@@ -107,7 +103,6 @@ def createFolder(folderPath):
     
     return exists
 
-
 def mkdir(path):
     """Creates a directory in the given path
     """
@@ -116,7 +111,6 @@ def mkdir(path):
         os.makedirs(path)
     except OSError:
         pass
-
 
 def sort_string_numbers(str_list):
     """sorts strings with embedded numbers
@@ -129,7 +123,6 @@ def sort_string_numbers(str_list):
         return pieces
     
     return sorted(str_list, key=embedded_numbers)
-
 
 def unique(s):
     """ Return a list of elements in s in arbitrary order, but without
@@ -160,7 +153,6 @@ def unique(s):
             u.append(x)
     
     return u
-
 
 def uncompress_range(_range):
     """a shotRange is a string that contains numeric data with "," and "-"
@@ -200,7 +192,6 @@ def uncompress_range(_range):
     
     return shotList
 
-
 def matchRange(_range):
     """validates the range string
     """
@@ -216,8 +207,6 @@ def matchRange(_range):
         _range = ''
     
     return _range
-
-
 
 def stringConditioner(
     text,
@@ -264,7 +253,6 @@ def stringConditioner(
     
     return textFixed
 
-
 def multiple_replace( text, adict ):
     rx = re.compile('|'.join(map(re.escape, adict)))
     def one_xlat(match):
@@ -280,9 +268,6 @@ def fixWindowsPath(path):
 def findFiles(pattern, search_path, pathsep=os.pathsep):
     return glob.glob(os.path.join(path,pattern))
 
-
-
-
 def getChildFolders(path, returnFullPath=False):
     """returns the child folders for the given path
     """
@@ -294,9 +279,6 @@ def getChildFolders(path, returnFullPath=False):
     else:
         return map( os.path.basename, childFolders )
 
-
-
-
 def getChildFiles(path, returnFullPath=False):
     """returns the child files for the given path
     """
@@ -307,9 +289,6 @@ def getChildFiles(path, returnFullPath=False):
         return childFiles
     else:
         return map( os.path.basename, childFiles )
-
-
-
 
 def backupFile( fullPath, maximum_backupCount=None ):
     """backups a file by copying it and then renaming it by adding .#.bak
@@ -353,11 +332,6 @@ def backupFile( fullPath, maximum_backupCount=None ):
     
     if maximum_backupCount is not None:
         maintainMaximumBackupCount( fullPath, maximum_backupCount )
-    
-    
-
-
-
 
 def getBackupFiles( fullPath ):
     """returns the backup files of the given file, returns None if couldn't
@@ -372,9 +346,6 @@ def getBackupFiles( fullPath ):
     pattern = fullPath + '.*' + backUpExtension
     
     return sort_strings_with_embedded_numbers( glob.glob(pattern) )
-
-
-
 
 def getBackupNumber(fullPath):
     """returns the backup number of the file
@@ -394,9 +365,6 @@ def getBackupNumber(fullPath):
     
     return backupNumber
 
-
-
-
 def getMaximumBackupNumber(fullPath):
     """returns the maximum backup number of the file
     """
@@ -408,9 +376,6 @@ def getMaximumBackupNumber(fullPath):
         maximumBackupNumber = getBackupNumber( backupFiles[-1] )
     
     return maximumBackupNumber
-
-
-
 
 def maintainMaximumBackupCount( fullPath, maximum_backup_count ):
     """keeps maximum of given number of backups for the given file

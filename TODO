@@ -1,25 +1,9 @@
 TODO
 ====
 
-* Project should also have an settings.xml for path values and general project
-  structure. So the project structure should be moved from sequence to
-  project. It will allow the user to create more organized folder structures
-  by letting them to move the common assets in another place then the
-  sequence. The project should also use Jinja2 templates to define the
-  sequence and asset placements. It could be as simple as:
-   
-    <% project.path %>/<ASSETS>/<% asset.base_name %>
-    <% project.path %>/<SEQUENCES>/<% sequence.name %>
-  
-  It should be all dependent to the studio. We could steal some ideas from
-  the upcoming project Stalker.
-
 * Instead of having something like a "default files" concept, allow all
   environment to have their own initialization part, and call them whenever
-  a project is created.
-
-* Create test for all the classes used, and turn the development practice to
-  TDD as soon as possible.
+  a project is created. (planed in 0.2.1)
 
 * exports to formats other than the native format of the environment should
   be placed under a folder, lets say a folder named "exports" under the
@@ -30,7 +14,7 @@ TODO
 
 * add the UserType id to the users.xml
 
-* use the user class to define if the user can change the project
+* use the user class to define permissions
 
 * the relation and interaction between the assetManager and the environments
   should be more universal and organized. The environments should return
@@ -45,12 +29,6 @@ TODO
   the latest published versions of the same asset etc. And the interface
   should automatically check and update references inside other references
   (deep reference update)
-
-* store recent files list in repository do not trust to the applications
-  recent files
-
-* convert the system to a full featured Production Asset Management System by
-  using SQLAlchemy as the database framework and ORM
 
 * add a user login window
 
@@ -72,14 +50,55 @@ TODO
 
 * create appropriate Error classes for errors
 
+* Environment classes as a separate project (planed in 0.3.0)
+  
+  The classes deriving from the ``EnvironmentBase`` are doing something very
+  special to the studio setup and pipeline. These classes should be moved out
+  of the system. They can be placed to the same place which is defined with the
+  ``OYPROJECTMANAGER_PATH`` environment variable. And any studio can create
+  their own version, and everybody will be happy.
+
+* UI as a separate project (planed in 0.3.0)
+  
+  As the environments also the UI is studio dependent and it should be
+  a separate project.
+
+FIXED & DONE
+============
+
+* Instead of XML settings files use Python modules.
+  
+  Parsing the settings XML is not very easy when compared to native Python
+  modules. It would be very easy if the system uses a Python file called
+  "conf.py" in a user defined placement on their systems.
+  
+  The system can search for a specific environment variable like
+  OYPROJECTMANAGER_PATH and update variables in the oyProjectManager.config
+  with the ones coming from the $OYPROJECTMANAGER_PATH/conf.py.
+
 * an asset object should contain all the versions, revisions, of the same
   asset, or there should be an superAsset class that holds all the versions,
   revisions and any subNames of the same asset, so the group of the files
   should be counted as one asset with multiple versions
 
+* convert the system to a full featured Production Asset Management System by
+  using SQLAlchemy as the database framework and ORM
 
-FIXED & DONE
-============
+* Create test for all the classes used, and turn the development practice to
+  TDD as soon as possible.
+
+* Project should also have an settings.xml for path values and general project
+  structure. So the project structure should be moved from sequence to
+  project. It will allow the user to create more organized folder structures
+  by letting them to move the common assets in another place then the
+  sequence. The project should also use Jinja2 templates to define the
+  sequence and asset placements. It could be as simple as:
+   
+    <% project.path %>/<ASSETS>/<% asset.base_name %>
+    <% project.path %>/<SEQUENCES>/<% sequence.name %>
+  
+  It should be all dependent to the studio. We could steal some ideas from
+  the upcoming project Stalker. 
 
 * Structure should use Jinja2 templates.
 

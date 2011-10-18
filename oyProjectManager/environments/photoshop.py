@@ -19,7 +19,7 @@ http://sourceforge.net/projects/comtypes/
 
 
 from comtypes import client
-from oyProjectManager.environments import EnvironmentBase
+from oyProjectManager.core.models import EnvironmentBase
 
 
 
@@ -27,7 +27,7 @@ from oyProjectManager.environments import EnvironmentBase
 
 
 ########################################################################
-class PhotoshopEnvironment(EnvironmentBase):
+class Photoshop(EnvironmentBase):
     """the photoshop environment class
     """
     

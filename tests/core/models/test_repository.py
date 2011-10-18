@@ -1,29 +1,18 @@
 # -*- coding: utf-8 -*-
 
-
-
 import os
-import sys
 import shutil
 import tempfile
 from xml.dom import minidom
 import mocker
 
-from oyProjectManager.core.models import Repository, Project, User
+from oyProjectManager.core.models import Repository, User
 
 
-
-
-
-
-########################################################################
 class RepositoryTester(mocker.MockerTestCase):
     """tests the repository with environment variables
     """
     
-    
-    
-    #----------------------------------------------------------------------
     def setUp(self):
         """testing the settings path from the environment variable
         """
@@ -72,9 +61,6 @@ class RepositoryTester(mocker.MockerTestCase):
                                         mode='w')
         xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
     
-    
-    
-    #----------------------------------------------------------------------
     def tearDown(self):
         """remove the temp folders
         """
@@ -83,9 +69,6 @@ class RepositoryTester(mocker.MockerTestCase):
         shutil.rmtree(self.temp_settings_folder)
         shutil.rmtree(self.temp_projects_folder)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_create_project(self):
         """testing project creation
         """
@@ -108,9 +91,6 @@ class RepositoryTester(mocker.MockerTestCase):
                 )
             )
     
-    
-    
-    #----------------------------------------------------------------------
     def test_create_project_with_wrong_name_formating(self):
         """testing if the project name will be correctly formatted if the given
         project name is not in good format
@@ -142,9 +122,6 @@ class RepositoryTester(mocker.MockerTestCase):
                     )
                 )
     
-    
-    
-    #----------------------------------------------------------------------
     def test_without_environment_variable(self):
         """testing if a KeyError will be raised when there is no
         OYPROJECTMANAGER_PATH variable defined in the environment variables
@@ -156,9 +133,6 @@ class RepositoryTester(mocker.MockerTestCase):
         
         self.assertRaises(KeyError, repository.Repository)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_environment_variable_is_expanded(self):
         """testing if user and environment values are expanded in
         OYPROJECTMANAGER_PATH environment variable
@@ -191,9 +165,6 @@ class RepositoryTester(mocker.MockerTestCase):
         # now delete the tmp folder
         shutil.rmtree(expanded_new_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_default_settings_file_full_path_property_is_working_properly(self):
         """testing if the default_settings_file_full_path porperty is working
         properly
@@ -204,9 +175,6 @@ class RepositoryTester(mocker.MockerTestCase):
         self.assertEqual(repo._default_settings_file_full_path,
                           repo.default_settings_file_full_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_default_settings_file_full_path_property_is_read_only(self):
         """testing if the default_settings_file_full_path property is read only
         """
@@ -219,9 +187,6 @@ class RepositoryTester(mocker.MockerTestCase):
                           "default_settings_file_full_path",
                           "a value")
     
-    
-    
-    #----------------------------------------------------------------------
     def test_get_project_and_sequence_name_from_file_path_works_properly(self):
         """testing if get_project_and_sequence_name_from_file_path is working
         properly.
@@ -241,9 +206,6 @@ class RepositoryTester(mocker.MockerTestCase):
             (project_name, sequence_name)
         )
     
-    
-    
-    #----------------------------------------------------------------------
     def test_get_project_and_sequence_name_from_file_path_returns_None(self):
         """testing if get_project_and_sequence_name_from_file_path returns
         (None, None) for irrelative paths.
@@ -257,9 +219,6 @@ class RepositoryTester(mocker.MockerTestCase):
             (None, None)
         )
     
-    
-    
-    #----------------------------------------------------------------------
     def test_get_project_and_sequence_name_from_file_path_returns_None_for_None(self):
         """testing if get_project_and_sequence_name_from_file_path returns
         (None, None) for None
@@ -272,9 +231,6 @@ class RepositoryTester(mocker.MockerTestCase):
             (None, None)
         )
     
-    
-    
-    #----------------------------------------------------------------------
     def test_home_path_works_properly(self):
         """testing if get_home path works properly
         """
@@ -283,9 +239,6 @@ class RepositoryTester(mocker.MockerTestCase):
         
         self.assertEqual(repo.home_path, os.environ["HOME"])
     
-    
-    
-    #----------------------------------------------------------------------
     def test_home_path_is_read_only(self):
         """testing if the home_path property is read only
         """
@@ -298,9 +251,6 @@ class RepositoryTester(mocker.MockerTestCase):
                           "home_path",
                           "/some/path/to/something")
     
-    
-    
-    #----------------------------------------------------------------------
     def test_last_user_property_working_properly(self):
         """testing if the last_user property is working properly
         """
@@ -324,9 +274,6 @@ class RepositoryTester(mocker.MockerTestCase):
             open(repo._last_user_file_full_path).readline().strip()
         )
     
-    
-    
-    #----------------------------------------------------------------------
     def test_last_user_property_sets_last_user_properly(self):
         """testing if the last_user property is properly setting the last user
         """
@@ -350,9 +297,6 @@ class RepositoryTester(mocker.MockerTestCase):
         if current_last_user is not None:
             repo.last_user = current_last_user
     
-    
-    
-    #----------------------------------------------------------------------
     def test_server_path_expands_variables(self):
         """teting if the server_path property is expanding environment
         variables properly.
@@ -382,9 +326,6 @@ class RepositoryTester(mocker.MockerTestCase):
         # clean up test
         shutil.rmtree(expanded_new_server_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_server_path_working_properly(self):
         """testing if the server_path property is working properly
         """
@@ -395,9 +336,6 @@ class RepositoryTester(mocker.MockerTestCase):
         
         self.assertEqual(repo.server_path, repo.linux_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_server_path_setting_path_working_properly(self):
         """testing if the server_path property is working properly
         """
@@ -430,9 +368,6 @@ class RepositoryTester(mocker.MockerTestCase):
         # clean up
         os.rmdir(new_server_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_linux_path_setting_the_server_path(self):
         """testing if changing the linux_path also changes the server_path
         under linux
@@ -451,9 +386,6 @@ class RepositoryTester(mocker.MockerTestCase):
         # clean up
         os.rmdir(new_server_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_settings_dir_path_property_works_properly(self):
         """testing if the settings_dir_path works properly
         """
@@ -471,9 +403,6 @@ class RepositoryTester(mocker.MockerTestCase):
         
         self.assertEqual(repo.settings_dir_path, settings_dir_path_from_env)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_settings_dir_path_property_is_read_only(self):
         """testing if settings_dir_path property is read only
         """
@@ -482,9 +411,6 @@ class RepositoryTester(mocker.MockerTestCase):
         self.assertRaises(AttributeError, setattr, repo, "settings_dir_path",
                           "")
     
-    
-    
-    #----------------------------------------------------------------------
     def test_projects_property_working_properly(self):
         """testing if the project property is working properly
         """
@@ -507,9 +433,6 @@ class RepositoryTester(mocker.MockerTestCase):
         
         self.assertEqual(repo.projects, project_names)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_update_project_list_working_properly(self):
         """testing if the update_project_list is filtering folders correctly
         """
@@ -550,9 +473,6 @@ class RepositoryTester(mocker.MockerTestCase):
         
         self.assertEqual(repo.projects, expected_list)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_relative_path_working_properly(self):
         """testing if the relative_path is working properly
         """
@@ -576,9 +496,6 @@ class RepositoryTester(mocker.MockerTestCase):
             expected_path
         )
     
-    
-    
-    #----------------------------------------------------------------------
     def test_valid_projects_returns_valid_projects(self):
         """testing if valid_projects property returns valid projects
         """
@@ -617,9 +534,6 @@ class RepositoryTester(mocker.MockerTestCase):
             repo.valid_projects
         )
     
-    
-    
-    #----------------------------------------------------------------------
     def test_repository_path_environment_variable_init_1(self):
         """testing if the repository path environment variable is initialized
         where there is no repository path key in the environment variables
@@ -645,9 +559,6 @@ class RepositoryTester(mocker.MockerTestCase):
         if has_key:
             os.environ[key] = value
     
-    
-    
-    #----------------------------------------------------------------------
     def test_repository_path_environment_variable_init_2(self):
         """testing if the repository path environment variable is initialized
         correctly even there is a key in the environment with the same
@@ -674,9 +585,6 @@ class RepositoryTester(mocker.MockerTestCase):
         # the value should be still there intact
         self.assertEqual(os.environ[key], value)
     
-    
-    
-    #----------------------------------------------------------------------
     def _create_new_users_settings(self):
         """creates new users settings file for tests
         """
@@ -715,9 +623,6 @@ class RepositoryTester(mocker.MockerTestCase):
         
         return orig_file_path, backup_file_path
     
-    
-    
-    #----------------------------------------------------------------------
     def _restore_file(self, orig_file_path, backup_file_path):
         """restores the given file
         """
@@ -726,9 +631,6 @@ class RepositoryTester(mocker.MockerTestCase):
         os.remove(orig_file_path)
         os.rename(backup_file_path, orig_file_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_users_property_is_returning_User_objects(self):
         """testing if the users property is just returning User objects
         """
@@ -748,9 +650,6 @@ class RepositoryTester(mocker.MockerTestCase):
         # restore the file
         self._restore_file(orig_file_path, backup_file_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_users_property_returning_correct_users(self):
         """testing if the users property is returning the correct users from
         the settings file
@@ -773,9 +672,6 @@ class RepositoryTester(mocker.MockerTestCase):
         # restore the users.xml file
         self._restore_file(orig_file_path, backup_file_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_users_property_is_read_only(self):
         """testing if the users property is read-only
         """
@@ -783,9 +679,6 @@ class RepositoryTester(mocker.MockerTestCase):
         repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "users", [])
     
-    
-    
-    #----------------------------------------------------------------------
     def test_user_names_property_is_working_correctly(self):
         """testing if the user_names property is working properly
         """
@@ -807,9 +700,6 @@ class RepositoryTester(mocker.MockerTestCase):
         # restore the users.xml file
         self._restore_file(orig_file_path, backup_file_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_user_names_property_is_readonly(self):
         """testing if the user_names property is read only
         """
@@ -817,9 +707,6 @@ class RepositoryTester(mocker.MockerTestCase):
         repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "user_names", [])
     
-    
-    
-    #----------------------------------------------------------------------
     def test_users_settings_file_is_missing(self):
         """testing if an OSError will be raised when the users.xml file is
         missing
@@ -846,9 +733,6 @@ class RepositoryTester(mocker.MockerTestCase):
         # rename back the settings file
         os.rename(backup_file_path, orig_file_path)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_user_initials_property_is_read_only(self):
         """testing if the user_initials property is read only
         """
@@ -856,9 +740,6 @@ class RepositoryTester(mocker.MockerTestCase):
         repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "user_initials", [])
     
-    
-    
-    #----------------------------------------------------------------------
     def test_user_initials_working_properly(self):
         """testing if the user_initials property working properly
         """
@@ -868,9 +749,6 @@ class RepositoryTester(mocker.MockerTestCase):
         repo = Repository()
         self.assertEqual(repo.user_initials, user_initials)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_time_units_returns_a_dictionary(self):
         """testing if time_units returns a dictionary
         """
@@ -879,9 +757,6 @@ class RepositoryTester(mocker.MockerTestCase):
         
         self.assertIsInstance(repo.time_units, dict)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_time_units_is_a_read_only_property(self):
         """testing if time_units is read only
         """
@@ -889,9 +764,6 @@ class RepositoryTester(mocker.MockerTestCase):
         repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "time_units", None)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_time_units_is_returning_the_correct_values(self):
         """testing if time_units is returning correct values
         """
@@ -910,9 +782,6 @@ class RepositoryTester(mocker.MockerTestCase):
         repo = Repository()
         self.assertEqual(repo.time_units, time_units)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_defaultFiles_returning_a_list_of_tuples(self):
         """testing if the defaultFiles method returns a list of tuples
         """
@@ -922,9 +791,6 @@ class RepositoryTester(mocker.MockerTestCase):
         for defaultFileInfo in repo.defaultFiles:
             self.assertIsInstance(defaultFileInfo, tuple)
     
-    
-    
-    #----------------------------------------------------------------------
     def test_defaultFiles_is_read_only(self):
         """testing if the defaultFiles property is read only
         """
@@ -932,9 +798,6 @@ class RepositoryTester(mocker.MockerTestCase):
         repo = Repository()
         self.assertRaises(AttributeError, setattr, repo, "defaultFiles", [])
     
-    
-    
-    #----------------------------------------------------------------------
     def test_defaultFiles_working_properly(self):
         """testing if the defaultFiles property is returning a tuple containing
         the default file locations
@@ -949,5 +812,3 @@ class RepositoryTester(mocker.MockerTestCase):
         self.assertEqual(len(defFiles_list), 1)
         self.assertEqual(defFiles_list[0][0], "workspace.mel")
         self.assertEqual(defFiles_list[0][1], ".")
-    
-    

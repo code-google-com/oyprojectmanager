@@ -72,32 +72,19 @@ class VersionTypeTester(unittest.TestCase):
         self.test_vbase = VersionableBase()
         self.test_vbase._project = self.test_project
         
-        self.test_versionType = VersionType(
-            name="Animation",
-            code="ANIM",
-            path="SHOTS/{{version.base_name}}/{{type.code}}",
-            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
-            environments="MAYA,HOUDINI",
-            output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/{{version.take_name}}"
-        )
-        
-        self.test_user = User(
-            name="Test User",
-            initials="tu",
-            email="testuser@test.com"
-        )
-        
         self.kwargs = {
-            "version_of": self.test_vbase,
-            "type": self.test_versionType,
-            "base_name": "SH001",
-            "take_name": "MAIN",
-            "version_number": 1,
-            "note": "this is the note for this version",
-            "created_by": self.test_user
+            "name":"Animation",
+            "code":"ANIM",
+            "path":"SHOTS/{{version.base_name}}/{{type.code}}",
+            "filename":"{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
+            "environments":["MAYA","HOUDINI"],
+            "output_path":"SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/{{version.take_name}}",
+            "extra_folders":"""{{version.path}}/exports
+            {{version.path}}/cache
+            """
         }
         
-        self.test_version = Version(**self.kwargs)
+        self.test_versionType = VersionType(**self.kwargs)
         
         self._name_test_values = [
             ("base name", "Base_Name"),
@@ -131,4 +118,96 @@ class VersionTypeTester(unittest.TestCase):
         shutil.rmtree(self.temp_settings_folder)
         shutil.rmtree(self.temp_projects_folder)
     
+    def test_name_argument_is_skipped(self):
+        """testing if a RuntimeError will be raised when the name argument is
+        skipped
+        """
+        self.kwargs.pop("name")
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
     
+    def test_name_argument_is_None(self):
+        """testing if a RuntimeError will be raised when the name argument is
+        None
+        """
+        self.kwargs["name"] = None
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+    
+    def test_name_attribute_is_None(self):
+        """testing if a RuntimeError will be raised when the name attribute is
+        set to None
+        """
+        self.assertRaises(RuntimeError, setattr, test_versionType, "name",
+                          None)
+    
+    def test_name_argument_is_not_a_string(self):
+        """testing if a TypeError will be raised when the name argument is not
+        a string or unicode instance
+        """
+        self.kwargs["name"] = 123
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_name_attribute_is_not_a_string(self):
+        """testing if a TypeError will be raised when the name argument is not
+        a string or unicode instance
+        """
+        self.assertRaises(TypeError, setattr, self.test_versionType, "name", 8)
+    
+    def test_name_argument_is_working_properly(self):
+        """testing if the name argument is working properly and sets the name
+        attribute correctly
+        """
+        self.assertEqual(self.kwargs["name"], self.test_versionType.name)
+    
+    def test_name_attribute_is_working_properly(self):
+        """testing if the name attribute is working properly
+        """
+        test_value = "New Name"
+        self.test_versionType.name = test_value
+        self.assertEqual(test_value, self.test_versionType.name)
+    
+    def test_code_argument_is_skipped(self):
+        """testing if a RuntimeError will be raised when the code argument is
+        skipped
+        """
+        self.kwargs.pop("code")
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+    
+    def test_code_argument_is_None(self):
+        """testing if a RuntimeError will be raised when the code argument is
+        None
+        """
+        self.kwargs["code"] = None
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+    
+    def test_code_attribute_is_None(self):
+        """testing if a RuntimeError will be raised when the code attribute is
+        set to None
+        """
+        self.assertRaises(RuntimeError, setattr, test_versionType, "code",
+                          None)
+    
+    def test_code_argument_is_not_a_string(self):
+        """testing if a TypeError will be raised when the code argument is not
+        a string or unicode instance
+        """
+        self.kwargs["code"] = 123
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_code_attribute_is_not_a_string(self):
+        """testing if a TypeError will be raised when the code argument is not
+        a string or unicode instance
+        """
+        self.assertRaises(TypeError, setattr, self.test_versionType, "code", 8)
+    
+    def test_code_argument_is_working_properly(self):
+        """testing if the code argument is working properly and sets the code
+        attribute correctly
+        """
+        self.assertEqual(self.kwargs["code"], self.test_versionType.code)
+    
+    def test_code_attribute_is_working_properly(self):
+        """testing if the code attribute is working properly
+        """
+        test_value = "New Name"
+        self.test_versionType.code = test_value
+        self.assertEqual(test_value, self.test_versionType.code)

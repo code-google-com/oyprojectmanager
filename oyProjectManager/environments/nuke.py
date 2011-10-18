@@ -4,23 +4,19 @@
 
 import os
 import nuke
-from oyProjectManager.environments import EnvironmentBase
-from oyProjectManager.core.models import Asset, Sequence, Repository
+from oyProjectManager.core.models import Asset, Sequence, Repository, EnvironmentBase
 from oyProjectManager import utils
 
 
-class NukeEnvironment(EnvironmentBase):
+class Nuke(EnvironmentBase):
     """the nuke environment class
     """
-    
-    
-    
     
     def __init__(self, asset=None, name='', extensions=None ):
         """nuke specific init
         """
         # call the supers __init__
-        super(NukeEnvironment, self).__init__(asset, name, extensions)
+        super(Nuke, self).__init__(asset, name, extensions)
         
         # and add you own modifications to __init__
         # get the root node
@@ -66,9 +62,6 @@ class NukeEnvironment(EnvironmentBase):
         
         return True
     
-    
-    
-    
     def export(self, asset):
         """the export action for nuke environment
         """
@@ -83,9 +76,6 @@ class NukeEnvironment(EnvironmentBase):
         nuke.nodeCopy(fullPath)
         
         return True
-    
-    
-    
     
     def open_(self, force=False):
         """the open action for nuke environment
@@ -111,9 +101,6 @@ class NukeEnvironment(EnvironmentBase):
         
         return True
     
-    
-    
-    
     def import_(self, asset):
         """the import action for nuke environment
         """
@@ -125,9 +112,6 @@ class NukeEnvironment(EnvironmentBase):
         nuke.nodePaste( fullPath )
         
         return True
-    
-    
-    
     
     def getPathVariables(self):
         """gets the file name from nuke
@@ -158,9 +142,6 @@ class NukeEnvironment(EnvironmentBase):
         
         return fileName, path
     
-    
-    
-    
     def getFrameRange(self):
         """returns the current frame range
         """
@@ -169,14 +150,12 @@ class NukeEnvironment(EnvironmentBase):
         endFrame = int(self._root.knob('last_frame').value())
         return startFrame, endFrame
     
-    
     def setFrameRange(self, startFrame=1, endFrame=100):
         """sets the start and end frame range
         """
         #self._root = self.getRootNode()
         self._root.knob('first_frame').setValue(startFrame)
         self._root.knob('last_frame').setValue(endFrame)
-    
     
     def setTimeUnit(self, timeUnit='pal'):
         """sets the current time unit
@@ -191,8 +170,6 @@ class NukeEnvironment(EnvironmentBase):
             fps = repo.time_units['pal']
         
         self._root.knob('fps').setValue(fps)
-    
-    
     
     def getTimeUnit(self):
         """returns the current time unit
@@ -212,9 +189,6 @@ class NukeEnvironment(EnvironmentBase):
         
         return timeUnit
     
-    
-    
-    
     def get_main_write_node(self):
         """Returns the main write node in the scene or None.
         """
@@ -227,9 +201,6 @@ class NukeEnvironment(EnvironmentBase):
                 return main_write_node
         
         return None
-    
-    
-    
     
     def create_main_write_node(self):
         """creates the default write node if there is no one created before.
@@ -289,7 +260,6 @@ class NukeEnvironment(EnvironmentBase):
         main_write_node["file_type"].setValue(format_id)
         main_write_node["channels"].setValue("rgb")
     
-    
     def replace_file_path(self):
         """replaces file paths with environment variable scripts
         """
@@ -333,7 +303,6 @@ class NukeEnvironment(EnvironmentBase):
         nodeRep(readGeo2Nodes)
         nodeRep(writeGeoNodes)
     
-    
     @property
     def project_directory(self):
         """The project directory.
@@ -357,7 +326,6 @@ class NukeEnvironment(EnvironmentBase):
             return self.asset.sequence.fullPath
         
         return root["project_directory"].getValue()
-    
     
     @project_directory.setter
     def project_directory(self, project_directory_in):

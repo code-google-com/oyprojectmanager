@@ -4,19 +4,16 @@ from exceptions import IndexError, ValueError, OSError, AttributeError, IOError
 import os
 import time
 import platform
-import shutil
-import glob
 import re
-from twisted.python.filepath import FilePath
 import jinja2
 from beaker import cache
 
 from xml.dom import minidom
-from sqlalchemy import func, orm, Column, String, Integer, PickleType, ForeignKey
+from sqlalchemy import (orm, Column, String, Integer, PickleType, ForeignKey,
+                        Table, UniqueConstraint)
 from sqlalchemy.ext.declarative import synonym_for
 from sqlalchemy.orm import relationship, synonym
 from sqlalchemy.orm.mapper import validates
-from sqlalchemy.schema import UniqueConstraint
 
 from oyProjectManager import db
 from oyProjectManager.db.declarative import Base
@@ -759,7 +756,8 @@ class Repository(object):
 class Project(Base):
     """Manages project related data.
     
-    A Project is simply a holder of Sequences.
+    The Project class is in the center of the Asset Management system.
+    Everything starts with the Project instance.
     
     .. versionadded:: 0.2.0
         SQLite3 Database:
@@ -771,17 +769,51 @@ class Project(Base):
         :class:`~oyProjectManager.core.models.Shot`\ s,
         :class:`~oyProjectManager.core.models.Asset`\ s and
         :class:`~oyProjectManager.core.models.VersionType` created within
-        the Project. So anytime a new
-        :class:`~oyProjectManager.core.models.Sequence`\ s,
-        :class:`~oyProjectManager.core.models.Shot`\ s,
-        :class:`~oyProjectManager.core.models.Asset`\ s or
+        the Project, the settings of the Project. So anytime a new
+        :class:`~oyProjectManager.core.models.Sequence`,
+        :class:`~oyProjectManager.core.models.Shot`,
+        :class:`~oyProjectManager.core.models.Asset` or
+        :class:`~oyProjectManager.core.models.Version` 
         :class:`~oyProjectManager.core.models.VersionType` is created the
         related data is saved to this SQLite3 database.
         
         With this new extension it is much faster to query any data needed.
     
-    The Project class is the creator of the session instance. And all the other
-    classes retrieve the session from the Project class.
+    Querying data is very simple and fun. To get any kind of data from the
+    database, first create a Project instance with the desired project name
+    then use the ``Project.query`` attribute to query any information needed.
+    For a simple example, lets get all the shots for a Sequence called
+    "TEST_SEQ" in the "TEST_PROJECT"::
+      
+      from oyProjectManager.core.models import Project, Sequence, Shot
+      
+      proj = Project("TEST_PROJECT") # a previously created project
+      all_shots = proj.query(Shot).filter(Shot.sequence.name=="TEST_SEQ").all()
+    
+    thats it.
+    
+    .. note::
+      All the connection to the database is created over an
+      ``sqlalchemy.orm.Session`` instance and the session created by the
+      Project instance and all the other classes retrieve the session from
+      their related Project class.
+    
+    **Creating a Project**
+    
+    All Projects have their own folder structure in the repository. Creating a
+    :class:`~oyProjectManager.core.models.Project` instance is not enough to
+    physically create the project folder structure. To make it happen the
+    :meth:`~oyProjectManager.core.models.Project.create` should be called to
+    finish the creation process. This will both create the main folder and the
+    general structure of the project and a ``.metadata.db`` file. Any Project,
+    which has a ``.metadata.db`` file (thus a folder with a name of
+    ``Project.name``) considered an existing Project and ``Project.exists``
+    returns ``True``.
+    
+    A Project can not be created without a `name` or with a name which is None
+    or with an invalid name. For example, a project with name "'^+'^" can not
+    be created because the name will become an empty string after the name
+    validation process.
     
     :param name: The name of the project. Should be a string or unicode. Name
       can not be None, a TypeError will be raised when it is given as None.
@@ -805,37 +837,13 @@ class Project(Base):
     :param int fps: The frame rate in frame per second format. It is an 
       integer. The default value is 25. It can be skipped. If set to None. 
       The default value will be used.
-    
-    Creating a :class:`oyProjectManager.core.models.Project` instance is
-    not enough to physically create the project folder. To make it happen the
-    :meth:`~oyProjectManager.core.models.Project.create` should be called
-    to finish the creation process.
-    
-    A Project can not be created without a name or with a name which is None or
-    with an invalid name. For example, a project with name "'^+'^" can not be
-    created because the name will become an empty string after the name
-    validation process.
-    
-    Projects have a file called ".metadata.db" in their root. This SQL
-    file holds information about:
-    
-      * The general folder structure of the project.
-      * The sequences that this project has.
-      * The shots that all the individual sequences have.
-      * The placement code of the asset files.
-      * etc.
-    
-    Every project has its own settings file to hold the different and evolving
-    directory structure of the projects and the data created in that project.
-    
-    The pre version 0.1.2 projects are going to be converted from sequence
-    based project structure to project based project structure upon parsing
-    the project.
     """
     
     __tablename__ = "Projects"
     
     id = Column(Integer, primary_key=True)
+    
+    # TODO: add doc strings for all the attributes
     
     name = Column(String(256), unique=True)
     code = Column(String(256), unique=True)
@@ -852,7 +860,13 @@ class Project(Base):
     ver_prefix = Column(String(16), default=conf.VER_PREFIX)
     ver_padding = Column(Integer, default=conf.VER_PADDING)
     
-    fps = Column(String(32), default=conf.FPS)
+    fps = Column(
+        String(32),
+        default=conf.FPS,
+        doc="""The frames per second setting of this project. The default value
+        is %s
+        """ % conf.FPS
+    )
     
     width = Column(String, default=conf.RESOLUTION_WIDTH)
     height = Column(String, default=conf.RESOLUTION_HEIGHT)
@@ -877,7 +891,7 @@ class Project(Base):
         # check the name argument
         if name:
             # condition the name
-            name = Project.condition_name(name)
+            name = Project._condition_name(name)
             
             repo = Repository()
             path = repo.server_path
@@ -906,6 +920,7 @@ class Project(Base):
                                   "database")
                     
                     proj_db.session = session
+                    proj_db.query = session.query
                     logger.debug("attaching session to the created project "
                                  "instance, the session id is: %s" % 
                                  id(session))
@@ -937,6 +952,9 @@ class Project(Base):
         
         if not hasattr(self, "session"):
             self.session = None
+        
+        if not hasattr(self, "query"):
+            self.query = None
         
         self.name = name
         
@@ -971,6 +989,7 @@ class Project(Base):
         
         self._repository = Repository()
         self.session = None
+        self.query = None
         
         self.metadata_db_name = conf.DATABASE_FILE_NAME
         self.metadata_full_path = os.path.join(
@@ -998,7 +1017,7 @@ class Project(Base):
         self.fullPath = os.path.join(self.path, name_in)
 
     @classmethod
-    def condition_name(cls, name):
+    def _condition_name(cls, name):
         
         if name is None:
             raise TypeError("The name can not be None")
@@ -1032,13 +1051,20 @@ class Project(Base):
         """validates the given name_in value
         """
         
-        name_in = self.condition_name(name_in)
+        name_in = self._condition_name(name_in)
         
         self.update_paths(name_in)
         
         return name_in
 
     def save(self):
+        """Saves the Project related information to the database.
+        
+        If there is no ``.metadata.db`` file it will be created, but be
+        careful that the project structure will not be created. The safest way
+        to both create the project structure and the .metadata.db file is to
+        call the :meth:`~oyProjectManager.core.models.Project.create` method.
+        """
         
         logger.debug("saving project settings to %s" % self.metadata_full_path)
         
@@ -1046,6 +1072,7 @@ class Project(Base):
         if self.session is None:
             logger.debug("there is no session, creating a new one")
             self.session = db.setup(self.metadata_full_path)
+            self.query = self.session.query
         
         if self not in self.session:
             self.session.add(self)
@@ -1053,7 +1080,8 @@ class Project(Base):
         self.session.commit()
     
     def create(self):
-        """Creates the project directory in the repository.
+        """Creates the project directory structure and saves the project, thus
+        creates the ``.metadata.db`` file in the repository.
         """
         
         # check if the folder already exists
@@ -1224,6 +1252,8 @@ class Sequence(Base):
         you need to invoke self.createShots to make the changes permanent
         """
         
+        # TODO: update this method
+        
         # for now consider the shots as a string of range
         # do the hard work later
         
@@ -1266,6 +1296,8 @@ class Sequence(Base):
         returns the alternative shot number
         """
         
+        # TODO: update this method
+        
         # shotNumber could be an int convert it to str
         shotNumberAsString = str(shotNumber)
         
@@ -1288,6 +1320,8 @@ class Sequence(Base):
     def getNextAlternateShotName(self, shot):
         """returns the next alternate shot number for the given shot number
         """
+        
+        # TODO: update this method
 
         # get the shot list
         shotList = self.shotList
@@ -1468,7 +1502,6 @@ class Shot(VersionableBase):
     sequence_id = Column(Integer, ForeignKey("Sequences.id"))
     _sequence = relationship("Sequence")
     
-    # TODO: shot.__init__ should use ``number`` instead of ``code``
     def __init__(self,
                  sequence=None,
                  number=None,
@@ -1477,11 +1510,7 @@ class Shot(VersionableBase):
                  description=''):
         
         self._sequence = self._validate_sequence(sequence)
-        
-        # TODO: shot.name should use project.shotPrefix + a number string
-#        self.code = code
         self.number = number
-        
         self.description = description
         
         # update the project attribute
@@ -1503,33 +1532,6 @@ class Shot(VersionableBase):
 #        """returns the representation of the class
 #        """
 #        return "< oyProjectManager.core.models.Shot object: " + self._name + ">"
-
-#    @validates("code")
-#    def _validate_name(self, key, name):
-#        """validates the given code value
-#        """
-#        
-#        if name is None:
-#            raise TypeError("Shot.code can not be None")
-#        
-#        if not isinstance(name, (str, unicode)):
-#            raise TypeError("Shot.code should be an instance of str or "
-#                            "unicode")
-#        
-#        if name == "":
-#            raise ValueError("Shot.code can not be empty string")
-#        
-#        # now check if the name is present for the current Sequence
-#        shot_instance = self.sequence.session.query(Shot).\
-#            filter(Shot.code==name).\
-#            filter(Shot.sequence_id==self.sequence.id).\
-#            first()
-#        
-#        if shot_instance is not None:
-#            raise ValueError("Shot.code already exists for the given sequence "
-#                             "please give a unique shot code")
-#        
-#        return name
     
     def _validate_sequence(self, sequence):
         """validates the given sequence value
@@ -1557,7 +1559,6 @@ class Shot(VersionableBase):
                             "or unicode")
         
         return description
-    
     
     @validates("start_frame")
     def _validate_start_frame(self, key, start_frame):
@@ -2367,6 +2368,27 @@ class Version(Base):
       * ">£#>$#£½$ 12 base £#$£#$£½¾{½{ name 13" -> "Base_Name_13"
       * "_base_name_" -> "Base_Name"
     
+    For a newly created Version the
+    :attr:`~oyProjectManager.core.models.Version.filename` and the
+    :attr:`~oyProjectManager.core.models.Version.path` attributes are rendered
+    from the associated :class:`~oyProjectManager.core.models.VersionType`
+    instance. The resultant
+    :attr:`~oyProjectManager.core.models.Version.filename` and
+    :attr:`~oyProjectManager.core.models.Version.path` values are stored and
+    retrieved back from the Version instance itself, no re-rendering happens.
+    It means, the Version class depends the
+    :class:`~oyProjectManager.core.models.VersionType` class only at the
+    initialization, any change made to the
+    :class:`~oyProjectManager.core.models.VersionType` instance (like changing
+    the :attr:`~oyProjectManager.core.models.VersionType.name` or
+    :attr:`~oyProjectManager.core.models.VersionType.code` of the
+    :class:`~oyProjectManager.core.models.VersionType`) will not effect the
+    Version instances created before this change. This is done in that way to
+    be able to freely change the
+    :class:`~oyProjectManager.core.models.VersionType` attributes and prevent
+    loosing the connection between a Version and a file on the repository for
+    previously created Versions.
+    
     :param version_of: A :class:`~oyProjectManager.core.models.VersionableBase`
       instance (:class:`~oyProjectManager.core.models.Asset` or
       :class:`~oyProjectManager.core.models.Shot`) which is the owner of this
@@ -2470,6 +2492,9 @@ class Version(Base):
         self.note = note
         self.created_by = created_by
         
+        kwargs = self._template_variables()
+        self._filename = jinja2.Template(self.type.filename).render(**kwargs)
+        self._path = jinja2.Template(self.type.path).render(**kwargs)
     
     @validates("_version_of")
     def _validate_version_of(self, key, version_of):
@@ -2535,8 +2560,7 @@ class Version(Base):
         It is automatically created by rendering the VersionType.filename
         template with the information supplied with this Version instance.
         """
-        kwargs = self._template_variables()
-        return jinja2.Template(self.type.filename).render(**kwargs)
+        return self._filename
     
     @synonym_for("_path")
     @property
@@ -2546,8 +2570,7 @@ class Version(Base):
         It is automatically created by rendering the VersionType.path template
         with the information supplied with this Version instance.
         """
-        kwargs = self._template_variables()
-        return jinja2.Template(self.type.path).render(**kwargs)
+        return self._path
     
     @property
     def fullpath(self):
@@ -2758,14 +2781,14 @@ class VersionType(Base):
     
     :param str name: The name of this template. The name is not formatted in
       anyway. It can not be skipped or it can not be None or it can not be an
-      empty string.
+      empty string. The name attribute should be unique.
     
     :param str code: The code is a shorthand form of the name. For example,
       if the name is "Animation" than the code can be "ANIM" or "Anim" or
       "anim". Because the code is generally used in filename, path or
       output_path templates it is going to be a part of the filename or path,
-      so be carefull about what you give as a code. For formatting, these rules
-      are current:
+      so be careful about what you give as a code. The code attribute should be
+      unique. For formatting, these rules are current:
         
         * no white space characters are allowed
         * can not start with a number
@@ -2812,7 +2835,7 @@ class VersionType(Base):
       
       Which will render something like that::
         
-        Car_MAIN_MODEL_v001_oy
+        Car_Main_Model_v001_oy
       
       Now all the versions for the same asset will have a consistent name.
     
@@ -2857,7 +2880,6 @@ class VersionType(Base):
       type::
         
         {{version.path}}/cache
-        {{version.path}}/
     
     :param environments: A list of environments that this VersionType is valid
       for. The idea behind is to limit the possible list of types for the
@@ -2873,7 +2895,14 @@ class VersionType(Base):
     __tablename__ = "VersionTypes"
     id = Column(Integer, primary_key=True)
     
-    
+    name = Column(String)
+    code = Column(String)
+    filename = Column(String)
+    path = Column(String)
+    output_path = Column(String)
+    extra_folders = Column(String)
+    environments = relationship("EnvironmentBase",
+                                secondary="VersionType_Environments")
     
     def __init__(self,
                  name="",
@@ -2883,80 +2912,29 @@ class VersionType(Base):
                  output_path="",
                  extra_folders="",
                  environments=None):
-        self._name = name
-        self._code = code
-        self._path = path
-        self._filename = filename
-        self._environments = environments
-        self._output_path = output_path
-
-    def __repr__(self):
-        """string representation of the asset type
-        """
-
-        return "<VersionType %s %s>" % (self.name, self.path)
+        self.name = name
+        self.code = code
+        self.filename = filename   
+        self.path = path
+        self.output_path = output_path
+        self.environments = environments
+        self.extra_folders = extra_folders
     
-    @property
-    def name(self):
-        """the asset type name
+    @validates("name")
+    def _validate_name(self, key, name):
+        """validates the given name value
         """
-        return self._name
-    
-    @name.setter
-    def name(self, name):
-        self._name = name
+        
+        if name is None:
+            raise RuntimeError("VersionType.name can not be None, please "
+                               "supply a string or unicode instance")
+        
+        if not isinstance(name, (str, unicode)):
+            raise TypeError("VersionType.name should be an instance of "
+                            "string or unicode")
+        
+        return name
 
-    @property
-    def path(self):
-        """assets types path
-        """
-        return self._path
-
-    @path.setter
-    def path(self, path):
-        self._path = path
-
-    @property
-    def environments(self):
-        """the environments that this asset type is available for
-        """
-        return self._environments
-
-    @environments.setter
-    def environments(self, environments):
-        self._environments = environments
-
-    @property
-    def isShotDependent(self):
-        """defines if the asset type is shot dependent or not
-        """
-        return self._shotDependency
-
-    @isShotDependent.setter
-    def isShotDependent(self, shotDependency):
-        self._shotDependency = shotDependency
-
-    @property
-    def output_path(self):
-        """The output path of this asset type
-        """
-        return self._output_path
-
-    @output_path.setter
-    def output_path(self, output_path_in):
-        self._output_path = output_path_in
-    
-    @property
-    def code(self):
-        """returns the code of this VersionType
-        """
-        return self._code
-    
-    @property
-    def filename(self):
-        """returns the filename property
-        """
-        return self._filename
 
 class User(Base):
     """a class for managing users
@@ -2976,3 +2954,193 @@ class User(Base):
         self.name = name
         self.initials = initials
         self.email = email
+
+class EnvironmentBase(Base):
+    """Holds information related to the program running the oyProjectManager.
+    
+    In oyProjectManager, an Environment is a host application like Maya, Nuke,
+    Houdini etc.
+    
+    Generally a GUI for the end user is given an environment which helps
+    the Qt Gui to be able to open, save, import or export an Asset without
+    knowing the details of the environment.
+    """
+    
+    __tablename__ = "Environments"
+    id = Column(Integer, primary_key=True)
+    
+    def __init__(self, name='', extensions=[]):
+        
+        self._name = name
+        self._extensions = extensions
+        
+        self._asset = None
+        self._project = None
+        self._sequence = None
+    
+    def __str__(self):
+        """the string representation of the environment
+        """
+        return self._name
+    
+    @property
+    def asset(self):
+        """returns the bound asset object
+        """
+        return self._asset
+    
+    @asset.setter
+    def asset(self, asset):
+        """sets the asset object
+        """
+        self._asset = asset
+    
+    @property
+    def name(self):
+        """returns the environment name
+        """
+        return self._name
+    
+    @name.setter
+    def name(self, name):
+        """sets the environment name
+        """
+        self._name = name
+    
+    def save(self):
+        """the save action
+        """
+        raise NotImplemented
+    
+    def export(self, asset):
+        """the export action
+        """
+        raise NotImplemented
+    
+    def open_(self, force=False):
+        """the open action
+        """
+        raise NotImplemented
+    
+    def import_(self, asset):
+        """the import action
+        """
+        raise NotImplemented
+    
+    def reference(self, asset):
+        """the reference action
+        """
+        raise NotImplemented
+    
+    def getPathVariables(self):
+        """gets the file name from environment
+        """
+        raise NotImplemented
+    
+    def getProject(self):
+        """returns the current project from environment
+        """
+        raise NotImplemented
+    
+    def setProject(self, projectName, sequenceName):
+        """sets the project and sequence names, thus the working environment
+        of the current environment
+        """
+        raise NotImplemented
+    
+    def setOutputFileName(self):
+        """sets the output file names
+        """
+        raise NotImplemented
+    
+    def appendToRecentFiles(self, path):
+        """appends the given path to the recent files list
+        """
+        raise NotImplemented
+    
+    def checkReferenceVersions(self):
+        """checks the referenced asset versions
+        
+        returns list of asset objects
+        """
+        raise NotImplemented
+    
+    def getReferencedAssets(self):
+        """returns the assets those been referenced to the current asset
+        
+        returns list of asset objects
+        """
+        raise NotImplemented
+    
+    def updateAssets(self, assetTupleList):
+        """updates the assets to the latest versions
+        """
+        raise NotImplemented
+    
+    def getFrameRange(self):
+        """returns the frame range from the environment
+        """
+        raise NotImplemented
+    
+    def setFrameRange(self, startFrame=1, endFrame=100):
+        """sets the frame range in the environment
+        """
+        raise NotImplemented
+    
+    def getTimeUnit(self):
+        """returns the time unit of the environment
+        """
+        raise NotImplemented
+    
+    def setTimeUnit(self, timeUnit='pal' ):
+        """sets the frame rate of the environment
+        """
+        raise NotImplemented
+    
+    @property
+    def extensions(self):
+        """returns the extensions of environment
+        """
+        return self._extensions
+    
+    @extensions.setter
+    def extensions(self, extensions):
+        """sets the extensions
+        """
+        self._extensions = extensions
+    
+    def hasValidExtension(self, fileName):
+        """returns true if the given fileNames extension is in the extensions
+        list false otherwise
+        
+        accepts:
+        - a full path with extension or not
+        - a filen name with extension or not
+        - an extension with a dot on the start or not
+        """
+        
+        if fileName is None:
+            return False
+        
+        if fileName.split('.')[-1].lower() in self._extensions:
+            return True
+        
+        return False
+    
+    def loadReferences(self):
+        """loads all the references
+        """
+        raise NotImplemented
+    
+    def replaceAssets(self, sourceAsset, targetAsset):
+        """replaces the source asset with the target asset
+        """
+        raise NotImplemented
+
+VersionType_Environments = Table(
+    "VersionType_Environments", Base.metadata,
+    Column("versionType_id", Integer, ForeignKey("VersionTypes.id"),
+           primary_key=True),
+    Column("resource_id", Integer, ForeignKey("Environments.id"),
+           primary_key=True)
+)

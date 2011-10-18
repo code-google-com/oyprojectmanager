@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-houdiniEnv.py by Erkan Ozgur Yilmaz (c) 2009-2010
+houdini.py by Erkan Ozgur Yilmaz (c) 2009-2010
 
 Description:
 ------------
@@ -10,12 +10,11 @@ The houdini part of the asset management system...
 import os
 import hou
 import re
-from oyProjectManager.environments import EnvironmentBase
-from oyProjectManager.core.models import Asset, Project, Sequence, Repository
+from oyProjectManager.core.models import Asset, Project, Sequence, Repository, EnvironmentBase
 from oyProjectManager import utils
 
 
-class HoudiniEnvironment(EnvironmentBase):
+class Houdini(EnvironmentBase):
     """the houdini environment class
     """
     

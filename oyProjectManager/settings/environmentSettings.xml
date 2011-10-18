@@ -1,9 +1,0 @@
-<?xml version="1.0" ?>
-<root>
-    <environments>
-        <environment name="MAYA" extensions="ma,mb" />
-        <environment name="HOUDINI" extensions="hip" />
-        <environment name="NUKE" extensions="nk" />
-        <environment name="PHOTOSHOP" extensions="psd,tif,tga,bmp,jpg,iff" />
-    </environments>
-</root>

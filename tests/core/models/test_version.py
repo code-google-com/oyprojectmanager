@@ -197,7 +197,6 @@ class VersionTester(unittest.TestCase):
             code="MODEL",
             path="ASSETS/{{base_name}}/{{type_name}}",
             filename="{{base_name}}_{{take_name}}_{{type_name}}_v{{version}}_{{created_by.initials}}",
-            shotDependent=True,
             environments="MAYA,HOUDINI",
             output_path="ASSETS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
         )
@@ -572,10 +571,6 @@ class VersionTester(unittest.TestCase):
         """testing if the filename attribute is rendered properly with the
         given VersionType's filename template
         """
-        
-        # filename=
-        # "{{version.base_name}}_{{version.take_name}}_{{version.type.code}}_v{{version.version_number.zfill(3)}}_{{version.created_by.initials}}",
-        
         self.assertEqual(
             self.test_version.filename,
             self.kwargs["base_name"] + "_" + \
@@ -590,6 +585,16 @@ class VersionTester(unittest.TestCase):
         """
         self.assertRaises(AttributeError, setattr, self.test_version,
                           "filename", "test_file_name")
+    
+    def test_filename_attribute_doesnt_change_with_the_VersionType(self):
+        """testing if the filename stays the same when the VersionType
+        attributes change
+        """
+        prev_filename = self.test_version.filename
+        # now change the associated VersionType.filename
+        self.kwargs["type"].filename = "A"
+        
+        self.assertEqual(prev_filename, self.test_version.filename)
     
     def test_path_attribute_is_rendered_properly(self):
         """testing if the path attribute is rendered properly with the given
@@ -607,6 +612,16 @@ class VersionTester(unittest.TestCase):
         self.assertRaises(AttributeError, setattr, self.test_version, "path",
                           "test_file_name")
     
+    def test_path_attribute_doesnt_change_with_the_VersionType(self):
+        """testing if the path stays the same when the VersionType attributes
+        change
+        """
+        prev_path = self.test_version.path
+        # now change the associated VersionType.path
+        self.kwargs["type"].path = "A"
+        
+        self.assertEqual(prev_path, self.test_version.path)
+    
     def test_fullpath_attribute_is_rendered_properly(self):
         """testing if the fullpath attribute is rendered properly
         """
@@ -620,3 +635,14 @@ class VersionTester(unittest.TestCase):
         """
         self.assertRaises(AttributeError, setattr, self.test_version,
                           "fullpath", "test/full/name")
+    
+    def test_fullpath_attribute_doesnt_change_with_the_VersionType(self):
+        """testing if the fullpath stays the same when the VersionType
+        attributes change
+        """
+        prev_fullpath = self.test_version.fullpath
+        # now change the associated VersionType.path
+        self.kwargs["type"].filename = "A"
+        self.kwargs["type"].path = "A"
+        
+        self.assertEqual(prev_fullpath, self.test_version.fullpath)
