@@ -6,9 +6,8 @@ import tempfile
 import unittest
 from xml.dom import minidom
 import oyProjectManager
-from oyProjectManager import conf
-from oyProjectManager.core.models import (VersionableBase, Version,
-                                          VersionType, User, Project)
+from oyProjectManager.core.models import (VersionableBase, VersionType,
+                                          Project)
 
 
 class VersionTypeTester(unittest.TestCase):
@@ -36,7 +35,7 @@ class VersionTypeTester(unittest.TestCase):
         )
         
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
+        os.environ["REPO"] = self.temp_projects_folder
         
 #        print self.temp_projects_folder
         

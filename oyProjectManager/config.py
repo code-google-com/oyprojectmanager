@@ -9,54 +9,150 @@ class Config(object):
     
     Idea comes from Sphinx config
     
-    Holds the default settings for the system.
     
-    The system looks for these paths to get more config values:
+    **config.py File**
+    
+    oyProjectManager uses the ``config.py`` to let one to customize the system
+    config.
+    
+    The ``config.py`` file is searched in a couple of places through the
+    system:
         
-        * conf.py under "~/.oyrc/" directory
-        * conf.py under "$OYPROJECTMANAGER_PATH"
+        * under "~/.oypmrc/" directory
+        * under "$OYPROJECTMANAGER_PATH"
+    
+    The first path is a folder in the users home dir. The second one is a path
+    defined by the ``OYPROJECTMANAGER_PATH`` environment variable.
+    
+    Defining the ``config.py`` by using the environment variable gives the most
+    customizable and consistent setup through the studio. You can set
+    ``OYPROJECTMANAGER_PATH`` to a shared folder in your fileserver where all
+    the users can access.
+    
+    Because, ``config.py`` is a regular Python code which is executed by
+    oyProjectManager, you can do anything you were doing in a normal Python
+    script. This is very handy if you have another source of information which
+    is reachable by a Python script.
+    
+    In config.py you can:
+      
+      * Add new users
+      * Customize default project structure
+      * Customize file naming convention
+      * Customize path naming convention
+      * Customize the database file name
+      * Customize server paths
+      * Customize environments (programs running oyProjectManager as a Python
+        script)
+      * and many more
+    
+    If there is no ``OYPROJECTMANAGER_PATH`` variable in your current
+    environment or it is not showing an existing path or there is no
+    ``config.py`` file the system will use the system defaults and it is
+    probably not going to work efficiently.
     
     Sample usage is::
     
         from oyProjectManager import config
         conf = config.Config()
         
-        print conf.DATABASE_FILE_NAME
+        print conf.database_file_name
         # return .metadata.db or the user overrides
     
+    **Config Variables**
+    
+    TODO: Add explanation of each variable
+    
+    database_file_name = ".metadata.db",
+    shot_number_prefix = "SH"
+    shot_number_padding = 3
+    
+    rev_number_prefix = "r"
+    rev_number_padding = 2
+    
+    ver_number_prefix = "v"
+    ver_number_padding = 3
+    
+    fps = 25
+    resolution_width = 1920
+    resolution_height = 1080
+    resolution_pixel_aspect = 1.0
+    
+    take_name = "MAIN"
+    
+    users = [{"name": "Administrator", "initials": "adm"}]
+    
+    repository = [
+            {
+                "name": "Default Projects Repository"
+                "windows_path": "~/Projects",
+                "linux_path": "~/Projects",
+                "osx_path": "~/Projects"
+            }
+    ]
+    
+    environments = [
+            {
+                "name":"Maya",
+                "extensions":["ma", "mb"]
+            },
+            {
+                "name":"Houdini",
+                "extensions":["hip"]
+            },
+            {
+                "name":"Nuke",
+                "extensions": ["nk"],
+            },
+            {
+                "name":"Photoshop",
+                "extensions": ["psd", "pdd"],
+                "export_extensions": ["tif", "tga", "bmp", "jpg", "iff"],
+            },
+            {
+                "name":"3DEqualizer",
+                "extensions": ["3te"]
+            }
+        ]
+        
+    project_structure = 
+    
+    version_types =  
     """
     
     default_config_values = dict(
-        DATABASE_FILE_NAME = ".metadata.db",
         
-        SHOT_PREFIX = "SH",
-        SHOT_PADDING = 3,
+        database_file_name = ".metadata.db",
         
-        REV_PREFIX = "r",
-        REV_PADDING = 2,
+        shot_number_prefix = "SH",
+        shot_number_padding = 3,
         
-        VER_PREFIX = "v",
-        VER_PADDING = 3,
+        rev_number_prefix = "r",
+        rev_number_padding = 2,
         
-        FPS = 25,
-        RESOLUTION_WIDTH = 1920,
-        RESOLUTION_HEIGHT = 1080,
-        RESOLUTION_PIXEL_ASPECT = 1.0,
+        ver_number_prefix = "v",
+        ver_number_padding = 3,
         
-        TAKE_NAME = "MAIN",
+        fps = 25,
+        resolution_width = 1920,
+        resolution_height = 1080,
+        resolution_pixel_aspect = 1.0,
         
-        USERS = [{"name": "Administrator", "initials": "adm"}],
+        take_name = "MAIN",
         
-        SERVERS = [
-            {
-                "name": "Default",
-                "windows_path": "M:/JOBs",
-                "linux_path": "/mnt/M/JOBs",
-                "osx_path": "/Users/Shared/Servers/M/JOBs"
-            }
-        ],
+        users = [{"name": "Administrator", "initials": "adm"}],
         
-        ENVIRONMENTS = [
+        # just use one repository for now
+        repository_env_key = "REPO",
+    
+        repository = {
+            "name": "Default",
+            "windows_path": "~/Projects",
+            "linux_path": "~/Projects",
+            "osx_path": "~/Projects"
+        },
+        
+        environments = [
             {
                 "name":"Maya",
                 "extensions":["ma", "mb"]
@@ -80,31 +176,32 @@ class Config(object):
             }
         ],
         
-        STRUCTURE = """Sequences/
+        project_structure = """Sequences/
         {% for sequence in project.sequences %}
-            {{sequence.code}}/Edit/Offline
-            {{sequence.code}}/Edit/Sound
-            {{sequence.code}}/References/Artworks
-            {{sequence.code}}/References/Text/Scenario
-            {{sequence.code}}/References/Photos_Images
-            {{sequence.code}}/References/Videos
-            {{sequence.code}}/References/Others
-            {{sequence.code}}/Others
-            {{sequence.code}}/Others/assets
-            {{sequence.code}}/Others/clips
-            {{sequence.code}}/Others/data
-            {{sequence.code}}/Others/fur
-            {{sequence.code}}/Others/fur/furAttrMap
-            {{sequence.code}}/Others/fur/furEqualMap
-            {{sequence.code}}/Others/fur/furFiles
-            {{sequence.code}}/Others/fur/furImages
-            {{sequence.code}}/Others/fur/furShadowMap
-            {{sequence.code}}/Others/mel
-            {{sequence.code}}/Others/particles
+            {% set seq_path = 'Sequences/' + sequence.code %}
+            {{seq_path}}/Edit/Offline
+            {{seq_path}}/Edit/Sound
+            {{seq_path}}/References/Artworks
+            {{seq_path}}/References/Text/Scenario
+            {{seq_path}}/References/Photos_Images
+            {{seq_path}}/References/Videos
+            {{seq_path}}/References/Others
+            {{seq_path}}/Others
+            {{seq_path}}/Others/assets
+            {{seq_path}}/Others/clips
+            {{seq_path}}/Others/data
+            {{seq_path}}/Others/fur
+            {{seq_path}}/Others/fur/furAttrMap
+            {{seq_path}}/Others/fur/furEqualMap
+            {{seq_path}}/Others/fur/furFiles
+            {{seq_path}}/Others/fur/furImages
+            {{seq_path}}/Others/fur/furShadowMap
+            {{seq_path}}/Others/mel
+            {{seq_path}}/Others/particles
         {% endfor %}
         """,
         
-        VERSION_TYPES = [
+        version_types = [
             {
                 "name": "Animation",
                 "code": "ANIM",
@@ -283,8 +380,8 @@ class Config(object):
         
         # the priority order is
         # oyProjectManager.config
-        # conf.py under .oyrc directory
-        # conf.py under $OYPROJECTMANAGER_PATH
+        # config.py under .oyrc directory
+        # config.py under $OYPROJECTMANAGER_PATH
         
         # for now just use $OYPROJECTMANAGER_PATH
         ENV_KEY = "OYPROJECTMANAGER_PATH"
@@ -299,7 +396,7 @@ class Config(object):
             resolved_path = os.path.expanduser(
                 os.path.join(
                     os.environ[ENV_KEY],
-                    "conf.py"
+                    "config.py"
                 )
             )
             
@@ -327,8 +424,10 @@ class Config(object):
                 
                 # append the data to the current settings
                 logger.debug("updating system config")
-                self.config_values.update(self.user_config)
-            
+                for key in self.user_config:
+                    if key in self.config_values:
+                        self.config_values[key] = self.user_config[key]
+                
             except IOError:
                 logger.warning("The $OYPROJETMANAGER_PATH:" + resolved_path + \
                                " doesn't exists! skipping user config")
@@ -347,3 +446,53 @@ class Config(object):
     
     def __contains__(self, name):
         return name in self.config_values
+    
+    @property
+    def last_user_initial(self):
+        """returns the last user initial
+        
+        It is not very much related with the config.py and user settings, but
+        it seems the most appropriate place is this one to get information from
+        individual users.
+        
+        This should work fairly fast, because it uses the local filesystem not
+        the network thus the fileserver.
+        """
+        # TODO: This should be replaced with beaker.session
+        
+        file_name = '.last_user'
+        file_path = "~/.oypmrc/"
+        file_fullpath = os.path.join(
+            file_path, file_name
+        )
+        
+        last_user_initials = None
+        
+        try:
+            last_user_file = open(file_fullpath)
+        except IOError:
+            pass
+        else:
+            last_user_initials = last_user_file.readline().strip()
+            last_user_file.close()
+        
+        return last_user_initials
+        
+    @last_user_initial.setter
+    def last_user_initial(self, user_initials):
+        """sets the user initials for the last user
+        """
+        
+        file_name = '.last_user'
+        file_path = "~/.oypmrc/"
+        file_fullpath = os.path.join(
+            file_path, file_name
+        )
+        
+        try:
+            last_user_file = open(file_fullpath, 'w')
+        except IOError:
+            pass
+        else:
+            last_user_file.write(user_initials)
+            last_user_file.close()

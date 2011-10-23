@@ -7,13 +7,14 @@ import unittest
 from xml.dom import minidom
 from sqlalchemy.exc import IntegrityError
 
-from oyProjectManager import db, conf
+from oyProjectManager import db, config
 from oyProjectManager.core.models import Project, Sequence, Repository
 
 import logging
 logger = logging.getLogger("oyProjectManager.core.models")
 logger.setLevel(logging.DEBUG)
 
+conf = config.Config()
 
 class ProjectTester(unittest.TestCase):
     """tests the Project class
@@ -42,7 +43,7 @@ class ProjectTester(unittest.TestCase):
         )
         
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
+        os.environ["REPO"] = self.temp_projects_folder
         
         # copy the default files to the folder
         shutil.copytree(
@@ -206,20 +207,20 @@ class ProjectTester(unittest.TestCase):
         new_proj = Project("TEST_PROJECT")
         new_proj.create()
         
-        self.assertEqual(new_proj.shot_prefix, conf.SHOT_PREFIX)
+        self.assertEqual(new_proj.shot_number_prefix, conf.shot_number_prefix)
     
     def test_shotPrefix_attribute_initialization_from_DB(self):
         """testing if the shotPrefix attribute is initialized correctly for a
         Sequence which is already in the database
         """
         new_proj = Project("TEST_PROJECT")
-        new_proj.shot_prefix = "PL"
+        new_proj.shot_number_prefix = "PL"
         new_proj.create()
         new_proj.save()
         
         # now get it back from db
         new_proj = Project("TEST_PROJECT")
-        self.assertEqual(new_proj.shot_prefix, "PL")
+        self.assertEqual(new_proj.shot_number_prefix, "PL")
     
 
    
@@ -248,7 +249,7 @@ class Project_DB_Tester(unittest.TestCase):
         )
         
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
+        os.environ["REPO"] = self.temp_projects_folder
         
         # copy the default files to the folder
         shutil.copytree(

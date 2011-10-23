@@ -7,13 +7,14 @@ import shutil
 import tempfile
 import unittest
 from xml.dom import minidom
-from oyProjectManager import db, conf
+from oyProjectManager import db, config
 from oyProjectManager.core.models import Project, Sequence, Repository
 
 import logging
 logger = logging.getLogger("oyProjectManager.core.models")
 logger.setLevel(logging.DEBUG)
 
+conf = config.Config()
 
 class SequenceTester(unittest.TestCase):
     """tests the Sequence class
@@ -300,8 +301,8 @@ class Sequence_To_NewType_Conversion_Tester(unittest.TestCase):
         )
 
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
-
+        os.environ["REPO"] = self.temp_projects_folder
+        
         # copy the default files to the folder
         shutil.copytree(
             self._test_settings_folder,
@@ -375,7 +376,7 @@ class Sequence_NewType_Tester(unittest.TestCase):
         )
 
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
+        os.environ["REPO"] = self.temp_projects_folder
 
         # copy the default files to the folder
         shutil.copytree(

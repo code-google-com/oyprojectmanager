@@ -6,9 +6,12 @@ import tempfile
 import unittest
 from xml.dom import minidom
 import oyProjectManager
-from oyProjectManager import conf
+from oyProjectManager import config
 from oyProjectManager.core.models import (VersionableBase, Version,
                                           VersionType, User, Project)
+
+conf = config.Config()
+
 
 
 class VersionTester(unittest.TestCase):
@@ -36,7 +39,7 @@ class VersionTester(unittest.TestCase):
         )
         
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
+        os.environ["REPO"] = self.temp_projects_folder
         
 #        print self.temp_projects_folder
         
@@ -288,7 +291,7 @@ class VersionTester(unittest.TestCase):
         """
         self.kwargs.pop("take_name")
         new_version = Version(**self.kwargs)
-        self.assertEqual(new_version.take_name, conf.TAKE_NAME)
+        self.assertEqual(new_version.take_name, conf.take_name)
     
     def test_take_name_argument_is_None(self):
         """testing if the default value MAIN is used when the take_name
@@ -296,14 +299,14 @@ class VersionTester(unittest.TestCase):
         """
         self.kwargs["take_name"] = None
         new_version = Version(**self.kwargs)
-        self.assertEqual(new_version.take_name, conf.TAKE_NAME)
+        self.assertEqual(new_version.take_name, conf.take_name)
     
     def test_take_name_attribute_is_None(self):
         """testing if a RuntimeError will be raised when the take_name
         attribute is set to None
         """
         self.test_version.take_name = None
-        self.assertEqual(self.test_version.take_name, conf.TAKE_NAME)
+        self.assertEqual(self.test_version.take_name, conf.take_name)
     
     def test_take_name_argument_is_not_a_string(self):
         """testing if a TypeError will be raised when the take_name argument is

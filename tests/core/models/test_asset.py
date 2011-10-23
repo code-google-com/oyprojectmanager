@@ -1,28 +1,21 @@
 # -*- coding: utf-8 -*-
 
 
-import sys
 import os
 import shutil
 import tempfile
 import unittest
 from xml.dom import minidom
+from oyProjectManager import config
 
 from oyProjectManager.core.models import Project, Sequence, Repository, Asset
 
 
-
-
-
-
-########################################################################
 class AssetTester(unittest.TestCase):
+
     """tests the Asset class
     """
     
-    
-    
-    #----------------------------------------------------------------------
     def setUp(self):
         """testing the settings path from the environment variable
         """
@@ -46,7 +39,7 @@ class AssetTester(unittest.TestCase):
         )
         
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["STALKER_REPOSITORY_PATH"] = self.temp_projects_folder
+        os.environ["REPO"] = self.temp_projects_folder
         
         # copy the default files to the folder
         shutil.copytree(
@@ -89,7 +82,7 @@ class AssetTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def tearDown(self):
         """remove the temp folders
         """
@@ -100,7 +93,7 @@ class AssetTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_output_path_with_variable_path(self):
         """testing if the output path will be correct for a path which contains
         variables inside
@@ -144,7 +137,7 @@ class AssetTester(unittest.TestCase):
     
     
     
-    #----------------------------------------------------------------------
+    
     def test_no_rev_number(self):
         """testing assets with sequences which has the no_rev_number set to
         True

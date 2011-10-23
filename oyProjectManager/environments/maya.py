@@ -719,7 +719,7 @@ class Maya(EnvironmentBase):
         """replaces all the external paths
         
         replaces:
-          references: to a path with $STALKER_REPOSITORY_PATH env variable
+          references: to a path with $REPO env variable
           file and mentalrayTextures: to a relative path to the project path
                                       (the self._asset.sequenceFullPath)
         """
@@ -729,7 +729,7 @@ class Maya(EnvironmentBase):
         
         repo_env_key = "$" + repo.repository_path_env_key
         
-        # replace reference paths with STALKER_REPOSITORY_PATH
+        # replace reference paths with $REPO
         for ref in pm.listReferences():
             #if ref.path.replace("\\", "/").\
             #    startswith(repo.server_path.replace("\\", "/")):
