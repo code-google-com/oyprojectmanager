@@ -4,11 +4,9 @@ import os
 import shutil
 import tempfile
 import unittest
-from xml.dom import minidom
-from sqlalchemy.exc import IntegrityError
 
 from oyProjectManager import db, config
-from oyProjectManager.core.models import Project, Sequence, Repository
+from oyProjectManager.core.models import (Project, Sequence, VersionType)
 
 import logging
 logger = logging.getLogger("oyProjectManager.core.models")
@@ -16,273 +14,28 @@ logger.setLevel(logging.DEBUG)
 
 conf = config.Config()
 
-class ProjectTester(unittest.TestCase):
-    """tests the Project class
-    """
-    
-    def setUp(self):
-        """testing the settings path from the environment variable
-        """
-        
-        # -----------------------------------------------------------------
-        # start of the setUp
-        # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mktemp()
-        self.temp_projects_folder = tempfile.mkdtemp()
-        
-        # copy the test settings
-        import oyProjectManager
-        
-        self._test_settings_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "test_settings"
-        )
-        
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["REPO"] = self.temp_projects_folder
-        
-        # copy the default files to the folder
-        shutil.copytree(
-            self._test_settings_folder,
-            self.temp_settings_folder,
-        )
-        
-        # change the server path to a temp folder
-        repository_settings_file_path = os.path.join(
-            self.temp_settings_folder, 'repositorySettings.xml')
-        
-        # change the repositorySettings.xml by using the minidom
-        xmlDoc = minidom.parse(repository_settings_file_path)
-        
-        serverNodes = xmlDoc.getElementsByTagName("server")
-        for serverNode in serverNodes:
-            serverNode.setAttribute("windows_path", self.temp_projects_folder)
-            serverNode.setAttribute("linux_path", self.temp_projects_folder)
-            serverNode.setAttribute("osx_path", self.temp_projects_folder)
-        
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='w')
-        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-        repository_settings_file.close()
-        
-        self._name_test_values = [
-            ("test project", "TEST_PROJECT"),
-            ("123123 test_project", "TEST_PROJECT"),
-            ("123432!+!'^+Test_PRoject323^+'^%&+%&324", "TEST_PROJECT323324"),
-            ("    ---test 9s_project", "TEST_9S_PROJECT"),
-            ("    ---test 9s-project", "TEST_9S_PROJECT"),
-            (" multiple     spaces are    converted to under     scores",
-             "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
-            ("camelCase", "CAMEL_CASE"),
-            ("CamelCase", "CAMEL_CASE"),
-            ("_Project_Setup_", "PROJECT_SETUP_"),
-            ("_PROJECT_SETUP_", "PROJECT_SETUP_"),
-            ("FUL_3D", "FUL_3D"),
-        ]
-    
-    def tearDown(self):
-        """remove the temp folders
-        """
-        
-        # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
-        shutil.rmtree(self.temp_projects_folder)
-    
-    def test_name_argument_formatting(self):
-        """testing if the name will be formatted correctly when creating a
-        new project.
-        """
-        
-        for test_value in self._name_test_values:
-            
-            project_name = test_value[0]
-            expected_project_name = test_value[1]
-            
-            new_project = Project(project_name)
-            
-            self.assertEqual(new_project.name, expected_project_name)
-    
-    def test_name_attribute_formatting(self):
-        """testing if the name property will be formatted correctly.
-        """
-        
-        new_project = Project("TEST_NAME")
-        
-        for test_value in self._name_test_values:
-            
-            new_project.name = test_value[0]
-            expected_project_name = test_value[1]
-            
-            self.assertEqual(new_project.name, expected_project_name)
-    
-    def test_name_argument_is_None(self):
-        """testing if a TypeError will be raised when the name argument is
-        None.
-        """
-        self.assertRaises(TypeError, Project, None)
-    
-    def test_name_attribute_is_None(self):
-        """testing if a TypeError will be raised when the name property is
-        tried to be set to None
-        """
-        proj = Project("TEST_PROJECT")
-        self.assertRaises(TypeError, setattr, proj, "name", None)
-    
-    def test_name_argument_is_empty_string(self):
-        """testing if a ValueError will be raised when the name arugment is
-        an empty string
-        """
-        self.assertRaises(ValueError, Project, "")
-    
-    def test_name_attribute_is_set_to_empty_string(self):
-        """testing if a ValueError will be raised when the name property is
-        tried to be set to empty string
-        """
-        proj = Project("TEST_PROJECT")
-        self.assertRaises(ValueError, setattr, proj, "name", "")
-    
-    def test_name_argument_is_empty_string_after_validation(self):
-        """testing if a ValueError will be raised when the name argument is not
-        None nor empty string but an empty string after validation
-        """
-        
-        # this is obviously not a valid name for a project
-        test_name = "+++++^^^"
-        self.assertRaises(ValueError, Project, test_name)
-    
-    def test_name_attribute_is_empty_string_after_validation(self):
-        """testing if a ValueError will be raised when the name property is
-        an empty string after validation
-        """
-        
-        # this is again not a valid name for a project
-        test_names = [
-            "^^+'^+'%^+%",
-            "__",
-        ]
-        
-        proj = Project("TEST_PROJECT")
-        
-        for test_name in test_names:
-            self.assertRaises(ValueError, setattr, proj, "name", test_name)
-    
-#    def test_create_sequence_raises_RuntimeError_if_the_project_is_not_created_yet(self):
-#        """testing createSequence raises a RuntimeError if the project is not
-#        created yet
-#        """
-#        
-#        # create a new project and create a sequence
-#        
-#        test_proj = Project("TEST_PROJECT1221")
-##        print "test_proj.fullPath", test_proj.fullPath
-##        print "test_proj.exists:", test_proj.exists
-#        
-#        self.assertRaises(RuntimeError, test_proj.createSequence, "TEST_SEQ",
-#                          "1")
-#        
-#        # and not when the test_proj is created
-#        test_proj2 = Project("TEST_PROJECT13")
-#        test_proj2.create()
-#        test_proj2.createSequence("TEST_SEQ2", "1")
-    
-    def test___eq__operator(self):
-        """testing the __eq__ (equal) operator
-        """
-        
-        # create two projects
-        proj1 = Project(name="TEST_PROJ1")
-        proj2 = Project(name="TEST_PROJ1")
-        
-        self.assertEqual(proj1, proj2)
-    
-    def test_shotPrefix_attribute_initialization(self):
-        """testing the shotPrefix attribute is initialized correctly for a newly
-        created Sequence instance
-        """
-        
-        new_proj = Project("TEST_PROJECT")
-        new_proj.create()
-        
-        self.assertEqual(new_proj.shot_number_prefix, conf.shot_number_prefix)
-    
-    def test_shotPrefix_attribute_initialization_from_DB(self):
-        """testing if the shotPrefix attribute is initialized correctly for a
-        Sequence which is already in the database
-        """
-        new_proj = Project("TEST_PROJECT")
-        new_proj.shot_number_prefix = "PL"
-        new_proj.create()
-        new_proj.save()
-        
-        # now get it back from db
-        new_proj = Project("TEST_PROJECT")
-        self.assertEqual(new_proj.shot_number_prefix, "PL")
-    
-
-   
 class Project_DB_Tester(unittest.TestCase):
     """Tests the design of the Projects after v0.2.0
     """
-    
-    
+
+
     #----------------------------------------------------------------------
     def setUp(self):
-        
+
         # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mktemp()
+        self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
-        # copy the test settings
-        import oyProjectManager
-        
-        self._test_settings_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "test_settings"
-        )
-        
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["REPO"] = self.temp_projects_folder
-        
-        # copy the default files to the folder
-        shutil.copytree(
-            self._test_settings_folder,
-            self.temp_settings_folder
-        )
-        
-        # change the server path to a temp folder
-        repository_settings_file_path = os.path.join(
-            self.temp_settings_folder, 'repositorySettings.xml')
-        
-        # change the repositorySettings.xml by using the minidom
-        xmlDoc = minidom.parse(repository_settings_file_path)
-        
-        serverNodes = xmlDoc.getElementsByTagName("server")
-        for serverNode in serverNodes:
-            serverNode.setAttribute("windows_path", self.temp_projects_folder)
-            serverNode.setAttribute("linux_path", self.temp_projects_folder)
-            serverNode.setAttribute("osx_path", self.temp_projects_folder)
-        
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='w')
-        
-        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-    
+        os.environ[conf.repository_env_key] = self.temp_projects_folder
+
     def tearDown(self):
         """clean up the test
         """
-        
+
         # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
-    
+
     def test_project_initialization_with_database(self):
         """testing the project initialization occurs without any problem
         """
@@ -299,7 +52,7 @@ class Project_DB_Tester(unittest.TestCase):
         new_proj.create()
 
         # now check if the folder is created
-        self.assertTrue(os.path.exists(new_proj.fullPath))
+        self.assertTrue(os.path.exists(new_proj.fullpath))
 
         # and there is a .metadata.db file in that path
         self.assertTrue(os.path.exists(new_proj.metadata_full_path))
@@ -313,64 +66,64 @@ class Project_DB_Tester(unittest.TestCase):
 
         name = new_proj.name
         path = new_proj.path
-        fullPath = new_proj.fullPath
+        fullpath = new_proj.fullpath
 
         del new_proj
 
         new_proj_DB = db.query(Project).first()
-        
+
         self.assertEqual(new_proj_DB.name, name)
         self.assertEqual(new_proj_DB.path, path)
-        self.assertEqual(new_proj_DB.fullPath, fullPath)
-    
+        self.assertEqual(new_proj_DB.fullpath, fullpath)
+
     def test_project_restores_from_database_1(self):
         """testing if a project restores it self from the database with all its
         connections
         """
-        
+
         # we need to create a new project and a sequence
         new_proj = Project("TEST_PROJECT")
         new_proj.create()
-        
+
         test_description = "test description"
         new_proj.description = test_description
         new_proj.save()
-        
+
         del new_proj
-        
+
         # now retrieve the project by recreating it
         new_proj2 = Project("TEST_PROJECT")
-        
+
         self.assertEqual(new_proj2.description, test_description)
 
     def test_project_restores_from_database_2(self):
         """testing if a project restores it self from the database with all its
         connections
         """
-        
+
         # we need to create a new project and a sequence
         new_proj = Project("TEST_PROJECT")
         new_proj.create()
-        
+
         new_seq = Sequence(new_proj, "TEST_SEQ")
         new_seq.create()
-        
+
         db.session.add(new_proj)
         db.session.commit()
-        
+
         del new_proj
         del new_seq
-        
+
         # now retrieve the project by recreating it
         new_proj2 = Project(name="TEST_PROJECT")
-        
+
         self.assertEqual(new_proj2.sequences[0].name, "TEST_SEQ")
-    
+
     def test_calling_create_over_and_over_again_will_not_cause_any_problem(self):
         """testing if calling the create over and over again will not create a
         problem
         """
-        
+
         # we need to create a new project and a sequence
         new_proj = Project("TEST_PROJECT")
         new_proj.create()
@@ -379,48 +132,443 @@ class Project_DB_Tester(unittest.TestCase):
         new_proj.create()
         new_proj.create()
         new_proj.create()
-    
+
     def test_creating_two_different_projects_and_calling_create_in_mixed_order(self):
         """testing no error will be raised when creating two Project instances
         and calling their create method in mixed order
         """
-        
+
         new_proj1 = Project("TEST_PROJECT1")
         new_proj2 = Project("TEST_PROJECT2")
-        
+
         new_proj1.create()
         new_proj2.create()
-    
-    def test_creating_two_different_projects_with_same_name_and_calling_create_in_mixed_order(self):
-        """testing no error will be raised when creating two Project instances
-        and calling their create method in mixed order
-        """
-        
-        new_proj1 = Project("TEST_PROJECT1")
-        new_proj2 = Project("TEST_PROJECT1")
-        
-        new_proj1.create()
-        self.assertRaises(IntegrityError, new_proj2.create)
-    
+
+    #    def test_creating_two_different_projects_with_same_name_and_calling_create_in_mixed_order(self):
+    #        """testing no error will be raised when creating two Project instances
+    #        and calling their create method in mixed order
+    #        """
+    #        
+    #        new_proj1 = Project("TEST_PROJECT1")
+    #        new_proj2 = Project("TEST_PROJECT1")
+    #        
+    #        new_proj1.create()
+    #        self.assertRaises(IntegrityError, new_proj2.create)
+
     def test_calling_commit_multiple_times(self):
         """testing if there is no problem of calling Project.save() multiple
         times
         """
-        
+
         new_proj = Project("TEST_PROJECT")
         new_proj.create()
         new_proj.save()
         new_proj.save()
-    
+
     def test_calling_create_on_a_project_which_is_retrieved_from_db(self):
         """testing if there will be no error messages generated when the new
         project is retrieved from the database and the create method of this
         project is called
         """
-        
+
         project_name = "TEST_PROJECT1"
         new_proj1 = Project(project_name)
         new_proj1.create()
-        
+
         new_proj2 = Project(project_name)
         new_proj2.create()
+
+class ProjectTester(unittest.TestCase):
+    """tests the Project class
+    """
+
+    def setUp(self):
+        """testing the settings path from the environment variable
+        """
+
+        # -----------------------------------------------------------------
+        # start of the setUp
+        # create the environment variable and point it to a temp directory
+        self.temp_config_folder = tempfile.mkdtemp()
+        self.temp_projects_folder = tempfile.mkdtemp()
+
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
+        os.environ["REPO"] = self.temp_projects_folder
+
+        self._name_test_values = [
+            ("test project", "TEST_PROJECT"),
+            ("123123 test_project", "TEST_PROJECT"),
+            ("123432!+!'^+Test_PRoject323^+'^%&+%&324", "TEST_PROJECT323324"),
+            ("    ---test 9s_project", "TEST_9S_PROJECT"),
+            ("    ---test 9s-project", "TEST_9S_PROJECT"),
+            (" multiple     spaces are    converted to under     scores",
+             "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
+            ("camelCase", "CAMEL_CASE"),
+            ("CamelCase", "CAMEL_CASE"),
+            ("_Project_Setup_", "PROJECT_SETUP_"),
+            ("_PROJECT_SETUP_", "PROJECT_SETUP_"),
+            ("FUL_3D", "FUL_3D"),
+        ]
+
+    def tearDown(self):
+        """remove the temp folders
+        """
+        # delete the temp folder
+        shutil.rmtree(self.temp_config_folder)
+        shutil.rmtree(self.temp_projects_folder)
+
+    def test_name_argument_formatting(self):
+        """testing if the name will be formatted correctly when creating a
+        new project.
+        """
+        for test_value in self._name_test_values:
+            project_name = test_value[0]
+            expected_project_name = test_value[1]
+
+            new_project = Project(project_name)
+
+            self.assertEqual(new_project.name, expected_project_name)
+
+    def test_name_attribute_formatting(self):
+        """testing if the name property will be formatted correctly.
+        """
+        new_project = Project("TEST_NAME")
+
+        for test_value in self._name_test_values:
+            new_project.name = test_value[0]
+            expected_project_name = test_value[1]
+
+            self.assertEqual(new_project.name, expected_project_name)
+
+    def test_name_argument_is_None(self):
+        """testing if a TypeError will be raised when the name argument is
+        None.
+        """
+        self.assertRaises(TypeError, Project, None)
+
+    def test_name_attribute_is_None(self):
+        """testing if a TypeError will be raised when the name property is
+        tried to be set to None
+        """
+        proj = Project("TEST_PROJECT")
+        self.assertRaises(TypeError, setattr, proj, "name", None)
+
+    def test_name_argument_is_empty_string(self):
+        """testing if a ValueError will be raised when the name arugment is
+        an empty string
+        """
+        self.assertRaises(ValueError, Project, "")
+
+    def test_name_attribute_is_set_to_empty_string(self):
+        """testing if a ValueError will be raised when the name property is
+        tried to be set to empty string
+        """
+        proj = Project("TEST_PROJECT")
+        self.assertRaises(ValueError, setattr, proj, "name", "")
+
+    def test_name_argument_is_empty_string_after_validation(self):
+        """testing if a ValueError will be raised when the name argument is not
+        None nor empty string but an empty string after validation
+        """
+
+        # this is obviously not a valid name for a project
+        test_name = "+++++^^^"
+        self.assertRaises(ValueError, Project, test_name)
+
+    def test_name_attribute_is_empty_string_after_validation(self):
+        """testing if a ValueError will be raised when the name property is
+        an empty string after validation
+        """
+
+        # this is again not a valid name for a project
+        test_names = [
+            "^^+'^+'%^+%",
+            "__",
+            ]
+
+        proj = Project("TEST_PROJECT")
+
+        for test_name in test_names:
+            self.assertRaises(ValueError, setattr, proj, "name", test_name)
+
+    def test_name_argument_is_not_a_string_instance(self):
+        """testing if a TypeError will be raised when the name argument is not
+        a string instance
+        """
+        self.assertRaises(TypeError, Project, name=12314)
+
+    def test_name_attribute_is_not_a_string_instance(self):
+        """testing if a TypeError will be raised when the name attribute is not
+        a string instance
+        """
+        new_proj = Project(name="TEST_PROJ1")
+        self.assertRaises(TypeError, setattr, new_proj, "name", 12312)
+
+    def test_fullpath_attribute_is_calculated_from_the_project_name(self):
+        """testing if the fullpath attribute is calculated from the project
+        name
+        """
+        new_proj = Project(name="TEST_PROJ1")
+        self.assertEqual(
+            new_proj.fullpath,
+            os.path.join(
+                os.environ["REPO"],
+                new_proj.name
+            )
+        )
+
+    def test_fullpath_attribute_does_not_change_when_the_name_of_the_project_is_changed(self):
+        """testing if the fullpath attribute will be the same even the name of
+        the proejct is changed
+        """
+        new_proj = Project(name="TEST_PROJ1")
+        full_path = new_proj.fullpath
+        
+        # change the name
+        new_proj.name = "TEST_PROJ1_NEW_NAME"
+        
+        # now check if the fullpath is still the same
+        self.assertEqual(new_proj.fullpath, full_path)
+        
+
+    def test_fullpath_attribute_is_read_only(self):
+        """testing if the fullpath attribute is read-only
+        """
+        new_proj = Project("TEST_PROJ1")
+        self.assertRaises(AttributeError, setattr, new_proj, "fullpath",
+                          "TEST")
+
+    def test_path_attribute_is_equal_to_server_path(self):
+        """testing if the path attribute is equal to the $REPO env variable
+        """
+        new_proj = Project(name="TEST_PROJ1")
+        self.assertEqual(
+            new_proj.path,
+            os.environ[conf.repository_env_key]
+        )
+
+    def test_path_attribute_does_not_change_when_the_name_of_the_project_is_changed(self):
+        """testing if the path attribute will be the same even the name of
+        the proejct is changed
+        """
+        new_proj = Project(name="TEST_PROJ1")
+        path = new_proj.path
+        
+        # change the name
+        new_proj.name = "TEST_PROJ1_NEW_NAME"
+        
+        # now check if the path is still the same
+        self.assertEqual(new_proj.path, path)
+        
+
+    def test_path_attribute_is_read_only(self):
+        """testing if the path attribute is read-only
+        """
+        new_proj = Project("TEST_PROJ1")
+        self.assertRaises(AttributeError, setattr, new_proj, "path", "TEST")
+
+    def test___eq__operator(self):
+        """testing the __eq__ (equal) operator
+        """
+
+        # create two projects
+        proj1 = Project(name="TEST_PROJ1")
+        proj2 = Project(name="TEST_PROJ1")
+
+        self.assertEqual(proj1, proj2)
+
+    def test_shot_number_prefix_attribute_initialization(self):
+        """testing the shot_number_prefix attribute is initialized correctly
+        for a newly created Project instance
+        """
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
+
+        self.assertEqual(new_proj.shot_number_prefix, conf.shot_number_prefix)
+
+    def test_shot_number_prefix_attribute_initialization_from_DB(self):
+        """testing if the shot_number_prefix attribute is initialized correctly
+        for a Project which is already in the database
+        """
+        new_proj = Project("TEST_PROJECT")
+        new_proj.shot_number_prefix = "PL"
+        new_proj.create()
+        new_proj.save()
+
+        # now get it back from db
+        new_proj = Project("TEST_PROJECT")
+        self.assertEqual(new_proj.shot_number_prefix, "PL")
+
+    def test_version_types_attribute_initialization_for_a_new_Project_instance(self):
+        """testing if the version_types attribute initializes from the config
+        correctly for a new Project instance
+        """
+
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
+
+        # now check if the project has all the version types defined in the
+        # config file
+
+        for version_type in conf.version_types:
+            version_type_name = version_type["name"]
+
+            vtype_from_proj =\
+            new_proj.query(VersionType).\
+            filter_by(name=version_type_name).first()
+            self.assertIsNot(vtype_from_proj, None)
+
+    def test_version_types_attribute_initialization_for_a_Project_created_from_db(self):
+        """testing if the version_types attribute will be initialized correctly
+        for a previously created Project instance
+        """
+
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
+
+        # remove all the version_types from the project
+        for vtype in new_proj.version_types:
+            new_proj.session.delete(vtype)
+
+        new_proj.save()
+
+        # now check if all the version types are removed from the db
+        self.assertEqual(new_proj.query(VersionType).all(), [])
+
+        # now add a new asset type with known name
+        vtype = VersionType(
+            project=new_proj,
+            name="Test Version Type",
+            code="TVT",
+            path="this is the path",
+            output_path="this is the output path",
+            extra_folders="this is the extra folder",
+            environments=["RANDOM ENV NAME1"],
+            type_for="Asset",
+            )
+
+        new_proj.version_types.append(vtype)
+        new_proj.save()
+
+        # now delete the project and create it again
+        del new_proj
+
+        new_proj = Project("TEST_PROJECT")
+
+        # first check if there is only one version type
+        self.assertEqual(len(new_proj.version_types), 1)
+
+        # now check attributes
+        vtype_db = new_proj.version_types[0]
+        self.assertEqual(vtype.name, vtype_db.name)
+        self.assertEqual(vtype.code, vtype_db.code)
+        self.assertEqual(vtype.filename, vtype_db.filename)
+        self.assertEqual(vtype.path, vtype_db.path)
+        self.assertEqual(vtype.output_path,vtype_db.output_path)
+        self.assertEqual(vtype.extra_folders, vtype_db.extra_folders)
+        self.assertEqual(vtype.environments, vtype_db.environments)
+
+    def test_code_argument_is_skipped(self):
+        """testing if the code attribute will be generated from the name
+        attribute if the code argument is skipped
+        """
+        new_proj = Project(name="TEST_PROJ")
+        self.assertEqual(new_proj.name, new_proj.code)
+
+    def test_code_argument_is_None(self):
+        """testing if the code attribute will be generated from the name
+        attribute if the code argument is None
+        """
+        new_proj = Project(name="TEST_PROJ", code=None)
+        self.assertEqual(new_proj.name, new_proj.code)
+
+    def test_code_attribute_is_None(self):
+        """testing if the code attribute will be generated from the name if it
+        is set to None
+        """
+        new_proj = Project(name="TEST_PROJ", code="TP")
+        new_proj.code = None
+        self.assertEqual(new_proj.code, new_proj.name)
+
+    def test_code_argument_is_empty_string(self):
+        """testing if a ValueError will be raised if the code argument is an
+        empty string
+        """
+        self.assertRaises(ValueError, Project, name="TEST_PROJ", code="")
+
+    def test_code_attribute_is_empty_string(self):
+        """testing if a ValueError will be raised when the code attribute is
+        set to an empty string
+        """
+        new_proj = Project(name="TEST_PROJ", code="TP")
+        self.assertRaises(ValueError, setattr, new_proj, "code", "")
+
+    def test_code_argument_is_not_a_string_instance(self):
+        """testing if a TypeError will be raised when the code argument is not
+        a string or unicode instance
+        """
+        self.assertRaises(TypeError, Project, name="TEST_PROJECt", code=123124)
+
+    def test_code_attribute_is_not_a_string_instance(self):
+        """testing if a TypeError will be raised when the code attribute is set
+        to a value which is not a string or unicode
+        """
+        new_proj = Project(name="TEST_PROJECT")
+        self.assertRaises(TypeError, setattr, new_proj, "code", 12314)
+
+    def test_code_argument_is_working_properly(self):
+        """testing if the code attribute is initialized correctly
+        """
+        test_code = "TST"
+        new_proj = Project(name="TEST_PROJECT", code=test_code)
+        self.assertEqual(new_proj.code, test_code)
+
+    def test_code_attribute_is_working_properly(self):
+        """testing if the code attribute is working properly
+        """
+        test_code = "TST"
+        new_proj = Project(name="TEST_PROJ1")
+        new_proj.code = test_code
+        self.assertEqual(new_proj.code, test_code)
+
+    def test_code_argument_is_formatted_correctly(self):
+        """testing if the code attribute is formatted correctly on Project
+        instance creation
+        """
+        for test_value in self._name_test_values:
+            project_code = test_value[0]
+            expected_project_code = test_value[1]
+
+            new_project = Project(name="TEST_PROJ1", code=project_code)
+
+            self.assertEqual(new_project.code, expected_project_code)
+
+    def test_code_attribute_is_formatted_correctly(self):
+        """testing if the code attribute is formatted correctly
+        """
+
+        new_proj = Project(name="TEST_PROJECT")
+
+        for test_value in self._name_test_values:
+            project_code = test_value[0]
+            expected_project_code = test_value[1]
+
+            new_proj.code = project_code
+
+            self.assertEqual(new_proj.code, expected_project_code)
+
+    def test_code_argument_is_empty_string_after_formatting(self):
+        """testing if a ValueError will be raised when the code argument
+        becomes an empty string after formatting
+        """
+        test_value = "12'^+'^+"
+        self.assertRaises(ValueError, Project, name="TEST_PROJ1",
+                          code=test_value)
+
+    def test_code_attribute_is_empty_string_after_formatting(self):
+        """testing if a ValueError will be raised when the code attribute is an
+        empty string after formatting
+        """
+        test_value = "12'^+'^+"
+        new_proj = Project(name="TEST_PROJ1", code="TP1")
+        self.assertRaises(ValueError, setattr, new_proj, "code", test_value)

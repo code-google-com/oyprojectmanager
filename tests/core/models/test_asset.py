@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
 
-
-import os
 import shutil
 import tempfile
 import unittest
-from xml.dom import minidom
-from oyProjectManager import config
 
 from oyProjectManager.core.models import Project, Sequence, Repository, Asset
 
 
 class AssetTester(unittest.TestCase):
-
     """tests the Asset class
     """
     
@@ -23,76 +18,16 @@ class AssetTester(unittest.TestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mktemp()
+        self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
-        
-        # copy the test settings
-        import oyProjectManager
-        
-        self._test_settings_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "test_settings"
-        )
-        
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["REPO"] = self.temp_projects_folder
-        
-        # copy the default files to the folder
-        shutil.copytree(
-            self._test_settings_folder,
-            self.temp_settings_folder,
-        )
-        
-        # change the server path to a temp folder
-        repository_settings_file_path = os.path.join(
-            self.temp_settings_folder, 'repositorySettings.xml')
-        
-        # change the repositorySettings.xml by using the minidom
-        xmlDoc = minidom.parse(repository_settings_file_path)
-        
-        serverNodes = xmlDoc.getElementsByTagName("server")
-        for serverNode in serverNodes:
-            serverNode.setAttribute("windows_path", self.temp_projects_folder)
-            serverNode.setAttribute("linux_path", self.temp_projects_folder)
-            serverNode.setAttribute("osx_path", self.temp_projects_folder)
-        
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='w')
-        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-        
-        
-        #self._name_test_values = [
-            #("test project", "TEST_PROJECT"),
-            #("123123 test_project", "TEST_PROJECT"),
-            #("123432!+!'^+Test_PRoject323^+'^%&+%&324", "TEST_PROJECT323324"),
-            #("    ---test 9s_project", "TEST_9S_PROJECT"),
-            #("    ---test 9s-project", "TEST_9S_PROJECT"),
-            #(" multiple     spaces are    converted to under     scores",
-             #"MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
-            #("camelCase", "CAMEL_CASE"),
-            #("CamelCase", "CAMEL_CASE"),
-            #("_Project_Setup_", "PROJECT_SETUP_"),
-            #("_PROJECT_SETUP_", "PROJECT_SETUP_"),
-            #("FUL_3D", "FUL_3D"),
-        #]
-    
-    
-    
     
     def tearDown(self):
         """remove the temp folders
         """
         
         # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
-    
-    
-    
     
     def test_output_path_with_variable_path(self):
         """testing if the output path will be correct for a path which contains
@@ -102,10 +37,10 @@ class AssetTester(unittest.TestCase):
         # create a new project and sequence
         # let the sequence to parse the settings
         
-        proj = project.Project("TEST_PROJECT")
+        proj = Project("TEST_PROJECT")
         proj.create()
         
-        seq = project.Sequence(proj, "TEST_SEQ")
+        seq = Sequence(proj, "TEST_SEQ")
         seq.create()
         
         # get the first assetType
@@ -118,7 +53,7 @@ class AssetTester(unittest.TestCase):
         seq.save()
         
         # for convenience get the first asset type again
-        seq = project.Sequence(proj, "TEST_SEQ")
+        seq = Sequence(proj, "TEST_SEQ")
         asset_type = seq.getAssetTypes(None)[0]
         
         self.assertTrue( "{{assetBaseName}}" in asset_type.output_path )
@@ -135,9 +70,6 @@ class AssetTester(unittest.TestCase):
             "TEST/SH001/OUTPUT"
         )
     
-    
-    
-    
     def test_no_rev_number(self):
         """testing assets with sequences which has the no_rev_number set to
         True
@@ -150,6 +82,4 @@ class AssetTester(unittest.TestCase):
         # check if the asset file name will be correctly calculated
         
         pass
-    
-    
     

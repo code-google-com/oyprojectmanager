@@ -1674,7 +1674,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         referenced_asset = self._getAssetObjectFromOpenFields()
         
         # check the file existence
-        #exists = os.path.exists(self._asset.fullPath)
+        #exists = os.path.exists(self._asset.fullpath)
         exists = os.path.exists(referenced_asset.fullPath)
         
         envStatus = False

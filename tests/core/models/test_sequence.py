@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
-
-
 import os
 import shutil
 import tempfile
 import unittest
-from xml.dom import minidom
 from oyProjectManager import db, config
 from oyProjectManager.core.models import Project, Sequence, Repository
 
@@ -16,55 +13,31 @@ logger.setLevel(logging.DEBUG)
 
 conf = config.Config()
 
+# TODO: update the tests of the Sequence class
+
 class SequenceTester(unittest.TestCase):
     """tests the Sequence class
     """
     
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         """set up the test in class level
         """
-
-        # setup environment variable for default settings
-
-        import os
-        import oyProjectManager
-
-        oyProjectManager_path = os.path.sep.join(
-            oyProjectManager.__file__.split(os.path.sep)[:-2]
-        )
-
-        test_settings_path = os.path.join(oyProjectManager_path,
-                                          "tests/test_settings")
-
-        # append or update the environment key to point the test_settings path
-        os.environ["OYPROJECTMANAGER_PATH"] = test_settings_path
-
-        # create the test folder
-        os.makedirs("/tmp/JOBs")
-
-    @classmethod
-    def tearDownClass(cls):
-        """cleanup test
-        """
-
-        # remove the temp project path
-        shutil.rmtree("/tmp/JOBs")
-
-    def setUp(self):
-        """set up the per test level
-        """
-
-        self.created_projects = []
+        # -----------------------------------------------------------------
+        # start of the setUp
+        # create the environment variable and point it to a temp directory
+        self.temp_config_folder = tempfile.mkdtemp()
+        self.temp_projects_folder = tempfile.mkdtemp()
+        
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
+        os.environ["REPO"] = self.temp_projects_folder
 
     def tearDown(self):
-        """clean the tests
+        """remove the temp folders
         """
-
-        # clean up projects
-        for proj in self.created_projects:
-            shutil.rmtree(proj.fullPath)
-
+        # delete the temp folder
+        shutil.rmtree(self.temp_config_folder)
+        shutil.rmtree(self.temp_projects_folder)
+    
     def test_setup_is_working_fine(self):
         """testing if test setup is working fine
         """
@@ -74,7 +47,7 @@ class SequenceTester(unittest.TestCase):
         repo = Repository()
 
         # BUG: works only under linux fix it later
-        self.assertEqual(repo.server_path, "/tmp/JOBs")
+        self.assertEqual(repo.server_path, self.temp_projects_folder)
     
     def test_project_argument_is_skipped(self):
         """testing if a TypeError will be raised when the project argument is
@@ -129,78 +102,6 @@ class SequenceTester(unittest.TestCase):
         
         self.assertRaises(RuntimeError, Sequence, "TEST_PROJ", "TEST_SEQ")
     
-    def test_if_an_old_sequence_with_and_old_settings_is_parsed_correctly(self):
-        """testing if an old sequence which has an output_folders node is
-        parsed without any problem
-        """
-        
-        # create a new project and by using the minidom add output_folders node
-        # and some output nodes as children
-
-        # create a project
-        test_proj = Project("TEST_PROJECT")
-        test_proj.create()
-
-        self.created_projects.append(test_proj)
-
-        # create a sequence
-        test_seq = test_proj.createSequence("TEST_SEQ", "1")
-
-        # now by using the minidom add output_folders to the structure node
-        settingsFileFullPath = os.path.join(test_seq.fullPath, ".settings.xml")
-        
-        settings = minidom.parse(settingsFileFullPath)
-
-        outputFoldersNode = minidom.Element("outputFolders")
-
-        # move all the output_path information to outputFolders node
-
-        # and remove the output_path from any type node under the assetTypes
-        # node
-        assetTypesNode = settings.getElementsByTagName("assetTypes")[0]
-        assert(isinstance(assetTypesNode, minidom.Element))
-
-        for child in assetTypesNode.getElementsByTagName("type"):
-            assert(isinstance(child, minidom.Element))
-
-            # create an output node
-            temp_output_node = minidom.Element("output")
-            temp_output_node.setAttribute("name", child.getAttribute("name"))
-            temp_output_node.setAttribute("path",
-                                          child.getAttribute("output_path"))
-
-            outputFoldersNode.appendChild(temp_output_node)
-
-            # now remove the output_path attribute from the type node
-            child.removeAttribute("output_path")
-
-        structureNode = settings.getElementsByTagName("structure")[0]
-
-        assert(isinstance(structureNode, minidom.Element))
-        structureNode.appendChild(outputFoldersNode)
-
-        # now save the settings file
-        settings.writexml(
-            open(settingsFileFullPath, "w"),
-            "\t", "\t", "\n"
-        )
-
-        # now create another sequence object showing the same sequence before
-        # and check if it is going to be able to read the file
-        new_seq = test_proj.sequences()[0]
-
-        assert(isinstance(new_seq, Sequence))
-
-        # check if for every assetType defined there is an output_path 
-        for asset_type in new_seq.getAssetTypes(None):
-            assert(isinstance(asset_type, AssetType))
-            self.assertNotEqual(asset_type.output_path, "")
-
-        # by using the dom check if the settings is converted to the new format
-        settings = minidom.parse(settingsFileFullPath)
-
-        self.assertEqual(settings.getElementsByTagName("outputFolders"), [])
-
     def test___eq___operator(self):
         """testing the __eq__ (equal) operator
         """
@@ -258,7 +159,7 @@ class SequenceTester(unittest.TestCase):
         new_proj1.create()
         
         new_seq1 = Sequence(new_proj1, "TEST_SEQ1")
-        self.assertEqual(new_seq1.code, new_seq1,name)
+        self.assertEqual(new_seq1.code, new_seq1.name)
     
     def test_code_argument_is_None(self):
         """testing if the code argument is given as None the code attribute
@@ -269,147 +170,97 @@ class SequenceTester(unittest.TestCase):
         
         new_seq1 = Sequence(project=new_proj1, name="TEST_SEQ1", code=None)
         self.assertEqual(new_seq1.code, new_seq1.name)
-
-class Sequence_To_NewType_Conversion_Tester(unittest.TestCase):
-    """tests the conversion of old type Sequences to new type Sequences with
-    SQLite3 databases.
-    """
-
-    def setUp(self):
-        """testing the settings path from the environment variable
+    
+    def test_create_method_creates_the_sequence_structure(self):
+        """testing if calling Sequence.create will create the sequence
+        structure by calling Project.create
         """
         
-        # create an old type sequence
-        # and check if it is correctly converted to a new type database
-        
-        # -----------------------------------------------------------------
-        # start of the setUp
-        # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mktemp()
-        self.temp_projects_folder = tempfile.mkdtemp()
-        
-        # copy the test settings
-        import oyProjectManager
-
-        self._test_settings_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "test_settings"
-        )
-
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["REPO"] = self.temp_projects_folder
-        
-        # copy the default files to the folder
-        shutil.copytree(
-            self._test_settings_folder,
-            self.temp_settings_folder
-        )
-
-        # change the server path to a temp folder
-        repository_settings_file_path = os.path.join(
-            self.temp_settings_folder, 'repositorySettings.xml')
-
-        # change the repositorySettings.xml by using the minidom
-        xmlDoc = minidom.parse(repository_settings_file_path)
-
-        serverNodes = xmlDoc.getElementsByTagName("server")
-        for serverNode in serverNodes:
-            serverNode.setAttribute("windows_path", self.temp_projects_folder)
-            serverNode.setAttribute("linux_path", self.temp_projects_folder)
-            serverNode.setAttribute("osx_path", self.temp_projects_folder)
-
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='w')
-        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-
-        self._name_test_values = [
-            ("test project", "TEST_PROJECT"),
-            ("123123 test_project", "TEST_PROJECT"),
-            ("123432!+!'^+Test_PRoject323^+'^%&+%&324", "TEST_PROJECT323324"),
-            ("    ---test 9s_project", "TEST_9S_PROJECT"),
-            ("    ---test 9s-project", "TEST_9S_PROJECT"),
-            (" multiple     spaces are    converted to under     scores",
-             "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
-            ("camelCase", "CAMEL_CASE"),
-            ("CamelCase", "CAMEL_CASE"),
-            ("_Project_Setup_", "PROJECT_SETUP_"),
-            ("_PROJECT_SETUP_", "PROJECT_SETUP_"),
-            ("FUL_3D", "FUL_3D"),
-        ]
-
-
-    def tearDown(self):
-        """remove the temp folders
+        # create a config file which has a known placement for sequences
+        config_content = """
+        project_structure = \"\"\"{% for sequence in project.sequences %}
+            {% set seq_path = 'Sequences/' + sequence.code %}
+            {{seq_path}}/Edit/Offline
+            {{seq_path}}/Edit/Sound
+            {{seq_path}}/References/Artworks
+            {{seq_path}}/References/Text/Scenario
+            {{seq_path}}/References/Photos_Images
+            {{seq_path}}/References/Videos
+            {{seq_path}}/References/Others
+            {{seq_path}}/Others
+            {{seq_path}}/Others/assets
+            {{seq_path}}/Others/clips
+            {{seq_path}}/Others/data
+            {{seq_path}}/Others/fur
+            {{seq_path}}/Others/fur/furAttrMap
+            {{seq_path}}/Others/fur/furEqualMap
+            {{seq_path}}/Others/fur/furFiles
+            {{seq_path}}/Others/fur/furImages
+            {{seq_path}}/Others/fur/furShadowMap
+            {{seq_path}}/Others/mel
+            {{seq_path}}/Others/particles
+        {% endfor %}
+        \"\"\"
         """
         
-        # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
-        shutil.rmtree(self.temp_projects_folder)
+        # write it to a file called config.py in the OYPROJECTMANAGER_PATH
+        config_file = open(
+            os.path.join(self.temp_config_folder, "config.py"), "w"
+        )
+        
+        config_file.writelines([config_content])
+        config_file.close()
+        
+        new_proj1 = Project("TEST_PROJ1")
+        new_proj1.create()
+        
+        # check if there is no sequence folder
+        dir_content = os.listdir(new_proj1.fullpath)
+        
+        self.assertNotIn("Sequences", dir_content)
+        
+        new_seq = Sequence(new_proj1, "TEST_SEQ1")
+        new_seq.create()
+        # check if a sequence folder with the name of the sequence is created
+        dir_content = os.listdir(
+            os.path.join(new_proj1.fullpath, "Sequences")
+        )
+        
+        self.assertIn("TEST_SEQ1", dir_content)
+    
+    def test_description_attribute_is_working_properly(self):
+        """testing if the description attribute is working properly
+        """
+        
+        new_proj = Project("TEST_PROJ1")
+        new_proj.create()
+        
+        new_seq = Sequence(new_proj, "TEST_SEQ1")
+        test_value = "test description"
+        new_seq.description = test_value
+        self.assertEqual(new_seq.description, test_value)
 
 
-
-class Sequence_NewType_Tester(unittest.TestCase):
-    """Tests the new type Sequence class
+class Sequence_DB_Tester(unittest.TestCase):
+    """Tests the new type Sequence class with a database
     """
     
-    #----------------------------------------------------------------------
     def setUp(self):
         
         # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mktemp()
+        self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
-        # copy the test settings
-        import oyProjectManager
-
-        self._test_settings_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "test_settings"
-        )
-
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ["REPO"] = self.temp_projects_folder
-
-        # copy the default files to the folder
-        shutil.copytree(
-            self._test_settings_folder,
-            self.temp_settings_folder
-        )
-
-        # change the server path to a temp folder
-        repository_settings_file_path = os.path.join(
-            self.temp_settings_folder, 'repositorySettings.xml')
-
-        # change the repositorySettings.xml by using the minidom
-        xmlDoc = minidom.parse(repository_settings_file_path)
-
-        serverNodes = xmlDoc.getElementsByTagName("server")
-        for serverNode in serverNodes:
-            serverNode.setAttribute("windows_path", self.temp_projects_folder)
-            serverNode.setAttribute("linux_path", self.temp_projects_folder)
-            serverNode.setAttribute("osx_path", self.temp_projects_folder)
-
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='w')
-        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-    
     
     def tearDown(self):
         """clean up the test
         """
         
         # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
-    
     
     def test_sequence_raises_error_when_the_given_project_is_not_created_yet(self):
         """testing if the sequence raises an error when the project is not
@@ -432,7 +283,6 @@ class Sequence_NewType_Tester(unittest.TestCase):
         
         self.assertIs(new_proj.session, new_seq.session)
     
-    
     def test_database_simple_data(self):
         """testing if the database file has the necessary information related to
         the Sequence
@@ -446,13 +296,7 @@ class Sequence_NewType_Tester(unittest.TestCase):
         new_seq.create()
         
         # fill it with some non default values
-        shotPrefix = new_seq.shotPrefix = "PL"
-        shotPadding = new_seq.shotPadding = 13
-        revPrefix = new_seq.revPrefix = "rev"
-        revPadding = new_seq.revPadding = 18
-        verPrefix = new_seq.verPrefix = "ver"
-        verPadding = new_seq.verPadding = 8
-        
+        description = new_seq.description = "Test description"
         new_seq.create()
         
         # now check if the database is created correctly
@@ -462,13 +306,7 @@ class Sequence_NewType_Tester(unittest.TestCase):
         new_seq = db.session.query(Sequence).first()
         
         # now check if it was able to get these data
-        self.assertEqual(shotPrefix, new_seq.shotPrefix)
-        self.assertEqual(shotPadding, new_seq.shotPadding)
-        self.assertEqual(revPrefix, new_seq.revPrefix)
-        self.assertEqual(revPadding, new_seq.revPadding)
-        self.assertEqual(verPrefix, new_seq.verPrefix)
-        self.assertEqual(verPadding, new_seq.verPadding)
-
+        self.assertEqual(description, new_seq.description)
     
     def test_database_recreation_of_sequence_object(self):
         """testing if the database file has the necessary information related to
@@ -480,16 +318,9 @@ class Sequence_NewType_Tester(unittest.TestCase):
         
         test_seq_name = "TEST_SEQ1"
         new_seq = Sequence(new_proj, test_seq_name)
-        
-        # fill it with some non default values
-        shotPrefix = new_seq.shotPrefix = "PL"
-        shotPadding = new_seq.shotPadding = 13
-        revPrefix = new_seq.revPrefix = "rev"
-        revPadding = new_seq.revPadding = 18
-        verPrefix = new_seq.verPrefix = "ver"
-        verPadding = new_seq.verPadding = 8
-        
         new_seq.create()
+        
+        description = new_seq.description
         
         # now check if the database is created correctly
         del new_seq
@@ -498,13 +329,7 @@ class Sequence_NewType_Tester(unittest.TestCase):
         new_seq = Sequence(new_proj, test_seq_name)
         
         # now check if it was able to get these data
-        self.assertEqual(shotPrefix, new_seq.shotPrefix)
-        self.assertEqual(shotPadding, new_seq.shotPadding)
-        self.assertEqual(revPrefix, new_seq.revPrefix)
-        self.assertEqual(revPadding, new_seq.revPadding)
-        self.assertEqual(verPrefix, new_seq.verPrefix)
-        self.assertEqual(verPadding, new_seq.verPadding)
-    
+        self.assertEqual(new_seq.description, description)
     
     def test_calling_create_multiple_times(self):
         """testing if no error will be raised when calling Sequence.create
@@ -523,7 +348,6 @@ class Sequence_NewType_Tester(unittest.TestCase):
         new_seq.create()
         new_seq.create()
     
-    
     def test_creating_two_different_sequences_and_calling_create(self):
         """testing if no error will be raised when creating two different
         Sequences for the same Project and calling the Sequences.create()
@@ -540,5 +364,4 @@ class Sequence_NewType_Tester(unittest.TestCase):
         new_seq1.create()
 #        print "calling new_seq2.create"
         new_seq2.create()
-        
     

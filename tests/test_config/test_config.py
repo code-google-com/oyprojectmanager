@@ -49,25 +49,25 @@ class ConfigTester(unittest.TestCase):
 
         self.assertEqual(test_value, conf.database_file_name)
 
-    def test_config_variable_creates_new_variables_with_user_config(self):
-        """testing if the database_file_name will be updated by the user
-        config by adding new variables
+    def test_config_variable_doesnt_create_new_variables_with_user_config(self):
+        """testing if the config will not be updated by the user config by
+        adding new variables
         """
         # now create a config.py file and fill it with the desired values
         # like database_file_name = "test_value.db"
         test_value = ".test_value.db"
         config_file = open(self.config_fullpath, "w")
         config_file.writelines(["#-*- coding: utf-8 -*-\n",
-                                'TEST_VALUE = "' + test_value + '"\n'])
+                                'test_value = "' + test_value + '"\n'])
         config_file.close()
-
+        
         # now import the config.py and see if it updates the
         # database_file_name variable
         from oyProjectManager import config
         conf = config.Config()
         
-        self.assertEqual(test_value, conf.TEST_VALUE)
-
+        self.assertRaises(KeyError, getattr, conf, "test_value")
+    
     def test_env_variable_with_vars_module_import_with_shortcuts(self):
         """testing if the module path has shortcuts like ~ and other env
         variables
@@ -94,8 +94,8 @@ class ConfigTester(unittest.TestCase):
         self.assertEqual(test_value, conf.database_file_name)
         
     def test_env_variable_with_deep_vars_module_import_with_shortcuts(self):
-        """testing if the module path has multiple shortcuts like ~ and other env
-        variables
+        """testing if the module path has multiple shortcuts like ~ and other
+        env variables
         """
         splits = os.path.split(self.temp_config_folder)
         var1 = splits[0]

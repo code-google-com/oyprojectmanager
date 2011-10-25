@@ -1,14 +1,15 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 import shutil
 import tempfile
 import unittest
-from xml.dom import minidom
-import oyProjectManager
+from sqlalchemy.exc import IntegrityError
+from oyProjectManager import config
 from oyProjectManager.core.models import (VersionableBase, VersionType,
                                           Project)
 
+conf = config.Config()
 
 class VersionTypeTester(unittest.TestCase):
     """tests the VersionType class
@@ -21,69 +22,32 @@ class VersionTypeTester(unittest.TestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mktemp()
+        self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
-        # copy the test settings
-        self._test_settings_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "test_settings"
-        )
-        
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["REPO"] = self.temp_projects_folder
-        
-#        print self.temp_projects_folder
-        
-        # copy the default files to the folder
-        shutil.copytree(
-            self._test_settings_folder,
-            self.temp_settings_folder,
-        )
-        
-        # change the server path to a temp folder
-        repository_settings_file_path = os.path.join(
-            self.temp_settings_folder, 'repositorySettings.xml')
-        
-        # change the repositorySettings.xml by using the minidom
-        xmlDoc = minidom.parse(repository_settings_file_path)
-        
-        serverNodes = xmlDoc.getElementsByTagName("server")
-        for serverNode in serverNodes:
-            serverNode.setAttribute("windows_path", self.temp_projects_folder)
-            serverNode.setAttribute("linux_path", self.temp_projects_folder)
-            serverNode.setAttribute("osx_path", self.temp_projects_folder)
-        
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='w')
-        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-        repository_settings_file.close()
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
+        os.environ[conf.repository_env_key] = self.temp_projects_folder
         
         self.test_project = Project("TEST_PROJ1")
         self.test_project.create()
         self.test_project.save()
         
-        # set it just for testing purposes
-        self.test_vbase = VersionableBase()
-        self.test_vbase._project = self.test_project
-        
         self.kwargs = {
-            "name":"Animation",
-            "code":"ANIM",
+            "project": self.test_project,
+            "name":"Test VType",
+            "code":"TVT",
             "path":"SHOTS/{{version.base_name}}/{{type.code}}",
             "filename":"{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
             "environments":["MAYA","HOUDINI"],
             "output_path":"SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/{{version.take_name}}",
             "extra_folders":"""{{version.path}}/exports
             {{version.path}}/cache
-            """
+            """,
+            "type_for": "Shot"
         }
         
         self.test_versionType = VersionType(**self.kwargs)
+        self.test_versionType.save()
         
         self._name_test_values = [
             ("base name", "Base_Name"),
@@ -114,8 +78,57 @@ class VersionTypeTester(unittest.TestCase):
         """
         
         # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
+    
+    def test_project_argument_is_skipped(self):
+        """testing if a RuntimeError will be raised when the project argument
+        is skipped
+        """
+        self.kwargs.pop("project")
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+    
+    def test_project_argument_is_None(self):
+        """testing if a RuntimeError will be raised when the project argument
+        is None
+        """
+        self.kwargs["project"] = None
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+    
+    def test_project_argument_is_not_a_Project_instance(self):
+        """testing if a TypeError will be raised when the project argument is
+        not a Project instance
+        """
+        
+        self.kwargs["project"] = 123
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_project_argument_is_string_will_raise_TypeError_even_the_project_is_created(self):
+        """testing if a TypeError will be raised when the project argument is
+        given as a string even the project is created and valid
+        """
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
+        
+        self.kwargs["project"] = "TEST_PROJECT"
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_project_argument_is_working_properly(self):
+        """testing if the project argument is working properly
+        """
+        new_proj = Project("TEST_PROJECT")
+        new_proj.create()
+        
+        self.kwargs["project"] = new_proj
+        new_vtype = VersionType(**self.kwargs)
+        
+        self.assertEqual(new_vtype.project, new_proj)
+    
+    def test_project_attribute_is_read_only(self):
+        """testing if the project attribute is read-only
+        """
+        self.assertRaises(AttributeError, setattr, self.test_versionType,
+                          "project", self.kwargs["project"])
     
     def test_name_argument_is_skipped(self):
         """testing if a RuntimeError will be raised when the name argument is
@@ -135,7 +148,7 @@ class VersionTypeTester(unittest.TestCase):
         """testing if a RuntimeError will be raised when the name attribute is
         set to None
         """
-        self.assertRaises(RuntimeError, setattr, test_versionType, "name",
+        self.assertRaises(RuntimeError, setattr, self.test_versionType, "name",
                           None)
     
     def test_name_argument_is_not_a_string(self):
@@ -164,6 +177,14 @@ class VersionTypeTester(unittest.TestCase):
         self.test_versionType.name = test_value
         self.assertEqual(test_value, self.test_versionType.name)
     
+    def test_name_attribute_is_not_unique(self):
+        """testing if an IntegrityError error will be raised when the name
+        argument is not unique
+        """
+        # creating a new VersionType should raise the ?? error
+        new_vtype = VersionType(**self.kwargs)
+        self.assertRaises(IntegrityError, new_vtype.save)
+    
     def test_code_argument_is_skipped(self):
         """testing if a RuntimeError will be raised when the code argument is
         skipped
@@ -182,7 +203,7 @@ class VersionTypeTester(unittest.TestCase):
         """testing if a RuntimeError will be raised when the code attribute is
         set to None
         """
-        self.assertRaises(RuntimeError, setattr, test_versionType, "code",
+        self.assertRaises(RuntimeError, setattr, self.test_versionType, "code",
                           None)
     
     def test_code_argument_is_not_a_string(self):
@@ -210,3 +231,346 @@ class VersionTypeTester(unittest.TestCase):
         test_value = "New Name"
         self.test_versionType.code = test_value
         self.assertEqual(test_value, self.test_versionType.code)
+    
+    def test_code_attribute_is_not_unique(self):
+        """testing if an IntegrityError error will be raised when the code
+        argument is not unique
+        """
+        # creating a new VersionType should raise the IntegrityError
+        self.kwargs["name"] = "A Different Name"
+        new_vtype = VersionType(**self.kwargs)
+        self.assertRaises(IntegrityError, new_vtype.save)
+    
+    def test_filename_argument_is_skipped(self):
+        """testing if a RuntimeError will be raised when the filename argument
+        is skipped
+        """
+        self.kwargs.pop("filename")
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+    
+    def test_filename_argument_is_empty_string(self):
+        """testing if a ValueError will be raised when the filename argument
+        is an empty string
+        """
+        self.kwargs["filename"] = ""
+        self.assertRaises(ValueError, VersionType, **self.kwargs)
+    
+    def test_filename_attribute_is_empty_string(self):
+        """testing if a ValueError will be raised when the filename attribute
+        is set to an empty string
+        """
+        self.assertRaises(ValueError, setattr, self.test_versionType,
+                          "filename", "")
+    
+    def test_filename_argument_is_not_a_string(self):
+        """testing if a TypeError will be raised when the filename argument is
+        not a string instance
+        """
+        self.kwargs["filename"] = 13245
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_filename_attribute_is_not_a_string(self):
+        """testing if a TypeError will be raised when the filename attribute is
+        not a string instance
+        """
+        self.assertRaises(TypeError, setattr, self.test_versionType,
+                          "filename", 23412)
+    
+    def test_filename_argument_is_working_properly(self):
+        """testing if the filename attribute is initialized correctly with the
+        same value of the filename argument
+        """
+        self.assertEqual(self.test_versionType.filename,
+                         self.kwargs["filename"])
+    
+    def test_filename_attribute_is_working_properly(self):
+        """testing if the filename attribute is working properly
+        """
+        test_value = "test_filename"
+        self.test_versionType.filename = test_value
+        self.assertEqual(self.test_versionType.filename, test_value)
+    
+    def test_path_argument_is_skipped(self):
+        """testing if a RuntimeError will be raised when the path argument
+        is skipped
+        """
+        self.kwargs.pop("path")
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+    
+    def test_path_argument_is_empty_string(self):
+        """testing if a ValueError will be raised when the path argument
+        is an empty string
+        """
+        self.kwargs["path"] = ""
+        self.assertRaises(ValueError, VersionType, **self.kwargs)
+    
+    def test_path_attribute_is_empty_string(self):
+        """testing if a ValueError will be raised when the path attribute
+        is set to an empty string
+        """
+        self.assertRaises(ValueError, setattr, self.test_versionType, "path",
+                          "")
+    
+    def test_path_argument_is_not_a_string(self):
+        """testing if a TypeError will be raised when the path argument is
+        not a string instance
+        """
+        self.kwargs["path"] = 13245
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_path_attribute_is_not_a_string(self):
+        """testing if a TypeError will be raised when the path attribute is
+        not a string instance
+        """
+        self.assertRaises(TypeError, setattr, self.test_versionType,
+                          "path", 23412)
+    
+    def test_path_argument_is_working_properly(self):
+        """testing if the path attribute is initialized correctly with the
+        same value of the path argument
+        """
+        self.assertEqual(self.test_versionType.path,
+                         self.kwargs["path"])
+    
+    def test_path_attribute_is_working_properly(self):
+        """testing if the path attribute is working properly
+        """
+        test_value = "test_path"
+        self.test_versionType.path = test_value
+        self.assertEqual(self.test_versionType.path, test_value)
+    
+    def test_output_path_argument_is_skipped(self):
+        """testing if a RuntimeError will be raised when the output_path
+        argument is skipped
+        """
+        self.kwargs.pop("output_path")
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+    
+    def test_output_path_argument_is_empty_string(self):
+        """testing if a ValueError will be raised when the output_path
+        argument is an empty string
+        """
+        self.kwargs["output_path"] = ""
+        self.assertRaises(ValueError, VersionType, **self.kwargs)
+    
+    def test_output_path_attribute_is_empty_string(self):
+        """testing if a ValueError will be raised when the output_path
+        attribute is set to an empty string
+        """
+        self.assertRaises(ValueError, setattr, self.test_versionType,
+                          "output_path", "")
+    
+    def test_output_path_argument_is_not_a_string(self):
+        """testing if a TypeError will be raised when the output_path argument
+        is not a string instance
+        """
+        self.kwargs["output_path"] = 13245
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_output_path_attribute_is_not_a_string(self):
+        """testing if a TypeError will be raised when the output_path attribute
+        is not a string instance
+        """
+        self.assertRaises(TypeError, setattr, self.test_versionType,
+                          "output_path", 23412)
+    
+    def test_output_path_argument_is_working_properly(self):
+        """testing if the output_path attribute is initialized correctly with
+        the same value of the output_path argument
+        """
+        self.assertEqual(self.test_versionType.output_path,
+                         self.kwargs["output_path"])
+    
+    def test_output_path_attribute_is_working_properly(self):
+        """testing if the output_path attribute is working properly
+        """
+        test_value = "test_output_path"
+        self.test_versionType.output_path = test_value
+        self.assertEqual(self.test_versionType.output_path, test_value)
+    
+    def test_extra_folders_argument_is_skipped(self):
+        """testing if the extra_folders argument is skipped the extra_folders
+        attribute will be an empty string
+        """
+        self.kwargs.pop("extra_folders")
+        new_version_type = VersionType(**self.kwargs)
+        self.assertEqual(new_version_type.extra_folders, "")
+    
+    def test_extra_folders_argument_is_None(self):
+        """testing if the extra_folders attribute is going to be an empty
+        string when the extra folders argument is given as None
+        """
+        self.kwargs["extra_folders"] = None
+        new_version_type = VersionType(**self.kwargs)
+        self.assertEqual(new_version_type.extra_folders, "")
+    
+    def test_extra_folders_attribute_is_None(self):
+        """testing if the extra_folders attribute will be an empty list when it
+        is set to None
+        """
+        self.test_versionType.extra_folders = None
+        self.assertEqual(self.test_versionType.extra_folders, "")
+    
+    def test_extra_folders_argument_is_not_a_string_instance(self):
+        """testing if a TypeError will be raised when the extra_folders
+        argument is not a string or unicode instance
+        """
+        self.kwargs["extra_folders"] = 123
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_extra_folders_attribute_is_not_a_string_instance(self):
+        """testing if a TypeError will be raised when the extra_folders
+        attribute is set to something other than a string or unicode instance
+        """
+        self.assertRaises(TypeError, setattr, self.test_versionType,
+                          "extra_folders", 23423)
+    
+    def test_extra_folders_argument_is_working_properly(self):
+        """testing if the extra_folders attribute will be set to the same value
+        with the extra_folders argument while initialization
+        """
+        self.assertEqual(self.test_versionType.extra_folders,
+                         self.kwargs["extra_folders"])
+    
+    def test_extra_folders_attribute_is_working_properly(self):
+        """testing if the extra_folders attribute is working properly
+        """
+        test_value = "extra_folders"
+        self.test_versionType.extra_folders = test_value
+        self.assertEqual(self.test_versionType.extra_folders, test_value)
+    
+    def test_environments_argument_is_skipped(self):
+        """testing if a TypeError will be raised when the environments
+        argument is skipped
+        """
+        self.kwargs.pop("environments")
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_environments_argument_is_None(self):
+        """testing if a TypeError will be raised when the environments
+        argument is None
+        """
+        self.kwargs["environments"] = None
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_environments_attribute_is_None(self):
+        """testing if a TypeError will be raised when the environments
+        attribute is set to None
+        """
+        self.assertRaises(TypeError, setattr, self.test_versionType,
+                          "environments", None)
+    
+    def test_environments_argument_is_not_a_list(self):
+        """testing if a TypeError will be raised when the environments argument
+        is not a list instance
+        """
+        self.kwargs["environments"] = 12354
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_environments_attribute_is_not_a_list(self):
+        """testing if a TypeError will be raised when the environments
+        attribute is set to something other than a list
+        """
+        self.assertRaises(TypeError, setattr, self.test_versionType,
+                          "environments", 123)
+    
+    def test_environments_argument_is_not_a_list_of_strings(self):
+        """testing if a TypeError will be raised when the environments argument
+        is not a list of strings
+        """
+        self.kwargs["environments"] = [123, "MAYA"]
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_environments_attribute_is_not_a_list_of_strings(self):
+        """testing if a TypeError will be raised when the environments
+        attribute is not a list of strings
+        """
+        self.assertRaises(TypeError, setattr, self.test_versionType,
+                          "environments", [123, "MAYA"])
+    
+    def test_environments_argument_works_properly(self):
+        """testing if the environments attribute will be initialized correctly
+        with the environments argument
+        """
+        test_value = ["MAYA", "HOUDINI"]
+        self.kwargs["environments"] = test_value
+        new_vtype = VersionType(**self.kwargs)
+        self.assertItemsEqual(new_vtype.environments, test_value)
+    
+    def test_environments_attribute_works_properly(self):
+        """testing if the environments attribute is working properly
+        """
+        test_value = ["MAYA", "HOUDINI", "NUKE", "3DEQUALIZER"]
+        self.test_versionType.environments = test_value
+        self.assertItemsEqual(self.test_versionType.environments, test_value)
+    
+    def test_type_for_argument_is_skipped(self):
+        """testing if a RuntimeError will be raised when the type_for argument
+        is skipped
+        """
+        self.kwargs.pop("type_for")
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+    
+    def test_type_for_argument_is_None(self):
+        """testing if a RuntimeError will be raised when the type_for argument
+        is None
+        """
+        self.kwargs["type_for"] = None
+        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+    
+    def test_type_for_argument_is_not_a_string_or_integer(self):
+        """testing if a TypeError will be raised when the type_for argument is
+        not a string or unicode or an integer
+        """
+        self.kwargs["type_for"] = [12]
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
+    
+    def test_type_for_argument_is_working_properly(self):
+        """testing if the type_for argument is working properly
+        """
+        self.kwargs["name"] = "Test Animation"
+        self.kwargs["code"] = "TA"
+        self.kwargs["type_for"] = "Asset"
+        new_vtype = VersionType(**self.kwargs)
+        new_vtype.save()
+        self.assertEqual(new_vtype.type_for, "Asset")
+    
+    def test_type_for_attribute_is_read_only(self):
+        """testing if type_for attribute is read-only
+        """
+        self.assertRaises(AttributeError, setattr, self.test_versionType,
+                          "type_for", "Asset")
+    
+    def test_save_method_saves_the_version_type_to_the_database(self):
+        """testing if the save method saves the current VersionType to the
+        database
+        """
+        self.kwargs["name"] = "Test Animation"
+        self.kwargs["code"] = "TA"
+        new_vtype = VersionType(**self.kwargs)
+        new_vtype.save()
+        
+        code = new_vtype.code
+        environments = new_vtype.environments
+        filename = new_vtype.filename
+        name = new_vtype.name
+        output_path = new_vtype.output_path
+        path = new_vtype.path
+        project = new_vtype.project
+        type_for = new_vtype.type_for
+        
+#        del new_vtype
+        
+        new_vtypeDB = self.test_project.query(VersionType).\
+            filter_by(name=self.kwargs["name"]).first()
+        
+        self.assertEqual(code, new_vtypeDB.code)
+        self.assertEqual(filename, new_vtypeDB.filename)
+        self.assertEqual(name, new_vtypeDB.name)
+        self.assertEqual(output_path, new_vtypeDB.output_path)
+        self.assertEqual(path, new_vtypeDB.path)
+        self.assertEqual(project, new_vtypeDB.project)
+        self.assertEqual(type_for, new_vtypeDB.type_for)
+        self.assertEqual(environments, new_vtypeDB.environments)
+    
+    

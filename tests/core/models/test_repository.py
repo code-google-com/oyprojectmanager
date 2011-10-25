@@ -19,14 +19,14 @@ class RepositoryTester(unittest.TestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mkdtemp()
+        self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ["REPO"] = self.temp_projects_folder
         
         self.config_fullpath = os.path.join(
-            self.temp_settings_folder, "config.py"
+            self.temp_config_folder, "config.py"
         )
         
         self.conf = config.Config()
@@ -35,7 +35,7 @@ class RepositoryTester(unittest.TestCase):
         """remove the temp folders
         """
         # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
     
     def test_no_REPO_env_variable_will_raise_a_RuntimeError(self):
@@ -55,6 +55,15 @@ class RepositoryTester(unittest.TestCase):
     def test_REPO_path_doesnt_exists(self):
         """testing if a IOError
         """
+    
+    def test_REPO_has_home_shortcut(self):
+        """testing if the $REPO path is expanded correctly if it has "~" kind
+        of shortcuts
+        """
+        test_value = "~/Project"
+        os.environ[self.conf.repository_env_key] = test_value
+        repo = Repository()
+        self.assertEqual(repo.server_path, os.path.expanduser(test_value))
     
     def test_project_names_is_working_properly(self):
         """testing if the project_names attribute gives the valid project names

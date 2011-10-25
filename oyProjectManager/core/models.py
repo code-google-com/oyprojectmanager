@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
+
 from exceptions import IndexError, ValueError, OSError, AttributeError, IOError
 
 import os
 import time
-import platform
 import re
+import logging
 import jinja2
 from beaker import cache
 
-from xml.dom import minidom
-from sqlalchemy import (orm, Column, String, Integer, PickleType, ForeignKey,
-                        Table, UniqueConstraint)
+from sqlalchemy import (orm, Column, String, Integer, Enum, PickleType,
+                        ForeignKey, UniqueConstraint)
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import synonym_for
-from sqlalchemy.orm import relationship, synonym
+from sqlalchemy.orm import relationship, synonym, backref
 from sqlalchemy.orm.mapper import validates
 
 from oyProjectManager import db
@@ -23,7 +24,6 @@ from oyProjectManager import utils, config
 bCache = cache.CacheManager()
 
 # disable beaker DEBUG messages
-import logging
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
@@ -34,7 +34,6 @@ logger.setLevel(logging.DEBUG)
 
 # get the config
 conf = config.Config()
-
 
 class Repository(object):
     """Repository class gives information about the repository and projects in
@@ -159,77 +158,17 @@ class Repository(object):
     def server_path(self):
         """The server path
         """
-        
-#        platform_system = platform.system()
-#        python_version = platform.python_version()
-#        
-#        windows_string = "Windows"
-#        linux_string = "Linux"
-#        osx_string = "Darwin"
-#        
-#        if python_version.startswith("2.5"):
-#            windows_string = "Microsoft"
-#
-#        if platform_system == linux_string:
-#            return self._linux_path
-#        elif platform_system == windows_string:
-#            return self._windows_path
-#        elif platform_system == osx_string:
-#            return self._osx_path
-        
-        return os.environ[conf.repository_env_key]
-        
-    
-#    @server_path.setter
-#    def server_path(self, server_path):
-#        """setter for the server_path
-#        
-#        :param server_path: a string showing the server path
-#        """
-#        
-#        # TODO: check if the given path is not matching the REPO env var
-#        
-#        # add a trailing separator
-#        # in any cases os.path.join adds a trailing separator
-#        
-#        server_path = os.path.expanduser(
-#            os.path.expandvars(
-#                os.path.expandvars(
-#                    os.path.expandvars(
-#                        server_path
-#                    )
-#                )
-#            )
-#        )
-#        
-#        platform_system = platform.system()
-#        
-#        windows_string = "Windows"
-#        linux_string = "Linux"
-#        osx_string = "Darwin"
-#        
-#        if platform_system == linux_string:
-#            self.linux_path = server_path.replace("\\", "/")
-#        elif platform_system == windows_string:
-#            self.windows_path = server_path.replace("\\", "/")
-#        elif platform_system == osx_string:
-#            self.osx_path = server_path.replace("\\", "/")
-#        
-##        # set also the environment variables
-##        os.environ[conf.repository_env_key] = str(server_path)
-#        
-#        self._project_names = []
-#        self.update_project_list()
+        return os.path.expandvars(
+            os.path.expandvars(
+                os.path.expanduser(
+                    os.environ[conf.repository_env_key]
+                )
+            )
+        )
     
     @property
     def linux_path(self):
         return self._linux_path.replace("\\", "/")
-    
-#    @linux_path.setter
-#    def linux_path(self, linux_path_in):
-#        """The linux path of the jobs server
-#        """
-#        self._linux_path = linux_path_in.replace("\\", "/")
     
     @property
     def windows_path(self):
@@ -237,47 +176,39 @@ class Repository(object):
         """
         return self._windows_path.replace("\\", "/")
     
-#    @windows_path.setter
-#    def windows_path(self, windows_path_in):
-#        self._windows_path = windows_path_in.replace("\\", "/")
-    
     @property
     def osx_path(self):
         """The osx path of the jobs server
         """
         return self._osx_path.replace("\\", "/")
-        
-#    @osx_path.setter
-#    def osx_path(self, osx_path_in):
-#        self._osx_path = osx_path_in.replace("\\", "/")
     
-    def get_project_name(self, filePath):
-        """Returns the project name from the given path or fullPath.
+    def get_project_name(self, file_path):
+        """Returns the project name from the given path or fullpath.
         
         Calculates the project name from the given file or folder full path.
         It returns None if it can not get a suitable name.
         
-        :param str filePath: The file or folder path.
+        :param str file_path: The file or folder path.
         
         :returns: Returns a string containing the name of the project
         
         :rtype: str
         """
         
-        #assert(isinstance(filePath, (str, unicode)))
-        if filePath is None:
+        #assert(isinstance(file_path, (str, unicode)))
+        if file_path is None:
             return None
         
-        filePath = os.path.expandvars(
+        file_path = os.path.expandvars(
                        os.path.expanduser(
-                           os.path.normpath(filePath)
+                           os.path.normpath(file_path)
                        )
                    ).replace("\\", "/")
         
-        if not filePath.startswith(self.server_path.replace("\\", "/")):
+        if not file_path.startswith(self.server_path.replace("\\", "/")):
             return None
         
-        residual = filePath[len(self.server_path.replace("\\", "/"))+1:]
+        residual = file_path[len(self.server_path.replace("\\", "/"))+1:]
         
         parts = residual.split("/")
         
@@ -346,9 +277,9 @@ class Project(Base):
     :class:`~oyProjectManager.core.models.Project` instance is not enough to
     physically create the project folder structure. To make it happen the
     :meth:`~oyProjectManager.core.models.Project.create` should be called to
-    finish the creation process. This will both create the main folder and the
-    general structure of the project and a ``.metadata.db`` file. Any Project,
-    which has a ``.metadata.db`` file (thus a folder with a name of
+    finish the creation process. This will both create the project folder and
+    the general structure of the project and a ``.metadata.db`` file. Any
+    Project, which has a ``.metadata.db`` file (thus a folder with a name of
     ``Project.name``) considered an existing Project and ``Project.exists``
     returns ``True``.
     
@@ -357,12 +288,12 @@ class Project(Base):
     be created because the name will become an empty string after the name
     validation process.
     
+    The name of the project can freely be changed, but the path of the project
+    will not change after the name of the project is changed.
+    
     :param name: The name of the project. Should be a string or unicode. Name
       can not be None, a TypeError will be raised when it is given as None.
       The default value is None, so it will raise a TypeError.
-      
-      TODO: update the error messages for project.name=None, it should return
-            TypeError instead of ValueErrors.
       
       The given project name is validated against the following rules:
         
@@ -375,6 +306,12 @@ class Project(Base):
         * All the letters should be upper case.
         * All the "-" (minus) signs are converted to "_" (under score)
         * All the CamelCase formatting are expanded to underscore (Camel_Case)
+    
+    :param code: The code of the project. Should be a string or unicode. If
+      given as None it will be generated from the
+      :attr:`~oyProjectManager.core.models.Project.name` attribute. If it an
+      empty string or become an empty string after validation a ValueError will
+      be raised.
     
     :param int fps: The frame rate in frame per second format. It is an 
       integer. The default value is 25. It can be skipped. If set to None. 
@@ -390,8 +327,8 @@ class Project(Base):
     name = Column(String(256), unique=True)
     code = Column(String(256), unique=True)
     description = Column(String)
-    path = Column(String)
-    fullPath = Column(String)
+    _path = Column(String)
+    _fullpath = Column(String)
     
     shot_number_prefix = Column(String(16), default=conf.shot_number_prefix)
     shot_number_padding = Column(Integer, default=conf.shot_number_padding)
@@ -421,7 +358,9 @@ class Project(Base):
         primaryjoin="Sequences.c.project_id==Projects.c.id"
     )
     
-    def __new__(cls, name=None):
+    version_types = relationship("VersionType")
+    
+    def __new__(cls, name, code=None):
         """the overridden __new__ method to manage the creation of a Project
         instances.
         
@@ -476,19 +415,16 @@ class Project(Base):
         
         # just create it normally
         logger.debug("returning a normal Project instance")
-        return super(Project, cls).__new__(cls, name=name)
-    
-    def __init__(self, name=None):
-        # TODO: Projects needs code attribute
+        return super(Project, cls).__new__(cls, name)
         
+    def __init__(self, name, code=None):
         # do not initialize if it is created from the DB
         if hasattr(self, "__skip_init__"):
             return
         
-        self.path = ""
-        self.fullPath = ""
+        self._path = ""
+        self._fullpath = ""
         
-        self._repository = Repository()
         
         # if the project is not retrieved from the database it doesn't have a
         # session attribute, so create one
@@ -500,10 +436,15 @@ class Project(Base):
             self.query = None
         
         self.name = name
+        self.code = code
+        
+        self._repository = Repository()
+        self._path = self._repository.server_path
+        self._fullpath = os.path.join(self.path, self.name)
         
         self.metadata_db_name = conf.database_file_name
         self.metadata_full_path = os.path.join(
-            self.fullPath,
+            self.fullpath,
             self.metadata_db_name
         ).replace("\\", "/")
         
@@ -521,9 +462,17 @@ class Project(Base):
         self.height = conf.resolution_height
         self.pixel_aspect = conf.resolution_pixel_aspect
         
-        self.structure = conf.project_structure
-        
         self._exists = None
+        
+        # initialize the version_type attribute from the config file. This
+        # should only run for a newly created project instance not for a one
+        # get from the db
+        for version_type in conf.version_types:
+            version_type["project"] = self
+            self.version_types.append(VersionType(**version_type))
+        
+        # and the structure
+        self.structure = conf.project_structure
     
     @orm.reconstructor
     def __init_on_load__(self):
@@ -536,7 +485,7 @@ class Project(Base):
         
         self.metadata_db_name = conf.database_file_name
         self.metadata_full_path = os.path.join(
-            self.fullPath,
+            self.fullpath,
             self.metadata_db_name
         ).replace("\\", "/")
         
@@ -552,21 +501,20 @@ class Project(Base):
     def __eq__(self, other):
         """equality of two projects
         """
-
         return isinstance(other, Project) and self.name == other.name
     
-    def update_paths(self, name_in):
-        self.path = self._repository.server_path
-        self.fullPath = os.path.join(self.path, name_in)
-
     @classmethod
     def _condition_name(cls, name):
         
         if name is None:
-            raise TypeError("The name can not be None")
+            raise TypeError("The Project.name can not be None")
+        
+        if not isinstance(name, (str, unicode)):
+            raise TypeError("Project.name should be an instance of string or "
+                            "unicode not %s" % type(name))
         
         if name is "":
-            raise ValueError("The name can not be an empty string")
+            raise ValueError("The Project.name can not be an empty string")
         
         # strip the name
         name = name.strip()
@@ -585,7 +533,7 @@ class Project(Base):
         
         # check if the name became empty string after validation
         if name is "":
-            raise ValueError("The name is not valid after validation")
+            raise ValueError("The Project.name is not valid after validation")
         
         return name
     
@@ -593,13 +541,45 @@ class Project(Base):
     def _validate_name(self, key, name_in):
         """validates the given name_in value
         """
-        
         name_in = self._condition_name(name_in)
-        
-        self.update_paths(name_in)
-        
+#        self.update_paths(name_in)
         return name_in
 
+    @validates("code")
+    def _validate_code(self, key, code):
+        """validates the given code_in value
+        """
+        if code is None:
+            code = self.name
+        
+        if not isinstance(code, (str, unicode)):
+            raise TypeError("Project.code should be an instance of string or "
+                            "unicode not %s" % type(code))
+        
+        if code is "":
+            raise ValueError("Project.code can not be an empty string")
+        
+        # strip the code
+        code = code.strip()
+        # convert all the "-" signs to "_"
+        code = code.replace("-", "_")
+        # replace camel case letters
+        code = re.sub(r"(.+?[a-z]+)([A-Z])", r"\1_\2", code)
+        # remove unnecessary characters from the string
+        code = re.sub("([^a-zA-Z0-9\s_]+)", r"", code)
+        # remove all the characters from the beginning which are not alphabetic
+        code = re.sub("(^[^a-zA-Z]+)", r"", code)
+        # substitute all spaces with "_" characters
+        code = re.sub("([\s])+", "_", code)
+        # convert it to upper case
+        code = code.upper()
+        
+        # check if the code became empty string after validation
+        if code is "":
+            raise ValueError("Project.code is not valid after validation")
+        
+        return code
+    
     def save(self):
         """Saves the Project related information to the database.
         
@@ -628,7 +608,7 @@ class Project(Base):
         """
         
         # check if the folder already exists
-        utils.mkdir(self.fullPath)
+        utils.mkdir(self.fullpath)
         
         # create the structure if it is not present
         
@@ -636,22 +616,12 @@ class Project(Base):
                              render(project=self)
         
         for folder in rendered_structure.split("\n"):
-            utils.createFolder(os.path.join(self.fullPath, folder.strip()))
+            utils.createFolder(os.path.join(self.fullpath, folder.strip()))
         
         self._exists = True
         
         self.save()
-
-    @property
-    def repository(self):
-        """the repository object
-        """
-        return self._repository
-
-    @repository.setter
-    def repository(self, repo):
-        self._repository = repo
-
+    
     @property
     def exists(self):
         """returns True if the project folder exists
@@ -660,6 +630,21 @@ class Project(Base):
             self._exists = os.path.exists(self.metadata_full_path)
         
         return self._exists
+    
+    @synonym_for("_path")
+    @property
+    def path(self):
+        """The path of this project instance. Basically it is the same value
+        with what $REPO env variable holds
+        """
+        return self._path
+    
+    @synonym_for("_fullpath")
+    @property
+    def fullpath(self):
+        """The fullpath of this project instance
+        """
+        return self._fullpath
 
 class Sequence(Base):
     """Sequence object to help manage sequence related data.
@@ -698,6 +683,7 @@ class Sequence(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(256), unique=True)
     code = Column(String(256), unique=True)
+    description = Column(String)
     
     project_id = Column(Integer, ForeignKey("Projects.id"))
     _project = relationship("Project")
@@ -753,8 +739,6 @@ class Sequence(Base):
         self.session = self.project.session
         logger.debug("id(sequence.session): %s" % id(self.session))
         
-        self.repository = self.project.repository
-        
         self.name = name
         
         if code is None:
@@ -762,15 +746,21 @@ class Sequence(Base):
         
         self.code = code
         
-#        self._path = self.project.fullPath
-#        self._fullPath = os.path.join(self._path, self.name).replace("\\", "/")
-        
         self._exists = False
     
-    # TODO: there should be a create() method which saves the sequence and
-    # than calls the Project.create() which will create the necessary folder
-    # structure
-
+    @orm.reconstructor
+    def __init_on_load__(self):
+        """method that will run for database loaded instances
+        """
+        self.session = self.project.session
+    
+    def create(self):
+        """creates the sequence structure by calling self.save() and then a
+        self.project.create()
+        """
+        self.save()
+        self.project.create()
+    
     def save(self):
         """persists the sequence in the database
         """
@@ -945,8 +935,6 @@ class Sequence(Base):
                 "the given project should exist in the system, please call "
                 "Project.create() before passing it to a new Sequence instance"
             )
-        
-        logger.debug("type of the project is: %s" % type(project))
         
         return project
     
@@ -1230,9 +1218,8 @@ class Shot(VersionableBase):
         number = re.sub(r"[A-Z]+", "", self.number)
         alter = re.sub(r"[0-9]+", "", self.number)
         
-        return self.project.shot_prefix + \
-               number.zfill(self.project.shot_padding) + \
-               alter
+        return self.project.shot_number_prefix + \
+               number.zfill(self.project.shot_number_padding) + alter
         
 class Asset(VersionableBase):
     """to work properly it needs a valid project and sequence objects
@@ -1266,22 +1253,22 @@ class Asset(VersionableBase):
         self._fileSize = None
         self._fileSizeString = None
         self._fileSizeFormat = "%.2f MB"
-
+        
         # path variables
         self._fileName = None
         self._path = None
         self._fullPath = None
-
+        
         self._hasFullInfo = False
         self._hasBaseInfo = False
-
+        
         self._dataSeparator = u'_'
-
+        
         self._timeFormat = '%d.%m.%Y %H:%M'
-
+        
         self._exists = False
         self._baseExists = False
-
+        
         if fileName is not None:
             self._fileName = unicode(
                 os.path.splitext(unicode(fileName))[0]) # remove the extension
@@ -1470,7 +1457,7 @@ class Asset(VersionableBase):
 
     @property
     def fullPath(self):
-        """returns the fullPath of the asset
+        """returns the fullpath of the asset
         """
         return self._fullPath
 
@@ -1566,7 +1553,7 @@ class Asset(VersionableBase):
     @property
     def pathVariables(self):
         """returns the path variables which are
-        fullPath
+        fullpath
         path
         fileName
         """
@@ -2326,16 +2313,38 @@ class VersionType(Base):
     |               |                             | Version                  |
     +---------------+-----------------------------+--------------------------+
     
+    In oyProjectManager, generally you don't need to create VersionType
+    instances by hand. Instead, add all the version types you need to your
+    config.py file and the :class:`~oyProjectManager.core.models.Project`
+    instance will create all the necessary VersionTypes from this config.py
+    configuration file.
+    
+    For previously created projects, where a new type is needed to be added you
+    can still create a new VersionType instance and save it to the Projects'
+    database.
+    
+    :param project: A VersionType instance can not be created without defining
+      which :class:`~oyProjectManager.core.models.Project` it belongs to. So it
+      can not be None or anything other than a
+      :class:`oyProjectManager.core.models.Project` instance.
+    
+    :type project: :class:`~oyProjectManager.core.models.Project`
+    
     :param str name: The name of this template. The name is not formatted in
       anyway. It can not be skipped or it can not be None or it can not be an
-      empty string. The name attribute should be unique.
+      empty string. The name attribute should be unique. Be carefull that even
+      specifying a non unique name VersionType instance will not raise an error
+      until :meth:`~oyProjectManager.core.models.VersionType.save` is called.
     
     :param str code: The code is a shorthand form of the name. For example,
       if the name is "Animation" than the code can be "ANIM" or "Anim" or
       "anim". Because the code is generally used in filename, path or
       output_path templates it is going to be a part of the filename or path,
       so be careful about what you give as a code. The code attribute should be
-      unique. For formatting, these rules are current:
+      unique. Be carefull that even specifying a non unique code VersionType
+      instance will not raise an error until
+      :meth:`~oyProjectManager.core.models.VersionType.save` is called. For
+      formatting, these rules are current:
         
         * no white space characters are allowed
         * can not start with a number
@@ -2385,6 +2394,9 @@ class VersionType(Base):
         Car_Main_Model_v001_oy
       
       Now all the versions for the same asset will have a consistent name.
+      
+      When the filename argument is skipped or is an empty string is given a
+      RuntimeError will be raised to prevent creation of files with no names.
     
     :param str path: The path template. It is a single line Jinja2 template
       showing the path of the :class:`~oyProjectManager.core.models.Version`
@@ -2434,31 +2446,99 @@ class VersionType(Base):
       create a camera track in Photoshop then what one can do is to add a
       Camera Track type but exclude the Photoshop from the list of environments
       that this type is valid for.
+      
+      The given value should be a list of environment names, be careful about
+      not to pass just a string for the environments list, python will convert
+      the string to a list by putting all the letters in separate elements in
+      the list. And probably this is not something one wants.
     
-    :type environments: list of
-      :class:`~oyProjectManager.core.models.Environment`\ s
+    :type environments: list of strings
+    
+    :param type_for: An enum value specifying what this VersionType instance is
+      for, is it for an "Asset" or for an "Shot". The two acceptable values are
+      "Asset" or "Shot". Any other value will raise an IntegrityError. It can
+      not be skipped.
+    
     """
+    
+    # TODO: add a link to the "config.py" in the documentation to let the user
+    # learn about configuration of oyProjectManager
     
     __tablename__ = "VersionTypes"
     id = Column(Integer, primary_key=True)
     
-    name = Column(String)
-    code = Column(String)
-    filename = Column(String)
-    path = Column(String)
-    output_path = Column(String)
-    extra_folders = Column(String)
-    environments = relationship("EnvironmentBase",
-                                secondary="VersionType_Environments")
+    project_id = Column(Integer, ForeignKey("Projects.id"))
+    _project = relationship("Project")
+    
+    name = Column(String, unique=True)
+    code = Column(String, unique=True)
+    
+    filename = Column(
+        String,
+        doc="""The filename template for this type of version instances.
+        
+        You can freely change the filename template attribute after creating
+        :class:`~oyProjectManager.core.models.Version`\ s of this type. Any
+        :class:`~oyProjectManager.core.models.Version` which is created prior
+        to this change will not be effected. But be careful about the older and
+        newer :class:`~oyProjectManager.core.models.Version`\ s of
+        the same :class:`~oyProjectManager.core.models.Asset` or
+        :class:`~oyProjectManager.core.models.Shot` may placed to different
+        folders according to your new template.
+        """
+    )
+    
+    path = Column(
+        String,
+        doc="""The path template for this Type of Version instance.
+        
+        You can freely change the path template attribute after creating
+        :class:`~oyProjectManager.core.models.Version`\ s of this type. Any
+        :class:`~oyProjectManager.core.models.Version` which is created prior
+        to this change will not be effected. But be careful about the older and
+        newer :class:`~oyProjectManager.core.models.Version`\ s of
+        the same :class:`~oyProjectManager.core.models.Asset` or
+        :class:`~oyProjectManager.core.models.Shot` may placed to different
+        folders according to your new template.
+        """
+    )
+    
+    output_path = Column(
+        String,
+        doc="""The output path template for this Type of Version instances.
+        """
+    )
+    
+    extra_folders = Column(
+        String,
+        doc="""A string containing the extra folder names those needs to be
+        created"""
+    )
+    
+    environments = association_proxy(
+        "version_type_environments",
+        "environment_name"
+    )
+    
+    _type_for = Column(
+        Enum("Asset", "Shot"),
+        doc="""A enum value showing if this version type is valid for Assets or
+        Shots.
+        """
+    )
     
     def __init__(self,
-                 name="",
-                 code="",
-                 filename="",
-                 path="",
-                 output_path="",
-                 extra_folders="",
-                 environments=None):
+                 project,
+                 name,
+                 code,
+                 filename,
+                 path,
+                 output_path,
+                 environments,
+                 type_for,
+                 extra_folders=None
+    ):
+        self._project = self._check_project(project)
         self.name = name
         self.code = code
         self.filename = filename   
@@ -2466,6 +2546,8 @@ class VersionType(Base):
         self.output_path = output_path
         self.environments = environments
         self.extra_folders = extra_folders
+        self._project = project
+        self._type_for = type_for
     
     @validates("name")
     def _validate_name(self, key, name):
@@ -2481,28 +2563,201 @@ class VersionType(Base):
                             "string or unicode")
         
         return name
+    
+    @validates("code")
+    def _validate_code(self, key, code):
+        """validates the given code value
+        """
+        
+        if code is None:
+            raise RuntimeError("VersionType.code can not be None, please "
+                               "specify a proper string value")
+        
+        if not isinstance(code, (str, unicode)):
+            raise TypeError("VersionType.code should be an instance of "
+                            "string or unicode, please supply one")
+        return code
+    
+    @validates("extra_folders")
+    def _validate_extra_folders(self, key, extra_folders):
+        """validates the given extra_folders value
+        """
+        if extra_folders is None:
+            extra_folders = ""
+        
+        if not isinstance(extra_folders, (str, unicode)):
+            raise TypeError("VersionType.extra_folders should be a string or "
+                            "unicode value showing the extra folders those "
+                            "needs to be created with the Version of this "
+                            "type.")
+        
+        return extra_folders
+    
+    @validates("filename")
+    def _validate_filename(self, key, filename):
+        """validates the given filename
+        """
+        
+        if filename is None:
+            raise RuntimeError("VersionType.filename can not be None, please "
+                               "specify a valid filename template string by "
+                               "using Jinja2 template syntax")
+        
+        if not isinstance(filename, (str, unicode)):
+            raise TypeError("VersionType.filename should be an instance of"
+                            "string or unicode")
+        
+        if filename=="":
+            raise ValueError("VersionType.filename can not be an empty "
+                             "string, it should be a string containing a "
+                             "Jinja2 template code showing the file naming "
+                             "convention of Versions of this type.")
+        
+        return filename
+    
+    @validates("path")
+    def _validate_path(self, key, path):
+        """validates the given path
+        """
+        
+        if path is None:
+            raise RuntimeError("VersionType.path can not be None, please "
+                               "specify a valid path template string by using "
+                               "Jinja2 template syntax")
+        
+        if not isinstance(path, (str, unicode)):
+            raise TypeError("VersionType.path should be an instance of string "
+                            "or unicode")
+        
+        if path=="":
+            raise ValueError("VersionType.path can not be an empty "
+                             "string, it should be a string containing a "
+                             "Jinja2 template code showing the file naming "
+                             "convention of Versions of this type.")
+        
+        return path
+    
+    @validates("output_path")
+    def _validate_output_path(self, key, output_path):
+        """Validates the given output_path value
+        """
+        if output_path is None:
+            raise RuntimeError("VersionType.output_path can not be None")
+        
+        if not isinstance(output_path, (str, unicode)):
+            raise TypeError("VersionType.output_path should be an instance "
+                            "of string or unicode, not %s" % type(output_path))
+        
+        if output_path == "":
+            raise ValueError("VersionType.output_path can not be an empty "
+                             "string")
+        
+        return output_path
+    
+    @classmethod
+    def _check_project(cls, project):
+        """A convenience function which checks the given project argument value
+        
+        It is a ``classmethod``, so can be called both in ``__new__`` and other
+        methods like ``_validate_project``.
+        
+        Checks the given project for a couple of conditions, like being None or
+        not being an Project instance etc.
+        """
+        
+        if project is None:
+            raise RuntimeError("VersionType.project can not be None")
+        
+        if not isinstance(project, Project):
+            raise TypeError("The project should be and instance of "
+                            "oyProjectManager.core.models.Project")
+        
+        return project
+    
+    @synonym_for("_project")
+    @property
+    def project(self):
+        """A read-only attribute to return the related Project of this Sequence
+        instance
+        """
+        
+        return self._project
+    
+    def save(self):
+        """Saves the current VersionType to the database
+        """
+        session = self.project.session
+        if self not in self.project.session:
+            session.add(self)
+        session.commit()
+    
+    @synonym_for("_type_for")
+    @property
+    def type_for(self):
+        """An enum attribute holds what is this VersionType created for, a Shot
+        or an Asset.
+        """
+        return self._type_for
+        
 
+class VersionTypeEnvironments(Base):
+    """An association object for VersionType.environments
+    """
+
+    __tablename__ = "VersionType_Environments"
+    versionType_id = Column(Integer, ForeignKey("VersionTypes.id"),
+                            primary_key=True)
+    environment_name = Column(
+        String,
+        primary_key=True,
+        doc="""The name of the environment which the VersionType instance is
+        valid for
+        """
+    )
+    
+    user = relationship(
+        "VersionType",
+        backref=backref(
+            "version_type_environments",
+            cascade="all, delete-orphan"
+        )
+    )
+    
+    def __init__(self, environment_name):
+        self.environment_name = environment_name
+    
+    @validates("environment_name")
+    def _validate_environment_name(self, key, environment_name):
+        """validates the given environment_name value
+        """
+        
+        if environment_name is None or \
+           not isinstance(environment_name, (str, unicode)):
+            raise TypeError("VersionType.environments should be a list of "
+                            "strings containing the environment names")
+        
+        return environment_name
 
 class User(Base):
     """a class for managing users
     """
-    
+
     __tablename__ = "Users"
-    
+
     id = Column(Integer, primary_key=True)
-    
+
     name = Column(String)
     initials = Column(String)
     email = Column(String)
-    
+
     versions_created = relationship("Version")
-    
+
     def __init__(self, name=None, initials=None, email=None):
         self.name = name
         self.initials = initials
         self.email = email
 
-class EnvironmentBase(Base):
+class EnvironmentBase(object):
     """Holds information related to the program running the oyProjectManager.
     
     In oyProjectManager, an Environment is a host application like Maya, Nuke,
@@ -2511,10 +2766,15 @@ class EnvironmentBase(Base):
     Generally a GUI for the end user is given an environment which helps
     the Qt Gui to be able to open, save, import or export an Asset without
     knowing the details of the environment.
+    
+    .. note::
+      For now the :class:`~oyProjectManager.core.models.EnvironmentBase`
+      inherits from the Python object class. There were no benefit to inherit
+      it from the ``DeclerativeBase``.
     """
     
-    __tablename__ = "Environments"
-    id = Column(Integer, primary_key=True)
+#    __tablename__ = "Environments"
+#    id = Column(Integer, primary_key=True)
     
     def __init__(self, name='', extensions=[]):
         
@@ -2684,10 +2944,3 @@ class EnvironmentBase(Base):
         """
         raise NotImplemented
 
-VersionType_Environments = Table(
-    "VersionType_Environments", Base.metadata,
-    Column("versionType_id", Integer, ForeignKey("VersionTypes.id"),
-           primary_key=True),
-    Column("resource_id", Integer, ForeignKey("Environments.id"),
-           primary_key=True)
-)

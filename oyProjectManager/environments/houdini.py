@@ -174,7 +174,7 @@ class Houdini(EnvironmentBase):
         repo = repository.Repository()
         #repo_env_key = "$" + repo.repository_path_env_key
         
-        #asset_path = str(self._asset.fullPath).replace("\\", "/")
+        #asset_path = str(self._asset.fullpath).replace("\\", "/")
         sequence_path = str(self._asset.sequenceFullPath).replace('\\','/')
         
         # convert the sequence path to a self.repository_path_env_key relative 

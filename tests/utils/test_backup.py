@@ -8,11 +8,13 @@ import unittest
 from xml.dom import minidom
 import jinja2
 import pyseq
-from oyProjectManager.core.models import Asset, Repository
+from oyProjectManager import config
+from oyProjectManager.core.models import Asset, Repository, Sequence, Shot
 
 from oyProjectManager.core.models import Project
 from oyProjectManager.utils.backup import BackUp
 
+conf = config.Config()
 
 class BackUpCreationTester(unittest.TestCase):
     """tests :mod:`~oyProjectManager.utils.backup` module
@@ -22,6 +24,8 @@ class BackUpCreationTester(unittest.TestCase):
     def setUpClass(cls):
         """set up the test at class level
         """
+        os.environ[conf.repository_env_key] = tempfile.mkdtemp()
+        
         # create a new project called BACKUP_TEST_PROJECT
         cls.test_project = Project(name="BACKUP_TEST_PROJECT")
         cls.test_project.create()
@@ -32,7 +36,7 @@ class BackUpCreationTester(unittest.TestCase):
         """
         # remove the project dir
         try:
-            shutil.rmtree(cls.test_project.fullPath)
+            shutil.rmtree(cls.test_project.fullpath)
         except IOError:
             pass
     
@@ -102,7 +106,7 @@ class BackUpCreationTester(unittest.TestCase):
         """testing if the project attribute is working properly
         """
         repo = Repository()
-        project_name = repo.projects[0]
+        project_name = repo.project_names[0]
         
         self.assertNotEqual(project_name, "")
         project = Project(name=project_name)
@@ -264,71 +268,24 @@ class BackUp_DoBackup_Tester(unittest.TestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mktemp()
+        self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
-        # copy the test settings
-        import oyProjectManager
-        
-        self._test_settings_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "test_settings"
-        )
-        
-        self._test_files_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "backup_test_files"
-        )
-
-        
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ["REPO"] = self.temp_projects_folder
-        
-        # copy the default files to the folder
-        shutil.copytree(
-            self._test_settings_folder,
-            self.temp_settings_folder,
-        )
-        
-        # change the server path to a temp folder
-        repository_settings_file_path = os.path.join(
-            self.temp_settings_folder, 'repositorySettings.xml')
-        
-        # change the repositorySettings.xml by using the minidom
-        xmlDoc = minidom.parse(repository_settings_file_path)
-        
-        serverNodes = xmlDoc.getElementsByTagName("server")
-        for serverNode in serverNodes:
-            serverNode.setAttribute("windows_path", self.temp_projects_folder)
-            serverNode.setAttribute("linux_path", self.temp_projects_folder)
-            serverNode.setAttribute("osx_path", self.temp_projects_folder)
-        
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='w')
-        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-        repository_settings_file.close()
         
         # create a project
         self.test_project = Project(name="BACKUP_TEST_PROJECT")
         self.test_project.create()
         
         # create a couple of sequences
-        self.test_seq1 = self.test_project.createSequence(
-            "BACKUP_TEST_SEQ1", "1"
-        )
+        self.test_seq1 = Sequence(self.test_project, "BACKUP_TEST_SEQ1")
+        self.test_seq1.shots.append(Shot(self.test_seq1, 1))
+        self.test_seq1.create()
         
-        self.test_seq2 = self.test_project.createSequence(
-            "BACKUP_TEST_SEQ2", "1"
-        )
-        
+        self.test_seq2 = Sequence(self.test_project, "BACKUP_TEST_SEQ2")
+        self.test_seq2.shots.append(Shot(self.test_seq2, 1))
+        self.test_seq2.create()
         
         # create an FX asset
         self.fx_asset = Asset(
@@ -487,8 +444,8 @@ class BackUp_DoBackup_Tester(unittest.TestCase):
     def tearDown(self):
         """tear down the test
         """
-#        shutil.rmtree(self.temp_settings_folder)
-#        shutil.rmtree(self.temp_projects_folder)
+        shutil.rmtree(self.temp_config_folder)
+        shutil.rmtree(self.temp_projects_folder)
     
     
     def test_doBackUp_(self):
@@ -512,7 +469,7 @@ class BackUp_DoBackup_Tester(unittest.TestCase):
             all(
                 [os.path.exists(
                     item.path.replace(
-                        self.test_project.fullPath, self.backup_path
+                        self.test_project.fullpath, self.backup_path
                     )
                 ) for item in self.imageSeq2]
             )
@@ -522,7 +479,7 @@ class BackUp_DoBackup_Tester(unittest.TestCase):
             all(
                 [os.path.exists(
                     item.path.replace(
-                        self.test_project.fullPath, self.backup_path
+                        self.test_project.fullpath, self.backup_path
                     )
                 ) for item in self.imageSeq3]
             )
@@ -532,7 +489,7 @@ class BackUp_DoBackup_Tester(unittest.TestCase):
             all(
                 [os.path.exists(
                     item.path.replace(
-                        self.test_project.fullPath, self.backup_path
+                        self.test_project.fullpath, self.backup_path
                     )
                 ) for item in self.imageSeq4]
             )

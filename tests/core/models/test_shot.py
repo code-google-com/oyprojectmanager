@@ -1,10 +1,9 @@
-import os
+# -*- coding: utf-8 -*-
+
 import shutil
 import tempfile
 import unittest
-from xml.dom import minidom
 from sqlalchemy.exc import IntegrityError
-import oyProjectManager
 from oyProjectManager.core.models import Project, Sequence, Shot, Version
 
 
@@ -19,52 +18,14 @@ class ShotTester(unittest.TestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mktemp()
+        self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
-        
-        # copy the test settings
-        self._test_settings_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "test_settings"
-        )
-        
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["REPO"] = self.temp_projects_folder
-        
-        # copy the default files to the folder
-        shutil.copytree(
-            self._test_settings_folder,
-            self.temp_settings_folder,
-        )
-        
-        # change the server path to a temp folder
-        repository_settings_file_path = os.path.join(
-            self.temp_settings_folder, 'repositorySettings.xml')
-        
-        # change the repositorySettings.xml by using the minidom
-        xmlDoc = minidom.parse(repository_settings_file_path)
-        
-        serverNodes = xmlDoc.getElementsByTagName("server")
-        for serverNode in serverNodes:
-            serverNode.setAttribute("windows_path", self.temp_projects_folder)
-            serverNode.setAttribute("linux_path", self.temp_projects_folder)
-            serverNode.setAttribute("osx_path", self.temp_projects_folder)
-        
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='w')
-        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-        repository_settings_file.close()
-        
         
         self.test_proj = Project("TEST_PROJ1")
         self.test_proj.create()
         
         self.test_seq = Sequence(self.test_proj, "TEST_SEQ")
-        self.test_seq.save()
+        self.test_seq.create()
         
         self.kwargs = {
             "sequence": self.test_seq,
@@ -96,7 +57,7 @@ class ShotTester(unittest.TestCase):
         """
         
         # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
     
     def test_number_argument_is_skipped(self):
@@ -467,7 +428,6 @@ class ShotTester(unittest.TestCase):
         """
         self.assertIs(self.test_shot.project, self.kwargs["sequence"].project)
 
-
 class ShotDBTester(unittest.TestCase):
     """tests the Shot class with a database
     """
@@ -479,45 +439,8 @@ class ShotDBTester(unittest.TestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mktemp()
+        self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
-        
-        # copy the test settings
-        self._test_settings_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "test_settings"
-        )
-        
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["REPO"] = self.temp_projects_folder
-        
-        # copy the default files to the folder
-        shutil.copytree(
-            self._test_settings_folder,
-            self.temp_settings_folder,
-        )
-        
-        # change the server path to a temp folder
-        repository_settings_file_path = os.path.join(
-            self.temp_settings_folder, 'repositorySettings.xml')
-        
-        # change the repositorySettings.xml by using the minidom
-        xmlDoc = minidom.parse(repository_settings_file_path)
-        
-        serverNodes = xmlDoc.getElementsByTagName("server")
-        for serverNode in serverNodes:
-            serverNode.setAttribute("windows_path", self.temp_projects_folder)
-            serverNode.setAttribute("linux_path", self.temp_projects_folder)
-            serverNode.setAttribute("osx_path", self.temp_projects_folder)
-        
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='w')
-        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-        repository_settings_file.close()
         
         self._name_test_values = [
             ("test project", "TEST_PROJECT"),
@@ -539,7 +462,7 @@ class ShotDBTester(unittest.TestCase):
         """
         
         # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
     
     def test_shot_is_created_properly_in_the_database(self):

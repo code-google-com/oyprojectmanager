@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 import logging
@@ -176,7 +176,7 @@ class Config(object):
             }
         ],
         
-        project_structure = """Sequences/
+        project_structure = """
         {% for sequence in project.sequences %}
             {% set seq_path = 'Sequences/' + sequence.code %}
             {{seq_path}}/Edit/Offline
@@ -206,7 +206,7 @@ class Config(object):
                 "name": "Animation",
                 "code": "ANIM",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
-                "path": "{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -278,7 +278,7 @@ class Config(object):
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini", "Nuke"],
-                "type_for": "Asset, Shot"
+                "type_for": "Asset"
             },
             {
                 "name": "Previs",

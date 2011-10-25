@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import sqlalchemy
 from oyProjectManager.db.declarative import Base

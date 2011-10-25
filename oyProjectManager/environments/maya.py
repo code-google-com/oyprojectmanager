@@ -112,9 +112,9 @@ class Maya(EnvironmentBase):
         
         repo = repository.Repository()
         
-        #repository_relative_asset_fullpath = repo.relative_path(self._asset.fullPath)
-        #print "asset.fullPath: ", asset.fullPath
-        #print "self._asset.fullPath: ", self._asset.fullPath
+        #repository_relative_asset_fullpath = repo.relative_path(self._asset.fullpath)
+        #print "asset.fullpath: ", asset.fullpath
+        #print "self._asset.fullpath: ", self._asset.fullpath
         
         new_asset_fullpath = asset.fullPath
         if asset.fullPath.replace("\\", "/").startswith(
@@ -155,9 +155,9 @@ class Maya(EnvironmentBase):
         fullPath = pm.env.sceneName()
         
         #if os.name == 'nt':
-        #    fullPath = fullPath.replace('/','\\')
+        #    fullpath = fullpath.replace('/','\\')
         
-        #print "the fullPath in maya is ", fullPath
+        #print "the fullpath in maya is ", fullpath
         
         if fullPath != '':
             fileName = os.path.basename(fullPath)

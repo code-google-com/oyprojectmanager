@@ -321,7 +321,7 @@ class Nuke(EnvironmentBase):
             # sometimes it losses the root node, while it shouldn't
             # I can't find the source
             # so instead of using the root node,
-            # just return the sequence.fullPath
+            # just return the sequence.fullpath
             
             return self.asset.sequence.fullPath
         

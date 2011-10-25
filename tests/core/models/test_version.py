@@ -1,18 +1,14 @@
-#-*- coding: utf-8 -*-
-
+# -*- coding: utf-8 -*-
 import os
+
 import shutil
 import tempfile
 import unittest
-from xml.dom import minidom
-import oyProjectManager
 from oyProjectManager import config
 from oyProjectManager.core.models import (VersionableBase, Version,
                                           VersionType, User, Project)
 
 conf = config.Config()
-
-
 
 class VersionTester(unittest.TestCase):
     """tests the Version class
@@ -25,47 +21,10 @@ class VersionTester(unittest.TestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
-        self.temp_settings_folder = tempfile.mktemp()
+        self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
-        # copy the test settings
-        self._test_settings_folder = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    oyProjectManager.__file__
-                )
-            ),
-            "tests", "test_settings"
-        )
-        
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_settings_folder
-        os.environ["REPO"] = self.temp_projects_folder
-        
-#        print self.temp_projects_folder
-        
-        # copy the default files to the folder
-        shutil.copytree(
-            self._test_settings_folder,
-            self.temp_settings_folder,
-        )
-        
-        # change the server path to a temp folder
-        repository_settings_file_path = os.path.join(
-            self.temp_settings_folder, 'repositorySettings.xml')
-        
-        # change the repositorySettings.xml by using the minidom
-        xmlDoc = minidom.parse(repository_settings_file_path)
-        
-        serverNodes = xmlDoc.getElementsByTagName("server")
-        for serverNode in serverNodes:
-            serverNode.setAttribute("windows_path", self.temp_projects_folder)
-            serverNode.setAttribute("linux_path", self.temp_projects_folder)
-            serverNode.setAttribute("osx_path", self.temp_projects_folder)
-        
-        repository_settings_file = file(repository_settings_file_path,
-                                        mode='w')
-        xmlDoc.writexml(repository_settings_file, "\t", "\t", "\n")
-        repository_settings_file.close()
+        os.environ[conf.repository_env_key] = self.temp_projects_folder
         
         self.test_project = Project("TEST_PROJ1")
         self.test_project.create()
@@ -74,14 +33,15 @@ class VersionTester(unittest.TestCase):
         # set it just for testing purposes
         self.test_vbase = VersionableBase()
         self.test_vbase._project = self.test_project
-
+        
         self.test_versionType = VersionType(
+            project=self.test_project,
             name="Animation",
             code="ANIM",
             path="SHOTS/{{version.base_name}}/{{type.code}}",
             filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
             output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/{{version.take_name}}",
-            environments="MAYA, HOUDINI"
+            environments=["MAYA", "HOUDINI"]
         )
         
         self.test_user = User(
@@ -131,7 +91,7 @@ class VersionTester(unittest.TestCase):
         """
         
         # delete the temp folder
-        shutil.rmtree(self.temp_settings_folder)
+        shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
     
     def test_version_of_argument_is_skipped_raises_RuntimeError(self):
@@ -196,6 +156,7 @@ class VersionTester(unittest.TestCase):
         """testing if the type attribute is read-only
         """
         new_type = VersionType(
+            project=self.test_project,
             name="Model",
             code="MODEL",
             path="ASSETS/{{base_name}}/{{type_name}}",
@@ -417,7 +378,7 @@ class VersionTester(unittest.TestCase):
         """testing if the version number will be updated with the smallest
         possible version_number value from the db if it is zero
         """
-        self.kwargs["base_name"] = "A"
+        self.kwargs["base_name"] = "Azero"
         self.kwargs["version_number"] = 0
         versA1 = Version(**self.kwargs)
         versA1.save()
@@ -431,7 +392,7 @@ class VersionTester(unittest.TestCase):
         """testing if the version number will be updated with the smallest
         possible positive version_number value from the db if it is negative
         """
-        self.kwargs["base_name"] = "A"
+        self.kwargs["base_name"] = "Aneg"
         self.kwargs["version_number"] = -100
         versA1 = Version(**self.kwargs)
         versA1.save()
