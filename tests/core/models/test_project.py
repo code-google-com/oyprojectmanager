@@ -429,7 +429,7 @@ class ProjectTester(unittest.TestCase):
         # remove all the version_types from the project
         for vtype in new_proj.version_types:
             new_proj.session.delete(vtype)
-
+        
         new_proj.save()
 
         # now check if all the version types are removed from the db
@@ -441,6 +441,7 @@ class ProjectTester(unittest.TestCase):
             name="Test Version Type",
             code="TVT",
             path="this is the path",
+            filename="this is the filename",
             output_path="this is the output path",
             extra_folders="this is the extra folder",
             environments=["RANDOM ENV NAME1"],

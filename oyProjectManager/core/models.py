@@ -360,7 +360,7 @@ class Project(Base):
     
     version_types = relationship("VersionType")
     
-    def __new__(cls, name, code=None):
+    def __new__(cls, name=None, code=None):
         """the overridden __new__ method to manage the creation of a Project
         instances.
         
@@ -725,7 +725,7 @@ class Sequence(Base):
         logger.debug("returning a normal Sequence instance")
         return super(Sequence, cls).__new__(cls, project, name, code)
     
-    def __init__(self, project=None, name=None, code=None):
+    def __init__(self, project, name, code=None):
         
         # skip initialization if this is coming from DB
         if hasattr(self, "__skip_init__"):
@@ -999,7 +999,7 @@ class Shot(VersionableBase):
     
     :param sequence: The :class:`~oyProjectManager.core.models.Sequence`
       instance that this Shot should belong to. The Sequence may not be created
-      yet. Skipping it or passing None will raise RuntimeError, and anything
+      yet. Skipping it or passing None will raise TypeError, and anything
       other than a :class:`~oyProjectManager.core.models.Sequence` will raise
       a TypeError.
     
@@ -1038,8 +1038,8 @@ class Shot(VersionableBase):
     _sequence = relationship("Sequence")
     
     def __init__(self,
-                 sequence=None,
-                 number=None,
+                 sequence,
+                 number,
                  start_frame=1,
                  end_frame=1,
                  description=''):
@@ -1073,7 +1073,7 @@ class Shot(VersionableBase):
         """
         
         if sequence is None:
-            raise RuntimeError("Shot.sequence can not be None")
+            raise TypeError("Shot.sequence can not be None")
         
         if not isinstance(sequence, Sequence):
             raise TypeError("Shot.sequence should be an instance of "
@@ -2009,13 +2009,13 @@ class Version(Base):
     
     def __init__(
         self,
-        version_of=None,
-        type=None,
-        base_name=None,
+        version_of,
+        base_name,
+        type,
+        created_by,
         take_name="MAIN",
         version_number=1,
         note="",
-        created_by=None,
     ):
         self._version_of = version_of
         self._type = type
@@ -2035,7 +2035,7 @@ class Version(Base):
         """validates the given version of value
         """
         if version_of is None:
-            raise RuntimeError("Version.version_of can not be None")
+            raise TypeError("Version.version_of can not be None")
         
         if not isinstance(version_of, VersionableBase):
             raise TypeError("Version.version_of should be an Asset or Shot "
@@ -2058,7 +2058,7 @@ class Version(Base):
         """validates the given type value
         """
         if type is None:
-            raise RuntimeError("Version.type can not be None")
+            raise TypeError("Version.type can not be None")
         
         if not isinstance(type, VersionType):
             raise TypeError("Version.type should be an instance of "
@@ -2146,7 +2146,7 @@ class Version(Base):
         """validates the given base_name value
         """
         if base_name is None:
-            raise RuntimeError("Version.base_name can not be None, please "
+            raise TypeError("Version.base_name can not be None, please "
                                "supply a proper string or unicode value")
         
         if not isinstance(base_name, (str, unicode)):
@@ -2267,7 +2267,7 @@ class Version(Base):
         """validates the created_by value
         """
         if created_by is None:
-            raise RuntimeError("Version.created_by can not be None, please "
+            raise TypeError("Version.created_by can not be None, please "
                                "set it to oyProjectManager.core.models.User "
                                "instance")
         
@@ -2396,7 +2396,7 @@ class VersionType(Base):
       Now all the versions for the same asset will have a consistent name.
       
       When the filename argument is skipped or is an empty string is given a
-      RuntimeError will be raised to prevent creation of files with no names.
+      TypeError will be raised to prevent creation of files with no names.
     
     :param str path: The path template. It is a single line Jinja2 template
       showing the path of the :class:`~oyProjectManager.core.models.Version`
@@ -2526,13 +2526,13 @@ class VersionType(Base):
         Shots.
         """
     )
-    
+
     def __init__(self,
                  project,
                  name,
                  code,
-                 filename,
                  path,
+                 filename,
                  output_path,
                  environments,
                  type_for,
@@ -2541,27 +2541,27 @@ class VersionType(Base):
         self._project = self._check_project(project)
         self.name = name
         self.code = code
-        self.filename = filename   
+        self.filename = filename
         self.path = path
         self.output_path = output_path
         self.environments = environments
         self.extra_folders = extra_folders
         self._project = project
         self._type_for = type_for
-    
+
     @validates("name")
     def _validate_name(self, key, name):
         """validates the given name value
         """
-        
+
         if name is None:
-            raise RuntimeError("VersionType.name can not be None, please "
+            raise TypeError("VersionType.name can not be None, please "
                                "supply a string or unicode instance")
-        
+
         if not isinstance(name, (str, unicode)):
             raise TypeError("VersionType.name should be an instance of "
                             "string or unicode")
-        
+
         return name
     
     @validates("code")
@@ -2570,7 +2570,7 @@ class VersionType(Base):
         """
         
         if code is None:
-            raise RuntimeError("VersionType.code can not be None, please "
+            raise TypeError("VersionType.code can not be None, please "
                                "specify a proper string value")
         
         if not isinstance(code, (str, unicode)):
@@ -2599,7 +2599,7 @@ class VersionType(Base):
         """
         
         if filename is None:
-            raise RuntimeError("VersionType.filename can not be None, please "
+            raise TypeError("VersionType.filename can not be None, please "
                                "specify a valid filename template string by "
                                "using Jinja2 template syntax")
         
@@ -2621,7 +2621,7 @@ class VersionType(Base):
         """
         
         if path is None:
-            raise RuntimeError("VersionType.path can not be None, please "
+            raise TypeError("VersionType.path can not be None, please "
                                "specify a valid path template string by using "
                                "Jinja2 template syntax")
         
@@ -2642,7 +2642,7 @@ class VersionType(Base):
         """Validates the given output_path value
         """
         if output_path is None:
-            raise RuntimeError("VersionType.output_path can not be None")
+            raise TypeError("VersionType.output_path can not be None")
         
         if not isinstance(output_path, (str, unicode)):
             raise TypeError("VersionType.output_path should be an instance "
@@ -2666,7 +2666,7 @@ class VersionType(Base):
         """
         
         if project is None:
-            raise RuntimeError("VersionType.project can not be None")
+            raise TypeError("VersionType.project can not be None")
         
         if not isinstance(project, Project):
             raise TypeError("The project should be and instance of "
@@ -2691,14 +2691,29 @@ class VersionType(Base):
             session.add(self)
         session.commit()
     
+    @validates("_type_for")
+    def _validate_type_for(self, key, type_for):
+        """Validates the given type_for value
+        """
+        
+        if type_for is None:
+            raise TypeError("VersionType.type_for can not be None, it should "
+                            "be a string or unicode value")
+        
+        if not isinstance(type_for, (str, unicode)):
+            raise TypeError("VersionType.type_for should be an instance of "
+                            "string or unicode, not %s" % type(type_for))
+        
+        return type_for
+    
     @synonym_for("_type_for")
     @property
     def type_for(self):
         """An enum attribute holds what is this VersionType created for, a Shot
         or an Asset.
         """
-        return self._type_for
         
+        return self._type_for
 
 class VersionTypeEnvironments(Base):
     """An association object for VersionType.environments
@@ -2752,7 +2767,7 @@ class User(Base):
 
     versions_created = relationship("Version")
 
-    def __init__(self, name=None, initials=None, email=None):
+    def __init__(self, name, initials, email=None):
         self.name = name
         self.initials = initials
         self.email = email

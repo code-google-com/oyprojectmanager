@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-
+import os
 import shutil
 import tempfile
 import unittest
 from sqlalchemy.exc import IntegrityError
-from oyProjectManager.core.models import Project, Sequence, Shot, Version
+from oyProjectManager import config
+from oyProjectManager.core.models import Project, Sequence, Shot
 
+conf = config.Config()
 
 class ShotTester(unittest.TestCase):
     """tests the Shot class
@@ -20,6 +22,8 @@ class ShotTester(unittest.TestCase):
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
+        
+        os.environ[conf.repository_env_key] = self.temp_projects_folder
         
         self.test_proj = Project("TEST_PROJ1")
         self.test_proj.create()
@@ -217,18 +221,18 @@ class ShotTester(unittest.TestCase):
 #            self.assertEqual(self.test_shot.code, test_value[1])
     
     def test_sequence_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the sequence argument
+        """testing if a TypeError will be raised when the sequence argument
         is skipped
         """
         self.kwargs.pop("sequence")
-        self.assertRaises(RuntimeError, Shot, **self.kwargs)
+        self.assertRaises(TypeError, Shot, **self.kwargs)
     
     def test_sequence_argument_is_None(self):
-        """testing if a RuntimeError will be raised when the sequence argument
+        """testing if a TypeError will be raised when the sequence argument
         is None
         """
         self.kwargs["sequence"] = None
-        self.assertRaises(RuntimeError, Shot, **self.kwargs)
+        self.assertRaises(TypeError, Shot, **self.kwargs)
     
     def test_sequence_argument_is_not_a_Sequence_instance(self):
         """testing if a TypeError will be raised when the sequence argument is

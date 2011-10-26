@@ -82,18 +82,18 @@ class VersionTypeTester(unittest.TestCase):
         shutil.rmtree(self.temp_projects_folder)
     
     def test_project_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the project argument
+        """testing if a TypeError will be raised when the project argument
         is skipped
         """
         self.kwargs.pop("project")
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_project_argument_is_None(self):
-        """testing if a RuntimeError will be raised when the project argument
+        """testing if a TypeError will be raised when the project argument
         is None
         """
         self.kwargs["project"] = None
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_project_argument_is_not_a_Project_instance(self):
         """testing if a TypeError will be raised when the project argument is
@@ -131,24 +131,24 @@ class VersionTypeTester(unittest.TestCase):
                           "project", self.kwargs["project"])
     
     def test_name_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the name argument is
+        """testing if a TypeError will be raised when the name argument is
         skipped
         """
         self.kwargs.pop("name")
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_name_argument_is_None(self):
-        """testing if a RuntimeError will be raised when the name argument is
+        """testing if a TypeError will be raised when the name argument is
         None
         """
         self.kwargs["name"] = None
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_name_attribute_is_None(self):
-        """testing if a RuntimeError will be raised when the name attribute is
+        """testing if a TypeError will be raised when the name attribute is
         set to None
         """
-        self.assertRaises(RuntimeError, setattr, self.test_versionType, "name",
+        self.assertRaises(TypeError, setattr, self.test_versionType, "name",
                           None)
     
     def test_name_argument_is_not_a_string(self):
@@ -186,24 +186,24 @@ class VersionTypeTester(unittest.TestCase):
         self.assertRaises(IntegrityError, new_vtype.save)
     
     def test_code_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the code argument is
+        """testing if a TypeError will be raised when the code argument is
         skipped
         """
         self.kwargs.pop("code")
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_code_argument_is_None(self):
-        """testing if a RuntimeError will be raised when the code argument is
+        """testing if a TypeError will be raised when the code argument is
         None
         """
         self.kwargs["code"] = None
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_code_attribute_is_None(self):
-        """testing if a RuntimeError will be raised when the code attribute is
+        """testing if a TypeError will be raised when the code attribute is
         set to None
         """
-        self.assertRaises(RuntimeError, setattr, self.test_versionType, "code",
+        self.assertRaises(TypeError, setattr, self.test_versionType, "code",
                           None)
     
     def test_code_argument_is_not_a_string(self):
@@ -242,11 +242,11 @@ class VersionTypeTester(unittest.TestCase):
         self.assertRaises(IntegrityError, new_vtype.save)
     
     def test_filename_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the filename argument
+        """testing if a TypeError will be raised when the filename argument
         is skipped
         """
         self.kwargs.pop("filename")
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_filename_argument_is_empty_string(self):
         """testing if a ValueError will be raised when the filename argument
@@ -291,11 +291,11 @@ class VersionTypeTester(unittest.TestCase):
         self.assertEqual(self.test_versionType.filename, test_value)
     
     def test_path_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the path argument
+        """testing if a TypeError will be raised when the path argument
         is skipped
         """
         self.kwargs.pop("path")
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_path_argument_is_empty_string(self):
         """testing if a ValueError will be raised when the path argument
@@ -340,11 +340,11 @@ class VersionTypeTester(unittest.TestCase):
         self.assertEqual(self.test_versionType.path, test_value)
     
     def test_output_path_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the output_path
+        """testing if a TypeError will be raised when the output_path
         argument is skipped
         """
         self.kwargs.pop("output_path")
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_output_path_argument_is_empty_string(self):
         """testing if a ValueError will be raised when the output_path
@@ -505,18 +505,18 @@ class VersionTypeTester(unittest.TestCase):
         self.assertItemsEqual(self.test_versionType.environments, test_value)
     
     def test_type_for_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the type_for argument
-        is skipped
+        """testing if a TypeError will be raised when the type_for argument is
+        skipped
         """
         self.kwargs.pop("type_for")
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_type_for_argument_is_None(self):
-        """testing if a RuntimeError will be raised when the type_for argument
+        """testing if a TypeError will be raised when the type_for argument
         is None
         """
         self.kwargs["type_for"] = None
-        self.assertRaises(RuntimeError, VersionType, **self.kwargs)
+        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_type_for_argument_is_not_a_string_or_integer(self):
         """testing if a TypeError will be raised when the type_for argument is

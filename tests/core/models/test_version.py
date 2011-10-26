@@ -36,12 +36,13 @@ class VersionTester(unittest.TestCase):
         
         self.test_versionType = VersionType(
             project=self.test_project,
-            name="Animation",
-            code="ANIM",
+            name="Test Animation",
+            code="TANIM",
             path="SHOTS/{{version.base_name}}/{{type.code}}",
             filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
             output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/{{version.take_name}}",
-            environments=["MAYA", "HOUDINI"]
+            environments=["MAYA", "HOUDINI"],
+            type_for="Shot"
         )
         
         self.test_user = User(
@@ -94,19 +95,19 @@ class VersionTester(unittest.TestCase):
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
     
-    def test_version_of_argument_is_skipped_raises_RuntimeError(self):
-        """testing if a RuntimeError will be raised when the version_of
+    def test_version_of_argument_is_skipped_raises_TypeError(self):
+        """testing if a TypeError will be raised when the version_of
         argument is skipped
         """
         self.kwargs.pop("version_of")
-        self.assertRaises(RuntimeError, Version, **self.kwargs)
+        self.assertRaises(TypeError, Version, **self.kwargs)
     
     def test_version_of_argument_is_None(self):
-        """testing if a RuntimeError will be raised when the version_of
+        """testing if a TypeError will be raised when the version_of
         argument is None
         """
         self.kwargs["version_of"] = None
-        self.assertRaises(RuntimeError, Version, **self.kwargs)
+        self.assertRaises(TypeError, Version, **self.kwargs)
     
     def test_version_of_argument_is_not_a_VersionableBase_instance(self):
         """testing if a TypeError will be raised when the version_of argument
@@ -127,18 +128,18 @@ class VersionTester(unittest.TestCase):
                           "version_of", 123)
     
     def test_type_argument_skipped(self):
-        """testing if a RuntimeError will be raised when the type argument is
+        """testing if a TypeError will be raised when the type argument is
         skipped
         """
         self.kwargs.pop("type")
-        self.assertRaises(RuntimeError, Version, **self.kwargs)
+        self.assertRaises(TypeError, Version, **self.kwargs)
     
     def test_type_argument_is_None(self):
-        """testing if a RuntimeError will be raised when the type argument is
+        """testing if a TypeError will be raised when the type argument is
         None
         """
         self.kwargs["type"] = None
-        self.assertRaises(RuntimeError, Version, **self.kwargs)
+        self.assertRaises(TypeError, Version, **self.kwargs)
     
     def test_type_argument_is_not_VersionType_instance(self):
         """testing if a TypeError will be raised when the type argument is not
@@ -157,35 +158,36 @@ class VersionTester(unittest.TestCase):
         """
         new_type = VersionType(
             project=self.test_project,
-            name="Model",
-            code="MODEL",
+            name="Test Model",
+            code="TMODEL",
             path="ASSETS/{{base_name}}/{{type_name}}",
             filename="{{base_name}}_{{take_name}}_{{type_name}}_v{{version}}_{{created_by.initials}}",
             environments="MAYA,HOUDINI",
-            output_path="ASSETS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}"
+            output_path="ASSETS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}",
+            type_for="Asset"
         )
         self.assertRaises(AttributeError, setattr, self.test_version, "type",
                           new_type)
     
     def test_base_name_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the base_name argument
+        """testing if a TypeError will be raised when the base_name argument
         is skipped
         """
         self.kwargs.pop("base_name")
-        self.assertRaises(RuntimeError, Version, **self.kwargs)
+        self.assertRaises(TypeError, Version, **self.kwargs)
     
     def test_base_name_argument_is_None(self):
-        """testing if a RuntimeError will be raised when the base_name argument
+        """testing if a TypeError will be raised when the base_name argument
         is None
         """
         self.kwargs["base_name"] = None
-        self.assertRaises(RuntimeError, Version, **self.kwargs)
+        self.assertRaises(TypeError, Version, **self.kwargs)
     
     def test_base_name_attribute_is_None(self):
-        """testing if a RuntimeError will be raised when the base_name
+        """testing if a TypeError will be raised when the base_name
         attribute is set to None
         """
-        self.assertRaises(RuntimeError, setattr, self.test_version,
+        self.assertRaises(TypeError, setattr, self.test_version,
                           "base_name", None)
     
     def test_base_name_argument_is_not_a_string(self):
@@ -263,8 +265,8 @@ class VersionTester(unittest.TestCase):
         self.assertEqual(new_version.take_name, conf.take_name)
     
     def test_take_name_attribute_is_None(self):
-        """testing if a RuntimeError will be raised when the take_name
-        attribute is set to None
+        """testing if the default take name value will be used when the
+        take_name attribute is set to None
         """
         self.test_version.take_name = None
         self.assertEqual(self.test_version.take_name, conf.take_name)
@@ -481,24 +483,24 @@ class VersionTester(unittest.TestCase):
         self.assertEqual(self.test_version.note, test_value)
     
     def test_created_by_argument_is_skipped(self):
-        """testing if a RuntimeError will be raised when the created_by
+        """testing if a TypeError will be raised when the created_by
         argument is skipped
         """
         self.kwargs.pop("created_by")
-        self.assertRaises(RuntimeError, Version, **self.kwargs)
+        self.assertRaises(TypeError, Version, **self.kwargs)
     
     def test_created_by_argument_is_None(self):
-        """testing if a RuntimeError will be raised when the created_by
+        """testing if a TypeError will be raised when the created_by
         argument is set to None
         """
         self.kwargs["created_by"] = None
-        self.assertRaises(RuntimeError, Version, **self.kwargs)
+        self.assertRaises(TypeError, Version, **self.kwargs)
     
     def test_created_by_attribute_is_set_to_None(self):
-        """testing if a RuntimeError will be raised when the created_by
+        """testing if a TypeError will be raised when the created_by
         attribute is set to None
         """
-        self.assertRaises(RuntimeError, setattr, self.test_version,
+        self.assertRaises(TypeError, setattr, self.test_version,
                           "created_by", None)
     
     def test_created_by_argument_is_not_a_User_instance(self):
@@ -591,7 +593,7 @@ class VersionTester(unittest.TestCase):
         """
         self.assertEqual(
             self.test_version.fullpath,
-            "SHOTS/SH001/ANIM/SH001_MAIN_ANIM_v001_tu"
+            "SHOTS/SH001/TANIM/SH001_MAIN_TANIM_v001_tu"
         )
 
     def test_fullpath_attribute_is_read_only(self):

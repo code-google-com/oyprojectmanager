@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import os
 import shutil
 import tempfile
 import unittest
+
+from oyProjectManager import config
 from oyProjectManager.core.models import VersionableBase
 
+conf = config.Config()
 
 class VersionableBaseTester(unittest.TestCase):
     """tests the VersionableBase class
@@ -19,6 +23,8 @@ class VersionableBaseTester(unittest.TestCase):
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
+        
+        os.environ[conf.repository_env_key] = self.temp_projects_folder
     
     def tearDown(self):
         """remove the temp folders

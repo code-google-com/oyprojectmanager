@@ -8,6 +8,7 @@ import unittest
 from oyProjectManager import config
 from oyProjectManager.core.models import Repository, User, Project
 
+conf = config.Config()
 
 class RepositoryTester(unittest.TestCase):
     """tests the oyProjectManager.core.models.Repository class
@@ -29,7 +30,7 @@ class RepositoryTester(unittest.TestCase):
             self.temp_config_folder, "config.py"
         )
         
-        self.conf = config.Config()
+        
     
     def tearDown(self):
         """remove the temp folders
@@ -61,7 +62,7 @@ class RepositoryTester(unittest.TestCase):
         of shortcuts
         """
         test_value = "~/Project"
-        os.environ[self.conf.repository_env_key] = test_value
+        os.environ[conf.repository_env_key] = test_value
         repo = Repository()
         self.assertEqual(repo.server_path, os.path.expanduser(test_value))
     
@@ -134,7 +135,7 @@ class RepositoryTester(unittest.TestCase):
         test_value = "TEST/Seqs/Seq1/Shots/SH001/FX/SH001_Main_FX_v001_oy.hip"
         test_path = os.path.join(self.temp_projects_folder, test_value)
         
-        expected = "$" + self.conf.repository_env_key + "/" + test_value
+        expected = "$" + conf.repository_env_key + "/" + test_value
         
         repo = Repository()
         self.assertEqual(repo.relative_path(test_path), expected)
@@ -145,7 +146,7 @@ class RepositoryTester(unittest.TestCase):
         """
         repo = Repository()
         self.assertEqual(self.temp_projects_folder,
-                    os.environ[self.conf.repository_env_key])
+                    os.environ[conf.repository_env_key])
         self.assertEqual(repo.server_path, self.temp_projects_folder)
     
     def test_server_path_attribute_is_read_only(self):
