@@ -28,16 +28,17 @@ Summary
    oyProjectManager.core.abstractClasses.Singleton
    oyProjectManager.core.models
    oyProjectManager.core.models.Asset
+   oyProjectManager.core.models.EnvironmentBase
    oyProjectManager.core.models.Project
    oyProjectManager.core.models.Sequence
    oyProjectManager.core.models.Shot
    oyProjectManager.core.models.Repository
    oyProjectManager.core.models.User
+   oyProjectManager.core.models.Version
    oyProjectManager.core.models.VersionableBase
    oyProjectManager.core.models.VersionType
    oyProjectManager.db
    oyProjectManager.db.declarative
-   oyProjectManager.environments.EnvironmentBase
    oyProjectManager.utils
    oyProjectManager.utils.uncompress_range
 

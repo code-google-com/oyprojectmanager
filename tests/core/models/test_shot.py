@@ -432,59 +432,37 @@ class ShotTester(unittest.TestCase):
         """
         self.assertIs(self.test_shot.project, self.kwargs["sequence"].project)
 
-class ShotDBTester(unittest.TestCase):
-    """tests the Shot class with a database
-    """
-    
-    def setUp(self):
-        """setup the test settings with environment variables
-        """
-        
-        # -----------------------------------------------------------------
-        # start of the setUp
-        # create the environment variable and point it to a temp directory
-        self.temp_config_folder = tempfile.mkdtemp()
-        self.temp_projects_folder = tempfile.mkdtemp()
-        
-        self._name_test_values = [
-            ("test project", "TEST_PROJECT"),
-            ("123123 test_project", "TEST_PROJECT"),
-            ("123432!+!'^+Test_PRoject323^+'^%&+%&324", "TEST_PROJECT323324"),
-            ("    ---test 9s_project", "TEST_9S_PROJECT"),
-            ("    ---test 9s-project", "TEST_9S_PROJECT"),
-            (" multiple     spaces are    converted to under     scores",
-             "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
-            ("camelCase", "CAMEL_CASE"),
-            ("CamelCase", "CAMEL_CASE"),
-            ("_Project_Setup_", "PROJECT_SETUP_"),
-            ("_PROJECT_SETUP_", "PROJECT_SETUP_"),
-            ("FUL_3D", "FUL_3D"),
-        ]
-    
-    def tearDown(self):
-        """remove the temp folders
-        """
-        
-        # delete the temp folder
-        shutil.rmtree(self.temp_config_folder)
-        shutil.rmtree(self.temp_projects_folder)
-    
-    def test_shot_is_created_properly_in_the_database(self):
+    def test_shot_is_CRUD_properly_in_the_database(self):
         """testing if the shot instance is created properly in the database
         """
-        self.fail("test is not implemented yet")
-    
-    def test_shot_is_read_properly_from_the_database(self):
-        """testing if the shot instance is read properly from the database
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_shot_is_updated_properly_in_the_database(self):
-        """testing if the shot instance is updated properly in the database
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_shot_is_deleted_properly_from_the_database(self):
-        """testing if the shot instance is deleted properly from the database
-        """
-        self.fail("test is not implemented yet")
+        new_proj = Project("TEST_PROJ_FOR_CRUD")
+        new_proj.create()
+        
+        new_seq = Sequence(new_proj, "TEST_SEQ1")
+        new_seq.create()
+        
+        new_shot = Shot(new_seq, 1)
+        new_shot.save()
+        
+        # now query the database if it is created and read correctly
+        self.assertEqual(new_shot, new_proj.query(Shot).first())
+        
+        # now update it
+        new_shot.start_frame = 100
+        new_shot.end_frame = 200
+        new_shot.save()
+
+        self.assertEqual(
+            new_shot.start_frame,
+            new_proj.query(Shot).first().start_frame
+        )
+        self.assertEqual(
+            new_shot.end_frame,
+            new_proj.query(Shot).first().end_frame
+        )
+        
+        # now delete it
+        new_proj.session.delete(new_shot)
+        new_proj.session.commit()
+        
+        self.assertEqual(new_proj.query(Shot).all(), [])

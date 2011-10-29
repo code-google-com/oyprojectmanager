@@ -55,7 +55,7 @@ class UtilsTester(unittest.TestCase):
         self.assertEqual(utils.sort_string_numbers(test_values),
                          expected_output)
 
-    def test_convertRangeToList_working_properly(self):
+    def test_uncompress_range_working_properly(self):
         """testing the range tools
         """
 

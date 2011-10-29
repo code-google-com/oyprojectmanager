@@ -612,3 +612,28 @@ class VersionTester(unittest.TestCase):
         self.kwargs["type"].path = "A"
         
         self.assertEqual(prev_fullpath, self.test_version.fullpath)
+    
+    def test_references_attribute_accepts_Version_instances_only(self):
+        """testing if a TypeError will be raised when the value passed to the
+        references attribute is not a Version instance
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_references_attribute_accepts_Version_instances_other_than_itself(self):
+        """testing if a ValueError will be raised when the value passed to the
+        references attribute is self
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_references_attribute_doesnt_allow_circular_references(self):
+        """testing if a CyclicDependencyError will be raised when the reference
+        passed with the references value also references this Version instance
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_references_attribute_doesnt_allow_deep_circular_references(self):
+        """testing if a CyclicDependencyError will be raised when the reference
+        passed with the references value has another reference which references
+        this Version instance
+        """
+        self.fail("test is not implemented yet")

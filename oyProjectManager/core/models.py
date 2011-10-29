@@ -15,6 +15,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import synonym_for
 from sqlalchemy.orm import relationship, synonym, backref
 from sqlalchemy.orm.mapper import validates
+from sqlalchemy.schema import Table
 
 from oyProjectManager import db
 from oyProjectManager.db.declarative import Base
@@ -974,6 +975,16 @@ class VersionableBase(Base):
     project_id = Column(Integer, ForeignKey("Projects.id"))
     _project = relationship("Project")
     
+    _code = Column(
+        String,
+        doc="""The nicely formatted version of the
+        :attr:`~oyProjectManager.core.models.Asset.name` attribute or
+        :attr:`~oyProjectManager.core.models.Shot.number` attribute. It will
+        be overloaded in the :class:`~oyProjectManager.core.models.Asset` or
+        :class:`~oyProjectManager.core.models.Shot` class.
+        """
+    )
+    
     @synonym_for("_versions")
     @property
     def versions(self):
@@ -1019,42 +1030,42 @@ class Shot(VersionableBase):
     :param description: A string holding the short description of this shot.
       Can be skipped.
     """
-    
+
     __tablename__ = "Shots"
     __table_args__  = (
         UniqueConstraint("sequence_id", "number"), {}
-    )
+        )
     __mapper_args__ = {"polymorphic_identity": "Shot"}
-    
+
     shot_id =  Column("id", Integer, ForeignKey("Versionables.id") ,primary_key=True)
-    
+
     number = Column(String)
-    _code = Column(String)
+    #    _code = Column(String)
     start_frame = Column(Integer, default=1)
     end_frame = Column(Integer, default=1)
     description = Column(String)
-    
+
     sequence_id = Column(Integer, ForeignKey("Sequences.id"))
     _sequence = relationship("Sequence")
-    
+
     def __init__(self,
                  sequence,
                  number,
                  start_frame=1,
                  end_frame=1,
                  description=''):
-        
+
         self._sequence = self._validate_sequence(sequence)
         self.number = number
         self.description = description
-        
+
         # update the project attribute
         self._project = self._sequence.project
-        
+
         self._duration = 1
         self.start_frame = start_frame
         self.end_frame = end_frame
-        
+
         #self._cutSummary = ''
 
 
@@ -1063,70 +1074,70 @@ class Shot(VersionableBase):
         """
         return self.code
 
-#    def __repr__(self):
-#        """returns the representation of the class
-#        """
-#        return "< oyProjectManager.core.models.Shot object: " + self._name + ">"
-    
+    #    def __repr__(self):
+    #        """returns the representation of the class
+    #        """
+    #        return "< oyProjectManager.core.models.Shot object: " + self._name + ">"
+
     def _validate_sequence(self, sequence):
         """validates the given sequence value
         """
-        
+
         if sequence is None:
             raise TypeError("Shot.sequence can not be None")
-        
+
         if not isinstance(sequence, Sequence):
             raise TypeError("Shot.sequence should be an instance of "
                             "oyProjectManager.core.models.Sequence")
-        
+
         return sequence
-    
+
     @validates("description")
     def _validate_description(self, key, description):
         """validates the given description value
         """
-        
+
         if description is None:
             description = ""
-        
+
         if not isinstance(description, (str, unicode)):
             raise TypeError("Shot.description should be an instance of str "
                             "or unicode")
-        
+
         return description
-    
+
     @validates("start_frame")
     def _validate_start_frame(self, key, start_frame):
         """validates the given start_frame value
         """
-        
+
         if start_frame is None:
             start_frame = 1
-        
+
         if not isinstance(start_frame, int):
             raise TypeError("Shot.start_frame should be an instance of "
                             "integer")
-        
+
         if self.end_frame is not None:
             self._update_duration(start_frame, self.end_frame)
-        
+
         return start_frame
-    
+
     @validates("end_frame")
     def _validate_end_frame(self, key, end_frame):
         """validates the given end_frame value
         """
-        
+
         if end_frame is None:
             end_frame = 1
-        
+
         if not isinstance(end_frame, int):
             raise TypeError("Shot.end_frame should be an instance of "
                             "integer")
-        
+
         if self.end_frame is not None:
             self._update_duration(self.start_frame, end_frame)
-        
+
         return end_frame
 
     def _update_duration(self, start_frame, end_frame):
@@ -1141,63 +1152,63 @@ class Shot(VersionableBase):
         :returns: :class:`~oyProjectManager.core.models.Sequence`
         """
         return self._sequence
-    
+
 
     @property
     def duration(self):
         """the duration
         """
         return self._duration
-    
-    
+
+
     @validates("number")
     def _validates_number(self, key, number):
         """validates the given number value
         """
-        
+
         if not isinstance(number, (int, str, unicode)):
             raise TypeError("Shot.number should be and instance of integer, "
                             "string or unicode")
-        
+
         # first convert it to a string
         number = str(number)
-        
+
         # then format it
         # remove anything which is not a number or letter
         number = re.sub(r"[^0-9a-zA-Z]+", "", number)
-        
+
         # remove anything which is not a number from the beginning
         number = re.sub(
             r"(^[^0-9]*)([0-9]*)([a-zA-Z]{0,1})([a-zA-Z0-9]*)",
             r"\2\3",
             number
         ).upper()
-        
+
         if number == "":
             raise ValueError("Shot.number is not in good format, please "
                              "supply something like 1, 2, 3A, 10B")
-        
+
         # now check if the number is present for the current Sequence
         shot_instance = self.sequence.session.query(Shot).\
-            filter(Shot.number==number).\
-            filter(Shot.sequence_id==self.sequence.id).\
-            first()
-        
+        filter(Shot.number==number).\
+        filter(Shot.sequence_id==self.sequence.id).\
+        first()
+
         if shot_instance is not None:
             raise ValueError("Shot.number already exists for the given "
                              "sequence please give a unique shot code")
-        
+
         return number
-    
+
     def save(self):
         """commits the shot to the database
         """
         logger.debug("saving shot to the database")
         if self not in self.sequence.session:
             self.sequence.session.add(self)
-        
+
         self.sequence.session.commit()
-    
+
     @synonym_for("_code")
     @property
     def code(self):
@@ -1217,654 +1228,108 @@ class Shot(VersionableBase):
         """
         number = re.sub(r"[A-Z]+", "", self.number)
         alter = re.sub(r"[0-9]+", "", self.number)
-        
-        return self.project.shot_number_prefix + \
+
+        return self.project.shot_number_prefix +\
                number.zfill(self.project.shot_number_padding) + alter
-        
+
 class Asset(VersionableBase):
-    """to work properly it needs a valid project and sequence objects
+    """Manages Assets in a given :class:`~oyProjectManager.core.models.Project`
     
-    an Assets folder is something like that:
+    Assets are the data created to finish a
+    :class:`~oyProjectManager.core.models.Project`. It can be a Character or a
+    Vehicle or anything that participate in to a
+    :class:`~oyProjectManager.core.models.Shot`.
     
-    ProjectsFolder / ProjectName / SequenceName / TypePath / BaseName / assetFileName
+    Assets have :class:`~oyProjectManager.core.models.Versions`\ s to hold
+    every change made to that asset file.
+    
+    The name attribute will be copied to the code attribute if the code
+    
+    
+    :param project: The :class:`~oyProjectManager.core.models.Project` instance
+      that this Asset belongs to. It is not possible to initialize an Asset
+      without defining its :class:`~oyProjectManager.core.models.Project`.
+    
+    :param name: The name of this asset. It can not be None or an empty string.
+      Anything is possible to be used as a name but it is recommended to keep
+      it brief. The name attribute will be formatted and the result will be
+      coppied to the :attr:`~oyProjectManager.core.models.Asset.code`
+      attribute. The name should be unique among all the asset in the current
+      :class:`~oyProjectManager.core.models.Project`.
+      
+      The following rules will apply for the formatting of the name:
+        
+        * Spaces are allowed.
+        * It should start with an upper case letter (A-Z)
+        * Only the following characters are allowed (-_ a-zA-Z0-9)
+    
+    :param code: The code of this asset. If it is given as None or empty string
+      the value will be get from the name attribute.
+      
+      The following rules will apply for the formatting of the code:
+      
+        * No spaces are allowed, all the spaces will be replaced with "_"
+          (underscore) characters
+        * It should start with upper case letter (A-Z)
+        * Only the following characters are allowed (a-zA-Z0-9_)
+        * All the "-" (minus) signs are converted to "_" (under score)
+      
+      If the code becomes an empty string after formatting a ValueError will be
+      raised. The code should be unique among all the Assets in the current
+      :class:`~oyProjectManager.core.models.Project`.
     """
 
-    def __init__(self, project, sequence, fileName=None):
+    __tablename__ = "Assets"
+    __mapper_args__ = {"polymorphic_identity": "Asset"}
+
+    asset_id = Column("id", Integer, ForeignKey("Versionables.id"),
+                      primary_key=True)
+
+    name = Column(
+        String,
+        doc="""The name of this Asset instance, try to be brief.
+        """
+    )
+
+    code = Column(
+        String,
+        doc="""The code of this Asset instance, if it is given as None or as an
+        empty string it will be get from the name attribute."""
+    )
+
+    description = Column(
+        String,
+        doc="The description of this asset."
+    )
+
+    def __init__(self, project, name, code=None):
         self._project = project
-        self._sequence = sequence
+        self.name = name
 
-        # asset metadata
-        # info variables
 
-        # baseName could represent a shot string
-        self._baseName = None
-        self._subName = None
-        self._type = None
-        self._typeName = None
-        self._rev = None
-        self._revString = None
-        self._ver = None
-        self._verString = None
-        self._userInitials = None
-        self._notes = None
-        self._extension = u''
-        self._dateCreated = None
-        self._dateUpdated = None
-        self._fileSize = None
-        self._fileSizeString = None
-        self._fileSizeFormat = "%.2f MB"
-        
-        # path variables
-        self._fileName = None
-        self._path = None
-        self._fullPath = None
-        
-        self._hasFullInfo = False
-        self._hasBaseInfo = False
-        
-        self._dataSeparator = u'_'
-        
-        self._timeFormat = '%d.%m.%Y %H:%M'
-        
-        self._exists = False
-        self._baseExists = False
-        
-        if fileName is not None:
-            self._fileName = unicode(
-                os.path.splitext(unicode(fileName))[0]) # remove the extension
-            self._extension = \
-                unicode(
-                    os.path.splitext(
-                        unicode(fileName)
-                    )[1]
-                ).split(os.path.extsep)[-1] # remove the . in extension
-            self.guessInfoVariablesFromFileName()
-
-        self.updateExistence()
-    
-    
     def __repr__(self):
         """the string representation of the object
         """
-        return "<Asset, %s in %s of %s>" % (self.fileName,
-                                            self.sequence.name,
-                                            self.project.name)
-    
+        return "<Asset, %s in %s>" % (self.name, self.project.name)
 
-    @property
-    def infoVariables(self):
-        """returns the info variables as a dictionary
+    def _code_getter(self):
+        """The nicely formatted version of the
+        :attr:`~oyProjectManager.core.models.Asset.name` attribute
         """
+        return self._code
 
-        infoVars = dict()
-        infoVars['baseName'] = self._baseName
-        infoVars['subName'] = self._subName
-        infoVars['typeName'] = self._type.name
-        infoVars['rev'] = self._rev
-        infoVars['revString'] = self._revString
-        infoVars['ver'] = self._ver
-        infoVars['verString'] = self._verString
-        infoVars['userInitials'] = self._userInitials
-        infoVars['notes'] = self._notes
-        infoVars['fileName'] = self._fileName
-
-        return infoVars
-
-
-    def setInfoVariables(self, **keys):
-        """ sets the info variables with a dictionary
-        
-        the minimum valid info variables are:
-        
-        baseName
-        subName
-        typeName
-        
-        and the rest are:
-        rev or revString
-        ver or verString
-        userInitials
-        notes (optional)
-        extension (optional for most of the methods)
+    def _code_setter(self, code):
+        """Sets the code of this Asset instance
         """
-        #assert(isinstance(keys,dict))
-
-        if keys.has_key('baseName'):
-            self._baseName = keys['baseName']
-
-        if keys.has_key('subName'):
-            self._subName = keys['subName']
-
-        if keys.has_key('typeName'):
-            self._typeName = keys['typeName']
-            self._type = self._sequence.getAssetTypeWithName(self._typeName)
-
-        # convert revision and version strings to number
-        if keys.has_key('revString'):
-            self._revString = keys['revString']
-            self._rev = self._sequence.convertToRevNumber(self._revString)
-        elif keys.has_key('rev'):
-            self._rev = int(keys['rev'])
-            self._revString = self._sequence.convertToRevString(self._rev)
-
-        if keys.has_key('verString'):
-            self._verString = keys['verString']
-            self._ver = self._sequence.convertToVerNumber(self._verString)
-        elif keys.has_key('ver'):
-            self._ver = int(keys['ver'])
-            self._verString = self._sequence.convertToVerString(self._ver)
-
-        if keys.has_key('userInitials'):
-            self._userInitials = keys['userInitials']
-
-        if keys.has_key('notes'):
-            self._notes = keys['notes']
-
-        if keys.has_key('extension'):
-            self._extension = keys['extension']
-
-        if not self._sequence._noSubNameField:
-            if self._baseName is not None and self._subName is not None and \
-               self._type is not None and self._baseName != '' and \
-               self._subName != '' and self._type != '':
-                self._hasBaseInfo = True
-                if self._rev is not None and self._ver is not None and \
-                   self._userInitials is not None and self._rev != '' and \
-                   self._ver != '' and self._userInitials != '':
-                    self._hasFullInfo = True
-        else:  # remove this block when the support for old version becomes obsolute
-            if self._baseName is not None and self._type is not None and\
-               self._baseName != '' and self._type != '':
-                self._hasBaseInfo = True
-                if self._rev is not None and self._ver is not None and \
-                   self._userInitials is not None and self._rev != '' and \
-                   self._ver != '' and self._userInitials != '':
-                    self._hasFullInfo = True
-
-        # get path variables
-        self._initPathVariables()
-        self.updateExistence()
-
-
-    def guessInfoVariablesFromFileName(self):
-        """tries to get all the info variables from the file name
-        """
-
-        # check if there is a valid project
-        if self._project is None or self._sequence is None:
-            return
-
-        parts = self._fileName.split(self._dataSeparator)
-
-        if not self._sequence._noSubNameField:
-            if len(parts) < 5:
-                return
-
-            try:
-                self._baseName = parts[0]
-                self._subName = parts[1]
-                self._typeName = parts[2]
-                self._revString = parts[3]
-                self._verString = parts[4]
-                self._userInitials = parts[5]
-            except IndexError:
-                # the given file name is not valid
-                self._fileName = ''
-                return
-
-            if len(parts) > 6: # there should be a notes part
-                self._notes = self._dataSeparator.join(parts[6:len(parts)])
-            else:
-                self._notes = ""
-
-        else: # remove this block when the support for old version becomes obsolute
-            if len(parts) < 4:
-                return
-
-            self._baseName = parts[0]
-            self._typeName = parts[1]
-            self._revString = parts[2]
-            self._verString = parts[3]
-            self._userInitials = parts[4]
-
-            if len(parts) > 5: # there should be a notes part
-                self._notes = self._dataSeparator.join(parts[5:len(parts)])
-            else:
-                self._notes = ""
-
-        # get the type object
-        self._type = self._sequence.getAssetTypeWithName(self._typeName)
-
-        # sometimes the file name matches the format but it is not neccessarly
-        # an asset file if the type is None
-        if self._type is None:
-            return
-
-        try:
-            self._rev = self._sequence.convertToRevNumber(self._revString)
-            self._ver = self._sequence.convertToVerNumber(self._verString)
-        except ValueError:
-            # the pattern is not compatible with the current project
-            return
-
-        self._hasFullInfo = self._hasBaseInfo = True
-
-        self._initPathVariables()
-
-        #self._updateFileSizes()
-        #self._updateFileDates()
-
-
-    @property
-    def fullPath(self):
-        """returns the fullpath of the asset
-        """
-        return self._fullPath
-
-
-    @property
-    def sequence(self):
-        """returns the parent sequence
-        """
-        return self._sequence
-
-
-    @property
-    def path(self):
-        """The path of the asset
-        """
-
-        return self._path
-
-
-    @property
-    def extension(self):
-        """the file extension
-        """
-        return self._extension
-
-    @extension.setter
-    def extension(self, extension):
-        """sets the extension of the asset object
-        """
-        #assert( isinstance(extension, str))
-        # remove any extension separators from the input extension
-        finalExtension = extension.split(os.path.extsep)[-1]
-
-        self._extension = finalExtension
-        self._initPathVariables()
-
-    @property
-    def fileName(self):
-        """gathers the info variables to a fileName
-        """
-
-        fileName = self.fileNameWithoutExtension
-
-        if self._extension is not None and self._extension != '' and \
-           fileName is not None:
-            fileName = fileName + os.extsep + self._extension
-
-        return fileName
-
-
-    @property
-    def fileNameWithoutExtension(self):
-        """returns the file name without extension
-        """
-
-        if not self.isValidAsset:
-            return None
-
-        parts = [] * 0
-        parts.append(self._baseName)
-
-        if not self._sequence._noSubNameField:
-            parts.append(self._subName)
-
-        parts.append(self._type.name)
-        parts.append(self._revString)
-        parts.append(self._verString)
-        parts.append(self._userInitials)
-
-        # check if there is a note
-        if self._notes is not None and self._notes != '':
-            parts.append(self._notes)
-
-        fileName = self._dataSeparator.join(parts)
-
-        return fileName
-
-
-    @property
-    def fileSize(self):
-        """returns the fileSize as a float
-        """
-        return self._fileSize
-
-
-    @property
-    def fileSizeFormated(self):
-        """returns the fileSize as a formatted string
-        """
-        return self._fileSizeString
-
-
-    @property
-    def pathVariables(self):
-        """returns the path variables which are
-        fullpath
-        path
-        fileName
-        """
-        return self.fullPath, self.path, self.fileName
-
-
-    @property
-    def project(self):
-        """returns the project of the asset
-        """
-        return self._project
-
-    @property
-    def latestVersion(self):
-        """returns the lastest version of an asset as an asset object and the number as an integer
-        if the asset file doesn't exists yet it returns None, None
-        """
-        
-        # TODO: update this
-        return None
-
-    @property
-    def latestRevision(self):
-        """returns the latest revision of an asset as an asset object and the number as an integer
-        if the asset doesn't exists yet it returns None, None
-        """
-        # TODO: update this
-        return None
-
-    @property
-    def isShotDependent(self):
-        """returns True if the asset is shot dependent
-        """
-        return self.type.isShotDependent
-
-
-    @property
-    def isValidAsset(self):
-        """returns True if this file is an Asset False otherwise
-        
-        being a valid asset doesn't necessarily mean the asset file exists
-        
-        """
-        # if it has a baseName, subName, typeName, revString, 
-        # verString and a userInitial string
-        # and the parent folder for the asset starts with assets baseName
-        # then it is considered as a valid asset
-
-        if not self._sequence._noSubNameField:
-            # check the fileName
-            validFileName = bool(
-                self._baseName != '' and self._baseName is not None and
-                self._subName != '' and self._subName is not None and
-                self._typeName != '' and self._typeName is not None and
-                self._revString != '' and self._revString is not None and
-                self._verString != '' and self._verString is not None and
-                self._userInitials != '' and self._userInitials is not None and
-                self._validateRevString() and self._validateVerString())
-
-        else: # remove this block when the support for old version becomes
-              # obsolete
-            # check the fileName
-            validFileName = bool(
-                self._baseName != '' and self._baseName is not None and
-                self._typeName != '' and self._typeName is not None and
-                self._revString != '' and self._revString is not None and
-                self._verString != '' and self._verString is not None and
-                self._userInitials != '' and self._userInitials is not None and
-                self._validateRevString() and self._validateVerString())
-
-        return validFileName
-
-
-    def _validateRevString(self):
-        """validates if the revision string follows the format
-        """
-        if self._revString is None or self._revString == '':
-            return False
-
-        revPrefix = self._sequence._revPrefix
-
-        matchObj = re.match(revPrefix + '[0-9]+', self._revString)
-
-        if matchObj is None:
-            return False
-        else:
-            return True
-
-
-    def _validateVerString(self):
-        """validates if the version string follows the format
-        """
-        if self._verString is None or self._verString == '':
-            return False
-
-        verPrefix = self._sequence._verPrefix
-
-        matchObj = re.match(verPrefix + '[0-9]+', self._verString)
-
-        if matchObj is None:
-            return False
-        else:
-            return True
-
-
-    def _updateFileDates(self):
-        """updates the file creation and update dates
-        """
-
-        # get the file dates
-        try:
-            self._dateCreated = time.strftime(self._timeFormat, time.localtime(
-                os.path.getctime(self._fullPath)))
-            self._dateUpdated = time.strftime(self._timeFormat, time.localtime(
-                os.path.getmtime(self._fullPath)))
-        except OSError:
-            pass
-
-
-    def _updateFileSizes(self):
-        """updates the file sizes as megabytes
-        """
-
-        # get the file dates
-        try:
-            self._fileSize = os.path.getsize(self._fullPath)
-            self._fileSizeString = self._fileSizeFormat % (
-            self._fileSize * 9.5367431640625e-07 )
-        except OSError:
-            pass
-
-
-
-
-            #
-            #def _validateExtension(self):
-            #"""check if the extension is in the ignore list in the parent
-            #sequence
-            #"""
-
-
-    @property
-    def versionNumber(self):
-        """returns the version number of the asset
-        """
-        return self._ver
-
-
-    @property
-    def revisionNumber(self):
-        """returns the revision number of the asset
-        """
-        return self._rev
-
-
-    @property
-    def shotNumber(self):
-        """returns the shot number of the asset if the asset is shot dependent
-        """
-
-        if self.isShotDependent:
-            return self._sequence.convertToShotNumber(self._baseName)
-
-
-    @property
-    def versionString(self):
-        """returns the version string of the asset
-        """
-        return self._verString
-
-
-    @property
-    def revisionString(self):
-        """returns the revision string of the asset
-        """
-        return self._revString
-
-
-    @property
-    def type(self):
-        """returns the asset type as an assetType object
-        """
-        return self._type
-
-
-    @property
-    def typeName(self):
-        """returns the asset type name
-        """
-        return self._typeName
-
-
-    @property
-    def dateCreated(self):
-        """returns the date that the asset is created
-        """
-        
-        return self._dateCreated
-
-
-    @property
-    def dateUpdated(self):
-        """returns the date that the asset is updated
-        """
-        return self._dateUpdated
-
-
-    @property
-    def userInitials(self):
-        """returns user initials
-        """
-        return self._userInitials
-
-
-    @property
-    def baseName(self):
-        """returns the base name of the asset
-        """
-        return self._baseName
-
-
-    @property
-    def subName(self):
-        """returns the sub name of the asset
-        """
-        return self._subName
-
-
-    @property
-    def notes(self):
-        """returns 
-        """
-        return self._notes
-
-
-    @property
-    def output_path(self):
-        """returns the output path of the current asset
-        """
-
-        # render all variables like:
-        # assetBaseName
-        # assetSubName
-        # assetTypeName
-        # assetRevNumber
-        # assetRevString
-        # assetVerNumber
-        # assetVerString
-        # assetUserInitials
-        # assetExtension
-
-        return jinja2.Template(self.type.output_path).render(
-            assetBaseName=self.baseName,
-            assetSubName=self.subName,
-            assetTypeName=self.typeName,
-            assetRevNumber=self.revisionNumber,
-            assetRevString=self.revisionString,
-            assetVerNumber=self.versionNumber,
-            assetVerString=self.versionString,
-            assetUserInitials=self.userInitials,
-            assetExtension=self.extension
+        self._code = code
+
+    code = synonym(
+        "_code",
+        descriptor=property(
+            _code_getter,
+            _code_setter
         )
-
-
-    @property
-    def exists(self):
-        """returns True if the asset file exists
-        """
-        return self._exists
-
-
-    def updateExistence(self):
-        """updates the self._exists variable
-        """
-
-        if self._hasBaseInfo:
-            if os.path.exists(self._path):
-                files = os.listdir(self._path)
-                critiquePart = self._getCritiqueName()
-
-                # update baseExistancy
-                for _file in files:
-                    if _file.startswith(critiquePart):
-                        self._baseExists = True
-                        break
-
-            if self._hasFullInfo:
-                self._exists = os.path.exists(self._fullPath)
-
-                self._updateFileSizes()
-                self._updateFileDates()
-
-        else:
-            self._exists = False
-            self._baseExists = False
-
-
-
-            #
-            #def publishAsset(self):
-            #"""publishes the asset by adding its name to the _publishInfo.xml
-            #"""
-            #pass
-
-
-
-            #
-            #def isPublished(self):
-            #"""checks if the current asset is a published asset
-            #"""
-            #pass
+    )
 
 class Version(Base):
     """Holds versions of assets or shots.
@@ -1978,26 +1443,31 @@ class Version(Base):
     
     :type created_by: :class:`~oyProjectManager.core.models.User`
     """
-    
+
     # TODO: add relation attributes like, references and referenced_by
-    
+    # TODO: add audit info like date_created, date_updated, created_at and updated_by
+    # TODO: add file extension field
+    # 
+    # file_size_format = "%.2f MB"
+    # timeFormat = '%d.%m.%Y %H:%M'
+
     __tablename__ = "Versions"
-    
+
     __table_args__  = (
         UniqueConstraint("base_name", "take_name", "_version_number"), {}
-    )
+        )
 
     id = Column(Integer, primary_key=True)
     version_of_id = Column(Integer, ForeignKey("Versionables.id"),
                            nullable=False)
     _version_of = relationship("VersionableBase")
-    
+
     type_id = Column(Integer, ForeignKey("VersionTypes.id"))
     _type = relationship("VersionType")
-    
+
     _filename = Column(String)
     _path = Column(String)
-    
+
     base_name = Column(String)
     take_name = Column(String, default="MAIN")
     revision_number = Column(Integer, default=0)
@@ -2006,16 +1476,24 @@ class Version(Base):
     note = Column(String)
     created_by_id = Column(Integer, ForeignKey("Users.id"))
     created_by = relationship("User")
-    
+
+    references = relationship(
+        "Version",
+        secondary="Version_References",
+        primaryjoin="Version.c.id==Version_References.c.referencer.id",
+        secondaryjoin="Version_References.c.reference.id==Version.c.id",
+        backref="referenced_by"
+    )
+
     def __init__(
-        self,
-        version_of,
-        base_name,
-        type,
-        created_by,
-        take_name="MAIN",
-        version_number=1,
-        note="",
+    self,
+    version_of,
+    base_name,
+    type,
+    created_by,
+    take_name="MAIN",
+    version_number=1,
+    note="",
     ):
         self._version_of = version_of
         self._type = type
@@ -2025,24 +1503,24 @@ class Version(Base):
         self.version_number = version_number
         self.note = note
         self.created_by = created_by
-        
+
         kwargs = self._template_variables()
         self._filename = jinja2.Template(self.type.filename).render(**kwargs)
         self._path = jinja2.Template(self.type.path).render(**kwargs)
-    
+
     @validates("_version_of")
     def _validate_version_of(self, key, version_of):
         """validates the given version of value
         """
         if version_of is None:
             raise TypeError("Version.version_of can not be None")
-        
+
         if not isinstance(version_of, VersionableBase):
             raise TypeError("Version.version_of should be an Asset or Shot "
                             "or anything derives from VersionableBase class")
-        
+
         return version_of
-    
+
     @synonym_for("_version_of")
     @property
     def version_of(self):
@@ -2052,20 +1530,20 @@ class Version(Base):
         from VersionableBase class
         """
         return self._version_of
-    
+
     @validates("_type")
     def _validate_type(self, key, type):
         """validates the given type value
         """
         if type is None:
             raise TypeError("Version.type can not be None")
-        
+
         if not isinstance(type, VersionType):
             raise TypeError("Version.type should be an instance of "
                             "VersionType class")
-        
+
         return type
-    
+
     @synonym_for("_type")
     @property
     def type(self):
@@ -2073,7 +1551,7 @@ class Version(Base):
         
         It is a VersionType object.
         """
-        
+
         return self._type
 
     def _template_variables(self):
@@ -2095,7 +1573,7 @@ class Version(Base):
         template with the information supplied with this Version instance.
         """
         return self._filename
-    
+
     @synonym_for("_path")
     @property
     def path(self):
@@ -2105,7 +1583,7 @@ class Version(Base):
         with the information supplied with this Version instance.
         """
         return self._path
-    
+
     @property
     def fullpath(self):
         """The fullpath of this version.
@@ -2115,13 +1593,13 @@ class Version(Base):
         :attr:`~oyProjectManager.core.models.Version.path`.
         """
         return os.path.join(self.path, self.filename).replace("\\", "/")
-    
+
     def _condition_name(self, name):
         """conditions the base name, see the
         :class:`~oyProjectManager.core.models.Version` documentation for
         details
         """
-        
+
         # strip the name
         name = name.strip()
         # convert all the "-" signs to "_"
@@ -2134,59 +1612,59 @@ class Version(Base):
         name = re.sub("([\s])+", "_", name)
         # make each words first letter uppercase
         name = "_".join([ word[0].upper() + word[1:]
-                               for word in name.split("_")
-                               if len(word)
+                          for word in name.split("_")
+                          if len(word)
         ])
-        
+
         return name
-        
-    
+
+
     @validates("base_name")
     def _validate_base_name(self, key, base_name):
         """validates the given base_name value
         """
         if base_name is None:
             raise TypeError("Version.base_name can not be None, please "
-                               "supply a proper string or unicode value")
-        
+                            "supply a proper string or unicode value")
+
         if not isinstance(base_name, (str, unicode)):
             raise TypeError("Version.base_name should be an instance of "
                             "string or unicode")
-        
+
         base_name = self._condition_name(base_name)
-        
+
         if base_name == "":
             raise ValueError("Version.base_name is either given as an empty "
                              "string or it became empty after formatting")
-        
+
         return base_name
-    
+
     @validates("take_name")
     def _validate_take_name(self, key, take_name):
         """validates the given take_name value
         """
-        
+
         if take_name is None:
             take_name = conf.take_name
-        
+
         if not isinstance(take_name, (str, unicode)):
             raise TypeError("Version.take_name should be an instance of "
                             "string or unicode")
-        
+
         take_name = self._condition_name(take_name)
-        
+
         if take_name == "":
             raise ValueError("Version.take_name is either given as an empty "
                              "string or it became empty after formatting")
-        
+
         return take_name
-    
+
     @property
     def max_version(self):
         """returns the maximum version number for this Version from the
         database.
         """
-        
+
         a_version = self.version_of.project.session.\
         query(
             Version
@@ -2201,7 +1679,7 @@ class Version(Base):
             max_version = a_version.version_number
         else:
             max_version = 0
-        
+
         return max_version
 
     def _validate_version_number(self, version_number):
@@ -2209,27 +1687,27 @@ class Version(Base):
         """
 
         max_version = self.max_version
-        
+
         if version_number is None:
             # get the smallest possible value for the version_number
             # from the database
             version_number = max_version + 1
-        
+
         if version_number <= max_version:
             version_number = max_version + 1
-        
+
         return version_number
-    
+
     def _version_number_getter(self):
         """returns the version_number of this Version instance
         """
         return self._version_number
-    
+
     def _version_number_setter(self, version_number):
         """sets the version_number of this Version instance
         """
         self._version_number = self._validate_version_number(version_number)
-    
+
     version_number = synonym(
         "_version_number",
         descriptor=property(
@@ -2237,45 +1715,46 @@ class Version(Base):
             _version_number_setter
         )
     )
-    
+
     def save(self):
         """commits the changes to the database
         """
-        
+
         session = self.version_of.project.session
-        
+
         if self not in session:
             session.add(self)
-        
+
         session.commit()
-    
+
     @validates("note")
     def _validate_note(self, key, note):
         """validates the given note value
         """
-        
+
         if note is None:
             note = ""
-        
+
         if not isinstance(note, (str, unicode)):
             raise TypeError("Version.note should be an instance of "
                             "string or unicode")
         return note
-    
+
     @validates("created_by")
     def _validate_created_by(self, key, created_by):
         """validates the created_by value
         """
         if created_by is None:
             raise TypeError("Version.created_by can not be None, please "
-                               "set it to oyProjectManager.core.models.User "
-                               "instance")
-        
+                            "set it to oyProjectManager.core.models.User "
+                            "instance")
+
         if not isinstance(created_by, User):
             raise TypeError("Version.created_by should be an instance of"
-                               "oyProjectManager.core.models.User")
-        
+                            "oyProjectManager.core.models.User")
+
         return created_by
+
 
 class VersionType(Base):
     """A template for :class:`~oyProjectManager.core.models.Version` class.
@@ -2460,19 +1939,19 @@ class VersionType(Base):
       not be skipped.
     
     """
-    
+
     # TODO: add a link to the "config.py" in the documentation to let the user
     # learn about configuration of oyProjectManager
-    
+
     __tablename__ = "VersionTypes"
     id = Column(Integer, primary_key=True)
-    
+
     project_id = Column(Integer, ForeignKey("Projects.id"))
     _project = relationship("Project")
-    
+
     name = Column(String, unique=True)
     code = Column(String, unique=True)
-    
+
     filename = Column(
         String,
         doc="""The filename template for this type of version instances.
@@ -2487,7 +1966,7 @@ class VersionType(Base):
         folders according to your new template.
         """
     )
-    
+
     path = Column(
         String,
         doc="""The path template for this Type of Version instance.
@@ -2502,24 +1981,24 @@ class VersionType(Base):
         folders according to your new template.
         """
     )
-    
+
     output_path = Column(
         String,
         doc="""The output path template for this Type of Version instances.
         """
     )
-    
+
     extra_folders = Column(
         String,
         doc="""A string containing the extra folder names those needs to be
         created"""
     )
-    
+
     environments = association_proxy(
         "version_type_environments",
         "environment_name"
     )
-    
+
     _type_for = Column(
         Enum("Asset", "Shot"),
         doc="""A enum value showing if this version type is valid for Assets or
@@ -2556,104 +2035,104 @@ class VersionType(Base):
 
         if name is None:
             raise TypeError("VersionType.name can not be None, please "
-                               "supply a string or unicode instance")
+                            "supply a string or unicode instance")
 
         if not isinstance(name, (str, unicode)):
             raise TypeError("VersionType.name should be an instance of "
                             "string or unicode")
 
         return name
-    
+
     @validates("code")
     def _validate_code(self, key, code):
         """validates the given code value
         """
-        
+
         if code is None:
             raise TypeError("VersionType.code can not be None, please "
-                               "specify a proper string value")
-        
+                            "specify a proper string value")
+
         if not isinstance(code, (str, unicode)):
             raise TypeError("VersionType.code should be an instance of "
                             "string or unicode, please supply one")
         return code
-    
+
     @validates("extra_folders")
     def _validate_extra_folders(self, key, extra_folders):
         """validates the given extra_folders value
         """
         if extra_folders is None:
             extra_folders = ""
-        
+
         if not isinstance(extra_folders, (str, unicode)):
             raise TypeError("VersionType.extra_folders should be a string or "
                             "unicode value showing the extra folders those "
                             "needs to be created with the Version of this "
                             "type.")
-        
+
         return extra_folders
-    
+
     @validates("filename")
     def _validate_filename(self, key, filename):
         """validates the given filename
         """
-        
+
         if filename is None:
             raise TypeError("VersionType.filename can not be None, please "
-                               "specify a valid filename template string by "
-                               "using Jinja2 template syntax")
-        
+                            "specify a valid filename template string by "
+                            "using Jinja2 template syntax")
+
         if not isinstance(filename, (str, unicode)):
             raise TypeError("VersionType.filename should be an instance of"
                             "string or unicode")
-        
+
         if filename=="":
             raise ValueError("VersionType.filename can not be an empty "
                              "string, it should be a string containing a "
                              "Jinja2 template code showing the file naming "
                              "convention of Versions of this type.")
-        
+
         return filename
-    
+
     @validates("path")
     def _validate_path(self, key, path):
         """validates the given path
         """
-        
+
         if path is None:
             raise TypeError("VersionType.path can not be None, please "
-                               "specify a valid path template string by using "
-                               "Jinja2 template syntax")
-        
+                            "specify a valid path template string by using "
+                            "Jinja2 template syntax")
+
         if not isinstance(path, (str, unicode)):
             raise TypeError("VersionType.path should be an instance of string "
                             "or unicode")
-        
+
         if path=="":
             raise ValueError("VersionType.path can not be an empty "
                              "string, it should be a string containing a "
                              "Jinja2 template code showing the file naming "
                              "convention of Versions of this type.")
-        
+
         return path
-    
+
     @validates("output_path")
     def _validate_output_path(self, key, output_path):
         """Validates the given output_path value
         """
         if output_path is None:
             raise TypeError("VersionType.output_path can not be None")
-        
+
         if not isinstance(output_path, (str, unicode)):
             raise TypeError("VersionType.output_path should be an instance "
                             "of string or unicode, not %s" % type(output_path))
-        
+
         if output_path == "":
             raise ValueError("VersionType.output_path can not be an empty "
                              "string")
-        
+
         return output_path
-    
+
     @classmethod
     def _check_project(cls, project):
         """A convenience function which checks the given project argument value
@@ -2664,25 +2143,25 @@ class VersionType(Base):
         Checks the given project for a couple of conditions, like being None or
         not being an Project instance etc.
         """
-        
+
         if project is None:
             raise TypeError("VersionType.project can not be None")
-        
+
         if not isinstance(project, Project):
             raise TypeError("The project should be and instance of "
                             "oyProjectManager.core.models.Project")
-        
+
         return project
-    
+
     @synonym_for("_project")
     @property
     def project(self):
         """A read-only attribute to return the related Project of this Sequence
         instance
         """
-        
+
         return self._project
-    
+
     def save(self):
         """Saves the current VersionType to the database
         """
@@ -2690,29 +2169,29 @@ class VersionType(Base):
         if self not in self.project.session:
             session.add(self)
         session.commit()
-    
+
     @validates("_type_for")
     def _validate_type_for(self, key, type_for):
         """Validates the given type_for value
         """
-        
+
         if type_for is None:
             raise TypeError("VersionType.type_for can not be None, it should "
                             "be a string or unicode value")
-        
+
         if not isinstance(type_for, (str, unicode)):
             raise TypeError("VersionType.type_for should be an instance of "
                             "string or unicode, not %s" % type(type_for))
-        
+
         return type_for
-    
+
     @synonym_for("_type_for")
     @property
     def type_for(self):
         """An enum attribute holds what is this VersionType created for, a Shot
         or an Asset.
         """
-        
+
         return self._type_for
 
 class VersionTypeEnvironments(Base):
@@ -2729,7 +2208,7 @@ class VersionTypeEnvironments(Base):
         valid for
         """
     )
-    
+
     user = relationship(
         "VersionType",
         backref=backref(
@@ -2737,20 +2216,20 @@ class VersionTypeEnvironments(Base):
             cascade="all, delete-orphan"
         )
     )
-    
+
     def __init__(self, environment_name):
         self.environment_name = environment_name
-    
+
     @validates("environment_name")
     def _validate_environment_name(self, key, environment_name):
         """validates the given environment_name value
         """
-        
-        if environment_name is None or \
+
+        if environment_name is None or\
            not isinstance(environment_name, (str, unicode)):
             raise TypeError("VersionType.environments should be a list of "
                             "strings containing the environment names")
-        
+
         return environment_name
 
 class User(Base):
@@ -2787,150 +2266,150 @@ class EnvironmentBase(object):
       inherits from the Python object class. There were no benefit to inherit
       it from the ``DeclerativeBase``.
     """
-    
-#    __tablename__ = "Environments"
-#    id = Column(Integer, primary_key=True)
-    
+
+    #    __tablename__ = "Environments"
+    #    id = Column(Integer, primary_key=True)
+
     def __init__(self, name='', extensions=[]):
-        
+
         self._name = name
         self._extensions = extensions
-        
+
         self._asset = None
         self._project = None
         self._sequence = None
-    
+
     def __str__(self):
         """the string representation of the environment
         """
         return self._name
-    
+
     @property
     def asset(self):
         """returns the bound asset object
         """
         return self._asset
-    
+
     @asset.setter
     def asset(self, asset):
         """sets the asset object
         """
         self._asset = asset
-    
+
     @property
     def name(self):
         """returns the environment name
         """
         return self._name
-    
+
     @name.setter
     def name(self, name):
         """sets the environment name
         """
         self._name = name
-    
+
     def save(self):
         """the save action
         """
         raise NotImplemented
-    
+
     def export(self, asset):
         """the export action
         """
         raise NotImplemented
-    
+
     def open_(self, force=False):
         """the open action
         """
         raise NotImplemented
-    
+
     def import_(self, asset):
         """the import action
         """
         raise NotImplemented
-    
+
     def reference(self, asset):
         """the reference action
         """
         raise NotImplemented
-    
+
     def getPathVariables(self):
         """gets the file name from environment
         """
         raise NotImplemented
-    
+
     def getProject(self):
         """returns the current project from environment
         """
         raise NotImplemented
-    
+
     def setProject(self, projectName, sequenceName):
         """sets the project and sequence names, thus the working environment
         of the current environment
         """
         raise NotImplemented
-    
+
     def setOutputFileName(self):
         """sets the output file names
         """
         raise NotImplemented
-    
+
     def appendToRecentFiles(self, path):
         """appends the given path to the recent files list
         """
         raise NotImplemented
-    
+
     def checkReferenceVersions(self):
         """checks the referenced asset versions
         
         returns list of asset objects
         """
         raise NotImplemented
-    
+
     def getReferencedAssets(self):
         """returns the assets those been referenced to the current asset
         
         returns list of asset objects
         """
         raise NotImplemented
-    
+
     def updateAssets(self, assetTupleList):
         """updates the assets to the latest versions
         """
         raise NotImplemented
-    
+
     def getFrameRange(self):
         """returns the frame range from the environment
         """
         raise NotImplemented
-    
+
     def setFrameRange(self, startFrame=1, endFrame=100):
         """sets the frame range in the environment
         """
         raise NotImplemented
-    
+
     def getTimeUnit(self):
         """returns the time unit of the environment
         """
         raise NotImplemented
-    
+
     def setTimeUnit(self, timeUnit='pal' ):
         """sets the frame rate of the environment
         """
         raise NotImplemented
-    
+
     @property
     def extensions(self):
         """returns the extensions of environment
         """
         return self._extensions
-    
+
     @extensions.setter
     def extensions(self, extensions):
         """sets the extensions
         """
         self._extensions = extensions
-    
+
     def hasValidExtension(self, fileName):
         """returns true if the given fileNames extension is in the extensions
         list false otherwise
@@ -2940,22 +2419,31 @@ class EnvironmentBase(object):
         - a filen name with extension or not
         - an extension with a dot on the start or not
         """
-        
+
         if fileName is None:
             return False
-        
+
         if fileName.split('.')[-1].lower() in self._extensions:
             return True
-        
+
         return False
-    
+
     def loadReferences(self):
         """loads all the references
         """
         raise NotImplemented
-    
+
     def replaceAssets(self, sourceAsset, targetAsset):
         """replaces the source asset with the target asset
         """
         raise NotImplemented
+
+
+# secondary tables
+Version_References = Table(
+    "Version_References", Base.metadata,
+    Column("referencer_id", Integer, primary_key=True),
+    Column("reference_id", Integer, primary_key=True)
+)
+        
 
