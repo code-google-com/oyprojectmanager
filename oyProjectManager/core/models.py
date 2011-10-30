@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from exceptions import IndexError, ValueError, OSError, AttributeError, IOError
-
 import os
-import time
 import re
 import logging
 import jinja2
@@ -18,6 +15,7 @@ from sqlalchemy.orm.mapper import validates
 from sqlalchemy.schema import Table
 
 from oyProjectManager import db
+from oyProjectManager.core.errors import CircularDependencyError
 from oyProjectManager.db.declarative import Base
 from oyProjectManager import utils, config
 
@@ -2534,17 +2532,6 @@ Version_References = Table(
     Column("referencer_id", Integer, ForeignKey("Versions.id"), primary_key=True),
     Column("reference_id", Integer, ForeignKey("Versions.id"), primary_key=True)
 )
-
-class CircularDependencyError(Exception):
-    """Raised when there is circular dependencies between Versions
-    """
-
-    def __init__(self, value=""):
-        super(CircularDependencyError, self).__init__(value)
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
 
 def _check_circular_dependency(version, check_for_version):
     """checks the circular dependency in version if it has check_for_version in

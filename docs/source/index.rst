@@ -26,6 +26,7 @@ Summary
    oyProjectManager.config
    oyProjectManager.core.abstractClasses
    oyProjectManager.core.abstractClasses.Singleton
+   oyProjectManager.core.errors.CircularDependencyError
    oyProjectManager.core.models
    oyProjectManager.core.models.Asset
    oyProjectManager.core.models.EnvironmentBase

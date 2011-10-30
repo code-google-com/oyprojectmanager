@@ -5,8 +5,9 @@ import shutil
 import tempfile
 import unittest
 from oyProjectManager import config
+from oyProjectManager.core.errors import CircularDependencyError
 from oyProjectManager.core.models import (VersionableBase, Version,
-                                          VersionType, User, Project, CircularDependencyError)
+                                          VersionType, User, Project )
 
 conf = config.Config()
 
