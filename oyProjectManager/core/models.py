@@ -1830,6 +1830,20 @@ class Version(Base):
                             "oyProjectManager.core.models.User")
 
         return created_by
+    
+    @validates("references")
+    def _validate_references(self, key, reference):
+        """validates the given reference value
+        """
+        
+        if reference is self:
+            raise ValueError("Version.references can not have a reference to "
+                             "itself")
+       
+        # check circular dependency
+        _check_circular_dependency(reference, self)
+        
+        return reference
 
 
 class VersionType(Base):
@@ -2514,12 +2528,34 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
 
-
 # secondary tables
 Version_References = Table(
     "Version_References", Base.metadata,
     Column("referencer_id", Integer, ForeignKey("Versions.id"), primary_key=True),
     Column("reference_id", Integer, ForeignKey("Versions.id"), primary_key=True)
 )
-        
 
+class CircularDependencyError(Exception):
+    """Raised when there is circular dependencies between Versions
+    """
+
+    def __init__(self, value=""):
+        super(CircularDependencyError, self).__init__(value)
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+def _check_circular_dependency(version, check_for_version):
+    """checks the circular dependency in version if it has check_for_version in
+    its depends list
+    """
+    
+    for reference in version.references:
+        if reference is check_for_version:
+            raise CircularDependencyError(
+                "version %s can not reference %s, this creates a circular "
+                "dependency" % (version, check_for_version)
+            )
+        else:
+            _check_circular_dependency(reference, check_for_version)

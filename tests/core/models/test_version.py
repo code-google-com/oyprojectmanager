@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from oyProjectManager import config
 from oyProjectManager.core.models import (VersionableBase, Version,
-                                          VersionType, User, Project)
+                                          VersionType, User, Project, CircularDependencyError)
 
 conf = config.Config()
 
@@ -617,23 +617,56 @@ class VersionTester(unittest.TestCase):
         """testing if a TypeError will be raised when the value passed to the
         references attribute is not a Version instance
         """
-        self.fail("test is not implemented yet")
+        self.assertRaises(TypeError, setattr, self.test_version, "references",
+                          12314)
     
     def test_references_attribute_accepts_Version_instances_other_than_itself(self):
         """testing if a ValueError will be raised when the value passed to the
         references attribute is self
         """
-        self.fail("test is not implemented yet")
+        self.assertRaises(ValueError,
+                          self.test_version.references.append,
+                          self.test_version )
     
     def test_references_attribute_doesnt_allow_circular_references(self):
         """testing if a CyclicDependencyError will be raised when the reference
         passed with the references value also references this Version instance
         """
-        self.fail("test is not implemented yet")
+        
+        self.kwargs["base_name"] = "Test Version 1"
+        vers1 = Version(**self.kwargs)
+        vers1.save()
+        
+        self.kwargs["base_name"] = "Test Version 2"
+        vers2 = Version(**self.kwargs)
+        vers2.references.append(vers1)
+        vers2.save()
+        
+        self.assertRaises(CircularDependencyError,
+            vers1.references.append, vers2
+        )
     
     def test_references_attribute_doesnt_allow_deep_circular_references(self):
         """testing if a CyclicDependencyError will be raised when the reference
         passed with the references value has another reference which references
         this Version instance
         """
-        self.fail("test is not implemented yet")
+        self.kwargs["base_name"] = "Test Version 1"
+        vers1 = Version(**self.kwargs)
+        vers1.save()
+        
+        self.kwargs["base_name"] = "Test Version 2"
+        vers2 = Version(**self.kwargs)
+        vers2.save()
+        
+        self.kwargs["base_name"] = "Test Version 3"
+        vers3 = Version(**self.kwargs)
+        vers3.references.append(vers1)
+        vers3.save()
+        
+        vers2.references.append(vers3)
+        vers2.save()
+        
+        self.assertRaises(CircularDependencyError,
+            vers1.references.append, vers2
+        )
