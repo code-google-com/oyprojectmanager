@@ -41,13 +41,13 @@ class AssetTester(unittest.TestCase):
             ("23Test_Asset", "Test_Asset"),
             ("TEST_ASSET", "TEST_ASSET"),
             ("£#$£#$AB", "AB"),
-            ("'^+'^%^+%&&AB3£#$£½'^+'3'^+'4", "AB34"),
-            ("afasfas fasf asdf67", "Afasfas fas_asdf67"),
+            ("'^+'^%^+%&&AB3£#$£½'^+'3'^+'4", "AB334"),
+            ("afasfas fasf asdf67", "Afasfas fasf asdf67"),
             ("45a", "A"),
-            ("45acafs","Acacfs"),
+            ("45acafs","Acafs"),
             ("45'^+'^+a 234", "A 234"),
-            ("45asf78wr", "45Asf78wr"),
-            ("'^+'afsd2342'^+'asdFGH", "AsdFGH2342asdFGH"),
+            ("45asf78wr", "Asf78wr"),
+            ("'^+'afsd2342'^+'asdFGH", "Afsd2342asdFGH"),
         ]
         
         self._code_test_values = [
@@ -55,13 +55,13 @@ class AssetTester(unittest.TestCase):
             ("23Test_Asset", "Test_Asset"),
             ("TEST_ASSET", "TEST_ASSET"),
             ("£#$£#$AB", "AB"),
-            ("'^+'^%^+%&&AB3£#$£½'^+'3'^+'4", "AB34"),
-            ("afasfas fasf asdf67", "Afasfas_fas_asdf67"),
+            ("'^+'^%^+%&&AB3£#$£½'^+'3'^+'4", "AB334"),
+            ("afasfas fasf asdf67", "Afasfas_fasf_asdf67"),
             ("45a", "A"),
-            ("45acafs","Acacfs"),
+            ("45acafs","Acafs"),
             ("45'^+'^+a 234", "A_234"),
             ("45asf78wr", "Asf78wr"),
-            ("'^+'afsd2342'^+'asdFGH", "AsdFGH2342asdFGH"),
+            ("'^+'afsd2342'^+'asdFGH", "Afsd2342asdFGH"),
         ]
         
     
@@ -83,94 +83,175 @@ class AssetTester(unittest.TestCase):
     def test_name_argument_is_None(self):
         """testing if a TypeError will be raised when the name argument is None
         """
-        self.fail("test is not implemented yet")
+        self.kwargs["name"] = None
+        self.assertRaises(TypeError, Asset, **self.kwargs)
     
     def test_name_attribute_is_None(self):
         """testing if a TypeError will be raised when the name attribute is set
         to None
         """
-        self.fail("test is not implemented yet")
+        self.assertRaises(TypeError, setattr, self.test_asset, "name", None)
     
     def test_name_argument_is_not_a_string(self):
         """testing if a TypeError will be raised when the name argument is not
         a string
         """
-        self.fail("test is not implemented yet")
+        self.kwargs["name"] = 123445
+        self.assertRaises(TypeError, Asset, **self.kwargs)
     
     def test_name_attribute_is_not_a_string(self):
         """testing if a TypeError will be raised when the name attribute is not
         a string
         """
-        self.fail("test is not implemented yet")
+        self.assertRaises(TypeError, setattr, self.test_asset, "name", 123456)
     
     def test_name_argument_is_working_properly(self):
         """test if the name attribute initialized correctly with the value of
         the name argument
         """
-        self.fail("test is not implemented yet")
+        test_value = "Test Value"
+        self.kwargs["name"] = test_value
+        new_asset = Asset(**self.kwargs)
+        self.assertEqual(new_asset.name, test_value)
     
     def test_name_attribute_is_working_properly(self):
         """testing if the name attribute is working properly
         """
-        self.fail("test is not implemented yet")
+        test_value = "Test Value"
+        self.test_asset.name = test_value
+        self.assertEqual(self.test_asset.name, test_value)
     
     def test_name_argument_formatting(self):
         """testing if the name argument will be formatted correctly
         """
-        self.fail("test is not implemented yet")
+        for test_value in self._name_test_values:
+            self.kwargs["name"] = test_value[0]
+            new_asset = Asset(**self.kwargs)
+            self.assertEqual(new_asset.name, test_value[1])
     
     def test_name_attribute_formatting(self):
         """testing if the name attribute will be formatted correctly
         """
-        self.fail("test is not implemented yet")
+        for test_value in self._name_test_values:
+            self.test_asset.name = test_value[0]
+            self.assertEqual(self.test_asset.name, test_value[1])
+    
+    def test_name_argument_is_empty_string_after_formatting(self):
+        """testing if a ValueError will be raised when the name argument is an
+        empty string after formatting
+        """
+        self.kwargs["name"] = "£#$£'^+'324"
+        self.assertRaises(ValueError, Asset, **self.kwargs)
+    
+    def test_name_attribute_is_empty_string_after_formatting(self):
+        """testing if a ValueError will be raised when the name attribugte is
+        an empty string after formatting
+        """
+        self.assertRaises(ValueError, setattr, self.test_asset, "name",
+                          "£#$£'^+'324")
     
     def test_code_argument_is_skipped(self):
         """testing if the code attribute will be get from the name attribute if
         the code argument is skipped
         """
-        self.fail("test is not implemented yet")
+        self.kwargs["name"] = "Test Value"
+        self.kwargs.pop("code")
+        expected_value = "Test_Value"
+        new_asset = Asset(**self.kwargs)
+        self.assertEqual(new_asset.code, expected_value)
     
     def test_code_argument_is_None(self):
         """testing if the code attribute will be get from the name attribute if
         the code argument is None
         """
-        self.fail("test is not implemented yet")
+        self.kwargs["name"] = "Test Value"
+        self.kwargs["code"] = None
+        expected_value = "Test_Value"
+        new_asset = Asset(**self.kwargs)
+        self.assertEqual(new_asset.code, expected_value)
     
     def test_code_attribute_is_None(self):
         """testing if the code attribute will be get from the name attribute if
         it is set to None
         """
-        self.fail("test is not implemented yet")
+        self.test_asset.name = "Test Value"
+        self.test_asset.code = None
+        expected_value = "Test_Value"
+        self.assertEqual(self.test_asset.code, expected_value)
     
     def test_code_argument_is_not_a_string_instance(self):
         """testing if a TypeError will be raised when the code argument is not
         an instance of string or unicode
         """
-        self.fail("test is not implemented yet")
+        self.kwargs["code"] = 2134
+        self.assertRaises(TypeError, Asset, **self.kwargs)
     
     def test_code_attribute_is_not_a_string_instance(self):
         """testing if a TypeError will be raised when the code attribute is set
         to a value which is not a string or unicode
         """
-        self.fail("test is not implemented yet")
+        self.assertRaises(TypeError, setattr, self.test_asset, "code", 2342)
     
     def test_code_argument_is_working_properly(self):
         """testing if the code attribute is set from the code argument
         """
-        self.fail("test is not implemented yet")
+        self.kwargs["code"] = "TEST_VALUE"
+        new_asset = Asset(**self.kwargs)
+        self.assertEqual(new_asset.code, self.kwargs["code"])
     
     def test_code_attribute_is_working_properly(self):
         """testing if the code attribute is working properly
         """
-        self.fail("test is not implemented yet")
+        test_value = "TEST_VALUE"
+        self.test_asset.code = test_value
+        self.assertEqual(self.test_asset.code, test_value)
     
     def test_code_argument_formatting(self):
         """testing if the code argument is formatted correctly
         """
-        self.fail("test is not implemented yet")
+        for test_value in self._code_test_values:
+            self.kwargs["code"] = test_value[0]
+            new_asset = Asset(**self.kwargs)
+            self.assertEqual(new_asset.code, test_value[1])
     
     def test_code_attribute_formatting(self):
         """testing if the code attribute is formatted correctly
         """
-        self.fail("test is not implemented yet")
+        for test_value in self._code_test_values:
+            self.test_asset.code = test_value[0]
+            self.assertEqual(self.test_asset.code, test_value[1])
     
+    def test_code_argument_is_empty_string_after_formatting(self):
+        """testing if a ValueError will be raised when the code argument is an
+        empty string after formatting
+        """
+        self.kwargs["code"] = "'^+'%+%1231"
+        self.assertRaises(ValueError, Asset, **self.kwargs)
+    
+    def test_code_attribute_is_empty_string_after_formatting(self):
+        """testing if a ValueError will be raised when the code attribugte is
+        an empty string after formatting
+        """
+        self.assertRaises(ValueError, setattr, self.test_asset, "code",
+                          "'^+'%+%1231")
+    
+    def test_description_attribute_is_set_to_None(self):
+        """testing if a TypeError will be raised when the description attribute
+        is set to None
+        """
+        self.assertRaises(TypeError, setattr, self.test_asset, "description",
+                          None)
+    
+    def test_description_attribute_is_not_a_string(self):
+        """testing if a TypeError will be raised when the description attribute
+        is not set to a string or unicode
+        """
+        self.assertRaises(TypeError, setattr, self.test_asset, "description",
+                          234235)
+    
+    def test_description_attribute_is_working_properly(self):
+        """testing if the description attribute is working properly
+        """
+        test_value = "this is the description"
+        self.test_asset.description = test_value
+        self.assertEqual(self.test_asset.description, test_value)

@@ -1305,23 +1305,55 @@ class Asset(VersionableBase):
     def __init__(self, project, name, code=None):
         self._project = project
         self.name = name
+        self.code = code
 
 
     def __repr__(self):
         """the string representation of the object
         """
         return "<Asset, %s in %s>" % (self.name, self.project.name)
-
+    
+    def _validate_code(self, code):
+        """validates the given code value
+        """
+        if code is None:
+            code = self.name
+        
+        if not isinstance(code, (str, unicode)):
+            raise TypeError("Asset.code should be an instance of string or "
+                            "unicode not %s" % type(code))
+        
+        if code is "":
+            raise ValueError("The Asset.code can not be an empty string")
+        
+        # strip the code
+        code = code.strip()
+        # remove unnecessary characters from the string
+        code = re.sub("([^a-zA-Z0-9\s_]+)", r"", code)
+        # remove all the characters from the beginning which are not alphabetic
+        code = re.sub("(^[^a-zA-Z]+)", r"", code)
+        # substitute all spaces with "_" characters
+        code = re.sub("([\s])+", "_", code)
+        
+        # check if the code became empty string after validation
+        if code is "":
+            raise ValueError("Asset.code is not valid after validation")
+        
+        # convert the first letter to uppercase
+        code = code[0].upper() + code[1:]
+        
+        return code
+        
     def _code_getter(self):
         """The nicely formatted version of the
         :attr:`~oyProjectManager.core.models.Asset.name` attribute
         """
         return self._code
-
+    
     def _code_setter(self, code):
         """Sets the code of this Asset instance
         """
-        self._code = code
+        self._code = self._validate_code(code)
 
     code = synonym(
         "_code",
@@ -1330,6 +1362,50 @@ class Asset(VersionableBase):
             _code_setter
         )
     )
+    
+    @validates("description")
+    def _validate_description(self, key, description):
+        """validates the given description value
+        """
+        if not isinstance(description, (str, unicode)):
+            raise TypeError("Asset.description should be an instance of "
+                            "string or unicode")
+        
+        return description
+    
+    @validates("name")
+    def _validate_name(self, key, name):
+        """validates the given name value
+        """
+        if name is None:
+            raise TypeError("")
+        
+        if not isinstance(name, (str, unicode)):
+            raise TypeError("Asset.name should be an instance of string or "
+                            "unicode not %s" % type(name))
+        
+        if name is "":
+            raise ValueError("The Asset.name can not be an empty string")
+        
+        # strip the name
+        name = name.strip()
+        # remove unnecessary characters from the string
+        name = re.sub("([^a-zA-Z0-9\s_-]+)", r"", name)
+        # remove all the characters from the beginning which are not alphabetic
+        name = re.sub("(^[^a-zA-Z]+)", r"", name)
+#        # substitute all spaces with "_" characters
+#        name = re.sub("([\s])+", "_", name)
+        
+        # check if the name became empty string after validation
+        if name is "":
+            raise ValueError("Asset.name is not valid after validation")
+        
+        # convert the first letter to uppercase
+        name = name[0].upper() + name[1:]
+        
+        return name
+        
+
 
 class Version(Base):
     """Holds versions of assets or shots.
@@ -1480,8 +1556,8 @@ class Version(Base):
     references = relationship(
         "Version",
         secondary="Version_References",
-        primaryjoin="Version.c.id==Version_References.c.referencer.id",
-        secondaryjoin="Version_References.c.reference.id==Version.c.id",
+        primaryjoin="Versions.c.id==Version_References.c.referencer_id",
+        secondaryjoin="Version_References.c.reference_id==Versions.c.id",
         backref="referenced_by"
     )
 
@@ -2442,8 +2518,8 @@ class EnvironmentBase(object):
 # secondary tables
 Version_References = Table(
     "Version_References", Base.metadata,
-    Column("referencer_id", Integer, primary_key=True),
-    Column("reference_id", Integer, primary_key=True)
+    Column("referencer_id", Integer, ForeignKey("Versions.id"), primary_key=True),
+    Column("reference_id", Integer, ForeignKey("Versions.id"), primary_key=True)
 )
         
 
