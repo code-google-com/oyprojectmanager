@@ -12,8 +12,6 @@ TODO
 * save a local copy of the asset to not to carry all the eggs in the same
   basket
 
-* add the UserType id to the users.xml
-
 * use the user class to define permissions
 
 * the relation and interaction between the assetManager and the environments
@@ -62,6 +60,11 @@ TODO
   
   As the environments also the UI is studio dependent and it should be
   a separate project.
+
+* Speed up the interface:
+  
+  Speed up the interface by caching created Projects, Sequences, Assets, Shots
+  and versions.
 
 FIXED & DONE
 ============

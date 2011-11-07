@@ -17,7 +17,7 @@ from sqlalchemy.schema import Table
 from oyProjectManager import db
 from oyProjectManager.core.errors import CircularDependencyError
 from oyProjectManager.db.declarative import Base
-from oyProjectManager import utils, config
+from oyProjectManager import utils
 
 # create a cache with the CacheManager
 bCache = cache.CacheManager()
@@ -30,9 +30,6 @@ logger.setLevel(logging.WARNING)
 # create a logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-# get the config
-conf = config.Config()
 
 class Repository(object):
     """Repository class gives information about the repository and projects in
@@ -77,6 +74,10 @@ class Repository(object):
     """
 
     def __init__(self):
+        # get the config
+        from oyProjectManager import config
+        self.conf = config.Config()
+        
         self._server_path = ""
         self._windows_path = ""
         self._osx_path = ""
@@ -89,17 +90,17 @@ class Repository(object):
         # read the repository settings and assign the defaults
         try:
             self._windows_path = \
-                conf.repository["windows_path"].replace("\\", "/")
+                self.conf.repository["windows_path"].replace("\\", "/")
         except AttributeError:
             pass
         
         try:
-            self._linux_path = conf.repository["linux_path"].replace("\\", "/")
+            self._linux_path = self.conf.repository["linux_path"].replace("\\", "/")
         except AttributeError:
             pass
         
         try:
-            self._osx_path = conf.repository["osx_path"].replace("\\", "/")
+            self._osx_path = self.conf.repository["osx_path"].replace("\\", "/")
         except AttributeError:
             pass
         
@@ -111,14 +112,14 @@ class Repository(object):
         """
         
         # raise a RuntimeError if there is no REPO environment var set
-        if not os.environ.has_key(conf.repository_env_key):
+        if not os.environ.has_key(self.conf.repository_env_key):
             raise RuntimeError("Please set an environment variable with the "
                                "name %s and set it to your repository path" %
-                               conf.repository_env_key)
+                               self.conf.repository_env_key)
         
-        if os.environ[conf.repository_env_key] == "":
+        if os.environ[self.conf.repository_env_key] == "":
             raise ValueError("The %s environment variable can not be an "
-                             "empty string" % conf.repository_env_key)
+                             "empty string" % self.conf.repository_env_key)
     
     @property
     @bCache.cache()
@@ -142,7 +143,7 @@ class Repository(object):
                     os.path.join(
                         self.server_path,
                         folder,
-                        conf.database_file_name
+                        self.conf.database_file_name
                     )
                 ):
                     # it should be a valid project
@@ -160,7 +161,7 @@ class Repository(object):
         return os.path.expandvars(
             os.path.expandvars(
                 os.path.expanduser(
-                    os.environ[conf.repository_env_key]
+                    os.environ[self.conf.repository_env_key]
                 )
             )
         )
@@ -223,7 +224,8 @@ class Repository(object):
         "$REPO/EXPER/_PROJECT_SETUP_"
         """
         
-        return path.replace(self.server_path, "$" + conf.repository_env_key)
+        return path.replace(self.server_path,
+                            "$" + self.conf.repository_env_key)
 
 class Project(Base):
     """Manages project related data.
@@ -329,26 +331,25 @@ class Project(Base):
     _path = Column(String)
     _fullpath = Column(String)
     
-    shot_number_prefix = Column(String(16), default=conf.shot_number_prefix)
-    shot_number_padding = Column(Integer, default=conf.shot_number_padding)
+    shot_number_prefix = Column(String(16))
+    shot_number_padding = Column(Integer)
     
-    rev_number_prefix = Column(String(16), default=conf.rev_number_prefix)
-    rev_number_padding = Column(Integer, default=conf.rev_number_padding)
+    rev_number_prefix = Column(String(16))
+    rev_number_padding = Column(Integer)
     
-    ver_number_prefix = Column(String(16), default=conf.ver_number_prefix)
-    ver_number_padding = Column(Integer, default=conf.ver_number_padding)
+    ver_number_prefix = Column(String(16))
+    ver_number_padding = Column(Integer)
     
     fps = Column(
-        String(32),
-        default=conf.fps,
+        Integer,
         doc="""The frames per second setting of this project. The default value
-        is %s
-        """ % conf.fps
+        is 25
+        """
     )
     
-    width = Column(String, default=conf.resolution_width)
-    height = Column(String, default=conf.resolution_height)
-    pixel_aspect = Column(String, default=conf.resolution_pixel_aspect)
+    width = Column(String)
+    height = Column(String)
+    pixel_aspect = Column(String)
     
     structure = Column(PickleType)
     
@@ -367,6 +368,9 @@ class Project(Base):
         time, may be in another Python session will return the Project instance
         from the database.
         """
+        # get the config
+        from oyProjectManager import config
+        conf = config.Config()
         
         # check the name argument
         if name:
@@ -405,6 +409,9 @@ class Project(Base):
                                  "instance, the session id is: %s" % 
                                  id(session))
                     
+                    # set the config
+                    proj_db.conf = conf
+                    
                     # skip the __init__
                     proj_db.__skip_init__ = None
                     
@@ -420,6 +427,12 @@ class Project(Base):
         # do not initialize if it is created from the DB
         if hasattr(self, "__skip_init__"):
             return
+        
+        
+        # get the config
+        from oyProjectManager import config
+        self.conf = config.Config()
+                
         
         self._path = ""
         self._fullpath = ""
@@ -441,37 +454,37 @@ class Project(Base):
         self._path = self._repository.server_path
         self._fullpath = os.path.join(self.path, self.name)
         
-        self.metadata_db_name = conf.database_file_name
+        self.metadata_db_name = self.conf.database_file_name
         self.metadata_full_path = os.path.join(
             self.fullpath,
             self.metadata_db_name
         ).replace("\\", "/")
         
-        self.shot_number_prefix = conf.shot_number_prefix
-        self.shot_number_padding = conf.shot_number_padding
+        self.shot_number_prefix = self.conf.shot_number_prefix
+        self.shot_number_padding = self.conf.shot_number_padding
         
-        self.rev_number_prefix = conf.rev_number_prefix
-        self.rev_number_padding = conf.rev_number_padding
+        self.rev_number_prefix = self.conf.rev_number_prefix
+        self.rev_number_padding = self.conf.rev_number_padding
         
-        self.ver_number_prefix = conf.ver_number_prefix
-        self.ver_number_padding = conf.ver_number_padding
+        self.ver_number_prefix = self.conf.ver_number_prefix
+        self.ver_number_padding = self.conf.ver_number_padding
         
-        self.fps = conf.fps
-        self.width = conf.resolution_width
-        self.height = conf.resolution_height
-        self.pixel_aspect = conf.resolution_pixel_aspect
+        self.fps = self.conf.fps
+        self.width = self.conf.resolution_width
+        self.height = self.conf.resolution_height
+        self.pixel_aspect = self.conf.resolution_pixel_aspect
         
         self._exists = None
         
         # initialize the version_type attribute from the config file. This
         # should only run for a newly created project instance not for a one
         # get from the db
-        for version_type in conf.version_types:
+        for version_type in self.conf.version_types:
             version_type["project"] = self
             self.version_types.append(VersionType(**version_type))
         
         # and the structure
-        self.structure = conf.project_structure
+        self.structure = self.conf.project_structure
     
     @orm.reconstructor
     def __init_on_load__(self):
@@ -482,7 +495,11 @@ class Project(Base):
         self.session = None
         self.query = None
         
-        self.metadata_db_name = conf.database_file_name
+        # get the config
+        from oyProjectManager import config
+        self.conf = config.Config()
+        
+        self.metadata_db_name = self.conf.database_file_name
         self.metadata_full_path = os.path.join(
             self.fullpath,
             self.metadata_db_name
@@ -1402,8 +1419,17 @@ class Asset(VersionableBase):
         name = name[0].upper() + name[1:]
         
         return name
+    
+    def save(self):
+        """saves the asset to the related projects database
+        """
+        session = self.project.session
+        if self not in session:
+            logger.debug("adding %s to the session" % self)
+            session.add(self)
         
-
+        logger.debug("saving the asset %s" % self)
+        session.commit()
 
 class Version(Base):
     """Holds versions of assets or shots.
@@ -1541,7 +1567,7 @@ class Version(Base):
 
     _filename = Column(String)
     _path = Column(String)
-
+    
     base_name = Column(String)
     take_name = Column(String, default="MAIN")
     revision_number = Column(Integer, default=0)
@@ -1717,16 +1743,20 @@ class Version(Base):
     def _validate_take_name(self, key, take_name):
         """validates the given take_name value
         """
-
+        
+        # get the config
+        from oyProjectManager import config
+        conf = config.Config()
+        
         if take_name is None:
             take_name = conf.take_name
-
+        
         if not isinstance(take_name, (str, unicode)):
             raise TypeError("Version.take_name should be an instance of "
                             "string or unicode")
-
+        
         take_name = self._condition_name(take_name)
-
+        
         if take_name == "":
             raise ValueError("Version.take_name is either given as an empty "
                              "string or it became empty after formatting")
@@ -1842,7 +1872,6 @@ class Version(Base):
         _check_circular_dependency(reference, self)
         
         return reference
-
 
 class VersionType(Base):
     """A template for :class:`~oyProjectManager.core.models.Version` class.
@@ -2030,7 +2059,7 @@ class VersionType(Base):
 
     # TODO: add a link to the "config.py" in the documentation to let the user
     # learn about configuration of oyProjectManager
-
+    
     __tablename__ = "VersionTypes"
     id = Column(Integer, primary_key=True)
 
@@ -2321,7 +2350,24 @@ class VersionTypeEnvironments(Base):
         return environment_name
 
 class User(Base):
-    """a class for managing users
+    """Manages users
+    
+    The user class is the representation of the users in the system.
+    
+    Because there is no central database in the current implementation of
+    oyProjectManager, a user is stored in the
+    :class:`~oyProjectManager.core.models.Project`\ 's database only if the
+    user has created some data. So creating a user and querying the
+    :class:`~oyProjectManager.core.models.Project`\ s that this user has worked
+    has no direct way.
+    
+    :param name: The name of the user.
+    
+    :param initials: Initials of the user. If skipped the initials will be
+      extracted from the :attr:`~oyProjectManager.core.models.User.name`
+      attribute.
+    
+    :param email: The email address of the user.
     """
 
     __tablename__ = "Users"
@@ -2334,7 +2380,7 @@ class User(Base):
 
     versions_created = relationship("Version")
 
-    def __init__(self, name, initials, email=None):
+    def __init__(self, name, initials=None, email=None):
         self.name = name
         self.initials = initials
         self.email = email

@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 
+import os
 
 from PyQt4 import uic, QtCore, QtGui
+
+import oyProjectManager
 
 
 global uicFile
@@ -13,32 +16,54 @@ uicFilePaths = []
 pyFilePaths = []
 
 
-#uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager.ui' )
-#pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager_UI.py' )
-uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager2.ui' )
-pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetManager2_UI.py' )
+path = os.path.dirname(oyProjectManager.__file__)
+ui_path = os.path.join(path, "ui")
 
-#uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager.ui' )
-#pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectManager_UI.py' )
+# assetManager3.ui
+uicFilePaths.append(os.path.join(ui_path, "assetManager3.ui"))
+pyFilePaths.append(os.path.join(ui_path, "assetManager_UI.py"))
 
-#uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetUpdater.ui' )
-#pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetUpdater_UI.py' )
 
-#uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/shotEditor.ui' )
-#pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/shotEditor_UI.py' )
-
-#uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectSetter.ui' )
-#pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/projectSetter_UI.py' )
-
-#uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetReplacer.ui' )
-#pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetReplacer_UI.py' )
-
-#uicFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/saveFields.ui' )
-#pyFilePaths.append( '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/saveFields_UI.py' )
+## assetManager.ui
+#uicFilePaths.append(os.path.join(ui_path, "assetManager.ui"))
+#pyFilePaths.append(os.path.join(ui_path, "assetManager_UI.py"))
+#
+## assetManager2.ui
+#uicFilePaths.append(os.path.join(ui_path, "assetManager2.ui"))
+#pyFilePaths.append(os.path.join(ui_path, "assetManager2_UI.py"))
+#
+## projectManager
+#uicFilePaths.append(os.path.join(ui_path, "projectManager.ui"))
+#pyFilePaths.append(os.path.join(ui_path, "projectManager_UI.py"))
+#
+## assetUpdater
+#uicFilePaths.append(os.path.join(ui_path, "assetUpdater.ui"))
+#pyFilePaths.append(os.path.join(ui_path, "assetUpdater_UI.py"))
+#
+## shotEditor
+#uicFilePaths.append(os.path.join(ui_path, "shotEditor.ui"))
+#pyFilePaths.append(os.path.join(ui_path, "shotEditor_UI.py"))
+#
+## projectSetter
+#uicFilePaths.append(os.path.join(ui_path, "projectSetter.ui"))
+#pyFilePaths.append(os.path.join(ui_path, "projectSetter_UI.py"))
+#
+## assetReplacer
+#uicFilePaths.append(os.path.join(ui_path, "assetReplacer.ui"))
+#pyFilePaths.append(os.path.join(ui_path, "assetReplacer_UI.py"))
+#
+## saveFields
+#uicFilePaths.append(os.path.join(ui_path, "saveFields.ui"))
+#pyFilePaths.append(os.path.join(ui_path, "saveFields_UI.py"))
 
 for i,uicFilePath in enumerate(uicFilePaths):
+    pyFilePath = pyFilePaths[i]
     uicFile = file( uicFilePath)
-    pyFile  = file( pyFilePaths[i],'w')
+    pyFile  = file( pyFilePath,'w')
+    
+    print "compiling %s to %s" % (uicFilePath, pyFilePath)
     uic.compileUi( uicFile, pyFile )
     uicFile.close()
     pyFile.close()
+
+print "finished compiling"

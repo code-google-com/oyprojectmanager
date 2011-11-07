@@ -1,25 +1,28 @@
 # -*- coding: utf-8 -*-
+import sys
+import os
+import logging
 
-
-
-import os, sys
 from PyQt4 import QtGui, QtCore
 import assetManager_UI
 
 import oyProjectManager
-from oyProjectManager import utils
+from oyProjectManager import utils, config
 from oyProjectManager.core.models import Asset, Project, Sequence, Repository
 from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import assetUpdater, singletonQApplication
 
 
-def UI(environmentName=None):
+logger = logging.getLogger('beaker.container')
+logger.setLevel(logging.WARNING)
+
+def UI(environment):
     """the UI to call the dialog by itself
     """
     global app
     global mainDialog
     app = singletonQApplication.QApplication(sys.argv)
-    mainDialog = MainDialog(environmentName)
+    mainDialog = MainDialog_New(environment)
     mainDialog.show()
     #app.setStyle('Plastique')
     app.exec_()
@@ -29,14 +32,13 @@ def UI(environmentName=None):
         app,
         QtCore.SLOT("quit()")
     )
+    
+    return mainDialog
 
 
 class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
     """the main dialog of the system
     """
-    
-    
-    
     
     def __init__(self, environmentName=None, parent=None):
         super(MainDialog,self).__init__(parent)
@@ -87,16 +89,10 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         self.getSettingsFromEnvironment()
     
-    
-    
-    
     def _setEnvironment(self, environmentName):
         """sets the environment object from the environment name
         """
         self._environment = self._environmentFactory.create(self._asset, environmentName)
-    
-    
-    
     
     def _setupSignals(self):
         """sets up the signals/slots
@@ -293,11 +289,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                                 QtCore.SIGNAL("currentTextChanged(QString)"),
                                 self.updateSubNameLineEdit )
         
-        
         QtCore.QMetaObject.connectSlotsByName(self)
-    
-    
-    
     
     def _setupValidators(self):
         """sets up the input validators
@@ -315,9 +307,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                                 QtCore.SIGNAL("textChanged(QString)"),
                                 self.validateSubName )
     
-    
-    
-    
     def _centerWindow(self):
         """centers the window to the screen
         """
@@ -325,9 +314,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         screen = QtGui.QDesktopWidget().screenGeometry()
         size =  self.geometry()
         self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2)
-    
-    
-    
     
     def _setDefaults(self):
         """sets the default values
@@ -361,9 +347,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         # set spinbox default value to 10
         self.numberOfEntry_spinBox.setValue(10)
-    
-    
-    
     
     def fillFieldsFromFileInfo(self):
         """fills the ui fields from the data that comes from the fileName and
@@ -474,9 +457,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # notes
         self.note_lineEdit1.setText( notes )
     
-    
-    
-    
     def update_project_list(self):
         """updates projects list
         """
@@ -490,9 +470,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.project_comboBox.clear()
         self.server_comboBox.addItem( server_path )
         self.project_comboBox.addItems( projectsList )
-    
-    
-    
     
     def updateSequenceList(self, *arg):
         """updates the sequence according to selected project
@@ -508,9 +485,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.sequence_comboBox.addItems( sequences )
         
         self._updateSequenceObject() # it is not needed but do it for now
-    
-    
-    
     
     def updateAssetTypeList(self):
         """updates asset types
@@ -536,9 +510,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         if lastSelectedItem != "":
             self.assetType_comboBox1.setCurrentIndex( self.assetType_comboBox1.findText( lastSelectedItem ) )
     
-    
-    
-    
     def updateShotList(self):
         """updates shot list
         """
@@ -563,9 +534,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             
         else:
             self._lastValidShotSelection = self.assetType_comboBox1.currentText()
-    
-    
-    
     
     def updateBaseNameField(self):
         """updates the baseName fields with current asset baseNames for selected
@@ -606,18 +574,12 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             
             self.updateBaseNameLineEdit( listItem.text() )
     
-    
-    
-    
     def updateBaseNameLineEdit(self, baseName):
         """updates the baseName_lineEdit according to the selected text in the
         baseName_listWidget
         """
         
         self.baseName_lineEdit.setText( baseName )
-    
-    
-    
     
     def updateSubNameField(self):
         """updates the subName fields with current asset subNames for selected
@@ -684,9 +646,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # update subName line edit
         self.updateSubNameLineEdit( 'MAIN' ) #, 'updateSubNameField' )
     
-    
-    
-    
     def updateSubNameLineEdit( self, subName ):#, caller_id=None):
         """updates the subName_lineEdit according to the selected text in the
         subName_listWidget
@@ -709,9 +668,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         #text = self.subName_listWidget.
     
-    
-    
-    
     def updateShotDependentFields(self):
         """updates shot dependent fields like the shotList and baseName
         """
@@ -733,9 +689,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         self.baseName_listWidget.setEnabled( not isShotDependent )
         self.baseName_lineEdit.setEnabled( not isShotDependent )
-    
-    
-    
     
     def updateVersionListBuffer(self):
         """updates the version list buffer
@@ -785,9 +738,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         if len(allVersionsList) > 0:
             self._versionListBuffer = sorted( filter( self._environment.hasValidExtension, allVersionsList ) )
     
-    
-    
-    
     def partialUpdateAssetsTableWidget(self):
         """just updates if the number of maximum displayable entry is changed
         """
@@ -804,9 +754,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             _buffer = self._versionListBuffer
         
         self.fillAssetsTableWidget( _buffer )
-    
-    
-    
     
     def fillAssetsTableWidget(self, assetFileNames):
         """fills the assets table widget with given assets
@@ -874,49 +821,31 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # resize the first column
         self.assets_tableWidget1.resizeColumnToContents(0)
     
-    
-    
-    
     def fullUpdateAssetsTableWidget(self):
         """invokes a version list buffer update and a assets list widget update
         """
         self.updateVersionListBuffer()
         self.partialUpdateAssetsTableWidget()
     
-    
-    
-    
     def getCurrentProjectName(self):
         """returns the current project name
         """
         return unicode( self.project_comboBox.currentText() )
-    
-    
-    
     
     def getCurrentSequenceName(self):
         """returns the current sequence name
         """
         return unicode( self.sequence_comboBox.currentText() )
     
-    
-    
-    
     def getCurrentAssetType(self):
         """returns the current assetType from the UI
         """
         return unicode( self.assetType_comboBox1.currentText() )
     
-    
-    
-    
     def getCurrentShotString(self):
         """returns the current shot string from the UI
         """
         return unicode( self.shot_comboBox1.currentText() )
-    
-    
-    
     
     def getCurrentBaseName(self):
         """returns the current baseName from the UI
@@ -924,48 +853,30 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         #return unicode( self.baseName_comboBox1.currentText() )
         return unicode( self.baseName_lineEdit.text() )
     
-    
-    
-    
     def getCurrentSubName(self):
         """returns the current subName from the UI
         """
         return unicode( self.subName_lineEdit.text() )
-    
-    
-    
     
     def getCurrentRevNumber(self):
         """returns the current revision number from the UI
         """
         return unicode( self.revision_spinBox.value() )
     
-    
-    
-    
     def getCurrentVerNumber(self):
         """returns the current version number from the UI
         """
         return unicode( self.version_spinBox.value() )
-    
-    
-    
     
     def getCurrentUserInitials(self):
         """returns the current user initials from the UI
         """
         return unicode( self.user_comboBox1.currentText() )
     
-    
-    
-    
     def getCurrentNote(self):
         """returns the current note from the UI
         """
         return unicode( self.note_lineEdit1.text() )
-    
-    
-    
     
     def updateRevisionToLatest(self):
         """ tries to get the latest revision
@@ -986,9 +897,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # update the field
         self.setRevisionNumberField( maxRevNumber )
     
-    
-    
-    
     def updateVersionToLatest(self):
         """ tries to get the latest version
         """
@@ -1008,9 +916,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # update the field
         self.setVersionNumberField( maxVerNumber + 1 )
     
-    
-    
-    
     def setProjectName(self, projectName):
         """sets the project in the combobox
         """
@@ -1024,9 +929,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         # be sure it is updated
         self.project_comboBox.update()
-    
-    
-    
     
     def setSequenceName(self, sequenceName):
         """sets the sequence in the combobox
@@ -1043,9 +945,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         # be sure it is updated
         self.sequence_comboBox.update()
-    
-    
-    
     
     def _createAssetObjectFromSaveFields(self):#, caller_id=None):
         """returns the asset object from the fields
@@ -1098,9 +997,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         ## set the environment to the current asset object
         #self._environment.asset = self._asset
     
-
-    
-    
     def _createAssetObjectFromOpenFields(self):
         """retrieves the file name from the open asset fields
         """
@@ -1111,9 +1007,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self._updateSequenceObject()
         self._asset = Asset(self._project, self._sequence, assetFileName)
         #self._environment.asset = self._asset
-
-
-
     
     def _getAssetObjectFromOpenFields(self):
         """retrieves the file name from the open asset fields
@@ -1124,9 +1017,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self._updateProjectObject()
         self._updateSequenceObject()
         return Asset(self._project, self._sequence, assetFileName)
-    
-    
-    
     
     def getFileNameFromSaveFields(self):
         """returns the file name from the fields
@@ -1139,23 +1029,15 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         return self._asset.pathVariables, self._asset
     
-    
-    
-    
     def setRevisionNumberField(self, revNumber):
         """sets the revision number field in the interface
         """
         self.revision_spinBox.setValue( revNumber )
     
-    
-    
-    
     def setVersionNumberField(self, verNumber):
         """sets the version number field in the interface
         """
         self.version_spinBox.setValue( verNumber )
-    
-    
     
     def updateShotDataFields(self, index):
         """updates the shot data fields like the frame range fields and the
@@ -1170,9 +1052,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         self.shotDescription_textEdit.setText( shot.description )
     
-    
-    
-    
     def updateForNoSubName(self):
         """this method will be removed in later version, it is written just to support
         old types of assets those have no subName field
@@ -1185,9 +1064,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.subName_listWidget.setEnabled(not currentSequence.no_sub_name_field)
         self.subName_lineEdit.setEnabled(not currentSequence.no_sub_name_field)
     
-    
-    
-    
     def _updateProjectObject(self):
         """updates the project object if it is changed
         it is introduced to take advantage of the cache system
@@ -1199,9 +1075,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
            self._project.name != currentProjectName or \
            (currentProjectName != "" or currentProjectName is not None ):
             self._project = Project( currentProjectName )
-    
-    
-    
     
     def _updateSequenceObject(self):
         """updates the sequence object if it is not
@@ -1219,9 +1092,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             if newSeq._exists:
                 self._sequence = newSeq
     
-    
-    
-    
     def validateSubName(self, text):
         """validates the subName field by removing unnecessary characters
         """
@@ -1229,18 +1099,12 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # just replace the validated text
         self.subName_lineEdit.setText( self.fieldNameValidator(text) )
     
-    
-    
-    
     def validateBaseName(self, text):
         """validates the baseName field by removing unnecessary characters
         """
         
         # just replace the validated text
         self.baseName_lineEdit.setText( self.fieldNameValidator(text) )
-    
-    
-    
     
     def fieldNameValidator(self, text):
         """a validator that validates input texts
@@ -1260,9 +1124,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         text = text[0].upper() + text[1:]
         
         return text
-    
-    
-    
     
     def addNewListItem(self, inputItem):
         """adds new base name to the list
@@ -1294,9 +1155,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                     # add the new item to the list
                     parentListWidget.addItem( newItemName )
     
-    
-    
-    
     def findListItemWithText(self, listWidget, text):
         """returns the item index with given index
         """
@@ -1312,11 +1170,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         return -1
     
-    
-    
-    
     # ENVIRONMENT PREPARATION
-    
     def getSettingsFromEnvironment(self):
         """gets the data from environment
         """
@@ -1327,19 +1181,11 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             # update the interface
             self.fillFieldsFromFileInfo()
     
-    
-    
-    
     # SAVE & OPEN & IMPORT & REFERENCE ACTIONS FOR ENVIRONMENTS
-    
-    
     def checkOutputAsset(self, assetObject):
         """check if the asset is a valid asset
         """
         return assetObject.isValidAsset
-    
-    
-    
     
     def checkOutputFileVersion(self, assetObject):
         """checks if the asset is set to latest version for its own kind
@@ -1371,9 +1217,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         return verStatus
     
-    
-    
-    
     def checkOutputFileRevision(self, assetObject):
         """checks if the asset is set to latest revision for its own kind
         """
@@ -1403,9 +1246,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         return revStatus
     
-    
-    
-    
     def checkOutputFileOverwrite(self, assetObject):
         """checks if the assetObject already exists, so user tries to overwrite
         """
@@ -1428,9 +1268,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             overwriteStatus = True
         
         return overwriteStatus
-    
-    
-    
     
     def saveAsset(self):
         """prepares the data and sends the asset object to the function
@@ -1484,9 +1321,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 
                 self.close()
     
-    
-    
-    
     def exportAsset(self):
         """prepares the data and sends the asset object to the function
         specially written for the host environment to open the asset file
@@ -1525,9 +1359,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 )
                 
                 self.close()
-    
-    
-    
     
     def openAsset(self):
         """prepares the data and sends the asset object to the function
@@ -1618,9 +1449,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 QtGui.QMessageBox.Ok
             )
     
-    
-    
-    
     def importAsset(self):
         """prepares the data and sends the asset object to the function
         specially written for the host environment to import the asset file
@@ -1656,9 +1484,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 self._asset.fullPath + "\n\nAsset doesn't exist !!!",
                 QtGui.QMessageBox.Ok
             )
-    
-    
-    
     
     def referenceAsset(self):
         """prepares the data and sends the asset object to the function
@@ -1701,7 +1526,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 QtGui.QMessageBox.Ok
             )
     
-    
     def printInfo(self, assetObject, actionName):
         """prints info about action
         """
@@ -1710,9 +1534,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         print "AssetManager"
         print assetObject.fileName
         print actionName + " successfully"
-    
-    
-    
     
     def adjustFrameRange(self):
         """adjusts the frame range to match the shot settings
@@ -1761,9 +1582,6 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 self._environment.setFrameRange( shotStart, shotEnd )
                 return 1
     
-    
-    
-    
     def adjustTimeUnit(self):
         """adjusts the timeUnit to match the settings
         """
@@ -1789,3 +1607,207 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             
             # adjust the time unit
             self._environment.setTimeUnit( seqTimeUnit )
+
+class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
+    """The main asset version creation dialog for the system.
+    
+    This is the main interface that the users of the oyProjectManager will use
+    to create a 
+    
+    :param environment: It is an object which supplies **methods** like
+      ``open``, ``save``, ``export``,  ``import`` or ``reference``. The most
+      basic way to do this is to pass an instance of a class which is derived
+      from the :class:`~oyProjectManager.core.models.EnvironmentBase` which has
+      all this methods but produces ``NotImplemented`` errors if the child
+      class has not implemented these actions.
+      
+      The main duty of the Environment object is to introduce the host
+      application (Maya, Houdini, Nuke, etc.) to oyProjectManager and let it to
+      open, save, export, import or reference a file.
+    
+    :param parent: The parent ``PyQt4.QtCore.QObject`` of this interface. It is
+      mainly useful if this interface is going to be attached to a parent UI,
+      like the Maya or Nuke.
+    """
+    
+    def __init__(self, environment=None, parent=None):
+        super(QtGui.QDialog, self).__init__(parent)
+        self.setupUi(self)
+        
+        self.config = config.Config()
+        self.repo = Repository()
+        
+        # setup signals
+        self._setup_signals()
+        
+        # setup defaults
+        self._setup_defaults()
+    
+    def _setup_signals(self):
+        """sets up the signals
+        """
+        # close button
+        QtCore.QObject.connect(
+            self.close_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.close
+        )
+        
+        # projects_comboBox
+        QtCore.QObject.connect(
+            self.projects_comboBox,
+            QtCore.SIGNAL("currentIndexChanged(int)"),
+            self._project_changed
+        )
+        
+        # asset_names_listWidget
+        QtCore.QObject.connect(
+            self.asset_names_listWidget,
+            QtCore.SIGNAL("currentTextChanged(QString)"),
+            self._asset_changed
+        )
+        
+        # asset_description_edit_pushButton
+        QtCore.QObject.connect(
+            self.asset_description_edit_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.asset_description_edit_pushButton_clicked
+        )
+        
+        
+#        # custom context menu for the asset description
+#        self.asset_description_textEdit.setContextMenuPolicy(
+#            QtCore.Qt.CustomContextMenu
+#        )
+#        
+#        QtCore.QObject.connect(
+#            self.asset_description_textEdit,
+#            QtCore.SIGNAL("customContextMenuRequested(const QPoint&)"),
+#            self._show_description_context_menu
+#        )
+    
+#    def _show_description_context_menu(self, position):
+#        """the custom context menu for the asset_description_textEdit
+#        """
+#        print "this has been run"
+#        # convert the position to global screen position
+#        global_position = self.asset_description_textEdit.mapToGlobal(position)
+#        
+#        # create the menu
+#        self.asset_description_menu = QtGui.QMenu()
+#        self.asset_description_menu.addAction("Save Description")
+#        self.asset_description_menu.addAction("Revert To Original")
+#        
+#        selected_item = self.asset_description_menu.exec_(global_position)
+#        
+#        if selected_item:
+#            # something is chosen
+#            print selected_item.text()
+        
+    
+    def _setup_defaults(self):
+        """sets up the defaults for the interface
+        """
+        # fill the projects
+        self.projects_comboBox.addItems(self.repo.project_names)
+        
+        # fill the users
+        self.user_comboBox.addItems([user.name for user in self.config.users])
+        
+        # run the project changed item for the first time
+        self._project_changed()
+    
+    def _project_changed(self):
+        """updates the assets list_widget and sequences_comboBox for the 
+        """
+        # fill the assets for the current project
+        # get the current project name
+        project_name = unicode(self.projects_comboBox.currentText())
+        if project_name == "":
+            return
+        
+        # create the project
+        proj = Project(project_name)
+        
+        # get all the assets
+        assets = proj.query(Asset).all()
+        
+        # add their names to the list
+        self.asset_names_listWidget.clear()
+        self.asset_names_listWidget.addItems([asset.name for asset in assets])
+        
+        # select first asset
+        list_item = self.asset_names_listWidget.item(0)
+        list_item.setSelected(True)
+        self.asset_names_listWidget.setCurrentItem(list_item)
+        
+        # call asset update
+        self._asset_changed(list_item.text())
+    
+    def _asset_changed(self, asset_name):
+        """updates the asset related fields with the current asset information
+        """
+        
+        # convert the name from QString to unicode
+        asset_name = unicode(asset_name)
+        
+        project_name = unicode(self.projects_comboBox.currentText())
+        if project_name == "":
+            return
+        
+        proj = Project(project_name)
+        
+        asset = proj.query(Asset).filter_by(name=asset_name).first()
+        
+        if asset is None:
+            return
+        
+        # set the description
+        self.asset_description_textEdit.setText(asset.description)
+    
+    def asset_description_edit_pushButton_clicked(self):
+        """checks the asset_description_edit_pushButton
+        """
+        
+        button = self.asset_description_edit_pushButton
+        text_field = self.asset_description_textEdit
+        
+        # check or uncheck
+        if unicode(button.text()) != u"Done":
+            # change the text to "Done"
+            button.setText(u"Done")
+            
+            # make the text field read-write
+            text_field.setReadOnly(False)
+            
+        else:
+            # change the text to "Edit"
+            button.setText("Edit")
+            button.setStyleSheet("")
+            text_field.setReadOnly(True)
+            
+            # save the description for the current asset
+            asset_name = unicode(
+                self.asset_names_listWidget.currentItem().text()
+            )
+            
+            # project name
+            project_name = unicode(self.projects_comboBox.currentText())
+            
+            # get the asset
+            proj = Project(project_name)
+            asset = proj.query(Asset).filter_by(name=asset_name).first()
+            
+            # update the asset description
+            logger.debug("asset description of %s changed to %s" % (
+                    asset,
+                    unicode(self.asset_description_textEdit.toPlainText())
+                )
+            )
+            
+            asset.description = unicode(
+                self.asset_description_textEdit.toPlainText()
+            )
+            asset.save()
+            
+

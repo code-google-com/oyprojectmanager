@@ -50,7 +50,7 @@
             <item>
              <widget class="QWidget" name="gridWidget1" native="true">
               <layout class="QGridLayout" name="gridLayout1">
-               <item row="7" column="0">
+               <item row="5" column="0">
                 <widget class="QLabel" name="shot_label1">
                  <property name="text">
                   <string>Shot</string>
@@ -60,27 +60,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="server_label">
-                 <property name="text">
-                  <string>Server</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="16" column="0">
-                <widget class="QLabel" name="revision_label1">
-                 <property name="text">
-                  <string>Revision</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="17" column="1">
+               <item row="15" column="1">
                 <widget class="QWidget" name="version_horizontalWidget" native="true">
                  <layout class="QHBoxLayout" name="version_horizontalLayout">
                   <property name="margin">
@@ -110,29 +90,10 @@ Any incarnation of an asset should be have different version numbers.</string>
                     </property>
                    </widget>
                   </item>
-                  <item>
-                   <widget class="QPushButton" name="version_pushButton">
-                    <property name="minimumSize">
-                     <size>
-                      <width>111</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>gets the latest version number</string>
-                    </property>
-                    <property name="statusTip">
-                     <string>gets the latest version number</string>
-                    </property>
-                    <property name="text">
-                     <string>Latest Version</string>
-                    </property>
-                   </widget>
-                  </item>
                  </layout>
                 </widget>
                </item>
-               <item row="7" column="1">
+               <item row="5" column="1">
                 <widget class="QComboBox" name="shot_comboBox1">
                  <property name="enabled">
                   <bool>true</bool>
@@ -156,7 +117,7 @@ If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc.
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0">
+               <item row="1" column="0">
                 <widget class="QLabel" name="sequence_label">
                  <property name="text">
                   <string>Sequence</string>
@@ -166,8 +127,8 @@ If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc.
                  </property>
                 </widget>
                </item>
-               <item row="13" column="1">
-                <widget class="QListWidget" name="subName_listWidget">
+               <item row="11" column="1">
+                <widget class="QListWidget" name="take_name_listWidget">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
@@ -188,31 +149,7 @@ If an asset is shot dependent, its base name is a shot string (SH001, SH010 etc.
                  </property>
                 </widget>
                </item>
-               <item row="0" column="1">
-                <widget class="QComboBox" name="server_comboBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Select a Server</string>
-                 </property>
-                 <property name="statusTip">
-                  <string>Select a Server</string>
-                 </property>
-                 <property name="whatsThis">
-                  <string>Server:
-
-Servers are the places that the main project folders are saved. For now there is only one supported server. In the future that can be expanded to multiple servers...</string>
-                 </property>
-                 <property name="editable">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="19" column="1">
+               <item row="17" column="1">
                 <widget class="QLineEdit" name="note_lineEdit1">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -233,61 +170,27 @@ You can use this field to leave little but important messages here... It is limi
                  </property>
                 </widget>
                </item>
-               <item row="16" column="1">
+               <item row="14" column="1">
                 <widget class="QWidget" name="revision_horizontalWidget" native="true">
-                 <layout class="QHBoxLayout" name="revision_horizontalLayout" stretch="1,1">
+                 <layout class="QHBoxLayout" name="revision_horizontalLayout" stretch="">
                   <property name="margin">
                    <number>0</number>
                   </property>
-                  <item>
-                   <widget class="QSpinBox" name="revision_spinBox">
-                    <property name="toolTip">
-                     <string>increase it when the asset needs a revision</string>
-                    </property>
-                    <property name="statusTip">
-                     <string>increase it when the asset needs a revision</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string>Revision Number:
-
-Revision numbers represents the milestones in the development of this asset. Generally it is increased when something big is changed in the asset.</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="revision_pushButton">
-                    <property name="minimumSize">
-                     <size>
-                      <width>111</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>gets the latest revision number</string>
-                    </property>
-                    <property name="statusTip">
-                     <string>gets the latest revision number</string>
-                    </property>
-                    <property name="text">
-                     <string>Lastest Revision</string>
-                    </property>
-                   </widget>
-                  </item>
                  </layout>
                 </widget>
                </item>
-               <item row="6" column="0">
+               <item row="4" column="0">
                 <widget class="QLabel" name="assetType_label1">
                  <property name="text">
-                  <string>Asset Type</string>
+                  <string>Asset</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
-               <item row="10" column="1">
-                <widget class="QListWidget" name="baseName_listWidget">
+               <item row="8" column="1">
+                <widget class="QListWidget" name="base_name_listWidget">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
@@ -305,7 +208,7 @@ Revision numbers represents the milestones in the development of this asset. Gen
                  </property>
                 </widget>
                </item>
-               <item row="6" column="1">
+               <item row="4" column="1">
                 <widget class="QComboBox" name="assetType_comboBox1">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -326,21 +229,14 @@ Assets has types that lets you distinguish their purpose of existance. This comb
                  </property>
                 </widget>
                </item>
-               <item row="12" column="0" colspan="2">
+               <item row="10" column="0" colspan="2">
                 <widget class="Line" name="line_4">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="0" colspan="2">
-                <widget class="Line" name="line">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
+               <item row="0" column="1">
                 <widget class="QComboBox" name="project_comboBox">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -364,17 +260,17 @@ A project is a collection of sequences. So projects can only contain sequences. 
                  </property>
                 </widget>
                </item>
-               <item row="13" column="0">
-                <widget class="QLabel" name="subName_label1">
+               <item row="11" column="0">
+                <widget class="QLabel" name="take_name_label">
                  <property name="text">
-                  <string>Sub Name</string>
+                  <string>Take Name</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
-               <item row="19" column="0">
+               <item row="17" column="0">
                 <widget class="QLabel" name="note_label1">
                  <property name="text">
                   <string>Note</string>
@@ -384,17 +280,7 @@ A project is a collection of sequences. So projects can only contain sequences. 
                  </property>
                 </widget>
                </item>
-               <item row="10" column="0">
-                <widget class="QLabel" name="baseName_label1">
-                 <property name="text">
-                  <string>Base Name</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
+               <item row="1" column="1">
                 <widget class="QComboBox" name="sequence_comboBox">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -418,8 +304,8 @@ Sequences are collections of folders. Each folder has a special meaning and can 
                  </property>
                 </widget>
                </item>
-               <item row="11" column="1">
-                <widget class="QLineEdit" name="baseName_lineEdit">
+               <item row="9" column="1">
+                <widget class="QLineEdit" name="base_name_lineEdit">
                  <property name="toolTip">
                   <string>enter the baseName for new assets here</string>
                  </property>
@@ -428,7 +314,7 @@ Sequences are collections of folders. Each folder has a special meaning and can 
                  </property>
                 </widget>
                </item>
-               <item row="2" column="0">
+               <item row="0" column="0">
                 <widget class="QLabel" name="project_label">
                  <property name="text">
                   <string>Project</string>
@@ -438,29 +324,29 @@ Sequences are collections of folders. Each folder has a special meaning and can 
                  </property>
                 </widget>
                </item>
-               <item row="4" column="0" colspan="2">
+               <item row="2" column="0" colspan="2">
                 <widget class="Line" name="line_2">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
-               <item row="15" column="0" colspan="2">
+               <item row="13" column="0" colspan="2">
                 <widget class="Line" name="line_5">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
-               <item row="8" column="0" colspan="2">
+               <item row="6" column="0" colspan="2">
                 <widget class="Line" name="line_3">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
-               <item row="14" column="1">
-                <widget class="QLineEdit" name="subName_lineEdit">
+               <item row="12" column="1">
+                <widget class="QLineEdit" name="sub_name_lineEdit">
                  <property name="toolTip">
                   <string>enter the subName for new assets here</string>
                  </property>
@@ -469,7 +355,7 @@ Sequences are collections of folders. Each folder has a special meaning and can 
                  </property>
                 </widget>
                </item>
-               <item row="18" column="1">
+               <item row="16" column="1">
                 <widget class="QComboBox" name="user_comboBox1">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -490,7 +376,7 @@ Select your user initials from the list, so anybody can understand who created t
                  </property>
                 </widget>
                </item>
-               <item row="18" column="0">
+               <item row="16" column="0">
                 <widget class="QLabel" name="user_label1">
                  <property name="text">
                   <string>User</string>
@@ -500,7 +386,7 @@ Select your user initials from the list, so anybody can understand who created t
                  </property>
                 </widget>
                </item>
-               <item row="17" column="0">
+               <item row="15" column="0">
                 <widget class="QLabel" name="version_label1">
                  <property name="text">
                   <string>Version</string>
@@ -510,13 +396,23 @@ Select your user initials from the list, so anybody can understand who created t
                  </property>
                 </widget>
                </item>
-               <item row="20" column="1">
+               <item row="18" column="1">
                 <widget class="QComboBox" name="formats_comboBox"/>
                </item>
-               <item row="20" column="0">
+               <item row="18" column="0">
                 <widget class="QLabel" name="formats_label">
                  <property name="text">
                   <string>Format</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="0">
+                <widget class="QLabel" name="base_name_label">
+                 <property name="text">
+                  <string>Base Name</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -637,7 +533,7 @@ Exports the selected content to the server as an asset</string>
                <item>
                 <widget class="QSpinBox" name="startFrame_spinBox">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -666,7 +562,7 @@ Exports the selected content to the server as an asset</string>
                <item>
                 <widget class="QSpinBox" name="endFrame_spinBox">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -676,6 +572,19 @@ Exports the selected content to the server as an asset</string>
                  </property>
                  <property name="maximum">
                   <number>999999999</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="endFrame_label_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Duration: 0</string>
                  </property>
                 </widget>
                </item>
@@ -807,15 +716,6 @@ Exports the selected content to the server as an asset</string>
               <attribute name="verticalHeaderDefaultSectionSize">
                <number>19</number>
               </attribute>
-              <attribute name="verticalHeaderVisible">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="verticalHeaderDefaultSectionSize">
-               <number>19</number>
-              </attribute>
-              <attribute name="horizontalHeaderStretchLastSection">
-               <bool>true</bool>
-              </attribute>
               <column/>
               <column/>
               <column/>
@@ -946,19 +846,15 @@ Just quits the application without doing anything</string>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>server_comboBox</tabstop>
   <tabstop>project_comboBox</tabstop>
   <tabstop>sequence_comboBox</tabstop>
   <tabstop>assetType_comboBox1</tabstop>
   <tabstop>shot_comboBox1</tabstop>
-  <tabstop>baseName_listWidget</tabstop>
-  <tabstop>baseName_lineEdit</tabstop>
-  <tabstop>subName_listWidget</tabstop>
-  <tabstop>subName_lineEdit</tabstop>
-  <tabstop>revision_spinBox</tabstop>
-  <tabstop>revision_pushButton</tabstop>
+  <tabstop>base_name_listWidget</tabstop>
+  <tabstop>base_name_lineEdit</tabstop>
+  <tabstop>take_name_listWidget</tabstop>
+  <tabstop>sub_name_lineEdit</tabstop>
   <tabstop>version_spinBox</tabstop>
-  <tabstop>version_pushButton</tabstop>
   <tabstop>user_comboBox1</tabstop>
   <tabstop>note_lineEdit1</tabstop>
   <tabstop>formats_comboBox</tabstop>

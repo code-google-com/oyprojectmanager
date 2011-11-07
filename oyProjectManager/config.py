@@ -2,6 +2,7 @@
 
 import os
 import logging
+
 logger = logging.getLogger(__name__)
 
 class Config(object):
@@ -42,8 +43,7 @@ class Config(object):
       * Customize path naming convention
       * Customize the database file name
       * Customize server paths
-      * Customize environments (programs running oyProjectManager as a Python
-        script)
+      * Customize environments (host programs running oyProjectManager)
       * and many more
     
     If there is no ``OYPROJECTMANAGER_PATH`` variable in your current
@@ -56,8 +56,29 @@ class Config(object):
         from oyProjectManager import config
         conf = config.Config()
         
-        print conf.database_file_name
-        # return .metadata.db or the user overrides
+        print conf.database_file_name # will return .metadata.db
+        
+        # print all the user names defined in the config.py
+        for user in conf.users:
+            print user.name
+    
+    **About the Users**
+    The users in the oyProjectManager is held in the config file as a python
+    dictionary. You can add or remove users::
+      
+      users_data = [{"name": "Erkan Ozgur Yilmaz",
+                     "initials":"eoy",
+                     "email": "eoyilmaz@company.com"}]
+    
+    As seen in the above example the ``users_data`` variable is a python list
+    holding python dictionary, and the dictionary has keys like name, initials
+    and email.
+    
+    The users are created from the ``config.py`` file for UI, but the user data
+    will be hold in the project based database (.metadata.db) if the user
+    created a data for that project. So one project can have more users then
+    others. ``config.users`` will return a list of
+    :class:`~oyProjectManager.core.models.User` instances.
     
     **Config Variables**
     
@@ -80,7 +101,7 @@ class Config(object):
     
     take_name = "MAIN"
     
-    users = [{"name": "Administrator", "initials": "adm"}]
+    users_data = [{"name": "Administrator", "initials": "adm"}]
     
     repository = [
             {
@@ -140,7 +161,7 @@ class Config(object):
         
         take_name = "MAIN",
         
-        users = [{"name": "Administrator", "initials": "adm"}],
+        users_data = [{"name": "Administrator", "initials": "adm"}],
         
         # just use one repository for now
         repository_env_key = "REPO",
@@ -428,6 +449,21 @@ class Config(object):
                     if key in self.config_values:
                         self.config_values[key] = self.user_config[key]
                 
+                
+                # ---------------------------------------------------
+                # create the users
+                from oyProjectManager.core.models import User
+                
+                self.users = []
+                for user_data in self.users_data:
+                    name = user_data.get("name")
+                    initials = user_data.get("initials")
+                    email = user_data.get("email")
+                    
+                    self.users.append(
+                        User(name, initials, email)
+                    )
+            
             except IOError:
                 logger.warning("The $OYPROJETMANAGER_PATH:" + resolved_path + \
                                " doesn't exists! skipping user config")

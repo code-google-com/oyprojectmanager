@@ -255,3 +255,9 @@ class AssetTester(unittest.TestCase):
         test_value = "this is the description"
         self.test_asset.description = test_value
         self.assertEqual(self.test_asset.description, test_value)
+    
+    def test_save_method_saves_the_asset_to_the_database(self):
+        """testing if the save method saves the asset to the database
+        """
+        self.test_asset.save()
+        self.assertIn(self.test_asset, self.test_proj.session)

@@ -31,8 +31,7 @@ class Project_DB_Tester(unittest.TestCase):
     def tearDown(self):
         """clean up the test
         """
-
-        # delete the temp folder
+        # delete the temp folders
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
 
