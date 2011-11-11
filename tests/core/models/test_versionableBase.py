@@ -24,6 +24,7 @@ class VersionableBaseTester(unittest.TestCase):
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
     
     def tearDown(self):

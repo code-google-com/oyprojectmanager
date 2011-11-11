@@ -24,7 +24,7 @@ class RepositoryTester(unittest.TestCase):
         self.temp_projects_folder = tempfile.mkdtemp()
         
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
-        os.environ["REPO"] = self.temp_projects_folder
+        os.environ[conf.repository_env_key] = self.temp_projects_folder
         
         self.config_fullpath = os.path.join(
             self.temp_config_folder, "config.py"

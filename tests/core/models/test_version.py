@@ -6,8 +6,8 @@ import tempfile
 import unittest
 from oyProjectManager import config
 from oyProjectManager.core.errors import CircularDependencyError
-from oyProjectManager.core.models import (VersionableBase, Version,
-                                          VersionType, User, Project )
+from oyProjectManager.core.models import (Asset, Shot, Version, VersionType,
+                                          User, Project, Sequence)
 
 conf = config.Config()
 
@@ -25,23 +25,28 @@ class VersionTester(unittest.TestCase):
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
         
         self.test_project = Project("TEST_PROJ1")
         self.test_project.create()
-        self.test_project.save()
+        
+        self.test_sequence = Sequence(self.test_project, "TEST_SEQ1")
+        self.test_sequence.save()
         
         # set it just for testing purposes
-        self.test_vbase = VersionableBase()
-        self.test_vbase._project = self.test_project
+        self.test_shot = Shot(self.test_sequence, 1)
         
         self.test_versionType = VersionType(
             project=self.test_project,
             name="Test Animation",
             code="TANIM",
             path="SHOTS/{{version.base_name}}/{{type.code}}",
-            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
-            output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/{{version.take_name}}",
+            filename="{{version.base_name}}_{{version.take_name}}_\
+{{type.code}}_v{{'%03d'|format(version.version_number)}}_\
+{{version.created_by.initials}}",
+            output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/\
+{{version.take_name}}",
             environments=["MAYA", "HOUDINI"],
             type_for="Shot"
         )
@@ -53,7 +58,7 @@ class VersionTester(unittest.TestCase):
         )
         
         self.kwargs = {
-            "version_of": self.test_vbase,
+            "version_of": self.test_shot,
             "type": self.test_versionType,
             "base_name": "SH001",
             "take_name": "MAIN",
@@ -169,6 +174,37 @@ class VersionTester(unittest.TestCase):
         )
         self.assertRaises(AttributeError, setattr, self.test_version, "type",
                           new_type)
+    
+    def test_type_argument_is_not_proper_for_the_version_of_type(self):
+        """testing if a TypeError will be raised when the given VersionType
+        instance's type_for attribute doesn't match the class which is given by
+        version_of argument
+        """
+        
+        # create an Asset
+        new_asset = Asset(self.test_project, "TEST_ASSET1")
+        new_asset.save()
+        
+        # create a new VersionType which is suitable for Shots
+        new_vtype = VersionType(
+            self.test_project, "Test Type", code="TType",
+            path="SHOTS/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_\
+            {{type.code}}_v{{'%03d'|format(version.version_number)}}_\
+            {{version.created_by.initials}}",
+            output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/\
+            {{version.take_name}}",
+            environments=["MAYA", "HOUDINI"],
+            type_for="Shot"
+        )
+        
+        # try to create a new Version with it
+        # and expect a TypeError to be raised
+        self.assertRaises(
+            TypeError,
+            Version, new_asset, new_asset.name, new_vtype, self.test_user
+        )
+        
     
     def test_base_name_argument_is_skipped(self):
         """testing if a TypeError will be raised when the base_name argument

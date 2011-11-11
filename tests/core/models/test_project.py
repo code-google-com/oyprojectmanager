@@ -26,8 +26,9 @@ class Project_DB_Tester(unittest.TestCase):
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
-
+    
     def tearDown(self):
         """clean up the test
         """
@@ -184,16 +185,16 @@ class ProjectTester(unittest.TestCase):
     def setUp(self):
         """testing the settings path from the environment variable
         """
-
+        
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
-
+        
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
-        os.environ["REPO"] = self.temp_projects_folder
-
+        os.environ[conf.repository_env_key] = self.temp_projects_folder
+        
         self._name_test_values = [
             ("test project", "TEST_PROJECT"),
             ("123123 test_project", "TEST_PROJECT"),
@@ -328,7 +329,6 @@ class ProjectTester(unittest.TestCase):
         
         # now check if the fullpath is still the same
         self.assertEqual(new_proj.fullpath, full_path)
-        
 
     def test_fullpath_attribute_is_read_only(self):
         """testing if the fullpath attribute is read-only
@@ -358,7 +358,6 @@ class ProjectTester(unittest.TestCase):
         
         # now check if the path is still the same
         self.assertEqual(new_proj.path, path)
-        
 
     def test_path_attribute_is_read_only(self):
         """testing if the path attribute is read-only

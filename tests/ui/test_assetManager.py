@@ -9,12 +9,11 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtTest import QTest
 import sys
 from oyProjectManager import config
-from oyProjectManager.core.models import Project, Asset
+from oyProjectManager.core.models import (Project, Asset, Version, User,
+                                          VersionType)
 from oyProjectManager.ui import assetManager
 
 conf = config.Config()
-
-
 
 class AssetManagerTester(unittest.TestCase):
     """tests the oyProjectManager.ui.assetManager class
@@ -30,8 +29,9 @@ class AssetManagerTester(unittest.TestCase):
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
-        
+    
         self.app = QApplication(sys.argv)
         
         os.environ[conf.repository_env_key] = self.temp_projects_folder
@@ -51,8 +51,14 @@ class AssetManagerTester(unittest.TestCase):
         # now run the UI
         QTest.mouseClick(dialog.close_pushButton, Qt.LeftButton)
         self.assertEqual(dialog.isVisible(), False)
-        
-    def test_projects_combobox_is_filled_with_projects(self):
+    
+    def test_projects_comboBox_no_problem_when_there_is_no_project(self):
+        """testing if there will be no problem when there is no project created
+        yet
+        """
+        dialog = assetManager.MainDialog_New()
+    
+    def test_projects_comboBox_is_filled_with_projects(self):
         """testing if the projects_combobox is filled with projects
         """
         # create a couple of test projects
@@ -67,7 +73,7 @@ class AssetManagerTester(unittest.TestCase):
         # see if the projects filled with projects
         self.assertEqual(len(dialog.projects_comboBox), 2)
     
-    def test_projects_combobox_first_project_is_selected(self):
+    def test_projects_comboBox_first_project_is_selected(self):
         """testing if the first project is selected in the project combo box
         """
         # create a couple of test projects
@@ -80,10 +86,67 @@ class AssetManagerTester(unittest.TestCase):
         dialog = assetManager.MainDialog_New()
         # see if the projects filled with projects
         self.assertEqual(dialog.projects_comboBox.currentIndex(), 0)
-        
-        
     
-    def test_users_combobox_is_filled_with_users_from_the_config(self):
+    def test_projects_comboBox_has_project_obj_attribute(self):
+        """testing if there is a project_obj object holding the current Project
+        instance
+        """
+        # create a couple of test projects
+        proj1 = Project("TEST_PROJ1")
+        proj2 = Project("TEST_PROJ2")
+        proj3 = Project("TEST_PROJ3")
+        
+        proj1.create()
+        proj2.create()
+        proj3.create()
+        
+        dialog = assetManager.MainDialog_New()
+        
+        # check if the projects_comboBox has an attribute called project_obj
+        self.assertTrue(hasattr(dialog.projects_comboBox, "project_obj"))
+    
+    def test_projects_comboBox_project_obj_attribute_is_Project_instance(self):
+        """testing if the project_obj attribute in the projects_comboBox is a
+        Project instance
+        """
+        # create a couple of test projects
+        proj1 = Project("TEST_PROJ1")
+        proj2 = Project("TEST_PROJ2")
+        proj3 = Project("TEST_PROJ3")
+        
+        proj1.create()
+        proj2.create()
+        proj3.create()
+        
+        dialog = assetManager.MainDialog_New()
+        
+        # check if the project_obj is a Project instance
+        self.assertIsInstance(dialog.projects_comboBox.project_obj, Project)
+    
+    def test_projects_comboBox_project_obj_attributes_name_is_same_with_comboBox_text(self):
+        """testing if the Project instance which is held in the project_obj
+        attribute in the projects_comboBox has the same name with the 
+        """
+        
+        # create a couple of test projects
+        proj1 = Project("TEST_PROJ1")
+        proj2 = Project("TEST_PROJ2")
+        proj3 = Project("TEST_PROJ3")
+        
+        proj1.create()
+        proj2.create()
+        proj3.create()
+        
+        dialog = assetManager.MainDialog_New()
+        
+        # check if the name of the project is the same with the currently
+        # selected project
+        self.assertEqual(
+            unicode(dialog.projects_comboBox.currentText()),
+            dialog.projects_comboBox.project_obj.name
+        )
+    
+    def test_users_comboBox_is_filled_with_users_from_the_config(self):
         """testing if the users combobox is filled with the user names
         """
         
@@ -177,14 +240,14 @@ class AssetManagerTester(unittest.TestCase):
         asset4.save()
         
         dialog = assetManager.MainDialog_New()
-        dialog.show()
-        self.app.exec_()
-        self.app.connect(
-            self.app,
-            QtCore.SIGNAL("lastWindowClosed()"),
-            self.app,
-            QtCore.SLOT("quit()")
-        )
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
         
         # check if the first assets description is shown in the asset
         # description window
@@ -220,20 +283,20 @@ class AssetManagerTester(unittest.TestCase):
             asset4.description
         )
     
-    def test_asset_description_edit_button_is_checked(self):
+    def test_asset_description_edit_pushButton_is_checked(self):
         """testing if the edit button changes to done   
         """
         
         # create the dialog
         dialog = assetManager.MainDialog_New()
-        dialog.show()
-        self.app.exec_()
-        self.app.connect(
-            self.app,
-            QtCore.SIGNAL("lastWindowClosed()"),
-            self.app,
-            QtCore.SLOT("quit()")
-        )
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
         
         # check if it is unchecked by default
         self.assertFalse(dialog.asset_description_edit_pushButton.isChecked())
@@ -280,9 +343,247 @@ class AssetManagerTester(unittest.TestCase):
             unicode(dialog.asset_description_edit_pushButton.text()),
             "Edit"
         )
-        
     
-    def test_asset_description_updated_with_edit_button(self):
+    def test_asset_description_edit_pushButton_enables_asset_description_textEdit(self):
+        """testing if pushing the edit pushButton for the first time enables
+        the asset_description_textEdit and disables it when pushed for a second
+        time
+        """
+        
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset1.description = "Description for TEST_ASSET1 before change"
+        
+        asset2 = Asset(proj1, "TEST_ASSET2")
+        asset2.description = "Description for TEST_ASSET2 before change"
+        
+        asset1.save()
+        asset2.save()
+        
+        # now create the dialog
+        dialog = assetManager.MainDialog_New()
+        
+        # check if the description textEdit field is read-only
+        self.assertTrue(
+            dialog.asset_description_textEdit.isReadOnly()
+        )
+        
+        # push the edit pushButton
+        QTest.mouseClick(
+            dialog.asset_description_edit_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the description textEdit field become writable
+        self.assertFalse(
+            dialog.asset_description_textEdit.isReadOnly()
+        )
+        
+        # hit done pushButton
+        QTest.mouseClick(
+            dialog.asset_description_edit_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        self.assertTrue(
+            dialog.asset_description_textEdit.isReadOnly()
+        )
+    
+    def test_asset_description_edit_pushButton_disables_asset_names_listWidget(self):
+        """testing if pushing the edit pushButton for the first time disables
+        the asset_names_listWidget and enables it when pushed for a second
+        time
+        """
+                
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset1.description = "Description for TEST_ASSET1 before change"
+        
+        asset2 = Asset(proj1, "TEST_ASSET2")
+        asset2.description = "Description for TEST_ASSET2 before change"
+        
+        asset1.save()
+        asset2.save()
+        
+        # now create the dialog
+        dialog = assetManager.MainDialog_New()
+        
+        # check if it is already enabled
+        self.assertTrue(
+            dialog.asset_names_listWidget.isEnabled()
+        )
+        
+        # push the edit pushButton
+        QTest.mouseClick(
+            dialog.asset_description_edit_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the asset_names_listWidget becomes disabled
+        self.assertFalse(
+            dialog.asset_names_listWidget.isEnabled()
+        )
+        
+        # hit done pushButton
+        QTest.mouseClick(
+            dialog.asset_description_edit_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if it becomes enabled again
+        self.assertTrue(
+            dialog.asset_names_listWidget.isEnabled()
+        )
+    
+    def test_asset_description_edit_pushButton_disables_asset_names_listWidget(self):
+        """testing if pushing the edit pushButton for the first time disables
+        the asset_names_listWidget and enables it when pushed for a second
+        time
+        """
+                
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset1.description = "Description for TEST_ASSET1 before change"
+        
+        asset2 = Asset(proj1, "TEST_ASSET2")
+        asset2.description = "Description for TEST_ASSET2 before change"
+        
+        asset1.save()
+        asset2.save()
+        
+        # now create the dialog
+        dialog = assetManager.MainDialog_New()
+        
+        # check if it is already enabled
+        self.assertTrue(
+            dialog.projects_comboBox.isEnabled()
+        )
+        
+        # push the edit pushButton
+        QTest.mouseClick(
+            dialog.asset_description_edit_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the projects_comboBox is disabled
+        self.assertFalse(
+            dialog.projects_comboBox.isEnabled()
+        )
+        
+        # push the done pushButton
+        QTest.mouseClick(
+            dialog.asset_description_edit_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the projects_comboBox is enabled again
+        self.assertTrue(
+            dialog.projects_comboBox.isEnabled()
+        )
+    
+    def test_asset_description_edit_pushButton_disables_create_asset_pushButton(self):
+        """testing if pushing the edit pushButton for the first time disables
+        the create_asset_pushButton and enables it when pushed for a second
+        time
+        """
+        
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset1.description = "Description for TEST_ASSET1 before change"
+        
+        asset2 = Asset(proj1, "TEST_ASSET2")
+        asset2.description = "Description for TEST_ASSET2 before change"
+        
+        asset1.save()
+        asset2.save()
+        
+        # now create the dialog
+        dialog = assetManager.MainDialog_New()
+        
+        # check if it is already enabled
+        self.assertTrue(
+            dialog.create_asset_pushButton.isEnabled()
+        )
+        
+        # push the edit pushButton
+        QTest.mouseClick(
+            dialog.asset_description_edit_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the create_asset_pushButton becomes disabled
+        self.assertFalse(
+            dialog.create_asset_pushButton.isEnabled()
+        )
+        
+        # push the edit pushButton again
+        QTest.mouseClick(
+            dialog.asset_description_edit_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the create_asset_pushButton becomes enabled again
+        self.assertTrue(
+            dialog.create_asset_pushButton.isEnabled()
+        )
+    
+    def test_asset_description_edit_pushButton_disables_shots_tab(self):
+        """testing if pushing the edit pushButton for the first time disables
+        the shots_tab and enables it when pushed for a second
+        time
+        """
+        
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset1.description = "Description for TEST_ASSET1 before change"
+        
+        asset2 = Asset(proj1, "TEST_ASSET2")
+        asset2.description = "Description for TEST_ASSET2 before change"
+        
+        asset1.save()
+        asset2.save()
+        
+        # now create the dialog
+        dialog = assetManager.MainDialog_New()
+        
+        # check if it is already enabled
+        self.assertTrue(
+            dialog.shots_tab.isEnabled()
+        )
+        
+        # push the edit pushButton
+        QTest.mouseClick(
+            dialog.asset_description_edit_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the create_asset_pushButton becomes disabled
+        self.assertFalse(
+            dialog.shots_tab.isEnabled()
+        )
+        
+        # push the edit pushButton again
+        QTest.mouseClick(
+            dialog.asset_description_edit_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the create_asset_pushButton becomes enabled again
+        self.assertTrue(
+            dialog.shots_tab.isEnabled()
+        )
+    
+    def test_asset_description_edit_pushButton_updates_asset_description(self):
         """testing if the asset description update will be persistent when the
         edit button is checked and done is selected afterwards
         """
@@ -310,20 +611,10 @@ class AssetManagerTester(unittest.TestCase):
 #            QtCore.SLOT("quit()")
 #        )
         
-        # check if the description textEdit field is read-only
-        self.assertTrue(
-            dialog.asset_description_textEdit.isReadOnly()
-        )
-        
         # push the edit pushButton
         QTest.mouseClick(
             dialog.asset_description_edit_pushButton,
             QtCore.Qt.LeftButton
-        )
-        
-        # check if the description textEdit field become writable
-        self.assertFalse(
-            dialog.asset_description_textEdit.isReadOnly()
         )
         
         test_value = "Description for TEST_ASSET1 after change"
@@ -359,3 +650,225 @@ class AssetManagerTester(unittest.TestCase):
             test_value,
             unicode(dialog.asset_description_textEdit.toPlainText())
         )
+    
+    def test_takes_comboBox_lists_all_the_takes_of_current_asset_versions(self):
+        """testing if the takes_comboBox lists all the takes of the current
+        asset and current version_type
+        """
+        # TODO: test this when there is no asset in the project
+        
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset1.save()
+        
+        asset2 = Asset(proj1, "TEST_ASSET2")
+        asset2.save()
+        
+        # new user
+        user1 = User(name="User1", initials="u1",
+                     email="user1@test.com")
+        
+        # create a couple of versions
+        asset_vtypes = \
+            proj1.query(VersionType).filter_by(type_for="Asset").all()
+        
+        vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
+                        take_name="Main")
+        vers1.save()
+        
+        vers2 = Version(asset1, asset1.name, asset_vtypes[0], user1,
+                        take_name="Main")
+        vers2.save()
+        
+        vers3 = Version(asset1, asset1.name, asset_vtypes[0], user1,
+                        take_name="Test")
+        vers3.save()
+        
+        vers4 = Version(asset1, asset1.name, asset_vtypes[0], user1,
+                        take_name="Test")
+        vers4.save()
+        
+        # a couple of versions for asset2 to see if they are going to be mixed
+        vers5 = Version(asset2, asset2.name, asset_vtypes[1], user1,
+                        take_name="Test2")
+        vers5.save()
+        
+        vers6 = Version(asset2, asset2.name, asset_vtypes[2], user1,
+                        take_name="Test3")
+        vers6.save()
+        
+        dialog = assetManager.MainDialog_New()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+        
+        # check if Main and Test are in the takes_comboBox
+        ui_take_names = []
+        for i in range(dialog.takes_comboBox.count()):
+            dialog.takes_comboBox.setCurrentIndex(i)
+            ui_take_names.append(
+                unicode(dialog.takes_comboBox.currentText())
+            )
+        
+        self.assertItemsEqual(
+            ["Main", "Test"],
+            ui_take_names
+        )
+    
+    def test_asset_version_types_comboBox_lists_all_the_types_of_the_current_asset_versions(self):
+        """testing if the asset_version_types_comboBox lists all the types of
+        the current asset
+        """
+        
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset1.save()
+        
+        asset2 = Asset(proj1, "TEST_ASSET2")
+        asset2.save()
+        
+        # new user
+        user1 = User(name="User1", initials="u1",
+                     email="user1@test.com")
+        
+        # create a couple of versions
+        asset_vtypes = \
+            proj1.query(VersionType).filter_by(type_for="Asset").all()
+        
+        vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
+                        take_name="Main")
+        vers1.save()
+        
+        vers2 = Version(asset1, asset1.name, asset_vtypes[0], user1,
+                        take_name="Main")
+        vers2.save()
+        
+        vers3 = Version(asset1, asset1.name, asset_vtypes[1], user1,
+                        take_name="Test")
+        vers3.save()
+        
+        vers4 = Version(asset1, asset1.name, asset_vtypes[2], user1,
+                        take_name="Test")
+        vers4.save()
+        
+        # a couple of versions for asset2 to see if they are going to be mixed
+        vers5 = Version(asset2, asset2.name, asset_vtypes[3], user1,
+                        take_name="Test2")
+        vers5.save()
+        
+        vers6 = Version(asset2, asset2.name, asset_vtypes[4], user1,
+                        take_name="Test3")
+        vers6.save()
+        
+        dialog = assetManager.MainDialog_New()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+        
+        # check if Main and Test are in the takes_comboBox
+        ui_type_names = []
+        for i in range(dialog.asset_version_types_comboBox.count()):
+            dialog.asset_version_types_comboBox.setCurrentIndex(i)
+            ui_type_names.append(
+                unicode(dialog.asset_version_types_comboBox.currentText())
+            )
+        
+        self.assertItemsEqual(
+            [asset_vtypes[0].name, asset_vtypes[1].name, asset_vtypes[2].name],
+            ui_type_names
+        )
+    
+    def test_previous_versions_tableWidget_is_filled_with_proper_info(self):
+        """testing if the previous_versions_tableWidget is filled with proper
+        information
+        """
+        
+        
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset1.save()
+        
+        asset2 = Asset(proj1, "TEST_ASSET2")
+        asset2.save()
+        
+        # new user
+        user1 = User(name="User1", initials="u1",
+                     email="user1@test.com")
+        
+        # create a couple of versions
+        asset_vtypes = \
+            proj1.query(VersionType).filter_by(type_for="Asset").all()
+        
+        vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
+                        take_name="Main", note="test note")
+        vers1.save()
+        
+        vers2 = Version(asset1, asset1.name, asset_vtypes[0], user1,
+                        take_name="Main", note="test note 2")
+        vers2.save()
+        
+        vers3 = Version(asset1, asset1.name, asset_vtypes[1], user1,
+                        take_name="Test", note="test note 3")
+        vers3.save()
+        
+        vers4 = Version(asset1, asset1.name, asset_vtypes[2], user1,
+                        take_name="Test", note="test note 4")
+        vers4.save()
+        
+        # a couple of versions for asset2 to see if they are going to be mixed
+        vers5 = Version(asset2, asset2.name, asset_vtypes[3], user1,
+                        take_name="Test2", note="test note 5")
+        vers5.save()
+        
+        vers6 = Version(asset2, asset2.name, asset_vtypes[4], user1,
+                        take_name="Test3", note="test note 6")
+        vers6.save()
+        
+        dialog = assetManager.MainDialog_New()
+        dialog.show()
+        self.app.exec_()
+        self.app.connect(
+            self.app,
+            QtCore.SIGNAL("lastWindowClosed()"),
+            self.app,
+            QtCore.SLOT("quit()")
+        )
+        
+        # select the first asset
+        list_item = dialog.asset_names_listWidget.item(0)
+        dialog.asset_names_listWidget.setCurrentItem(list_item)
+        
+        # select the first type
+        dialog.asset_version_types_comboBox.setCurrentIndex(0)
+        
+        # select the first take
+        dialog.takes_comboBox.setCurrentIndex(0)
+        
+        # which should list vers1 and vers2
+        
+        # now check if the previous versions tableWidget has the info
+        name = unicode(dialog.previous_versions_tableWidget.item(0,0).text())
+        self.assertEqual(name, vers1.base_name)
+
+        type_name = unicode(
+            dialog.previous_versions_tableWidget.item(0,1).text()
+        )
+        self.assertEqual(type_name, vers1.type.name)
+    
+    

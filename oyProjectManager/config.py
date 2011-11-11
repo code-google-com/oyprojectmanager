@@ -288,7 +288,7 @@ class Config(object):
                 "path": "Assets/{{version.base_name}}/{{type.code}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
-                "environments": ["MAYA", "HOUDINI"],
+                "environments": ["Maya", "Houdini"],
                 "type_for": "Asset"
             },
             {
@@ -448,25 +448,24 @@ class Config(object):
                 for key in self.user_config:
                     if key in self.config_values:
                         self.config_values[key] = self.user_config[key]
-                
-                
-                # ---------------------------------------------------
-                # create the users
-                from oyProjectManager.core.models import User
-                
-                self.users = []
-                for user_data in self.users_data:
-                    name = user_data.get("name")
-                    initials = user_data.get("initials")
-                    email = user_data.get("email")
-                    
-                    self.users.append(
-                        User(name, initials, email)
-                    )
             
             except IOError:
                 logger.warning("The $OYPROJETMANAGER_PATH:" + resolved_path + \
                                " doesn't exists! skipping user config")
+            
+            # ---------------------------------------------------
+            # create the users
+            from oyProjectManager.core.models import User
+            
+            self.users = []
+            for user_data in self.users_data:
+                name = user_data.get("name")
+                initials = user_data.get("initials")
+                email = user_data.get("email")
+                
+                self.users.append(
+                    User(name, initials, email)
+                )
     
     def __getattr__(self, name):
         return self.config_values[name]

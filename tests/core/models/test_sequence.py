@@ -177,31 +177,31 @@ class SequenceTester(unittest.TestCase):
         """
         
         # create a config file which has a known placement for sequences
-        config_content = """
-        project_structure = \"\"\"{% for sequence in project.sequences %}
-            {% set seq_path = 'Sequences/' + sequence.code %}
-            {{seq_path}}/Edit/Offline
-            {{seq_path}}/Edit/Sound
-            {{seq_path}}/References/Artworks
-            {{seq_path}}/References/Text/Scenario
-            {{seq_path}}/References/Photos_Images
-            {{seq_path}}/References/Videos
-            {{seq_path}}/References/Others
-            {{seq_path}}/Others
-            {{seq_path}}/Others/assets
-            {{seq_path}}/Others/clips
-            {{seq_path}}/Others/data
-            {{seq_path}}/Others/fur
-            {{seq_path}}/Others/fur/furAttrMap
-            {{seq_path}}/Others/fur/furEqualMap
-            {{seq_path}}/Others/fur/furFiles
-            {{seq_path}}/Others/fur/furImages
-            {{seq_path}}/Others/fur/furShadowMap
-            {{seq_path}}/Others/mel
-            {{seq_path}}/Others/particles
-        {% endfor %}
-        \"\"\"
-        """
+        config_content = \
+        "project_structure = \"\"\"{% for sequence in project.sequences %}\n" + \
+        "    {% set seq_path = 'Sequences/' + sequence.code %}\n" + \
+        "    {{seq_path}}/Edit/Offline\n" + \
+        "    {{seq_path}}/Edit/Sound\n" + \
+        "    {{seq_path}}/References/Artworks\n" + \
+        "    {{seq_path}}/References/Text/Scenario\n" + \
+        "    {{seq_path}}/References/Photos_Images\n" + \
+        "    {{seq_path}}/References/Videos\n" + \
+        "    {{seq_path}}/References/Others\n" + \
+        "    {{seq_path}}/Others\n" + \
+        "    {{seq_path}}/Others/assets\n" + \
+        "    {{seq_path}}/Others/clips\n" + \
+        "    {{seq_path}}/Others/data\n" + \
+        "    {{seq_path}}/Others/fur\n" + \
+        "    {{seq_path}}/Others/fur/furAttrMap\n" + \
+        "    {{seq_path}}/Others/fur/furEqualMap\n" + \
+        "    {{seq_path}}/Others/fur/furFiles\n" + \
+        "    {{seq_path}}/Others/fur/furImages\n" + \
+        "    {{seq_path}}/Others/fur/furShadowMap\n" + \
+        "    {{seq_path}}/Others/mel\n" + \
+        "    {{seq_path}}/Others/particles\n" + \
+        "{% endfor %}\n" + \
+        "\"\"\"\n"
+        
         
         # write it to a file called config.py in the OYPROJECTMANAGER_PATH
         config_file = open(
@@ -252,7 +252,7 @@ class Sequence_DB_Tester(unittest.TestCase):
         self.temp_projects_folder = tempfile.mkdtemp()
         
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
-        os.environ["REPO"] = self.temp_projects_folder
+        os.environ[conf.repository_env_key] = self.temp_projects_folder
     
     def tearDown(self):
         """clean up the test

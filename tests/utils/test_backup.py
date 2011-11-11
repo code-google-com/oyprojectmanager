@@ -257,243 +257,243 @@ class BackUpCreationTester(unittest.TestCase):
         self.assertEqual(new_backup.num_of_versions, test_value)
 
 
-class BackUp_DoBackup_Tester(unittest.TestCase):
-    """tests the backup process
-    """
-    
-    def setUp(self):
-        """setup the test
-        """
-        
-        # -----------------------------------------------------------------
-        # start of the setUp
-        # create the environment variable and point it to a temp directory
-        self.temp_config_folder = tempfile.mkdtemp()
-        self.temp_projects_folder = tempfile.mkdtemp()
-        
-        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
-        os.environ["REPO"] = self.temp_projects_folder
-        
-        # create a project
-        self.test_project = Project(name="BACKUP_TEST_PROJECT")
-        self.test_project.create()
-        
-        # create a couple of sequences
-        self.test_seq1 = Sequence(self.test_project, "BACKUP_TEST_SEQ1")
-        self.test_seq1.shots.append(Shot(self.test_seq1, 1))
-        self.test_seq1.create()
-        
-        self.test_seq2 = Sequence(self.test_project, "BACKUP_TEST_SEQ2")
-        self.test_seq2.shots.append(Shot(self.test_seq2, 1))
-        self.test_seq2.create()
-        
-        # create an FX asset
-        self.fx_asset = Asset(
-            self.test_project,
-            self.test_seq1,
-            "SH001_MAIN_FX_r00_v001_oy.ma"
-        )
-        
-        self.lighting_asset = Asset(
-            self.test_project,
-            self.test_seq1,
-            "SH001_MAIN_LIGHTING_r00_v002_oy.ma"
-        )
-        
-        self.compositing_asset1 = Asset(
-            self.test_project,
-            self.test_seq1,
-            "SH001_MAIN_COMP_r00_v001_oy.nk"
-        )
-        
-        self.compositing_asset2 = Asset(
-            self.test_project,
-            self.test_seq1,
-            "SH001_MAIN_COMP_r00_v002_oy.nk"
-        )
-        
-        # create the render image sequence
-        self.imageSeq1 = pyseq.uncompress(
-            os.path.join(
-                self.test_seq1.fullPath,
-                self.fx_asset.output_path,
-                "test_image_seq1.%03d.jpg 1-100",
-            ),
-            format="%h%p%t %r"
-        )
-        
-        try:
-            os.makedirs(
-                os.path.dirname(
-                    self.imageSeq1.path()
-                )
-            )
-        except OSError:
-            pass
-    
-        
-        self.imageSeq2 = pyseq.uncompress(
-            os.path.join(
-                self.test_seq1.fullPath,
-                self.fx_asset.output_path,
-                "test_image_seq2.%03d.jpg 1-100",
-            ),
-            format="%h%p%t %r"
-        )
-        
-        try:
-            os.makedirs(
-                os.path.dirname(
-                    self.imageSeq2.path()
-                )
-            )
-        except OSError:
-            pass
-        
-        
-        
-        self.imageSeq3 = pyseq.uncompress(
-            os.path.join(
-                self.test_seq1.fullPath,
-                self.fx_asset.output_path,
-                "test_image_seq3.%03d.jpg 1-100",
-            ),
-            format="%h%p%t %r"
-        )
-        
-        try:
-            os.makedirs(
-                os.path.dirname(
-                    self.imageSeq3.path()
-                )
-            )
-        except OSError:
-            pass
-        
-        
-        self.imageSeq4 = pyseq.uncompress(
-            os.path.join(
-                self.test_seq1.fullPath,
-                self.compositing_asset2.output_path,
-                os.path.splitext(self.compositing_asset2.fileName)[0] + \
-                    ".%03d.jpg 1-100",
-            ),
-            format="%h%p%t %r"
-        )
-        
-        try:
-            os.makedirs(
-                os.path.dirname(
-                    self.imageSeq4.path()
-                )
-            )
-        except OSError:
-            pass
-        
-        
-        for image in self.imageSeq1:
-            subprocess.call(["touch", image.path], shell=False)
-        
-        for image in self.imageSeq2:
-            subprocess.call(["touch", image.path], shell=False)
-        
-        for image in self.imageSeq3:
-            subprocess.call(["touch", image.path], shell=False)
-        
-        for image in self.imageSeq4:
-            subprocess.call(["touch", image.path], shell=False)
-        
-        # create a nuke file with several read and write nodes
-        # open the nuke file
-        self.nuke_file = open(
-            os.path.join(
-                self._test_files_folder,
-                "nuke_file_template.nk"
-            ),
-            "r"
-        )
-        
-        # render it as a jinja2 template
-        nuke_template = jinja2.Template(self.nuke_file.read())
-        self.nuke_file.close()
-        
-        
-        # write it to the new path
-        nuke_output_file = open(
-            self.compositing_asset2.fullPath,
-            "w"
-        )
-        
-        print self.compositing_asset2.fullPath
-        
-        
-        nuke_output_file.write(
-            nuke_template.render(
-                project_dir=self.test_seq1.fullPath,
-                comp_file_path=self.compositing_asset2.fullPath
-            )
-        )
-        
-        nuke_output_file.close()
-        # test the backup process
-        
-        # create a place to backup the files
-        self.backup_path = tempfile.mkdtemp()
-    
-    
-    def tearDown(self):
-        """tear down the test
-        """
-        shutil.rmtree(self.temp_config_folder)
-        shutil.rmtree(self.temp_projects_folder)
-    
-    
-    def test_doBackUp_(self):
-        """
-        """
-        
-        # now back up the project
-        backup_obj = BackUp(self.test_project.name, self.backup_path)
-        backup_obj.doBackup()
-        
-        # now test if the project is created with all the paths in the backup
-        # path
-        
-        # there should be three sequences in the backup path
-        # read1 --> self.imageSeq2
-        # read2 --> self.imageSeq3
-        # write --> self.imageSeq4
-        
-        
-        self.assertTrue(
-            all(
-                [os.path.exists(
-                    item.path.replace(
-                        self.test_project.fullpath, self.backup_path
-                    )
-                ) for item in self.imageSeq2]
-            )
-        )
-        
-        self.assertTrue(
-            all(
-                [os.path.exists(
-                    item.path.replace(
-                        self.test_project.fullpath, self.backup_path
-                    )
-                ) for item in self.imageSeq3]
-            )
-        )
-        
-        self.assertTrue(
-            all(
-                [os.path.exists(
-                    item.path.replace(
-                        self.test_project.fullpath, self.backup_path
-                    )
-                ) for item in self.imageSeq4]
-            )
-        )
+#class BackUp_DoBackup_Tester(unittest.TestCase):
+#    """tests the backup process
+#    """
+#    
+#    def setUp(self):
+#        """setup the test
+#        """
+#        
+#        # -----------------------------------------------------------------
+#        # start of the setUp
+#        # create the environment variable and point it to a temp directory
+#        self.temp_config_folder = tempfile.mkdtemp()
+#        self.temp_projects_folder = tempfile.mkdtemp()
+#        
+#        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
+#        os.environ["REPO"] = self.temp_projects_folder
+#        
+#        # create a project
+#        self.test_project = Project(name="BACKUP_TEST_PROJECT")
+#        self.test_project.create()
+#        
+#        # create a couple of sequences
+#        self.test_seq1 = Sequence(self.test_project, "BACKUP_TEST_SEQ1")
+#        self.test_seq1.shots.append(Shot(self.test_seq1, 1))
+#        self.test_seq1.create()
+#        
+#        self.test_seq2 = Sequence(self.test_project, "BACKUP_TEST_SEQ2")
+#        self.test_seq2.shots.append(Shot(self.test_seq2, 1))
+#        self.test_seq2.create()
+#        
+#        # create an FX asset
+#        self.fx_asset = Asset(
+#            self.test_project,
+#            self.test_seq1,
+#            "SH001_MAIN_FX_r00_v001_oy.ma"
+#        )
+#        
+#        self.lighting_asset = Asset(
+#            self.test_project,
+#            self.test_seq1,
+#            "SH001_MAIN_LIGHTING_r00_v002_oy.ma"
+#        )
+#        
+#        self.compositing_asset1 = Asset(
+#            self.test_project,
+#            self.test_seq1,
+#            "SH001_MAIN_COMP_r00_v001_oy.nk"
+#        )
+#        
+#        self.compositing_asset2 = Asset(
+#            self.test_project,
+#            self.test_seq1,
+#            "SH001_MAIN_COMP_r00_v002_oy.nk"
+#        )
+#        
+#        # create the render image sequence
+#        self.imageSeq1 = pyseq.uncompress(
+#            os.path.join(
+#                self.test_seq1.fullPath,
+#                self.fx_asset.output_path,
+#                "test_image_seq1.%03d.jpg 1-100",
+#            ),
+#            format="%h%p%t %r"
+#        )
+#        
+#        try:
+#            os.makedirs(
+#                os.path.dirname(
+#                    self.imageSeq1.path()
+#                )
+#            )
+#        except OSError:
+#            pass
+#    
+#        
+#        self.imageSeq2 = pyseq.uncompress(
+#            os.path.join(
+#                self.test_seq1.fullPath,
+#                self.fx_asset.output_path,
+#                "test_image_seq2.%03d.jpg 1-100",
+#            ),
+#            format="%h%p%t %r"
+#        )
+#        
+#        try:
+#            os.makedirs(
+#                os.path.dirname(
+#                    self.imageSeq2.path()
+#                )
+#            )
+#        except OSError:
+#            pass
+#        
+#        
+#        
+#        self.imageSeq3 = pyseq.uncompress(
+#            os.path.join(
+#                self.test_seq1.fullPath,
+#                self.fx_asset.output_path,
+#                "test_image_seq3.%03d.jpg 1-100",
+#            ),
+#            format="%h%p%t %r"
+#        )
+#        
+#        try:
+#            os.makedirs(
+#                os.path.dirname(
+#                    self.imageSeq3.path()
+#                )
+#            )
+#        except OSError:
+#            pass
+#        
+#        
+#        self.imageSeq4 = pyseq.uncompress(
+#            os.path.join(
+#                self.test_seq1.fullPath,
+#                self.compositing_asset2.output_path,
+#                os.path.splitext(self.compositing_asset2.fileName)[0] + \
+#                    ".%03d.jpg 1-100",
+#            ),
+#            format="%h%p%t %r"
+#        )
+#        
+#        try:
+#            os.makedirs(
+#                os.path.dirname(
+#                    self.imageSeq4.path()
+#                )
+#            )
+#        except OSError:
+#            pass
+#        
+#        
+#        for image in self.imageSeq1:
+#            subprocess.call(["touch", image.path], shell=False)
+#        
+#        for image in self.imageSeq2:
+#            subprocess.call(["touch", image.path], shell=False)
+#        
+#        for image in self.imageSeq3:
+#            subprocess.call(["touch", image.path], shell=False)
+#        
+#        for image in self.imageSeq4:
+#            subprocess.call(["touch", image.path], shell=False)
+#        
+#        # create a nuke file with several read and write nodes
+#        # open the nuke file
+#        self.nuke_file = open(
+#            os.path.join(
+#                self._test_files_folder,
+#                "nuke_file_template.nk"
+#            ),
+#            "r"
+#        )
+#        
+#        # render it as a jinja2 template
+#        nuke_template = jinja2.Template(self.nuke_file.read())
+#        self.nuke_file.close()
+#        
+#        
+#        # write it to the new path
+#        nuke_output_file = open(
+#            self.compositing_asset2.fullPath,
+#            "w"
+#        )
+#        
+#        print self.compositing_asset2.fullPath
+#        
+#        
+#        nuke_output_file.write(
+#            nuke_template.render(
+#                project_dir=self.test_seq1.fullPath,
+#                comp_file_path=self.compositing_asset2.fullPath
+#            )
+#        )
+#        
+#        nuke_output_file.close()
+#        # test the backup process
+#        
+#        # create a place to backup the files
+#        self.backup_path = tempfile.mkdtemp()
+#    
+#    
+#    def tearDown(self):
+#        """tear down the test
+#        """
+#        shutil.rmtree(self.temp_config_folder)
+#        shutil.rmtree(self.temp_projects_folder)
+#    
+#    
+#    def test_doBackUp_(self):
+#        """
+#        """
+#        
+#        # now back up the project
+#        backup_obj = BackUp(self.test_project.name, self.backup_path)
+#        backup_obj.doBackup()
+#        
+#        # now test if the project is created with all the paths in the backup
+#        # path
+#        
+#        # there should be three sequences in the backup path
+#        # read1 --> self.imageSeq2
+#        # read2 --> self.imageSeq3
+#        # write --> self.imageSeq4
+#        
+#        
+#        self.assertTrue(
+#            all(
+#                [os.path.exists(
+#                    item.path.replace(
+#                        self.test_project.fullpath, self.backup_path
+#                    )
+#                ) for item in self.imageSeq2]
+#            )
+#        )
+#        
+#        self.assertTrue(
+#            all(
+#                [os.path.exists(
+#                    item.path.replace(
+#                        self.test_project.fullpath, self.backup_path
+#                    )
+#                ) for item in self.imageSeq3]
+#            )
+#        )
+#        
+#        self.assertTrue(
+#            all(
+#                [os.path.exists(
+#                    item.path.replace(
+#                        self.test_project.fullpath, self.backup_path
+#                    )
+#                ) for item in self.imageSeq4]
+#            )
+#        )
         
         
 

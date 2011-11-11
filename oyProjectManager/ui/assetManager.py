@@ -3,12 +3,14 @@ import sys
 import os
 import logging
 
+from sqlalchemy.sql.expression import distinct
+
 from PyQt4 import QtGui, QtCore
 import assetManager_UI
 
 import oyProjectManager
 from oyProjectManager import utils, config
-from oyProjectManager.core.models import Asset, Project, Sequence, Repository
+from oyProjectManager.core.models import Asset, Project, Sequence, Repository, Version, VersionType
 from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import assetUpdater, singletonQApplication
 
@@ -1637,6 +1639,23 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.config = config.Config()
         self.repo = Repository()
         
+        # create the project_obj attribute in projects_comboBox
+        # TODO: create an array of Project instances for each project_name in the comboBox
+        #       but just fill them when the Project instance is created
+        self.projects_comboBox.project_obj = None
+        
+        # set previous_version_tableWidget_labels
+        self.previous_versions_tableWidget_labels = [
+#            "Name",
+#            "Type",
+#            "Take",
+            "Version",
+            "User",
+            "Note",
+            "File Size",
+            "File Path"
+        ]
+        
         # setup signals
         self._setup_signals()
         
@@ -1657,14 +1676,14 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         QtCore.QObject.connect(
             self.projects_comboBox,
             QtCore.SIGNAL("currentIndexChanged(int)"),
-            self._project_changed
+            self.project_changed
         )
         
         # asset_names_listWidget
         QtCore.QObject.connect(
             self.asset_names_listWidget,
             QtCore.SIGNAL("currentTextChanged(QString)"),
-            self._asset_changed
+            self.asset_changed
         )
         
         # asset_description_edit_pushButton
@@ -1674,6 +1693,17 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             self.asset_description_edit_pushButton_clicked
         )
         
+        QtCore.QObject.connect(
+            self.asset_version_types_comboBox,
+            QtCore.SIGNAL("currentIndexChanged(int)"),
+            self.asset_version_types_comboBox_changed
+        )
+        
+        QtCore.QObject.connect(
+            self.takes_comboBox,
+            QtCore.SIGNAL("currentIndexChanged(int)"),
+            self.asset_take_comboBox_changed
+        )
         
 #        # custom context menu for the asset description
 #        self.asset_description_textEdit.setContextMenuPolicy(
@@ -1715,9 +1745,9 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.user_comboBox.addItems([user.name for user in self.config.users])
         
         # run the project changed item for the first time
-        self._project_changed()
+        self.project_changed()
     
-    def _project_changed(self):
+    def project_changed(self):
         """updates the assets list_widget and sequences_comboBox for the 
         """
         # fill the assets for the current project
@@ -1729,6 +1759,9 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # create the project
         proj = Project(project_name)
         
+        # assign it to the comboBox
+        self.projects_comboBox.project_obj = proj
+        
         # get all the assets
         assets = proj.query(Asset).all()
         
@@ -1736,34 +1769,193 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.asset_names_listWidget.clear()
         self.asset_names_listWidget.addItems([asset.name for asset in assets])
         
-        # select first asset
+        # set the list to the first asset
         list_item = self.asset_names_listWidget.item(0)
-        list_item.setSelected(True)
-        self.asset_names_listWidget.setCurrentItem(list_item)
         
-        # call asset update
-        self._asset_changed(list_item.text())
+        if list_item is not None:
+#            list_item.setSelected(True)
+            self.asset_names_listWidget.setCurrentItem(list_item)
+            
+            # call asset update
+            self.asset_changed(list_item.text())
     
-    def _asset_changed(self, asset_name):
+    def asset_changed(self, asset_name):
         """updates the asset related fields with the current asset information
         """
         
         # convert the name from QString to unicode
         asset_name = unicode(asset_name)
         
-        project_name = unicode(self.projects_comboBox.currentText())
-        if project_name == "":
-            return
+#        project_name = unicode(self.projects_comboBox.currentText())
+#        if project_name == "":
+#            return
         
-        proj = Project(project_name)
-        
+#        proj = Project(project_name)
+        proj = self.projects_comboBox.project_obj
         asset = proj.query(Asset).filter_by(name=asset_name).first()
         
         if asset is None:
             return
         
         # set the description
-        self.asset_description_textEdit.setText(asset.description)
+        if asset.description is not None:
+            self.asset_description_textEdit.setText(asset.description)
+        else:
+            self.asset_description_textEdit.setText("")
+        
+        # update the version data
+        # Types
+        # get all the types for this asset
+        types = map(
+            lambda x: x[0],
+            proj.query(distinct(VersionType.name)).join(Version).
+            filter(Version.version_of==asset).all()
+        )
+        
+        # add the types to the version types list
+        self.asset_version_types_comboBox.clear()
+        self.asset_version_types_comboBox.addItems(types)
+        
+        # select the first one
+        self.asset_version_types_comboBox.setCurrentIndex(0)
+    
+    def asset_version_types_comboBox_changed(self, index):
+        """runs when the asset version types comboBox has changed
+        """
+        # get all the takes for this type
+        proj = self.projects_comboBox.project_obj
+        asset_name = unicode(self.asset_names_listWidget.currentItem().text())
+        asset = proj.query(Asset).filter_by(name=asset_name).first()
+        
+        # version type name
+        version_type_name = unicode(
+            self.asset_version_types_comboBox.itemText(index)
+        )
+        
+        # Takes
+        # get all the takes of the current asset
+        takes = map(
+            lambda x: x[0],
+            proj.query(distinct(Version.take_name)).
+            join(VersionType).filter(VersionType.name==version_type_name).
+            filter(Version.version_of==asset).all()
+        )
+        
+        self.takes_comboBox.clear()
+        self.takes_comboBox.addItems(takes)
+    
+    def asset_take_comboBox_changed(self, index):
+        """runs when the takes_comboBox has changed
+        """
+        
+        proj = self.projects_comboBox.project_obj
+        asset_name = unicode(self.asset_names_listWidget.currentItem().text())
+        asset = proj.query(Asset).filter_by(name=asset_name).first()
+        
+        # version type name
+        version_type_name = unicode(
+            self.asset_version_types_comboBox.itemText(index)
+        )
+        
+        # take name
+        take_name = unicode(
+            self.takes_comboBox.currentText()
+        )
+        
+        # query the Versions
+        versions = proj.query(Version).filter(Version.version_of==asset).\
+            filter(Version.take_name==take_name).\
+            order_by(Version.version_number).all()
+        
+        self.previous_versions_tableWidget.clear()
+        self.previous_versions_tableWidget.setRowCount(len(versions))
+        
+        self.previous_versions_tableWidget.setHorizontalHeaderLabels(
+            self.previous_versions_tableWidget_labels
+        )
+        
+        # update the previous versions list
+        for i, vers in enumerate(versions):
+            # TODO: add the Version instance to the tableWidget
+            
+            assert isinstance(vers, Version)
+            
+#            # --------------------------------
+#            # base_name
+#            item = QtGui.QTableWidgetItem(vers.base_name)
+#            # align to left and vertical center
+#            item.setTextAlignment(0x0001 | 0x0080)
+#            self.previous_versions_tableWidget.setItem(i, 0, item)
+#            
+#            # ------------------------------------
+#            # type_name
+#            item = QtGui.QTableWidgetItem(vers.type.name)
+#            # align to center and vertical center
+#            item.setTextAlignment(0x0001 | 0x0080)
+#            self.previous_versions_tableWidget.setItem(i, 1, item)
+#            # ------------------------------------
+#            
+#            # ------------------------------------
+#            # take_name
+#            item = QtGui.QTableWidgetItem(vers.take_name)
+#            # align to center and verical center
+#            item.setTextAlignment(0x0001 | 0x0080)
+#            self.previous_versions_tableWidget.setItem(i, 2, item)            
+#            # ------------------------------------
+            
+            # ------------------------------------
+            # version_number
+            item = QtGui.QTableWidgetItem(str(vers.version_number))
+            # align to center and verical center
+            item.setTextAlignment(0x0002 | 0x0080)
+            self.previous_versions_tableWidget.setItem(i, 0, item)            
+            # ------------------------------------
+            
+            # ------------------------------------
+            # user.name
+            item = QtGui.QTableWidgetItem(vers.created_by.name)
+            # align to left and verical center
+            item.setTextAlignment(0x0001 | 0x0080)
+            self.previous_versions_tableWidget.setItem(i, 1, item)            
+            # ------------------------------------
+            
+            # ------------------------------------
+            # note
+            item = QtGui.QTableWidgetItem(vers.note)
+            # align to left and verical center
+            item.setTextAlignment(0x0001 | 0x0080)
+            self.previous_versions_tableWidget.setItem(i, 2, item)            
+            # ------------------------------------
+            
+            # ------------------------------------
+            # filesize
+            item = QtGui.QTableWidgetItem("")
+            # align to left and verical center
+            item.setTextAlignment(0x0001 | 0x0080)
+            self.previous_versions_tableWidget.setItem(i, 3, item)            
+            # ------------------------------------
+            
+            # ------------------------------------
+            # fullpath
+            item = QtGui.QTableWidgetItem(vers.fullpath)
+            # align to center and verical center
+            item.setTextAlignment(0x0001 | 0x0080)
+            self.previous_versions_tableWidget.setItem(i, 4, item)            
+            # ------------------------------------
+            
+        # resize the first column
+        self.previous_versions_tableWidget.resizeColumnToContents(0)
+        self.previous_versions_tableWidget.resizeColumnToContents(1)
+        self.previous_versions_tableWidget.resizeColumnToContents(2)
+        self.previous_versions_tableWidget.resizeColumnToContents(3)
+        self.previous_versions_tableWidget.resizeColumnToContents(4)
+#        self.previous_versions_tableWidget.resizeColumnToContents(5)
+#        self.previous_versions_tableWidget.resizeColumnToContents(6)
+#        self.previous_versions_tableWidget.resizeColumnToContents(7)
+            
+            
+            
+        
     
     def asset_description_edit_pushButton_clicked(self):
         """checks the asset_description_edit_pushButton
@@ -1780,6 +1972,19 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             # make the text field read-write
             text_field.setReadOnly(False)
             
+            # to discourage edits
+            # disable the asset_names_listWidget
+            self.asset_names_listWidget.setEnabled(False)
+            
+            # and the projects_comboBox
+            self.projects_comboBox.setEnabled(False)
+            
+            # and the create_asset_pushButton
+            self.create_asset_pushButton.setEnabled(False)
+            
+            # and the shots_tab
+            self.shots_tab.setEnabled(False)
+            
         else:
             # change the text to "Edit"
             button.setText("Edit")
@@ -1791,11 +1996,12 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 self.asset_names_listWidget.currentItem().text()
             )
             
-            # project name
-            project_name = unicode(self.projects_comboBox.currentText())
-            
-            # get the asset
-            proj = Project(project_name)
+#            # project name
+#            project_name = unicode(self.projects_comboBox.currentText())
+#            
+#            # get the asset
+#            proj = Project(project_name)
+            proj = self.projects_comboBox.project_obj
             asset = proj.query(Asset).filter_by(name=asset_name).first()
             
             # update the asset description
@@ -1805,9 +2011,26 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
                 )
             )
             
-            asset.description = unicode(
+            # only issue an update if the description has changed
+            new_description = unicode(
                 self.asset_description_textEdit.toPlainText()
             )
-            asset.save()
             
+            if asset.description != new_description:
+                asset.description = new_description
+                asset.save()
+            
+            # re-enable asset_names_listWidget
+            self.asset_names_listWidget.setEnabled(True)
+            
+            # and the projects_comboBox
+            self.projects_comboBox.setEnabled(True)
+            
+            # and the create_asset_pushButton
+            self.create_asset_pushButton.setEnabled(True)
+            
+            # and the shots_tab
+            self.shots_tab.setEnabled(True)
+            
+        
 

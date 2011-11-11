@@ -980,7 +980,13 @@ class VersionableBase(Base):
     """
     
     __tablename__ = "Versionables"
-    __mapper_args__ = {"polymorphic_identity": "VersionableBase"}
+    
+    versionable_type = Column(String(128), nullable=False)
+    
+    __mapper_args__ = {
+        "polymorphic_on": versionable_type,
+        "polymorphic_identity": "VersionableBase"
+    }
     
     id = Column(Integer, primary_key=True)
     
@@ -1296,7 +1302,7 @@ class Asset(VersionableBase):
 
     __tablename__ = "Assets"
     __mapper_args__ = {"polymorphic_identity": "Asset"}
-
+    
     asset_id = Column("id", Integer, ForeignKey("Versionables.id"),
                       primary_key=True)
 
@@ -1607,7 +1613,7 @@ class Version(Base):
         kwargs = self._template_variables()
         self._filename = jinja2.Template(self.type.filename).render(**kwargs)
         self._path = jinja2.Template(self.type.path).render(**kwargs)
-
+    
     @validates("_version_of")
     def _validate_version_of(self, key, version_of):
         """validates the given version of value
@@ -1637,11 +1643,23 @@ class Version(Base):
         """
         if type is None:
             raise TypeError("Version.type can not be None")
-
+        
         if not isinstance(type, VersionType):
             raise TypeError("Version.type should be an instance of "
                             "VersionType class")
-
+        
+        # raise a TypeError if the given VersionType is not suitable for the
+        # given version_of instance
+        if self.version_of.__class__.__name__ != type.type_for:
+            raise TypeError("The VersionType instance given for Version.type "
+                            "is not suitable for the given VersionableBase "
+                            "instance, the version_of is a %s and the "
+                            "version_type is for %s" % 
+                            (self.version_of.__class__.__name__,
+                             type.type_for
+                            )
+            )
+        
         return type
 
     @synonym_for("_type")

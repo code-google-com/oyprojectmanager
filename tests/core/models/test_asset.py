@@ -23,6 +23,7 @@ class AssetTester(unittest.TestCase):
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
         
         self.test_proj = Project("TEST_PROJ1")
@@ -63,7 +64,6 @@ class AssetTester(unittest.TestCase):
             ("45asf78wr", "Asf78wr"),
             ("'^+'afsd2342'^+'asdFGH", "Afsd2342asdFGH"),
         ]
-        
     
     def tearDown(self):
         """remove the temp folders
