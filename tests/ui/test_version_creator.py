@@ -4,6 +4,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from PyQt4 import QtGui
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication
 from PyQt4.QtTest import QTest
@@ -11,12 +12,12 @@ import sys
 from oyProjectManager import config
 from oyProjectManager.core.models import (Project, Asset, Version, User,
                                           VersionType)
-from oyProjectManager.ui import assetManager
+from oyProjectManager.ui import version_creator
 
 conf = config.Config()
 
-class AssetManagerTester(unittest.TestCase):
-    """tests the oyProjectManager.ui.assetManager class
+class VersionCreatorTester(unittest.TestCase):
+    """tests the oyProjectManager.ui.version_creator class
     """
     
     def setUp(self):
@@ -46,7 +47,7 @@ class AssetManagerTester(unittest.TestCase):
     def test_close_button_closes_ui(self):
         """testing if the close button is closing the ui
         """
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # now run the UI
         QTest.mouseClick(dialog.close_pushButton, Qt.LeftButton)
@@ -56,7 +57,7 @@ class AssetManagerTester(unittest.TestCase):
         """testing if there will be no problem when there is no project created
         yet
         """
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
     
     def test_projects_comboBox_is_filled_with_projects(self):
         """testing if the projects_combobox is filled with projects
@@ -68,7 +69,7 @@ class AssetManagerTester(unittest.TestCase):
         proj1.create()
         proj2.create()
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # see if the projects filled with projects
         self.assertEqual(len(dialog.projects_comboBox), 2)
@@ -83,7 +84,7 @@ class AssetManagerTester(unittest.TestCase):
         proj1.create()
         proj2.create()
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         # see if the projects filled with projects
         self.assertEqual(dialog.projects_comboBox.currentIndex(), 0)
     
@@ -100,7 +101,7 @@ class AssetManagerTester(unittest.TestCase):
         proj2.create()
         proj3.create()
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # check if the projects_comboBox has an attribute called project_obj
         self.assertTrue(hasattr(dialog.projects_comboBox, "project_obj"))
@@ -118,7 +119,7 @@ class AssetManagerTester(unittest.TestCase):
         proj2.create()
         proj3.create()
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # check if the project_obj is a Project instance
         self.assertIsInstance(dialog.projects_comboBox.project_obj, Project)
@@ -137,7 +138,7 @@ class AssetManagerTester(unittest.TestCase):
         proj2.create()
         proj3.create()
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # check if the name of the project is the same with the currently
         # selected project
@@ -153,7 +154,7 @@ class AssetManagerTester(unittest.TestCase):
         # get the users from the config
         users = conf.users
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # check if all the names in the users are in the combobox
         
@@ -184,7 +185,7 @@ class AssetManagerTester(unittest.TestCase):
         asset3.save()
         asset4.save()
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -239,7 +240,7 @@ class AssetManagerTester(unittest.TestCase):
         asset3.save()
         asset4.save()
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -288,7 +289,7 @@ class AssetManagerTester(unittest.TestCase):
         """
         
         # create the dialog
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -363,7 +364,7 @@ class AssetManagerTester(unittest.TestCase):
         asset2.save()
         
         # now create the dialog
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # check if the description textEdit field is read-only
         self.assertTrue(
@@ -410,7 +411,7 @@ class AssetManagerTester(unittest.TestCase):
         asset2.save()
         
         # now create the dialog
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # check if it is already enabled
         self.assertTrue(
@@ -458,7 +459,7 @@ class AssetManagerTester(unittest.TestCase):
         asset2.save()
         
         # now create the dialog
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # check if it is already enabled
         self.assertTrue(
@@ -506,7 +507,7 @@ class AssetManagerTester(unittest.TestCase):
         asset2.save()
         
         # now create the dialog
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # check if it is already enabled
         self.assertTrue(
@@ -554,7 +555,7 @@ class AssetManagerTester(unittest.TestCase):
         asset2.save()
         
         # now create the dialog
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         
         # check if it is already enabled
         self.assertTrue(
@@ -601,7 +602,7 @@ class AssetManagerTester(unittest.TestCase):
         asset2.save()
         
         # now create the dialog
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -699,7 +700,7 @@ class AssetManagerTester(unittest.TestCase):
                         take_name="Test3")
         vers6.save()
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -769,7 +770,7 @@ class AssetManagerTester(unittest.TestCase):
                         take_name="Test3")
         vers6.save()
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -792,11 +793,10 @@ class AssetManagerTester(unittest.TestCase):
             ui_type_names
         )
     
-    def test_previous_versions_tableWidget_is_filled_with_proper_info(self):
-        """testing if the previous_versions_tableWidget is filled with proper
-        information
+    def test_previous_versions_tableWidget_is_updated_properly(self):
+        """testing if the previous_versions_tableWidget is updated properly
+        when the version_type is changed to a type with the same take_name
         """
-        
         
         proj1 = Project("TEST_PROJECT1")
         proj1.create()
@@ -815,40 +815,183 @@ class AssetManagerTester(unittest.TestCase):
         asset_vtypes = \
             proj1.query(VersionType).filter_by(type_for="Asset").all()
         
-        vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
-                        take_name="Main", note="test note")
+        vers1 = Version(
+            asset1,
+            asset1.name,
+            asset_vtypes[0],
+            user1,
+            take_name="Main",
+            note="test note"
+        )
         vers1.save()
         
-        vers2 = Version(asset1, asset1.name, asset_vtypes[0], user1,
-                        take_name="Main", note="test note 2")
+        vers2 = Version(
+            asset1,
+            asset1.name,
+            asset_vtypes[1],
+            user1,
+            take_name="Main",
+            note="test note 2"
+        )
         vers2.save()
         
-        vers3 = Version(asset1, asset1.name, asset_vtypes[1], user1,
-                        take_name="Test", note="test note 3")
+        dialog = version_creator.MainDialog_New()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+        
+        # select the first asset
+        list_item = dialog.asset_names_listWidget.item(0)
+        dialog.asset_names_listWidget.setCurrentItem(list_item)
+        
+        # select the first type
+        dialog.asset_version_types_comboBox.setCurrentIndex(0)
+        
+        # select the first take
+        dialog.takes_comboBox.setCurrentIndex(0)
+        
+        # which should list vers1
+        
+        # the row count should be 2
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.rowCount(),
+            1
+        )
+        
+        # now check if the previous versions tableWidget has the info
+        
+#        versions = [vers1, vers2]
+#        for i in range(2):
+#            
+#            self.assertEqual(
+#                int(dialog.previous_versions_tableWidget.item(i,0).text()),
+#                versions[i].version_number
+#            )
+#            
+#            self.assertEqual(
+#                unicode(dialog.previous_versions_tableWidget.item(i,1).text()),
+#                versions[i].created_by.name
+#            )
+#        
+#            self.assertEqual(
+#                unicode(dialog.previous_versions_tableWidget.item(i,2).text()),
+#                versions[i].note
+#            )
+#            
+#            # TODO: add test for filesize column
+#            
+#            self.assertEqual(
+#                unicode(dialog.previous_versions_tableWidget.item(i,4).text()),
+#                versions[i].fullpath
+#            )
+    
+    def test_previous_versions_tableWidget_is_filled_with_proper_info(self):
+        """testing if the previous_versions_tableWidget is filled with proper
+        information
+        """
+        
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset1.save()
+        
+        asset2 = Asset(proj1, "TEST_ASSET2")
+        asset2.save()
+        
+        # new user
+        user1 = User(name="User1", initials="u1",
+                     email="user1@test.com")
+        
+        # create a couple of versions
+        asset_vtypes = \
+            proj1.query(VersionType).filter_by(type_for="Asset").all()
+        
+        vers1 = Version(
+            asset1,
+            asset1.name,
+            asset_vtypes[0],
+            user1,
+            take_name="Main",
+            note="test note"
+        )
+        vers1.save()
+        
+        vers2 = Version(
+            asset1,
+            asset1.name,
+            asset_vtypes[0],
+            user1,
+            take_name="Main",
+            note="test note 2"
+        )
+        vers2.save()
+        
+        vers3 = Version(
+            asset1,
+            asset1.name,
+            asset_vtypes[1],
+            user1,
+            take_name="Main",
+            note="test note 3"
+        )
         vers3.save()
         
-        vers4 = Version(asset1, asset1.name, asset_vtypes[2], user1,
-                        take_name="Test", note="test note 4")
+        vers4 = Version(
+            asset1,
+            asset1.name,
+            asset_vtypes[2],
+            user1,
+            take_name="Main",
+            note="test note 4"
+        )
         vers4.save()
         
+        vers4a = Version(
+            asset1,
+            asset1.name,
+            asset_vtypes[2],
+            user1,
+            take_name="NewTake",
+            note="test note 4a"
+        )
+        vers4a.save()
+        
         # a couple of versions for asset2 to see if they are going to be mixed
-        vers5 = Version(asset2, asset2.name, asset_vtypes[3], user1,
-                        take_name="Test2", note="test note 5")
+        vers5 = Version(
+            asset2,
+            asset2.name,
+            asset_vtypes[3],
+            user1,
+            take_name="Test2",
+            note="test note 5"
+        )
         vers5.save()
         
-        vers6 = Version(asset2, asset2.name, asset_vtypes[4], user1,
-                        take_name="Test3", note="test note 6")
+        vers6 = Version(
+            asset2,
+            asset2.name,
+            asset_vtypes[4],
+            user1,
+            take_name="Test3",
+            note="test note 6"
+        )
         vers6.save()
         
-        dialog = assetManager.MainDialog_New()
+        dialog = version_creator.MainDialog_New()
         dialog.show()
-        self.app.exec_()
-        self.app.connect(
-            self.app,
-            QtCore.SIGNAL("lastWindowClosed()"),
-            self.app,
-            QtCore.SLOT("quit()")
-        )
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
         
         # select the first asset
         list_item = dialog.asset_names_listWidget.item(0)
@@ -862,13 +1005,93 @@ class AssetManagerTester(unittest.TestCase):
         
         # which should list vers1 and vers2
         
-        # now check if the previous versions tableWidget has the info
-        name = unicode(dialog.previous_versions_tableWidget.item(0,0).text())
-        self.assertEqual(name, vers1.base_name)
-
-        type_name = unicode(
-            dialog.previous_versions_tableWidget.item(0,1).text()
+        # the row count should be 2
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.rowCount(),
+            2
         )
-        self.assertEqual(type_name, vers1.type.name)
+        
+        # now check if the previous versions tableWidget has the info
+        
+        versions = [vers1, vers2]
+        for i in range(2):
+            
+            self.assertEqual(
+                int(dialog.previous_versions_tableWidget.item(i,0).text()),
+                versions[i].version_number
+            )
+            
+            self.assertEqual(
+                unicode(dialog.previous_versions_tableWidget.item(i,1).text()),
+                versions[i].created_by.name
+            )
+        
+            self.assertEqual(
+                unicode(dialog.previous_versions_tableWidget.item(i,2).text()),
+                versions[i].note
+            )
+            
+            # TODO: add test for file size column
+            
+            self.assertEqual(
+                unicode(dialog.previous_versions_tableWidget.item(i,4).text()),
+                versions[i].fullpath
+            )
     
     
+    
+#    def test_speed_test(self):
+#        """test the speed of the interface
+#        """
+#        
+#        import logging
+#        logger = logging.getLogger("oyProjectManager")
+#        logger.setLevel(logging.FATAL)
+#        
+#        projects = []
+#        for i in range(10):
+#            # create projects
+#            proj = Project("TEST_PROJ%03d" % i)
+#            proj.create()
+#            
+##            data = []
+#            
+#            user = User("Test User 1", "tu1")
+#            
+#            for j in range(10):
+#                # create assets
+#                asset = Asset(proj, "TEST_ASSET%03d" % j)
+##                asset.save()
+#                proj.session.add(asset)
+#                
+#                asset_types = \
+#                    proj.query(VersionType).filter_by(type_for="Asset").all()
+#                
+##                data.append(asset)
+#                
+#                for asset_type in asset_types:
+#                    
+#                    take_list = ["Take1", "Take2", "Take3", "Take4"]
+#                    
+#                    for take in take_list:
+#                        
+#                        for k in range(10):
+#                            # create versions
+#                            vers = Version(asset, asset.name, asset_type, user,take)
+##                            vers.save()
+#                            proj.session.add(vers)
+#                            
+##                            data.append(vers)
+#            
+##            proj.session.add_all(data)
+#            proj.session.commit()
+#        
+#        dialog = version_creator.MainDialog_New()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )

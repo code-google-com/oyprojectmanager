@@ -39,7 +39,7 @@ def UI(environment):
 
 
 class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
-    """the main dialog of the system
+    """the main dialog of the system which helps to create new versions
     """
     
     def __init__(self, environmentName=None, parent=None):
@@ -1694,15 +1694,15 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         )
         
         QtCore.QObject.connect(
-            self.asset_version_types_comboBox,
+            self.version_types_comboBox,
             QtCore.SIGNAL("currentIndexChanged(int)"),
-            self.asset_version_types_comboBox_changed
+            self.version_types_comboBox_changed
         )
         
         QtCore.QObject.connect(
             self.takes_comboBox,
             QtCore.SIGNAL("currentIndexChanged(int)"),
-            self.asset_take_comboBox_changed
+            self.takes_comboBox_changed
         )
         
 #        # custom context menu for the asset description
@@ -1813,15 +1813,18 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         )
         
         # add the types to the version types list
-        self.asset_version_types_comboBox.clear()
-        self.asset_version_types_comboBox.addItems(types)
+        self.version_types_comboBox.clear()
+        self.version_types_comboBox.addItems(types)
         
         # select the first one
-        self.asset_version_types_comboBox.setCurrentIndex(0)
+        self.version_types_comboBox.setCurrentIndex(0)
     
-    def asset_version_types_comboBox_changed(self, index):
+    def version_types_comboBox_changed(self, index):
         """runs when the asset version types comboBox has changed
         """
+        
+#        print "Version Type Update"
+        
         # get all the takes for this type
         proj = self.projects_comboBox.project_obj
         asset_name = unicode(self.asset_names_listWidget.currentItem().text())
@@ -1829,7 +1832,7 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         # version type name
         version_type_name = unicode(
-            self.asset_version_types_comboBox.itemText(index)
+            self.version_types_comboBox.itemText(index)
         )
         
         # Takes
@@ -1843,10 +1846,13 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         self.takes_comboBox.clear()
         self.takes_comboBox.addItems(takes)
+        self.takes_comboBox.setCurrentIndex(0)
     
-    def asset_take_comboBox_changed(self, index):
+    def takes_comboBox_changed(self, index):
         """runs when the takes_comboBox has changed
         """
+        
+#        print "Asset Take Update"
         
         proj = self.projects_comboBox.project_obj
         asset_name = unicode(self.asset_names_listWidget.currentItem().text())
@@ -1854,18 +1860,26 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         
         # version type name
         version_type_name = unicode(
-            self.asset_version_types_comboBox.itemText(index)
+            self.version_types_comboBox.currentText()
         )
+        
+#        print "version_type_name: %s" % version_type_name
         
         # take name
         take_name = unicode(
             self.takes_comboBox.currentText()
         )
         
-        # query the Versions
-        versions = proj.query(Version).filter(Version.version_of==asset).\
+#        print "take_name: %s" % take_name 
+        
+        # query the Versions of this type and take
+        versions = proj.query(Version).join(VersionType).\
+            filter(VersionType.name==version_type_name).\
+            filter(Version.version_of==asset).\
             filter(Version.take_name==take_name).\
             order_by(Version.version_number).all()
+        
+#        print versions
         
         self.previous_versions_tableWidget.clear()
         self.previous_versions_tableWidget.setRowCount(len(versions))
@@ -1878,7 +1892,7 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         for i, vers in enumerate(versions):
             # TODO: add the Version instance to the tableWidget
             
-            assert isinstance(vers, Version)
+#            assert isinstance(vers, Version)
             
 #            # --------------------------------
 #            # base_name
@@ -1952,7 +1966,7 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
 #        self.previous_versions_tableWidget.resizeColumnToContents(5)
 #        self.previous_versions_tableWidget.resizeColumnToContents(6)
 #        self.previous_versions_tableWidget.resizeColumnToContents(7)
-            
+        
             
             
         

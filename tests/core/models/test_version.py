@@ -204,7 +204,6 @@ class VersionTester(unittest.TestCase):
             TypeError,
             Version, new_asset, new_asset.name, new_vtype, self.test_user
         )
-        
     
     def test_base_name_argument_is_skipped(self):
         """testing if a TypeError will be raised when the base_name argument
@@ -440,6 +439,30 @@ class VersionTester(unittest.TestCase):
         versA2 = Version(**self.kwargs)
         versA2.save()
         self.assertEqual(versA2.version_number, 2)
+    
+    def test_version_number_for_two_assets(self):
+        """testing if the version number is calculated correctly for two assets
+        with different versions_types but with same take_names
+        """
+        
+        shot1 = Shot(self.test_sequence, "1A")
+        shot1.save()
+        
+        # now create two versions with the same version_type
+        new_vers1 = Version(
+            shot1, shot1.code, self.test_versionType, self.test_user,
+            take_name="Take1"
+        )
+        new_vers1.save()
+        
+        new_vers2 = Version(
+            shot1, shot1.code, self.test_versionType, self.test_user,
+            take_name="Take2"
+        )
+        new_vers2.save()
+        
+        self.assertEqual(new_vers1.version_number, 1)
+        self.assertEqual(new_vers1.version_number, 1)
     
     def test_max_version_returns_the_maximum_version_number_from_the_database(self):
         """testing if the max_version is returning the maximum version number

@@ -176,3 +176,6 @@ Version History
   * ``time_units`` (no time unit concept, use
     :attr:`~oyProjectManager.core.models.Project.fps` instead)
 
+* The ``assetManager.py`` is renamed to ``version_creator.py`` to reflect its
+  functionality more clearly. And the interface is redesigned from scratch and
+  programmed with TDD practices.
