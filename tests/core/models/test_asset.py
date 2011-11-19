@@ -4,6 +4,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from sqlalchemy.exc import IntegrityError
 from oyProjectManager import config
 from oyProjectManager.core.models import Project, Sequence, Shot, Asset
 
@@ -36,6 +37,7 @@ class AssetTester(unittest.TestCase):
         }
         
         self.test_asset = Asset(**self.kwargs)
+        self.test_asset.save()
         
         self._name_test_values = [
             ("Test Asset", "Test Asset"),
@@ -142,6 +144,9 @@ class AssetTester(unittest.TestCase):
         """
         self.kwargs["name"] = "£#$£'^+'324"
         self.assertRaises(ValueError, Asset, **self.kwargs)
+        
+        self.kwargs["name"] = u"546324"
+        self.assertRaises(ValueError, Asset, **self.kwargs)
     
     def test_name_attribute_is_empty_string_after_formatting(self):
         """testing if a ValueError will be raised when the name attribugte is
@@ -149,6 +154,16 @@ class AssetTester(unittest.TestCase):
         """
         self.assertRaises(ValueError, setattr, self.test_asset, "name",
                           "£#$£'^+'324")
+
+        self.assertRaises(ValueError, setattr, self.test_asset, "name",
+                          "2324234")
+    
+    def test_name_argument_is_not_unique(self):
+        """testing if a IntegrityError will be raised when the name is unique
+        """
+        # create an asset with the same name
+        new_asset = Asset(**self.kwargs)
+        self.assertRaises(IntegrityError, new_asset.save)
     
     def test_code_argument_is_skipped(self):
         """testing if the code attribute will be get from the name attribute if
@@ -234,6 +249,14 @@ class AssetTester(unittest.TestCase):
         """
         self.assertRaises(ValueError, setattr, self.test_asset, "code",
                           "'^+'%+%1231")
+    
+    def test_code_argument_is_not_unique(self):
+        """testing if an IntegrityError will be raised when the code argument
+        is not unique
+        """
+        self.kwargs["name"] = "Another_Asset_Name"
+        new_asset = Asset(**self.kwargs)
+        self.assertRaises(IntegrityError, new_asset.save)
     
     def test_description_attribute_is_set_to_None(self):
         """testing if a TypeError will be raised when the description attribute

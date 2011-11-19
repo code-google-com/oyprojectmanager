@@ -3,8 +3,9 @@
 import os
 import re
 import logging
+#import datetime
 import jinja2
-from beaker import cache
+#from beaker import cache
 
 from sqlalchemy import (orm, Column, String, Integer, Enum, PickleType,
                         ForeignKey, UniqueConstraint)
@@ -18,9 +19,10 @@ from oyProjectManager import db
 from oyProjectManager.core.errors import CircularDependencyError
 from oyProjectManager.db.declarative import Base
 from oyProjectManager import utils
+from oyProjectManager.utils import cache
 
 # create a cache with the CacheManager
-bCache = cache.CacheManager()
+#bCache = cache.CacheManager()
 
 # disable beaker DEBUG messages
 
@@ -61,7 +63,7 @@ class Repository(object):
       variable that oyProjectManager uses. The ``repository`` setting in the
       ``config.py`` is there to be able replace the path values for one
       operating system in another, for example, think that a path for a texture
-      file is set to "/Volumes/Fileserver/Projects/TestProject/Textrue1". This
+      file is set to "/Volumes/Fileserver/Projects/TestProject/Texture1". This
       is obviously a path for OSX, but what happens when you are under linux
       and open the file, in this case oyProjectManager will try to replace the
       path with the environment variable by checking if the path matches any of
@@ -74,16 +76,21 @@ class Repository(object):
     """
 
     def __init__(self):
+        
+        logger.debug("initializing repository instance")
+        
         # get the config
-        from oyProjectManager import config
-        self.conf = config.Config()
+#        from oyProjectManager import config
+#        self.conf = config.Config()
+        from oyProjectManager import conf
+        self.conf = conf
         
         self._server_path = ""
         self._windows_path = ""
         self._osx_path = ""
         self._linux_path = ""
         self._project_names = []
-
+        
         self._validate_repository_env_key()
         
         # -----------------------------------------------------
@@ -95,23 +102,26 @@ class Repository(object):
             pass
         
         try:
-            self._linux_path = self.conf.repository["linux_path"].replace("\\", "/")
+            self._linux_path = \
+                self.conf.repository["linux_path"].replace("\\", "/")
         except AttributeError:
             pass
         
         try:
-            self._osx_path = self.conf.repository["osx_path"].replace("\\", "/")
+            self._osx_path = \
+                self.conf.repository["osx_path"].replace("\\", "/")
         except AttributeError:
             pass
         
 #        # set the repository path from the environment
 #        self.server_path = os.environ[conf.repository_env_key]
+        logger.debug("finished initializing repository instance")
     
     def _validate_repository_env_key(self):
         """validates the repository env key environment variable
         """
         
-        # raise a RuntimeError if there is no REPO environment var set
+        # raise a RuntimeError if no REPO environment var is set
         if not os.environ.has_key(self.conf.repository_env_key):
             raise RuntimeError("Please set an environment variable with the "
                                "name %s and set it to your repository path" %
@@ -121,8 +131,10 @@ class Repository(object):
             raise ValueError("The %s environment variable can not be an "
                              "empty string" % self.conf.repository_env_key)
     
+#    @property
+#    @bCache.cache()
+    @cache.CachedMethod
     @property
-    @bCache.cache()
     def project_names(self):
         """returns a list of project names
         """
@@ -132,6 +144,8 @@ class Repository(object):
     def update_project_list(self):
         """updates the project list variable
         """
+        logger.debug("updating projects list")
+        
         try:
             self._project_names = []
             child_folders = utils.getChildFolders(self.server_path)
@@ -183,7 +197,7 @@ class Repository(object):
         return self._osx_path.replace("\\", "/")
     
     def get_project_name(self, file_path):
-        """Returns the project name from the given path or fullpath.
+        """Returns the project name from the given path or full path.
         
         Calculates the project name from the given file or folder full path.
         It returns None if it can not get a suitable name.
@@ -264,7 +278,7 @@ class Project(Base):
       proj = Project("TEST_PROJECT") # a previously created project
       all_shots = proj.query(Shot).filter(Shot.sequence.name=="TEST_SEQ").all()
     
-    thats it.
+    that's it.
     
     .. note::
       All the connection to the database is created over an
@@ -369,8 +383,9 @@ class Project(Base):
         from the database.
         """
         # get the config
-        from oyProjectManager import config
-        conf = config.Config()
+#        from oyProjectManager import config
+#        conf = config.Config()
+        from oyProjectManager import conf
         
         # check the name argument
         if name:
@@ -421,22 +436,21 @@ class Project(Base):
         
         # just create it normally
         logger.debug("returning a normal Project instance")
-        return super(Project, cls).__new__(cls, name)
+        return super(Project, cls).__new__(cls, name, code)
         
     def __init__(self, name, code=None):
         # do not initialize if it is created from the DB
         if hasattr(self, "__skip_init__"):
             return
         
-        
         # get the config
-        from oyProjectManager import config
-        self.conf = config.Config()
-                
+#        from oyProjectManager import config
+#        self.conf = config.Config()
+        from oyProjectManager import conf
+        self.conf = conf
         
         self._path = ""
         self._fullpath = ""
-        
         
         # if the project is not retrieved from the database it doesn't have a
         # session attribute, so create one
@@ -496,8 +510,10 @@ class Project(Base):
         self.query = None
         
         # get the config
-        from oyProjectManager import config
-        self.conf = config.Config()
+#        from oyProjectManager import config
+#        self.conf = config.Config()
+        from oyProjectManager import conf
+        self.conf = conf
         
         self.metadata_db_name = self.conf.database_file_name
         self.metadata_full_path = os.path.join(
@@ -998,6 +1014,7 @@ class VersionableBase(Base):
     
     _code = Column(
         String,
+        unique=True,
         doc="""The nicely formatted version of the
         :attr:`~oyProjectManager.core.models.Asset.name` attribute or
         :attr:`~oyProjectManager.core.models.Shot.number` attribute. It will
@@ -1055,7 +1072,7 @@ class Shot(VersionableBase):
     __tablename__ = "Shots"
     __table_args__  = (
         UniqueConstraint("sequence_id", "number"), {}
-        )
+    )
     __mapper_args__ = {"polymorphic_identity": "Shot"}
 
     shot_id =  Column("id", Integer, ForeignKey("Versionables.id") ,primary_key=True)
@@ -1274,7 +1291,7 @@ class Asset(VersionableBase):
     :param name: The name of this asset. It can not be None or an empty string.
       Anything is possible to be used as a name but it is recommended to keep
       it brief. The name attribute will be formatted and the result will be
-      coppied to the :attr:`~oyProjectManager.core.models.Asset.code`
+      copied to the :attr:`~oyProjectManager.core.models.Asset.code`
       attribute. The name should be unique among all the asset in the current
       :class:`~oyProjectManager.core.models.Project`.
       
@@ -1301,28 +1318,31 @@ class Asset(VersionableBase):
     """
 
     __tablename__ = "Assets"
+#    __table_args__  = (
+#        UniqueConstraint("name", "number"), {}
+#    )    
     __mapper_args__ = {"polymorphic_identity": "Asset"}
     
     asset_id = Column("id", Integer, ForeignKey("Versionables.id"),
                       primary_key=True)
 
     name = Column(
-        String,
+        String, unique=True,
         doc="""The name of this Asset instance, try to be brief.
         """
     )
 
-    code = Column(
-        String,
-        doc="""The code of this Asset instance, if it is given as None or as an
-        empty string it will be get from the name attribute."""
-    )
+#    code = Column(
+#        String, unique=True,
+#        doc="""The code of this Asset instance, if it is given as None or as an
+#        empty string it will be get from the name attribute."""
+#    )
 
     description = Column(
         String,
         doc="The description of this asset."
     )
-
+    
     def __init__(self, project, name, code=None):
         self._project = project
         self.name = name
@@ -1418,7 +1438,7 @@ class Asset(VersionableBase):
 #        name = re.sub("([\s])+", "_", name)
         
         # check if the name became empty string after validation
-        if name is "":
+        if name == "":
             raise ValueError("Asset.name is not valid after validation")
         
         # convert the first letter to uppercase
@@ -1543,7 +1563,7 @@ class Version(Base):
       used for anything the user desires.
     
     :param created_by: A :class:`~oyProjectManager.core.models.User` instance
-      showing who created this version. It can not be skipepd or set to None or
+      showing who created this version. It can not be skipped or set to None or
       anything other than a :class:`~oyProjectManager.core.models.User`
       instance.
     
@@ -1763,8 +1783,9 @@ class Version(Base):
         """
         
         # get the config
-        from oyProjectManager import config
-        conf = config.Config()
+#        from oyProjectManager import config
+#        conf = config.Config()
+        from oyProjectManager import conf
         
         if take_name is None:
             take_name = conf.take_name
@@ -1955,7 +1976,7 @@ class VersionType(Base):
       "anim". Because the code is generally used in filename, path or
       output_path templates it is going to be a part of the filename or path,
       so be careful about what you give as a code. The code attribute should be
-      unique. Be carefull that even specifying a non unique code VersionType
+      unique. Be careful that even specifying a non unique code VersionType
       instance will not raise an error until
       :meth:`~oyProjectManager.core.models.VersionType.save` is called. For
       formatting, these rules are current:
@@ -2568,7 +2589,7 @@ class EnvironmentBase(object):
         
         accepts:
         - a full path with extension or not
-        - a filen name with extension or not
+        - a file name with extension or not
         - an extension with a dot on the start or not
         """
 

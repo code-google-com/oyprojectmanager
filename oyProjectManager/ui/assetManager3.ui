@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
+    <width>1100</width>
     <height>800</height>
    </rect>
   </property>
@@ -87,7 +87,7 @@
          <bool>true</bool>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="assets_tab">
          <property name="enabled">
@@ -157,7 +157,7 @@
                   </layout>
                  </item>
                  <item>
-                  <widget class="QListWidget" name="asset_names_listWidget">
+                  <widget class="QListWidget" name="assets_listWidget">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                      <horstretch>0</horstretch>
@@ -186,7 +186,7 @@
                   <number>6</number>
                  </property>
                  <item row="0" column="1">
-                  <widget class="QLabel" name="thumbnail_label">
+                  <widget class="QLabel" name="asset_thumbnail_label">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -199,22 +199,25 @@
                   </widget>
                  </item>
                  <item row="1" column="1">
-                  <layout class="QVBoxLayout" name="verticalLayout_5">
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,1,0">
                    <item>
-                    <widget class="QGraphicsView" name="thumbnail_graphicsView">
+                    <widget class="QGraphicsView" name="asset_thumbnail_graphicsView">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="minimumSize">
                       <size>
-                       <width>128</width>
-                       <height>128</height>
+                       <width>192</width>
+                       <height>192</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>128</width>
-                       <height>128</height>
+                       <width>192</width>
+                       <height>192</height>
                       </size>
                      </property>
                      <property name="dragMode">
@@ -239,7 +242,7 @@
                     </spacer>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="upload_thumbnail_pushButton">
+                    <widget class="QPushButton" name="upload_asset_thumbnail_pushButton">
                      <property name="text">
                       <string>Upload
 Thumbnail ...</string>
@@ -324,37 +327,261 @@ p, li { white-space: pre-wrap; }
          <attribute name="title">
           <string>Shots</string>
          </attribute>
-         <widget class="QComboBox" name="comboBox_2">
-          <property name="geometry">
-           <rect>
-            <x>90</x>
-            <y>10</y>
-            <width>251</width>
-            <height>25</height>
-           </rect>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_2">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>71</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Sequences</string>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_11">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Sequences</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBox_2"/>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="asset_info_groupBox_2">
+            <property name="title">
+             <string>Shot Information</string>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_8">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_12" stretch="0,2">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_9">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_13">
+                   <item>
+                    <widget class="QLabel" name="shot_name_label">
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Name</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_8">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeType">
+                      <enum>QSizePolicy::Maximum</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="create_shot_pushButton">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>Create New Shot</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="QListWidget" name="shots_listWidget">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>180</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>180</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QGridLayout" name="gridLayout_2" columnstretch="1,0">
+                 <property name="horizontalSpacing">
+                  <number>6</number>
+                 </property>
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="shot_thumbnail_label">
+                   <property name="font">
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Thumbnail</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <layout class="QVBoxLayout" name="verticalLayout_10">
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QGraphicsView" name="shot_thumbnail_graphicsView">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>192</width>
+                       <height>192</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>192</width>
+                       <height>192</height>
+                      </size>
+                     </property>
+                     <property name="dragMode">
+                      <enum>QGraphicsView::NoDrag</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="verticalSpacer_2">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeType">
+                      <enum>QSizePolicy::Expanding</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="upload_shot_thumbnail_pushButton">
+                     <property name="text">
+                      <string>Upload
+Thumbnail ...</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QTextEdit" name="shot_description_textEdit">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="tabChangesFocus">
+                    <bool>true</bool>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                   <property name="html">
+                    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Sans Serif'; font-size:9pt;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <layout class="QHBoxLayout" name="horizontalLayout_14">
+                   <item>
+                    <widget class="QLabel" name="shot_description_label">
+                     <property name="font">
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Description</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_9">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="shot_description_edit_pushButton_2">
+                     <property name="text">
+                      <string>Edit</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="1,0,2">
-        <property name="topMargin">
-         <number>10</number>
-        </property>
         <item>
          <widget class="QGroupBox" name="new_version_groupBox">
           <property name="title">
@@ -561,7 +788,7 @@ p, li { white-space: pre-wrap; }
              </column>
              <column>
               <property name="text">
-               <string>File Path</string>
+               <string>Path</string>
               </property>
              </column>
             </widget>
@@ -648,13 +875,26 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <tabstops>
+  <tabstop>projects_comboBox</tabstop>
+  <tabstop>user_comboBox</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>create_asset_pushButton</tabstop>
-  <tabstop>asset_names_listWidget</tabstop>
+  <tabstop>assets_listWidget</tabstop>
   <tabstop>asset_description_edit_pushButton</tabstop>
   <tabstop>asset_description_textEdit</tabstop>
-  <tabstop>thumbnail_graphicsView</tabstop>
-  <tabstop>upload_thumbnail_pushButton</tabstop>
+  <tabstop>asset_thumbnail_graphicsView</tabstop>
+  <tabstop>upload_asset_thumbnail_pushButton</tabstop>
+  <tabstop>comboBox_2</tabstop>
+  <tabstop>create_shot_pushButton</tabstop>
+  <tabstop>shots_listWidget</tabstop>
+  <tabstop>shot_description_edit_pushButton_2</tabstop>
+  <tabstop>shot_description_textEdit</tabstop>
+  <tabstop>shot_thumbnail_graphicsView</tabstop>
+  <tabstop>upload_shot_thumbnail_pushButton</tabstop>
+  <tabstop>version_types_comboBox</tabstop>
+  <tabstop>add_type_toolButton</tabstop>
+  <tabstop>takes_comboBox</tabstop>
+  <tabstop>add_take_toolButton</tabstop>
   <tabstop>note_textEdit</tabstop>
   <tabstop>export_as_pushButton</tabstop>
   <tabstop>save_as_pushButton</tabstop>
@@ -663,7 +903,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>reference_pushButton</tabstop>
   <tabstop>import_pushButton</tabstop>
   <tabstop>close_pushButton</tabstop>
-  <tabstop>comboBox_2</tabstop>
  </tabstops>
  <resources/>
  <connections/>

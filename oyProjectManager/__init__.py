@@ -35,7 +35,12 @@ __version__ = "0.2.0a1"
 
 
 import logging
-logging.basicConfig(format='%(asctime)s:%(levelname)s:%(funcName)s:%(message)s',
-                    datefmt="%Y-%d-%m %H:%M:%S")
+logging.basicConfig(
+    format='%(asctime)s:%(levelname)s:%(module)s:%(funcName)s:%(message)s',
+    datefmt="%Y-%d-%m %H:%M:%S"
+)
 
 logging.info("Init oyProjectManager")
+
+from oyProjectManager import config
+conf = config.Config()

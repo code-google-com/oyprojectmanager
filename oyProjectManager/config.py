@@ -404,6 +404,9 @@ class Config(object):
         # config.py under .oyrc directory
         # config.py under $OYPROJECTMANAGER_PATH
         
+        self._parse_settings()
+    
+    def _parse_settings(self):
         # for now just use $OYPROJECTMANAGER_PATH
         ENV_KEY = "OYPROJECTMANAGER_PATH"
         

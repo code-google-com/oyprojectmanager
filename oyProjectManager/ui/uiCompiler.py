@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
-
 import os
 
-from PyQt4 import uic, QtCore, QtGui
+# fix running other python versions than the system python
+os.environ["PATH"] = "/usr/bin:" + os.environ["PATH"] 
 
+#from PyQt4 import uic
+#from PySide.QtUiTools import 
+import subprocess
 import oyProjectManager
 
 
@@ -22,7 +25,6 @@ ui_path = os.path.join(path, "ui")
 # assetManager3.ui
 uicFilePaths.append(os.path.join(ui_path, "assetManager3.ui"))
 pyFilePaths.append(os.path.join(ui_path, "assetManager_UI.py"))
-
 
 ## assetManager.ui
 #uicFilePaths.append(os.path.join(ui_path, "assetManager.ui"))
@@ -58,12 +60,16 @@ pyFilePaths.append(os.path.join(ui_path, "assetManager_UI.py"))
 
 for i,uicFilePath in enumerate(uicFilePaths):
     pyFilePath = pyFilePaths[i]
-    uicFile = file( uicFilePath)
-    pyFile  = file( pyFilePath,'w')
+#    uicFile = file(uicFilePath)
+#    pyFile  = file(pyFilePath,'w')
+    
+    # call the external pyside-uic tool
     
     print "compiling %s to %s" % (uicFilePath, pyFilePath)
-    uic.compileUi( uicFile, pyFile )
-    uicFile.close()
-    pyFile.close()
+#    uic.compileUi( uicFile, pyFile )
+#    uicFile.close()
+#    pyFile.close()
+    
+    subprocess.call(["pyside-uic", uicFilePath, "-o", pyFilePath])
 
 print "finished compiling"

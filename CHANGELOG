@@ -179,3 +179,6 @@ Version History
 * The ``assetManager.py`` is renamed to ``version_creator.py`` to reflect its
   functionality more clearly. And the interface is redesigned from scratch and
   programmed with TDD practices.
+
+* Because there is a bug in the ``Beaker`` package, reintroduced the
+  :mod:`oyProjectManager.utils.cache` module.
