@@ -12,7 +12,7 @@ import unittest
 
 from PySide import QtCore, QtGui
 from PySide.QtCore import Qt
-from PySide.QtGui import QApplication
+#from PySide.QtGui import QApplication
 from PySide.QtTest import QTest
 
 import sys
@@ -46,12 +46,16 @@ class VersionCreatorTester(unittest.TestCase):
         # re-parse the settings
 #        conf._parse_settings()
         
-        self.app = QApplication(sys.argv)
+        if QtGui.qApp is None:
+            self.app = QtGui.QApplication(sys.argv)
+        else:
+            self.app = QtGui.qApp
     
     def tearDown(self):
         """clean up the test
         """
         self.app.quit()
+        del self.app
         
         # delete the temp folders
         shutil.rmtree(self.temp_config_folder)
@@ -85,7 +89,7 @@ class VersionCreatorTester(unittest.TestCase):
         dialog = version_creator.MainDialog_New()
         
         # see if the projects filled with projects
-        self.assertEqual(len(dialog.projects_comboBox), 2)
+        self.assertEqual(dialog.projects_comboBox.count(), 2)
     
     def test_projects_comboBox_first_project_is_selected(self):
         """testing if the first project is selected in the project combo box
@@ -1135,8 +1139,10 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
         
         # sequence
-        seq1 = Sequence(proj1, "TEST_SEQ")
-        seq1.create()
+        seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq2 = Sequence(proj1, "TEST_SEQ2")
+        seq3 = Sequence(proj1, "TEST_SEQ3")
+        seq4 = Sequence(proj1, "TEST_SEQ4")
         
         # user
         user1 = User("Test User", "tu")
@@ -1170,14 +1176,14 @@ class VersionCreatorTester(unittest.TestCase):
         vers4.save()
         
         dialog = version_creator.MainDialog_New()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+        dialog.show()
+        self.app.exec_()
+        self.app.connect(
+            self.app,
+            QtCore.SIGNAL("lastWindowClosed()"),
+            self.app,
+            QtCore.SLOT("quit()")
+        )
         
         # set the tab to Asset
         dialog.tabWidget.setCurrentIndex(0)
@@ -1194,7 +1200,136 @@ class VersionCreatorTester(unittest.TestCase):
         # check if the type comboBox lists the asset type of the first shot
         self.assertEqual(
             unicode(dialog.version_types_comboBox.currentText()),
-            shot_vtypes[0]
+            shot_vtypes[0].name
+        )
+    
+    def test_project_comboBox_with_no_sequences_and_shots(self):
+        """testing if no error will be raised when there are couple of projects
+        but no sequences
+        """
+        
+        proj1 = Project("TEST_PROJ1")
+        proj1.create()
+        
+        proj2 = Project("TEST_PROJ2")
+        proj2.create()
+        
+        dialog = version_creator.MainDialog_New()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+    
+    def test_project_comboBox_updates_the_sequences_if_and_only_if_the_tab_is_in_shots(self):
+        """testing if the project_comboBox updates the sequences_comboBox if
+        and only if the tab is in the "Shots"
+        """
+        
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        proj2 = Project("TEST_PROJECT2")
+        proj2.create()
+        
+        seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq2 = Sequence(proj1, "TEST_SEQ2")
+        seq3 = Sequence(proj1, "TEST_SEQ3")
+        
+        # create the dialog
+        dialog = version_creator.MainDialog_New()
+        
+        # the default tab should be asset
+        self.assertEqual(dialog.tabWidget.currentIndex(), 0)
+        
+        # the sequences_comboBox should be empty
+        self.assertEqual(dialog.sequences_comboBox.count(), 0)
+        
+        # changing the tabWidget to the Shots should fill the
+        # sequences_comboBox
+        
+        dialog.tabWidget.setCurrentIndex(1)
+        
+        # check if the sequences_comboBox is filled with sequences
+        self.assertEqual(dialog.sequences_comboBox.count(), 3)
+    
+    def test_sequence_comboBox_changed_fills_shots_listWidget(self):
+        """testing if the shots_listWidget is filled with proper shot codes
+        when the sequences_comboBox is changed
+        """
+        
+        proj1 = Project("TEST_PROJECT1")
+        proj2 = Project("TEST_PROJECT2")
+        
+        proj1.create()
+        proj2.create()
+        
+        seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq2 = Sequence(proj1, "TEST_SEQ2")
+        
+        # for seq1
+        shot1_1 = Shot(seq1, 1)
+        shot1_2 = Shot(seq1, 2)
+        shot1_3 = Shot(seq1, "1A")
+        shot1_4 = Shot(seq1, "2A")
+        shot1_5 = Shot(seq1, "3")
+        
+        shot1_1.save()
+        shot1_2.save()
+        shot1_3.save()
+        shot1_4.save()
+        shot1_5.save()
+        
+        # for seq2
+        shot2_1 = Shot(seq2, 1)
+        shot2_2 = Shot(seq2, 2)
+        shot2_3 = Shot(seq2, 3)
+        shot2_4 = Shot(seq2, 4)
+        shot2_5 = Shot(seq2, 5)
+        
+        shot2_1.save()
+        shot2_2.save()
+        shot2_3.save()
+        shot2_4.save()
+        shot2_5.save()
+        
+        # create the dialog
+        dialog = version_creator.MainDialog_New()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+        
+        # change the tabWidget to Shots
+        dialog.tabWidget.setCurrentIndex(1)
+        
+        # set the sequences_comboBox to index 0
+        dialog.sequences_comboBox.setCurrentIndex(0)
+        
+        # check if the shots_listWidget has the correct items
+        listWidget = dialog.shots_listWidget
+        item_texts = [listWidget.item(i).text() for i in range(listWidget.count())]
+        
+        self.assertItemsEqual(
+            item_texts,
+            ["SH001", "SH002", "SH001A", "SH002A", "SH003"]
         )
         
-
+        # change the sequence to sequence 2
+        dialog.sequences_comboBox.setCurrentIndex(1)
+        
+        # check if the shots_listWidget has the correct items
+        item_texts = [listWidget.item(i).text() for i in range(listWidget.count())]
+        
+        self.assertItemsEqual(
+            item_texts,
+            ["SH001", "SH002", "SH003", "SH004", "SH005"]
+        )
+    

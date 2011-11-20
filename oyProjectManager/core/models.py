@@ -688,6 +688,9 @@ class Sequence(Base):
     :class:`~oyProjectManager.core.models.Project` instance and a
     sequenceName.
     
+    The structure of the Sequence is created whenever the Sequence instance is
+    created.
+    
     Two sequences are considered the same if their name and their project
     names are matching.
     
@@ -697,11 +700,8 @@ class Sequence(Base):
       :class:`~oyProjectManager.core.models.Project` instance passed to it
       with the ``project`` argument. If the passed
       :class:`~oyProjectManager.core.models.Project` instance is not created
-      yet then a RuntimeError will be raised while creating a
-      :class:`~oyProjectManager.core.models.Sequence` instance. Because a
-      :class:`~oyProjectManager.core.models.Project` instance can be created
-      only with a string which has the desired project name, the ``project``
-      argument also accepts a string value holding the name of the
+      yet then a RuntimeError will be raised. The ``project`` argument also
+      accepts a string value holding the name of the desired
       :class:`~oyProjectManager.core.models.Project`.
     
     :type project: :class:`~oyProjectManager.core.models.Project` or string
@@ -779,6 +779,10 @@ class Sequence(Base):
         self.code = code
         
         self._exists = False
+        
+        # create the sequence structure by calling the self.project.create
+        self.save()
+        self.project.create()
     
     @orm.reconstructor
     def __init_on_load__(self):
@@ -786,12 +790,12 @@ class Sequence(Base):
         """
         self.session = self.project.session
     
-    def create(self):
-        """creates the sequence structure by calling self.save() and then a
-        self.project.create()
-        """
-        self.save()
-        self.project.create()
+#    def create(self):
+#        """creates the sequence structure by calling self.save() and then a
+#        self.project.create()
+#        """
+#        self.save()
+#        self.project.create()
     
     def save(self):
         """persists the sequence in the database
@@ -803,7 +807,9 @@ class Sequence(Base):
         # because a Sequence can not be created
         # without an already created Project instance
         
-        self.session.add(self)
+        if self not in self.session:
+            self.session.add(self)
+        
         self.session.commit()
 
     def addShots(self, shots):

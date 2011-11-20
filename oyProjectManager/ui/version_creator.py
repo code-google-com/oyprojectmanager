@@ -6,15 +6,15 @@ from sqlalchemy.exc import IntegrityError
 
 from sqlalchemy.sql.expression import distinct
 
-from PyQt4 import QtGui, QtCore
-import assetManager_UI
+#from PyQt4 import QtGui, QtCore
+from PySide import QtGui, QtCore
+import version_creator_UI
 
 import oyProjectManager
 from oyProjectManager import utils, config
-from oyProjectManager.core.models import Asset, Project, Sequence, Repository, Version, VersionType
+from oyProjectManager.core.models import Asset, Project, Sequence, Repository, Version, VersionType, Shot
 from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import assetUpdater, singletonQApplication
-
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
@@ -43,7 +43,7 @@ def UI(environment):
     return mainDialog
 
 
-class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
+class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     """the main dialog of the system which helps to create new versions
     """
     
@@ -1314,7 +1314,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             self.adjustTimeUnit()
             
             #everything is ok now save in the host application
-            print "self._environment: ", self._environment
+#            print "self._environment: ", self._environment
             envStatus = self._environment.save()
             
             # if everything worked fine close the interface
@@ -1615,7 +1615,7 @@ class MainDialog(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             # adjust the time unit
             self._environment.setTimeUnit( seqTimeUnit )
 
-class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
+class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     """The main asset version creation dialog for the system.
     
     This is the main interface that the users of the oyProjectManager will use
@@ -1632,9 +1632,9 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
       application (Maya, Houdini, Nuke, etc.) to oyProjectManager and let it to
       open, save, export, import or reference a file.
     
-    :param parent: The parent ``PyQt4.QtCore.QObject`` of this interface. It is
-      mainly useful if this interface is going to be attached to a parent UI,
-      like the Maya or Nuke.
+    :param parent: The parent ``PySide.QtCore.QObject`` of this interface. It
+      is mainly useful if this interface is going to be attached to a parent
+      UI, like the Maya or Nuke.
     """
     
     def __init__(self, environment=None, parent=None):
@@ -1647,13 +1647,14 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         self.config = config.Config()
         self.repo = Repository()
         
-        print self.repo.server_path
-        print self.repo.project_names
+#        print self.repo.server_path
+#        print self.repo.project_names
         
         # create the project_obj attribute in projects_comboBox
         # TODO: create an array of Project instances for each project_name in the comboBox
         #       but just fill them when the Project instance is created
         self.projects_comboBox.project_obj = None
+        self.sequences_comboBox.sequences = []
         
         # set previous_version_tableWidget_labels
         self.previous_versions_tableWidget_labels = [
@@ -1695,6 +1696,21 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             self.project_changed
         )
         
+        # tabWidget
+        QtCore.QObject.connect(
+            self.tabWidget,
+            QtCore.SIGNAL("currentChanged(int)"),
+            self.tabWidget_changed
+        )
+        
+        
+        # sequences_comboBox
+        QtCore.QObject.connect(
+            self.sequences_comboBox,
+            QtCore.SIGNAL("currentIndexChanged(int)"),
+            self.sequences_comboBox_changed
+        )
+        
         # assets_listWidget
         QtCore.QObject.connect(
             self.assets_listWidget,
@@ -1722,6 +1738,7 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
             QtCore.SIGNAL("currentIndexChanged(int)"),
             self.takes_comboBox_changed
         )
+        
         
 #        # custom context menu for the asset description
 #        self.asset_description_textEdit.setContextMenuPolicy(
@@ -1794,7 +1811,7 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
 #        if project_name == "":
 #            return
 #        
-        print "project_name: %s" % project_name
+#        print "project_name: %s" % project_name
         
         # create the project
         proj = Project(project_name)
@@ -1805,28 +1822,94 @@ class MainDialog_New(QtGui.QDialog, assetManager_UI.Ui_Dialog):
         # assign it to the comboBox
         self.projects_comboBox.project_obj = proj
         
-        # get all the assets
-        assets = proj.query(Asset).all()
+        # call tabWidget_changed with the current index
+        curr_tab_index = self.tabWidget.currentIndex()
+        
+        self.tabWidget_changed(curr_tab_index)
+    
+    def tabWidget_changed(self, index):
+        """called when the tab widget is changed
+        """
+        
+        proj = self.projects_comboBox.project_obj
+        
+        # if assets is the current tab
+        if index == 0:
+            logger.debug("tabWidget index changed to asset")
+            
+            # TODO: don't update if the project is the same with the cached one
+            
+            # get all the assets
+            assets = proj.query(Asset).all()
+            
+            # add their names to the list
+            self.assets_listWidget.clear()
+            self.assets_listWidget.addItems([asset.name for asset in assets])
+            
+            # set the list to the first asset
+            list_item = self.assets_listWidget.item(0)
+            
+            if list_item is not None:
+            #            list_item.setSelected(True)
+                self.assets_listWidget.setCurrentItem(list_item)
+    
+                # call asset update
+                self.asset_changed(list_item.text())
+                
+                # enable the asset_description_edit_pushButton
+                self.asset_description_edit_pushButton.setEnabled(True)
+            else:
+                # disable the asset_description_edit_pushButton
+                self.asset_description_edit_pushButton.setEnabled(False)
+        
+        elif self.tabWidget.currentIndex() == 1:
+            # TODO: don't update if the project is not changed from the last one
+            
+            logger.debug("tabWidget index changed to shots")
+            
+            # update the sequence comboBox
+            seqs = proj.query(Sequence).all()
+            
+            self.sequences_comboBox.clear()
+            self.sequences_comboBox.addItems([seq.name for seq in seqs])
+            
+            # attach the sequences to the sequences_comboBox
+            self.sequences_comboBox.sequences = seqs
+            
+            if self.sequences_comboBox.count():
+                self.sequences_comboBox.setCurrentIndex(0)
+                self.sequences_comboBox_changed(0)
+    
+    def sequences_comboBox_changed(self, index):
+        """called when the sequences_comboBox index has changed
+        """
+        logger.debug("sequences_comboBox changed")
+        
+        # get the cached sequence instance
+        try:
+            seq = self.sequences_comboBox.sequences[index]
+        except IndexError:
+            logger.debug("there is no sequences cached in sequence_comboBox")
+            return
+        
+        # update the shots_listWidget
+        shots = seq.project.query(Shot).filter(Shot.sequence==seq).all()
         
         # add their names to the list
-        self.assets_listWidget.clear()
-        self.assets_listWidget.addItems([asset.name for asset in assets])
+        self.shots_listWidget.clear()
+        self.shots_listWidget.addItems([shot.code for shot in shots])
         
-        # set the list to the first asset
-        list_item = self.assets_listWidget.item(0)
+        # set the list to the first shot
+        list_item = self.shots_listWidget.item(0)
         
         if list_item is not None:
-        #            list_item.setSelected(True)
-            self.assets_listWidget.setCurrentItem(list_item)
-
-            # call asset update
-            self.asset_changed(list_item.text())
+            self.shots_listWidget.setCurrentItem(list_item)
+            
+            # call shots update
+#            self.asset_changed(list_item.text())
             
             # enable the asset_description_edit_pushButton
-            self.asset_description_edit_pushButton.setEnabled(True)
-        else:
-            # disable the asset_description_edit_pushButton
-            self.asset_description_edit_pushButton.setEnabled(False)
+#            self.asset_description_edit_pushButton.setEnabled(True)
     
     def asset_changed(self, asset_name):
         """updates the asset related fields with the current asset information

@@ -6,25 +6,21 @@ import os
 os.environ["PATH"] = "/usr/bin:" + os.environ["PATH"] 
 
 #from PyQt4 import uic
-#from PySide.QtUiTools import 
 import subprocess
 import oyProjectManager
-
 
 global uicFile
 global pyFile
 
-
 uicFilePaths = []
 pyFilePaths = []
-
 
 path = os.path.dirname(oyProjectManager.__file__)
 ui_path = os.path.join(path, "ui")
 
 # assetManager3.ui
-uicFilePaths.append(os.path.join(ui_path, "assetManager3.ui"))
-pyFilePaths.append(os.path.join(ui_path, "assetManager_UI.py"))
+uicFilePaths.append(os.path.join(ui_path, "version_creator.ui"))
+pyFilePaths.append(os.path.join(ui_path, "version_creator_UI.py"))
 
 ## assetManager.ui
 #uicFilePaths.append(os.path.join(ui_path, "assetManager.ui"))
@@ -70,6 +66,6 @@ for i,uicFilePath in enumerate(uicFilePaths):
 #    uicFile.close()
 #    pyFile.close()
     
-    subprocess.call(["pyside-uic", uicFilePath, "-o", pyFilePath])
+    subprocess.call(["pyside-uic", "-o", pyFilePath, uicFilePath])
 
 print "finished compiling"

@@ -171,8 +171,8 @@ class SequenceTester(unittest.TestCase):
         new_seq1 = Sequence(project=new_proj1, name="TEST_SEQ1", code=None)
         self.assertEqual(new_seq1.code, new_seq1.name)
     
-    def test_create_method_creates_the_sequence_structure(self):
-        """testing if calling Sequence.create will create the sequence
+    def test_creating_a_sequence_creates_the_sequence_structure(self):
+        """testing if creating a sequence also will create the sequence
         structure by calling Project.create
         """
         
@@ -202,7 +202,6 @@ class SequenceTester(unittest.TestCase):
         "{% endfor %}\n" + \
         "\"\"\"\n"
         
-        
         # write it to a file called config.py in the OYPROJECTMANAGER_PATH
         config_file = open(
             os.path.join(self.temp_config_folder, "config.py"), "w"
@@ -220,7 +219,7 @@ class SequenceTester(unittest.TestCase):
         self.assertNotIn("Sequences", dir_content)
         
         new_seq = Sequence(new_proj1, "TEST_SEQ1")
-        new_seq.create()
+        
         # check if a sequence folder with the name of the sequence is created
         dir_content = os.listdir(
             os.path.join(new_proj1.fullpath, "Sequences")
@@ -239,7 +238,6 @@ class SequenceTester(unittest.TestCase):
         test_value = "test description"
         new_seq.description = test_value
         self.assertEqual(new_seq.description, test_value)
-
 
 class Sequence_DB_Tester(unittest.TestCase):
     """Tests the new type Sequence class with a database

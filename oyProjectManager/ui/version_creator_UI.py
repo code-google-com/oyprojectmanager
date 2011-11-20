@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/assetManager3.ui'
+# Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Sun Nov 20 23:54:03 2011
+# Created: Sun Nov 20 23:54:41 2011
 #      by: pyside-uic 0.2.11 running on PySide 1.0.8
 #
 # WARNING! All changes made in this file will be lost!
