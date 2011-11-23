@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Sun Nov 20 23:54:41 2011
+# Created: Mon Nov 21 18:38:53 2011
 #      by: pyside-uic 0.2.11 running on PySide 1.0.8
 #
 # WARNING! All changes made in this file will be lost!
@@ -196,7 +196,7 @@ class Ui_Dialog(object):
         spacerItem5 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_13.addItem(spacerItem5)
         self.create_shot_pushButton = QtGui.QPushButton(self.asset_info_groupBox_2)
-        self.create_shot_pushButton.setEnabled(False)
+        self.create_shot_pushButton.setEnabled(True)
         self.create_shot_pushButton.setObjectName("create_shot_pushButton")
         self.horizontalLayout_13.addWidget(self.create_shot_pushButton)
         self.verticalLayout_9.addLayout(self.horizontalLayout_13)
@@ -258,10 +258,10 @@ class Ui_Dialog(object):
         self.horizontalLayout_14.addWidget(self.shot_description_label)
         spacerItem7 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_14.addItem(spacerItem7)
-        self.shot_description_edit_pushButton_2 = QtGui.QPushButton(self.asset_info_groupBox_2)
-        self.shot_description_edit_pushButton_2.setCheckable(True)
-        self.shot_description_edit_pushButton_2.setObjectName("shot_description_edit_pushButton_2")
-        self.horizontalLayout_14.addWidget(self.shot_description_edit_pushButton_2)
+        self.shot_description_edit_pushButton = QtGui.QPushButton(self.asset_info_groupBox_2)
+        self.shot_description_edit_pushButton.setCheckable(True)
+        self.shot_description_edit_pushButton.setObjectName("shot_description_edit_pushButton")
+        self.horizontalLayout_14.addWidget(self.shot_description_edit_pushButton)
         self.gridLayout_2.addLayout(self.horizontalLayout_14, 0, 0, 1, 1)
         self.gridLayout_2.setColumnStretch(0, 1)
         self.horizontalLayout_12.addLayout(self.gridLayout_2)
@@ -412,8 +412,8 @@ class Ui_Dialog(object):
         Dialog.setTabOrder(self.upload_asset_thumbnail_pushButton, self.sequences_comboBox)
         Dialog.setTabOrder(self.sequences_comboBox, self.create_shot_pushButton)
         Dialog.setTabOrder(self.create_shot_pushButton, self.shots_listWidget)
-        Dialog.setTabOrder(self.shots_listWidget, self.shot_description_edit_pushButton_2)
-        Dialog.setTabOrder(self.shot_description_edit_pushButton_2, self.shot_description_textEdit)
+        Dialog.setTabOrder(self.shots_listWidget, self.shot_description_edit_pushButton)
+        Dialog.setTabOrder(self.shot_description_edit_pushButton, self.shot_description_textEdit)
         Dialog.setTabOrder(self.shot_description_textEdit, self.shot_thumbnail_graphicsView)
         Dialog.setTabOrder(self.shot_thumbnail_graphicsView, self.upload_shot_thumbnail_pushButton)
         Dialog.setTabOrder(self.upload_shot_thumbnail_pushButton, self.version_types_comboBox)
@@ -460,7 +460,7 @@ class Ui_Dialog(object):
 "</style></head><body style=\" font-family:\'Ubuntu\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Sans Serif\'; font-size:9pt;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.shot_description_label.setText(QtGui.QApplication.translate("Dialog", "Description", None, QtGui.QApplication.UnicodeUTF8))
-        self.shot_description_edit_pushButton_2.setText(QtGui.QApplication.translate("Dialog", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.shot_description_edit_pushButton.setText(QtGui.QApplication.translate("Dialog", "Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.shots_tab), QtGui.QApplication.translate("Dialog", "Shots", None, QtGui.QApplication.UnicodeUTF8))
         self.new_version_groupBox.setTitle(QtGui.QApplication.translate("Dialog", "New Version", None, QtGui.QApplication.UnicodeUTF8))
         self.takes_label.setText(QtGui.QApplication.translate("Dialog", "Take", None, QtGui.QApplication.UnicodeUTF8))

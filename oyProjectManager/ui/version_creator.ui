@@ -402,7 +402,7 @@ p, li { white-space: pre-wrap; }
                    <item>
                     <widget class="QPushButton" name="create_shot_pushButton">
                      <property name="enabled">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </property>
                      <property name="text">
                       <string>Create New Shot</string>
@@ -558,7 +558,7 @@ p, li { white-space: pre-wrap; }
                     </spacer>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="shot_description_edit_pushButton_2">
+                    <widget class="QPushButton" name="shot_description_edit_pushButton">
                      <property name="text">
                       <string>Edit</string>
                      </property>
@@ -887,7 +887,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>sequences_comboBox</tabstop>
   <tabstop>create_shot_pushButton</tabstop>
   <tabstop>shots_listWidget</tabstop>
-  <tabstop>shot_description_edit_pushButton_2</tabstop>
+  <tabstop>shot_description_edit_pushButton</tabstop>
   <tabstop>shot_description_textEdit</tabstop>
   <tabstop>shot_thumbnail_graphicsView</tabstop>
   <tabstop>upload_shot_thumbnail_pushButton</tabstop>

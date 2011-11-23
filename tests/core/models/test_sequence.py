@@ -121,7 +121,7 @@ class SequenceTester(unittest.TestCase):
         new_proj2.create()
         
         seq4 = Sequence(new_proj2, "SEQ3")
-
+        
         self.assertTrue(seq1 == seq2)
         self.assertFalse(seq1 == seq3)
         self.assertFalse(seq1 == seq4)
@@ -238,6 +238,13 @@ class SequenceTester(unittest.TestCase):
         test_value = "test description"
         new_seq.description = test_value
         self.assertEqual(new_seq.description, test_value)
+    
+    def test_name_argument_is_skipped(self):
+        """testing if the name argument is skipped a TypeError will be raised
+        """
+        
+        
+        
 
 class Sequence_DB_Tester(unittest.TestCase):
     """Tests the new type Sequence class with a database

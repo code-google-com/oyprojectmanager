@@ -30,7 +30,6 @@ class ShotTester(unittest.TestCase):
         self.test_proj.create()
         
         self.test_seq = Sequence(self.test_proj, "TEST_SEQ")
-        self.test_seq.create()
         
         self.kwargs = {
             "sequence": self.test_seq,
@@ -440,7 +439,6 @@ class ShotTester(unittest.TestCase):
         new_proj.create()
         
         new_seq = Sequence(new_proj, "TEST_SEQ1")
-        new_seq.create()
         
         new_shot = Shot(new_seq, 1)
         new_shot.save()
@@ -467,3 +465,41 @@ class ShotTester(unittest.TestCase):
         new_proj.session.commit()
         
         self.assertEqual(new_proj.query(Shot).all(), [])
+    
+    def test_equality_of_shots(self):
+        """testing if the equality operator is working properly
+        """
+        proj1 = Project("TEST_EQ_PROJ")
+        proj1.create()
+        
+        seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq2 = Sequence(proj1, "TEST_SEQ2")
+        
+        shot1 = Shot(seq1, 1)
+        shot2 = Shot(seq1, 2)
+        shot3 = Shot(seq2, 1)
+        
+        shot1a = Shot(seq1, 1)
+        
+        self.assertTrue(shot1==shot1a)
+        self.assertFalse(shot1==shot2)
+        self.assertFalse(shot1a==shot3)
+    
+    def test_inequality_of_shots(self):
+        """testing if the equality operator is working properly
+        """
+        proj1 = Project("TEST_EQ_PROJ")
+        proj1.create()
+        
+        seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq2 = Sequence(proj1, "TEST_SEQ2")
+        
+        shot1 = Shot(seq1, 1)
+        shot2 = Shot(seq1, 2)
+        shot3 = Shot(seq2, 1)
+        
+        shot1a = Shot(seq1, 1)
+        
+        self.assertFalse(shot1!=shot1a)
+        self.assertTrue(shot1!=shot2)
+        self.assertTrue(shot1a!=shot3)

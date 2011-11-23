@@ -916,7 +916,7 @@ class Sequence(Base):
         """The equality operator
         """
         return isinstance(other, Sequence) and other.name == self.name and\
-               other.project.name == self.project.name
+               other.project == self.project
 
     def __ne__(self, other):
         """The in equality operator
@@ -925,12 +925,14 @@ class Sequence(Base):
 
     @classmethod
     def condition_name(cls, name):
-        return utils.stringConditioner(
-            name,
-            allowUnderScores=True,
-            upperCaseOnly=True,
-            capitalize=False
-        )
+#        return utils.stringConditioner(
+#            name,
+#            allowUnderScores=True,
+#            upperCaseOnly=True,
+#            capitalize=False
+#        )
+        
+        
 
     @validates("name")
     def _validate_name(self, key, name):
@@ -1109,19 +1111,31 @@ class Shot(VersionableBase):
         self._duration = 1
         self.start_frame = start_frame
         self.end_frame = end_frame
-
+        
         #self._cutSummary = ''
-
-
+    
+    def __eq__(self, other):
+        """the equality operator
+        """
+        
+        return isinstance(other, Shot) and other.number == self.number and \
+            other.sequence == self.sequence
+    
+    def __ne__(self, other):
+        """the inequality operator
+        """
+        
+        return not self.__eq__(other)
+    
     def __str__(self):
         """returns the string representation of the object
         """
         return self.code
-
-    #    def __repr__(self):
-    #        """returns the representation of the class
-    #        """
-    #        return "< oyProjectManager.core.models.Shot object: " + self._name + ">"
+    
+    def __repr__(self):
+        """returns the representation of the class
+        """
+        return "< oyProjectManager.core.models.Shot object: " + self.code + ">"
 
     def _validate_sequence(self, sequence):
         """validates the given sequence value
@@ -1250,7 +1264,7 @@ class Shot(VersionableBase):
         logger.debug("saving shot to the database")
         if self not in self.sequence.session:
             self.sequence.session.add(self)
-
+        
         self.sequence.session.commit()
 
     @synonym_for("_code")
