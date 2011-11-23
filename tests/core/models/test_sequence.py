@@ -240,11 +240,55 @@ class SequenceTester(unittest.TestCase):
         self.assertEqual(new_seq.description, test_value)
     
     def test_name_argument_is_skipped(self):
-        """testing if the name argument is skipped a TypeError will be raised
+        """testing if a TypeError will be raised when the name argument is
+        skipped
         """
-        
-        
-        
+        self.fail("test is not implemented yet")
+    
+    def test_name_argument_is_None(self):
+        """testing if a TypeError will be raised when the name argument is None
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_name_attribute_is_None(self):
+        """testing if a TypeError will be raised when the name attribute is set
+        to None
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_name_argument_is_not_a_string_or_unicode_instance(self):
+        """testing if a TypeError will be raised when the name argument is not
+        an instance of string or unicode
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_name_attribute_is_not_a_string_or_unicode_instance(self):
+        """testing if a TypeError will be raised when the name attribute is not
+        an instance of string or unicode
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_name_argument_is_working_properly(self):
+        """testing if the name attribute is set properly with the given value
+        for the name argument
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_name_attribute_is_working_properly(self):
+        """testing if the name attribute is working properly
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_name_argument_formatting(self):
+        """testing if the name attribute is formatted correctly with the given
+        value to the name argument
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_name_attribute_formatting(self):
+        """testing if the name attribute is formatted correctly
+        """
+        self.fail("test is not implemented yet")
 
 class Sequence_DB_Tester(unittest.TestCase):
     """Tests the new type Sequence class with a database

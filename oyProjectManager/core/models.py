@@ -925,12 +925,13 @@ class Sequence(Base):
 
     @classmethod
     def condition_name(cls, name):
-#        return utils.stringConditioner(
-#            name,
-#            allowUnderScores=True,
-#            upperCaseOnly=True,
-#            capitalize=False
-#        )
+        # TODO: use the regular approach for formatting the name
+        return utils.stringConditioner(
+            name,
+            allowUnderScores=True,
+            upperCaseOnly=True,
+            capitalize=False
+        )
         
         
 
