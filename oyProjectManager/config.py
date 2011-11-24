@@ -159,7 +159,7 @@ class Config(object):
         resolution_height = 1080,
         resolution_pixel_aspect = 1.0,
         
-        take_name = "MAIN",
+        default_take_name = "MAIN",
         
         users_data = [{"name": "Administrator", "initials": "adm"}],
         

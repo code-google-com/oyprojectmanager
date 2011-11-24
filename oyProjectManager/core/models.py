@@ -15,11 +15,11 @@ from sqlalchemy.orm import relationship, synonym, backref
 from sqlalchemy.orm.mapper import validates
 from sqlalchemy.schema import Table
 
+from oyProjectManager import utils
+from oyProjectManager.utils import cache
 from oyProjectManager import db
 from oyProjectManager.core.errors import CircularDependencyError
 from oyProjectManager.db.declarative import Base
-from oyProjectManager import utils
-from oyProjectManager.utils import cache
 
 # create a cache with the CacheManager
 #bCache = cache.CacheManager()
@@ -1368,8 +1368,16 @@ class Asset(VersionableBase):
         self._project = project
         self.name = name
         self.code = code
-
-
+    
+    def __eq__(self, other):
+        """equality operator
+        """
+        return isinstance(other, Asset) and self.name == other.name and \
+            self.project==other.project
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    
     def __repr__(self):
         """the string representation of the object
         """

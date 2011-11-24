@@ -1665,7 +1665,75 @@ class VersionCreatorTester(unittest.TestCase):
             ["TestForShot2"],
                             ui_take_names
         )
-
+    
+    def test_takes_comboBox_lists_Main_by_default(self):
+        """testing if the takes_comboBox lists "Main" by default
+        """
+        
+        dialog = version_creator.MainDialog_New()
+        self.assertEqual(
+            conf.default_take_name,
+            dialog.takes_comboBox.currentText()
+        )
+    
+    def test_takes_comboBox_lists_Main_by_default_for_asset_with_no_versions(self):
+        """testing if the takes_comboBox lists "Main" by default for an asset
+        with no version
+        """
+        
+        proj = Project("TEST_PROJECT1")
+        proj.create()
+        
+        asset1 = Asset(proj, "TEST_ASSET")
+        asset1.save()
+        
+        dialog = version_creator.MainDialog_New()
+        self.assertEqual(
+            conf.default_take_name,
+            dialog.takes_comboBox.currentText()
+        )
+        
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+    
+    def test_takes_comboBox_lists_Main_by_default_for_new_asset_version_types(self):
+        """testing if the takes_comboBox lists "Main" by default for an asset
+        with a new version added to the version_types comboBox
+        """
+        
+        proj = Project("TEST_PROJECT")
+        proj.create()
+        
+        asset1 = Asset(proj, "TEST_ASSET")
+        asset1.save()
+        
+        # create the dialog
+        dialog = version_creator.MainDialog_New()
+        
+        # get all the asset version types for project
+        asset_vtypes = proj.query(VersionType).\
+            filter(VersionType.type_for=="Asset").all()
+        
+        type_name = asset_vtypes[0].name
+        
+        # add new version type by hand
+        dialog.version_types_comboBox.addItem(type_name)
+        dialog.version_types_comboBox.setCurrentIndex(
+            dialog.version_types_comboBox.count() - 1
+        )
+        
+        # now check if the takes_comboBox lists Main by default
+        self.assertEqual(
+            dialog.takes_comboBox.currentText(),
+            conf.default_take_name
+        )
+    
     def test_version_types_comboBox_lists_all_the_types_of_the_current_asset_versions(self):
         """testing if the version_types_comboBox lists all the types of
         the current asset
@@ -2301,7 +2369,7 @@ class VersionCreatorTester(unittest.TestCase):
         
         self.fail("test is not implemented yet")
 
-    def test_add_type_toolButton_creates_pops_up_a_QInputDialog_for_asset(self):
+    def test_add_type_toolButton_pops_up_a_QInputDialog_for_asset(self):
         """testing if hitting the add_type_toolButton pops up a QInputDialog
         with a comboBox filled with all the suitable version types for the
         current asset
@@ -2321,7 +2389,21 @@ class VersionCreatorTester(unittest.TestCase):
         seq1 = Sequence(proj1, "Test Sequence 1")
         seq2 = Sequence(proj1, "Test Sequence 2")
         
+        # shots
+        shot1 = Shot(seq1, 1)
+        shot2 = Shot(seq1, 2)
+        shot3 = Shot(seq1, 3)
         
+        shot4 = Shot(seq2, 4)
+        shot5 = Shot(seq2, 5)
+        shot6 = Shot(seq2, 6)
+        
+        shot1.save()
+        shot2.save()
+        shot3.save()
+        shot4.save()
+        shot5.save()
+        shot6.save()
         
         # new user
         user1 = User(
@@ -2343,7 +2425,7 @@ class VersionCreatorTester(unittest.TestCase):
             note="test note"
         )
         vers1.save()
-    
+        
         dialog = version_creator.MainDialog_New()
         dialog.show()
         self.app.exec_()
@@ -2353,5 +2435,86 @@ class VersionCreatorTester(unittest.TestCase):
             self.app,
             QtCore.SLOT("quit()")
         )
+    
+    def test_get_versionable_returns_the_correct_versionable_instance(self):
+        """testing if the get_versionable method is returning the correct
+        versionable from the UI
+        """
         
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
         
+        # Assets
+        asset1 = Asset(proj1, "Test Asset1")
+        asset1.save()
+        
+        asset2 = Asset(proj1, "Test Asset2")
+        asset2.save()
+        
+        asset3 = Asset(proj1, "Test Asset3")
+        asset3.save()
+        
+        # sequences
+        seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq2 = Sequence(proj1, "TEST_SEQ2")
+        
+        # Shots
+        shot1 = Shot(seq1, 1)
+        shot2 = Shot(seq1, 2)
+        shot3 = Shot(seq1, 3)
+        shot4 = Shot(seq1, 4)
+        
+        shot1.save()
+        shot2.save()
+        shot3.save()
+        shot4.save()
+        
+        dialog = version_creator.MainDialog_New()
+        
+        # set the tabWidget to 0
+        dialog.tabWidget.setCurrentIndex(0)
+        
+        # set to the first asset
+        dialog.assets_listWidget.setCurrentRow(0)
+        
+        # get the current versionable and expect it to be the asset1
+        versionable = dialog.get_versionable()
+        
+        self.assertEqual(versionable, asset1)
+        
+        # set to the second asset
+        dialog.assets_listWidget.setCurrentRow(1)
+        
+        # get the current versionable and expect it to be the asset2
+        versionable = dialog.get_versionable()
+        
+        self.assertEqual(versionable, asset2)
+        
+        # switch to shot tab
+        dialog.tabWidget.setCurrentIndex(1)
+        
+        # set to the first sequence
+        dialog.sequences_comboBox.setCurrentIndex(0)
+        
+        # set to the first shot
+        dialog.shots_listWidget.setCurrentRow(0)
+        
+        # get the versionable and expect it to be shot1
+        versionable = dialog.get_versionable()
+        
+        self.assertEqual(versionable, shot1)
+        
+        # set it to the second shot
+        dialog.shots_listWidget.setCurrentRow(1)
+        
+        # get the versionable and expect it to be shot2
+        versionable = dialog.get_versionable()
+        
+        self.assertEqual(versionable, shot2)
+    
+    def test_add_take_toolButton_pops_up_a_QInputDialog_with_input_field(self):
+        """testing if the add_take_toolButton pops up a QInputDialog with an
+        input text field
+        """
+        self.fail("test is not implemented yet")
+    

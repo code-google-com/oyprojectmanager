@@ -6,7 +6,6 @@ from sqlalchemy.exc import IntegrityError
 
 from sqlalchemy.sql.expression import distinct
 
-#from PyQt4 import QtGui, QtCore
 from PySide import QtGui, QtCore
 import version_creator_UI
 
@@ -22,6 +21,8 @@ logger.setLevel(logging.WARNING)
 # create a logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+conf = config.Config()
 
 def UI(environment):
     """the UI to call the dialog by itself
@@ -1754,6 +1755,12 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.takes_comboBox_changed
         )
         
+        # add_type_toolButton
+        QtCore.QObject.connect(
+            self.add_type_toolButton,
+            QtCore.SIGNAL("clicked()"),
+            self.add_type_toolButton_clicked
+        )
         
 #        # custom context menu for the asset description
 #        self.asset_description_textEdit.setContextMenuPolicy(
@@ -1788,8 +1795,16 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         QtCore.QObject.connect(
             self.create_asset_pushButton,
             QtCore.SIGNAL("clicked()"),
-            self.create_asset_pushButton_clicked,
+            self.create_asset_pushButton_clicked
         )
+        
+        # add_take_toolButton
+        QtCore.QObject.connect(
+            self.add_take_toolButton,
+            QtCore.SIGNAL("clicked()"),
+            self.add_take_toolButton_clicked
+        )
+        
         
         logger.debug("finished setting up interface signals")
     
@@ -1801,10 +1816,13 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # fill the projects
         self.projects_comboBox.addItems(self.repo.project_names)
-
+        
         # fill the users
         self.user_comboBox.addItems([user.name for user in self.config.users])
-
+        
+        # add "Main" by default to the takes_comboBox
+        self.takes_comboBox.addItem(conf.default_take_name)
+        
         # run the project changed item for the first time
         self.project_changed()
         
@@ -1937,16 +1955,16 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         proj = self.projects_comboBox.project_obj
         asset = proj.query(Asset).filter_by(name=asset_name).first()
-
+        
         if asset is None:
             return
-
+        
         # set the description
         if asset.description is not None:
             self.asset_description_textEdit.setText(asset.description)
         else:
             self.asset_description_textEdit.setText("")
-
+        
         # update the version data
         # Types
         # get all the types for this asset
@@ -1955,14 +1973,14 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             proj.query(distinct(VersionType.name)).join(Version).
             filter(Version.version_of==asset).all()
         )
-
+        
         # add the types to the version types list
         self.version_types_comboBox.clear()
         self.version_types_comboBox.addItems(types)
-
+        
         # select the first one
         self.version_types_comboBox.setCurrentIndex(0)
-
+    
     def shot_changed(self, shot_name):
         """updates the shot related fields with the current shot information
         """
@@ -1998,7 +2016,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def version_types_comboBox_changed(self, index):
         """runs when the asset version types comboBox has changed
         """
-
+        
         # get all the takes for this type
         proj = self.projects_comboBox.project_obj
         
@@ -2030,6 +2048,11 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         )
         
         self.takes_comboBox.clear()
+        
+        if len(takes) == 0:
+            # append the default take
+            takes.append(conf.default_take_name)
+        
         self.takes_comboBox.addItems(takes)
         self.takes_comboBox.setCurrentIndex(0)
     
@@ -2233,7 +2256,6 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             # and the previous_versions_groupBox
             self.previous_versions_groupBox.setEnabled(True)
-
     
     def shot_description_edit_pushButton_clicked(self):
         """checks the shot_description_edit_pushButton
@@ -2361,6 +2383,92 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # update the assets by calling project_changed
         self.project_changed()
-    
-    
 
+    def get_versionable(self):
+        """returns the versionable from the UI, it is an asset or a shot
+        depending on to the current tab
+        """
+        proj = self.projects_comboBox.project_obj
+        
+        versionable = None
+        if self.tabWidget.currentIndex() == 0:
+            asset_name = self.assets_listWidget.currentItem().text()
+            versionable = proj.query(Asset).filter_by(name=asset_name).first()
+
+            logger.debug("updating take list for asset: %s" % versionable.name)
+
+        else:
+            index = self.shots_listWidget.currentIndex().row()
+            versionable = self.shots_listWidget.shots[index]
+            
+            logger.debug("updating take list for shot: %s" % versionable.code)
+        
+        return versionable
+
+    def add_type_toolButton_clicked(self):
+        """adds a new type for the currently selected Asset or Shot
+        """
+        proj = self.projects_comboBox.project_obj
+        
+        # get the versionable
+        versionable = self.get_versionable()
+        
+        # get all the version types which doesn't have any version defined
+        current_types = map(
+            lambda x: x[0],
+            proj.query(distinct(VersionType.name)).join(Version).
+            filter(Version.version_of==versionable).all()
+        )
+        
+        avialable_types = map(
+            lambda x: x[0],
+            proj.query(distinct(VersionType.name)).\
+            filter(VersionType.type_for==versionable.__class__.__name__).\
+            filter(~ VersionType.name.in_(current_types)).all()
+        )
+        
+        # create a QInputDialog with comboBox
+        self.input_dialog = QtGui.QInputDialog(self)
+        
+        type_name, ok = self.input_dialog.getItem(
+            self,
+            "Choose a VersionType",
+            "Version Types",
+            avialable_types,
+            0,
+            False
+        )
+        
+        # if ok add the type name to the end of the types_comboBox and make
+        # it the current selection
+        if ok:
+            self.version_types_comboBox.addItem(type_name)
+            self.version_types_comboBox.setCurrentIndex(
+                self.version_types_comboBox.count() - 1
+            )
+    
+    def add_take_toolButton_clicked(self):
+        """runs when the add_take_toolButton clicked
+        """
+        
+        # open up a QInputDialog and ask for a take name
+        # anything is acceptable
+        # because the validation will occur in the Version instance
+        
+        self.input_dialog = QtGui.QInputDialog(self)
+        
+        take_name, ok = self.input_dialog.getText(
+            self,
+            "Add Take Name",
+            "New Take Name"
+        )
+        
+        if ok:
+            # add the given text to the takes_comboBox
+            # if it is not empty
+            if take_name != "":
+                self.takes_comboBox.addItem(take_name)
+                # set the take to the new one
+                self.takes_comboBox.setCurrentIndex(
+                    self.takes_comboBox.count() - 1
+                )

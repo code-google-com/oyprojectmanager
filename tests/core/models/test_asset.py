@@ -284,3 +284,45 @@ class AssetTester(unittest.TestCase):
         """
         self.test_asset.save()
         self.assertIn(self.test_asset, self.test_proj.session)
+    
+    def test_equality_of_assets(self):
+        """testing if two assets are equal if their names and projects are also
+        equal
+        """
+        
+        proj1 = Project("EQUALITY_TEST_PROJECT_1")
+        proj1.create()
+        
+        proj2 = Project("EQUALITY_TEST_PROJECT_2")
+        proj2.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset2 = Asset(proj1, "TEST_ASSET1")
+        
+        asset3 = Asset(proj1, "TEST_ASSET3")
+        asset4 = Asset(proj2, "TEST_ASSET3")
+        
+        self.assertTrue(asset1==asset2)
+        self.assertFalse(asset1==asset3)
+        self.assertFalse(asset3==asset4)
+    
+    def test_inequality_of_assets(self):
+        """testing if two assets are inequal if their names are different and
+        or their projects are different
+        """
+        
+        proj1 = Project("EQUALITY_TEST_PROJECT_1")
+        proj1.create()
+        
+        proj2 = Project("EQUALITY_TEST_PROJECT_2")
+        proj2.create()
+        
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset2 = Asset(proj1, "TEST_ASSET1")
+        
+        asset3 = Asset(proj1, "TEST_ASSET3")
+        asset4 = Asset(proj2, "TEST_ASSET3")
+        
+        self.assertFalse(asset1!=asset2)
+        self.assertTrue(asset1!=asset3)
+        self.assertTrue(asset3!=asset4)
