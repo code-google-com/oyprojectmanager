@@ -67,7 +67,7 @@ class SequenceTester(unittest.TestCase):
         new_proj = Project("TEST_PROJECT1")
         new_proj.create()
         new_seq = Sequence(new_proj, "TEST_SEQ")
-        new_seq.create()
+        new_seq.save()
         
         new_proj2 = Project("TEST_PROJECT2")
         new_proj2.create()
@@ -91,6 +91,7 @@ class SequenceTester(unittest.TestCase):
         # it should be possible to create a sequence
         # with a string in the project argument
         new_seq = Sequence("TEST_PROJECT", "TEST_SEQUENCE1")
+        new_seq.save()
         
         # now check if the sequence.project is a Project instance
         self.assertIsInstance(new_seq.project, Project)
@@ -171,9 +172,9 @@ class SequenceTester(unittest.TestCase):
         new_seq1 = Sequence(project=new_proj1, name="TEST_SEQ1", code=None)
         self.assertEqual(new_seq1.code, new_seq1.name)
     
-    def test_creating_a_sequence_creates_the_sequence_structure(self):
-        """testing if creating a sequence also will create the sequence
-        structure by calling Project.create
+    def test_create_method_will_not_create_the_sequence_structure_if_save_is_not_called_before(self):
+        """testing if the sequence structure is not created if the save method
+        is not called previously
         """
         
         # create a config file which has a known placement for sequences
@@ -219,6 +220,65 @@ class SequenceTester(unittest.TestCase):
         self.assertNotIn("Sequences", dir_content)
         
         new_seq = Sequence(new_proj1, "TEST_SEQ1")
+        #new_seq.save()
+        new_seq.create()
+        
+        # check if a sequence folder with the name of the sequence is not
+        # created
+        dir_content = os.listdir(new_proj1.fullpath)
+        
+        self.assertNotIn("Sequences", dir_content)
+    
+    def test_create_method_creates_the_sequence_structure(self):
+        """testing if calling the create method creates the sequence structure
+        by calling Project.create
+        """
+        
+        # create a config file which has a known placement for sequences
+        config_content = \
+        "project_structure = \"\"\"{% for sequence in project.sequences %}\n" + \
+        "    {% set seq_path = 'Sequences/' + sequence.code %}\n" + \
+        "    {{seq_path}}/Edit/Offline\n" + \
+        "    {{seq_path}}/Edit/Sound\n" + \
+        "    {{seq_path}}/References/Artworks\n" + \
+        "    {{seq_path}}/References/Text/Scenario\n" + \
+        "    {{seq_path}}/References/Photos_Images\n" + \
+        "    {{seq_path}}/References/Videos\n" + \
+        "    {{seq_path}}/References/Others\n" + \
+        "    {{seq_path}}/Others\n" + \
+        "    {{seq_path}}/Others/assets\n" + \
+        "    {{seq_path}}/Others/clips\n" + \
+        "    {{seq_path}}/Others/data\n" + \
+        "    {{seq_path}}/Others/fur\n" + \
+        "    {{seq_path}}/Others/fur/furAttrMap\n" + \
+        "    {{seq_path}}/Others/fur/furEqualMap\n" + \
+        "    {{seq_path}}/Others/fur/furFiles\n" + \
+        "    {{seq_path}}/Others/fur/furImages\n" + \
+        "    {{seq_path}}/Others/fur/furShadowMap\n" + \
+        "    {{seq_path}}/Others/mel\n" + \
+        "    {{seq_path}}/Others/particles\n" + \
+        "{% endfor %}\n" + \
+        "\"\"\"\n"
+        
+        # write it to a file called config.py in the OYPROJECTMANAGER_PATH
+        config_file = open(
+            os.path.join(self.temp_config_folder, "config.py"), "w"
+        )
+        
+        config_file.writelines([config_content])
+        config_file.close()
+        
+        new_proj1 = Project("TEST_PROJ1")
+        new_proj1.create()
+        
+        # check if there is no sequence folder
+        dir_content = os.listdir(new_proj1.fullpath)
+        
+        self.assertNotIn("Sequences", dir_content)
+        
+        new_seq = Sequence(new_proj1, "TEST_SEQ1")
+        new_seq.save()
+        new_seq.create()
         
         # check if a sequence folder with the name of the sequence is created
         dir_content = os.listdir(
@@ -230,7 +290,6 @@ class SequenceTester(unittest.TestCase):
     def test_description_attribute_is_working_properly(self):
         """testing if the description attribute is working properly
         """
-        
         new_proj = Project("TEST_PROJ1")
         new_proj.create()
         
@@ -342,11 +401,12 @@ class Sequence_DB_Tester(unittest.TestCase):
         
         test_seq_name = "TEST_SEQ1"
         new_seq = Sequence(new_proj, test_seq_name)
+        new_seq.save()
         new_seq.create()
         
         # fill it with some non default values
         description = new_seq.description = "Test description"
-        new_seq.create()
+        new_seq.save()
         
         # now check if the database is created correctly
         del new_seq
@@ -367,7 +427,7 @@ class Sequence_DB_Tester(unittest.TestCase):
         
         test_seq_name = "TEST_SEQ1"
         new_seq = Sequence(new_proj, test_seq_name)
-        new_seq.create()
+        new_seq.save()
         
         description = new_seq.description
         
@@ -389,6 +449,7 @@ class Sequence_DB_Tester(unittest.TestCase):
         new_proj.create()
         
         new_seq = Sequence(new_proj, "TEST_SEQ")
+        new_seq.save()
         
         # now call create multiple times
         new_seq.create()
@@ -408,6 +469,9 @@ class Sequence_DB_Tester(unittest.TestCase):
         
         new_seq1 = Sequence(new_proj, "TEST_SEQ1")
         new_seq2 = Sequence(new_proj, "TEST_SEQ2")
+        
+        new_seq1.save()
+        new_seq2.save()
         
 #        print "calling new_seq1.create"
         new_seq1.create()

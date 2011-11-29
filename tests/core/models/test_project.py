@@ -106,6 +106,7 @@ class Project_DB_Tester(unittest.TestCase):
         new_proj.create()
 
         new_seq = Sequence(new_proj, "TEST_SEQ")
+        new_seq.save()
         new_seq.create()
 
         db.session.add(new_proj)

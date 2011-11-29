@@ -30,6 +30,8 @@ class ShotTester(unittest.TestCase):
         self.test_proj.create()
         
         self.test_seq = Sequence(self.test_proj, "TEST_SEQ")
+        self.test_seq.save()
+        self.test_seq.create()
         
         self.kwargs = {
             "sequence": self.test_seq,
@@ -439,6 +441,7 @@ class ShotTester(unittest.TestCase):
         new_proj.create()
         
         new_seq = Sequence(new_proj, "TEST_SEQ1")
+        new_seq.save()
         
         new_shot = Shot(new_seq, 1)
         new_shot.save()

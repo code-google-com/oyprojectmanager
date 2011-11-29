@@ -688,10 +688,15 @@ class Sequence(Base):
     :class:`~oyProjectManager.core.models.Project` instance and a
     sequenceName.
     
-    The structure of the Sequence is created whenever the Sequence instance is
-    created.
+    When a Sequence instance is created it is not persisted in the project
+    database. To do it the :meth:`~oyProjectManager.core.models.Sequence.save`
+    should be called.
     
-    Two sequences are considered the same if their name and their project
+    The structure of the Sequence should be created by calling its
+    :meth:`~oyProjectManager.core.models.Sequence.create` method after it is
+    saved.
+    
+    Two sequences are considered to be the same if their name and their project
     names are matching.
     
     :param project: The owner
@@ -779,10 +784,6 @@ class Sequence(Base):
         self.code = code
         
         self._exists = False
-        
-        # create the sequence structure by calling the self.project.create
-        self.save()
-        self.project.create()
     
     @orm.reconstructor
     def __init_on_load__(self):
@@ -796,6 +797,13 @@ class Sequence(Base):
 #        """
 #        self.save()
 #        self.project.create()
+
+    def create(self):
+        """creates the sequence structure
+        """
+        
+        # create the sequence structure by calling the self.project.create
+        self.project.create()
     
     def save(self):
         """persists the sequence in the database
@@ -811,7 +819,7 @@ class Sequence(Base):
             self.session.add(self)
         
         self.session.commit()
-
+    
     def addShots(self, shots):
         """adds new shots to the sequence
         
@@ -932,8 +940,6 @@ class Sequence(Base):
             upperCaseOnly=True,
             capitalize=False
         )
-        
-        
 
     @validates("name")
     def _validate_name(self, key, name):
@@ -1817,7 +1823,7 @@ class Version(Base):
         from oyProjectManager import conf
         
         if take_name is None:
-            take_name = conf.take_name
+            take_name = conf.default_take_name
         
         if not isinstance(take_name, (str, unicode)):
             raise TypeError("Version.take_name should be an instance of "
@@ -2452,32 +2458,81 @@ class User(Base):
         self.name = name
         self.initials = initials
         self.email = email
+    
+    def __eq__(self, other):
+        """the equality operator
+        """
+        return isinstance(other, User) and self.name == other.name
 
 class EnvironmentBase(object):
-    """Holds information related to the program running the oyProjectManager.
+    """Connects the environment (the host program) to the oyProjectManager.
     
     In oyProjectManager, an Environment is a host application like Maya, Nuke,
     Houdini etc.
     
     Generally a GUI for the end user is given an environment which helps
-    the Qt Gui to be able to open, save, import or export an Asset without
+    the QtGui to be able to open, save, import or export a Version without
     knowing the details of the environment.
     
     .. note::
       For now the :class:`~oyProjectManager.core.models.EnvironmentBase`
       inherits from the Python object class. There were no benefit to inherit
       it from the ``DeclerativeBase``.
+    
+    To create a new environment for you own program, just instantiate this
+    class and override the methods as necessary. And call the UI with by
+    giving an environment instance to it, so the interface can call the correct
+    methods as needed.
+    
+    Here is an example how to create an environment for a program and use the
+    GUI::
+      
+        from oyProjectManager.core import EnvironmentBase
+        
+        class MyProgram(EnvironmentBase):
+            \"""This is a class which will be used by the UI
+            \"""
+            
+            def open():
+                \"""uses the programs own Python API to open a version of an
+                asset
+                \"""
+                
+                # do anything that needs to be done before opening the file
+                my_programs_own_python_api.open(filepath=self.version.fullpath)
+            
+            def save():
+                \"""uses the programs own Python API to save the current file
+                as a new version.
+                \"""
+                
+                # do anything that needs to be done before saving the file
+                my_programs_own_python_api.save(filepath=self.version.fullpath)
+                
+                # do anything that needs to be done after saving the file
+    
+    and that is it.
+    
+    The environment class by default has a property called ``version``.
+    Holding the current open version. It is None for a new scene and a
+    :class:`~oyProjectManager.core.models.Version` instance in any other case.
+    
+    :param name: To initialize the class the name of the environment should be
+        given in the name argument. It can not be skipped or None or an empty
+        string.
+    
+    
     """
-
+    
     #    __tablename__ = "Environments"
     #    id = Column(Integer, primary_key=True)
-
-    def __init__(self, name='', extensions=[]):
-
+    
+    def __init__(self, name=""):
+        
         self._name = name
-        self._extensions = extensions
-
-        self._asset = None
+        self._extensions = []
+        
+        self._version = None
         self._project = None
         self._sequence = None
 
@@ -2485,18 +2540,19 @@ class EnvironmentBase(object):
         """the string representation of the environment
         """
         return self._name
-
+    
     @property
-    def asset(self):
-        """returns the bound asset object
+    def version(self):
+        """returns the current Version instance which is open in the
+        environment
         """
-        return self._asset
-
-    @asset.setter
-    def asset(self, asset):
-        """sets the asset object
-        """
-        self._asset = asset
+        return self._version
+    
+#    @version.setter
+#    def version(self, version):
+#        """sets the version of the environment
+#        """
+#        self._version = version
 
     @property
     def name(self):
@@ -2510,13 +2566,17 @@ class EnvironmentBase(object):
         """
         self._name = name
 
-    def save(self):
-        """the save action
+    def save_as(self, version):
+        """The save as action of this environment. It should save the current
+        scene or file to the given version.fullpath
         """
         raise NotImplemented
 
-    def export(self, asset):
-        """the export action
+    def export_as(self, version):
+        """Exports the contents of the open document as the given version.
+        
+        :param version: A :class:`~oyProjectManager.core.models.Version`
+            instance holding the desired version.
         """
         raise NotImplemented
 
@@ -2545,81 +2605,99 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
 
-    def setProject(self, projectName, sequenceName):
-        """sets the project and sequence names, thus the working environment
-        of the current environment
+#    def setProject(self, projectName, sequenceName):
+    def setProject(self, project):
+        """Sets the project to the given project.
+        
+        :param project: A :class:`~oyProjectManager.core.models.Project`
+            instance to set the project to or a string containing the project
+            name
         """
         raise NotImplemented
 
-    def setOutputFileName(self):
-        """sets the output file names
-        """
-        raise NotImplemented
+#    def setOutputFileName(self):
+#    def set_output_path(self):
+#        """sets the output file names
+#        """
+#        raise NotImplemented
 
-    def appendToRecentFiles(self, path):
-        """appends the given path to the recent files list
-        """
-        raise NotImplemented
+#    def append_to_recent_files(self, path):
+#        """appends the given path to the recent files list
+#        """
+#        raise NotImplemented
 
-    def checkReferenceVersions(self):
-        """checks the referenced asset versions
+    def check_reference_versions(self):
+        """Checks the referenced versions
         
         returns list of asset objects
         """
         raise NotImplemented
 
-    def getReferencedAssets(self):
-        """returns the assets those been referenced to the current asset
+    def get_referenced_versions(self):
+        """Returns the :class:`~oyProjectManager.core.models.Version` instances
+        which are referenced in to the current scene
         
-        returns list of asset objects
+        :returns: list of :class:`~oyProjectManager.core.models.Version`
+            instances
         """
         raise NotImplemented
 
-    def updateAssets(self, assetTupleList):
-        """updates the assets to the latest versions
+#    def updateAssets(self, assetTupleList):
+#        """updates the assets to the latest versions
+#        """
+#        raise NotImplemented
+
+    def get_frame_range(self):
+        """Returns the frame range from the environment
+        
+        :returns: a tuple of integers containing the start and end frame
+            numbers
         """
         raise NotImplemented
 
-    def getFrameRange(self):
-        """returns the frame range from the environment
+    def set_frame_range(self, start_frame=1, end_frame=100):
+        """Sets the frame range in the environment to the given start and end
+        frames
         """
         raise NotImplemented
 
-    def setFrameRange(self, startFrame=1, endFrame=100):
-        """sets the frame range in the environment
+    def get_fps(self):
+        """Returns the frame rate of this current environment
         """
         raise NotImplemented
 
-    def getTimeUnit(self):
-        """returns the time unit of the environment
-        """
-        raise NotImplemented
-
-    def setTimeUnit(self, timeUnit='pal' ):
-        """sets the frame rate of the environment
+    def set_fps(self, fps=25):
+        """Sets the frame rate of the environment. The default value is 25.
         """
         raise NotImplemented
 
     @property
     def extensions(self):
-        """returns the extensions of environment
+        """Returns the valid native extensions for this environment.
+        
+        :returns: a list of strings
         """
         return self._extensions
 
     @extensions.setter
     def extensions(self, extensions):
-        """sets the extensions
+        """Sets the valid native extensions of this environment.
+        
+        :param extensions: A list of strings holding the extensions. Ex:
+            ["ma", "mb"] for Maya
         """
         self._extensions = extensions
 
-    def hasValidExtension(self, fileName):
-        """returns true if the given fileNames extension is in the extensions
-        list false otherwise
+    def has_extension(self, filename):
+        """Returns True if the given filenames extension is in the extensions
+        list false otherwise.
         
         accepts:
         - a full path with extension or not
         - a file name with extension or not
         - an extension with a dot on the start or not
+        
+        :param filename: A string containing the filename
         """
 
         if fileName is None:
@@ -2630,13 +2708,19 @@ class EnvironmentBase(object):
 
         return False
 
-    def loadReferences(self):
+    def load_referenced_versions(self):
         """loads all the references
         """
         raise NotImplemented
 
-    def replaceAssets(self, sourceAsset, targetAsset):
-        """replaces the source asset with the target asset
+    def replace_version(self, source_version, target_version):
+        """Replaces the source_version with the target_version
+        
+        :param source_version: A :class:`~oyProjectManager.core.models.Version`
+            instance holding the version to be replaced
+        
+        :param target_version: A :class:`~oyProjectManager.core.models.Version`
+            instance holding the new version replacing the source one
         """
         raise NotImplemented
 

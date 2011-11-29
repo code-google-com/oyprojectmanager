@@ -1,8 +1,8 @@
 <map version="0.9.0">
 <!--To view this file, download free mind mapping software Freeplane from http://freeplane.sourceforge.net -->
 <node TEXT="oyProjectManager&#xa;with&#xa;SQLAlchemy" ID="ID_19663084" CREATED="1318081946588" MODIFIED="1318082023687" COLOR="#18898b" STYLE="fork">
-<hook NAME="MapStyle" max_node_width="600"/>
 <font NAME="Aharoni" SIZE="12" BOLD="true"/>
+<hook NAME="MapStyle" max_node_width="600"/>
 <edge STYLE="bezier" COLOR="#808080" WIDTH="thin"/>
 <icon BUILTIN="idea"/>
 <node TEXT="Place the metadata.db&#xa;under the project root" POSITION="right" ID="ID_533092420" CREATED="1318082133000" MODIFIED="1318082803641">
@@ -75,7 +75,7 @@
 <node TEXT="Archive the projects when&#xa;the project is finished" ID="ID_493309494" CREATED="1318083917236" MODIFIED="1318083999353">
 <node TEXT="open up a new project with&#xa;a new descriptive name" ID="ID_1741365438" CREATED="1318083954713" MODIFIED="1318084093731">
 <node TEXT="For Example:&#xa;MIGROS_2011&#xa;MIGROS_2012" ID="ID_942126565" CREATED="1318084095188" MODIFIED="1318084104305"/>
-<node TEXT="avoid having two sequences&#xa;for the same project when there&#xa;is to much time difference&#xa;between the Sequences" ID="ID_508971868" CREATED="1318083957042" MODIFIED="1318084029112"/>
+<node TEXT="avoid having two sequences&#xa;for the same project when there&#xa;is too much time difference&#xa;between the Sequences" ID="ID_508971868" CREATED="1318083957042" MODIFIED="1322587210590"/>
 </node>
 </node>
 </node>

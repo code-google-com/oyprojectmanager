@@ -33,6 +33,7 @@ class VersionTester(unittest.TestCase):
         
         self.test_sequence = Sequence(self.test_project, "TEST_SEQ1")
         self.test_sequence.save()
+        self.test_sequence.create()
         
         # set it just for testing purposes
         self.test_shot = Shot(self.test_sequence, 1)
@@ -290,7 +291,7 @@ class VersionTester(unittest.TestCase):
         """
         self.kwargs.pop("take_name")
         new_version = Version(**self.kwargs)
-        self.assertEqual(new_version.take_name, conf.take_name)
+        self.assertEqual(new_version.take_name, conf.default_take_name)
     
     def test_take_name_argument_is_None(self):
         """testing if the default value MAIN is used when the take_name
@@ -298,14 +299,14 @@ class VersionTester(unittest.TestCase):
         """
         self.kwargs["take_name"] = None
         new_version = Version(**self.kwargs)
-        self.assertEqual(new_version.take_name, conf.take_name)
+        self.assertEqual(new_version.take_name, conf.default_take_name)
     
     def test_take_name_attribute_is_None(self):
         """testing if the default take name value will be used when the
         take_name attribute is set to None
         """
         self.test_version.take_name = None
-        self.assertEqual(self.test_version.take_name, conf.take_name)
+        self.assertEqual(self.test_version.take_name, conf.default_take_name)
     
     def test_take_name_argument_is_not_a_string(self):
         """testing if a TypeError will be raised when the take_name argument is

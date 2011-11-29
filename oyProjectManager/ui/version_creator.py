@@ -11,7 +11,7 @@ import version_creator_UI
 
 import oyProjectManager
 from oyProjectManager import utils, config
-from oyProjectManager.core.models import Asset, Project, Sequence, Repository, Version, VersionType, Shot
+from oyProjectManager.core.models import Asset, Project, Sequence, Repository, Version, VersionType, Shot, User
 from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import assetUpdater, singletonQApplication
 
@@ -1648,13 +1648,15 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.config = config.Config()
         self.repo = Repository()
         
+        self.environment = environment
+        
 #        print self.repo.server_path
 #        print self.repo.project_names
         
-        # create the project_obj attribute in projects_comboBox
+        # create the project attribute in projects_comboBox
         # TODO: create an array of Project instances for each project_name in the comboBox
         #       but just fill them when the Project instance is created
-        self.projects_comboBox.project_obj = None
+        self.projects_comboBox.project = None
         self.sequences_comboBox.sequences = []
         self.shots_listWidget.shots = []
         self.input_dialog = None
@@ -1805,6 +1807,13 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.add_take_toolButton_clicked
         )
         
+        # export_as
+        QtCore.QObject.connect(
+            self.export_as_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.export_as_pushButton_clicked
+        )
+        
         
         logger.debug("finished setting up interface signals")
     
@@ -1853,7 +1862,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             return
         
         # assign it to the comboBox
-        self.projects_comboBox.project_obj = proj
+        self.projects_comboBox.project = proj
         
         # call tabWidget_changed with the current index
         curr_tab_index = self.tabWidget.currentIndex()
@@ -1864,7 +1873,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """called when the tab widget is changed
         """
         
-        proj = self.projects_comboBox.project_obj
+        proj = self.projects_comboBox.project
         
         # if assets is the current tab
         if index == 0:
@@ -1894,6 +1903,13 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             else:
                 # disable the asset_description_edit_pushButton
                 self.asset_description_edit_pushButton.setEnabled(False)
+                
+                # clear the versions comboBox
+                self.version_types_comboBox.clear()
+                
+                # set the take to default
+                self.takes_comboBox.clear()
+                self.takes_comboBox.addItem(conf.default_take_name)
         
         elif self.tabWidget.currentIndex() == 1:
             # TODO: don't update if the project is not changed from the last one
@@ -1912,6 +1928,14 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             if self.sequences_comboBox.count():
                 self.sequences_comboBox.setCurrentIndex(0)
                 self.sequences_comboBox_changed(0)
+            else:
+                # there is no sequence
+                # clear the version comboBox
+                self.version_types_comboBox.clear()
+                
+                # set the take to default
+                self.takes_comboBox.clear()
+                self.takes_comboBox.addItem(conf.default_take_name)
     
     def sequences_comboBox_changed(self, index):
         """called when the sequences_comboBox index has changed
@@ -1953,7 +1977,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """updates the asset related fields with the current asset information
         """
         
-        proj = self.projects_comboBox.project_obj
+        proj = self.projects_comboBox.project
         asset = proj.query(Asset).filter_by(name=asset_name).first()
         
         if asset is None:
@@ -1985,7 +2009,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """updates the shot related fields with the current shot information
         """
         
-        proj = self.projects_comboBox.project_obj
+        proj = self.projects_comboBox.project
         
         # get the shot from the index
         index = self.shots_listWidget.currentIndex().row()
@@ -2018,15 +2042,22 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """
         
         # get all the takes for this type
-        proj = self.projects_comboBox.project_obj
+        proj = self.projects_comboBox.project
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
-            asset_name = self.assets_listWidget.currentItem().text()
+            
+            try:
+                asset_name = self.assets_listWidget.currentItem().text()
+            except AttributeError:
+                asset_name = None
+            
             versionable = proj.query(Asset).filter_by(name=asset_name).first()
             
-            logger.debug("updating take list for asset: %s" % versionable.name)
-            
+            if asset_name is not None:
+                logger.debug("updating take list for asset: %s" % versionable.name)
+            else:
+                logger.debug("updating take list for no asset")
         else:
             index = self.shots_listWidget.currentIndex().row()
             versionable = self.shots_listWidget.shots[index]
@@ -2060,15 +2091,24 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """runs when the takes_comboBox has changed
         """
         
-        proj = self.projects_comboBox.project_obj
+        proj = self.projects_comboBox.project
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
-            asset_name = self.assets_listWidget.currentItem().text()
+            
+            try:
+                asset_name = self.assets_listWidget.currentItem().text()
+            except AttributeError:
+                # no asset
+                # just return
+                asset_name = None
+            
             versionable = proj.query(Asset).filter_by(name=asset_name).first()
             
-            logger.debug("updating take list for asset: %s" % versionable.name)
-        
+            if versionable is not None:
+                logger.debug("updating take list for asset: %s" % versionable.name)
+            else:
+                logger.debug("updateing take list for no asset")
         else:
             index = self.shots_listWidget.currentIndex().row()
             versionable = self.shots_listWidget.shots[index]
@@ -2222,7 +2262,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             button.setStyleSheet("")
             text_field.setReadOnly(True)
             
-            proj = self.projects_comboBox.project_obj
+            proj = self.projects_comboBox.project
             asset = proj.query(Asset).filter_by(name=asset_name).first()
             
             # update the asset description
@@ -2359,7 +2399,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                          "not creating a new asset")
             return
         
-        proj = self.projects_comboBox.project_obj
+        proj = self.projects_comboBox.project
         
         try:
             new_asset = Asset(proj, asset_name)
@@ -2383,12 +2423,12 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # update the assets by calling project_changed
         self.project_changed()
-
+    
     def get_versionable(self):
         """returns the versionable from the UI, it is an asset or a shot
         depending on to the current tab
         """
-        proj = self.projects_comboBox.project_obj
+        proj = self.projects_comboBox.project
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
@@ -2404,21 +2444,79 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             logger.debug("updating take list for shot: %s" % versionable.code)
         
         return versionable
-
+    
+    def get_version_type(self):
+        """returns the VersionType instance by looking at the UI elements. It
+        will return the correct VersionType by looking at if it is an Asset or
+        a Shot and picking the name of the VersionType from the comboBox
+        
+        :returns: :class:`~oyProjectManager.core.models.VersionType`
+        """
+        
+        project = self.projects_comboBox.project
+        if project is None:
+            return None
+        
+        # get the versionable type
+        versionable = self.get_versionable()
+        
+        type_for = versionable.__class__.__name__
+        
+        # get the version type name
+        version_type_name = self.version_types_comboBox.currentText()
+        
+        # get the version type instance
+        return project.query(VersionType).filter(
+            VersionType.type_for==type_for
+        ).filter(
+            VersionType.name==version_type_name
+        ).first()
+    
+    def add_type(self, version_type):
+        """adds new types to the version_types_comboBox
+        """
+        
+        if not isinstance(version_type, VersionType):
+            raise TypeError("please supply a "
+                            "oyProjectManager.core.models.VersionType for the"
+                            "type to be added to the version_type_comboBox")
+        
+        # check if the given type is suitable for the current versionable
+        versionable = self.get_versionable()
+        
+        if versionable.__class__.__name__ != version_type.type_for:
+            raise TypeError("The given version_type is not suitable for %s"
+                            % self.tabWidget.tabText(
+                self.tabWidget.currentIndex()
+            ))
+        
+        index = self.version_types_comboBox.findText(version_type.name)
+        
+        if index == -1:
+            self.version_types_comboBox.addItem(version_type.name)
+            self.version_types_comboBox.setCurrentIndex(
+                self.version_types_comboBox.count() - 1
+            )
+    
     def add_type_toolButton_clicked(self):
         """adds a new type for the currently selected Asset or Shot
         """
-        proj = self.projects_comboBox.project_obj
+        proj = self.projects_comboBox.project
         
         # get the versionable
         versionable = self.get_versionable()
         
         # get all the version types which doesn't have any version defined
-        current_types = map(
-            lambda x: x[0],
-            proj.query(distinct(VersionType.name)).join(Version).
-            filter(Version.version_of==versionable).all()
-        )
+#        current_types = map(
+#            lambda x: x[0],
+#            proj.query(distinct(VersionType.name)).join(Version).
+#            filter(Version.version_of==versionable).all()
+#        )
+        
+        # get all the current types from the interface
+        current_types = []
+        for index in range(self.version_types_comboBox.count()):
+            current_types.append(self.version_types_comboBox.itemText(index))
         
         avialable_types = map(
             lambda x: x[0],
@@ -2442,10 +2540,15 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # if ok add the type name to the end of the types_comboBox and make
         # it the current selection
         if ok:
-            self.version_types_comboBox.addItem(type_name)
-            self.version_types_comboBox.setCurrentIndex(
-                self.version_types_comboBox.count() - 1
-            )
+            # get the type
+            vers_type = proj.query(VersionType).filter_by(name=type_name).first()
+            
+            try:
+                self.add_type(vers_type)
+            except TypeError:
+                # the given type doesn't exists
+                # just return without doing anything
+                return
     
     def add_take_toolButton_clicked(self):
         """runs when the add_take_toolButton clicked
@@ -2472,3 +2575,75 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 self.takes_comboBox.setCurrentIndex(
                     self.takes_comboBox.count() - 1
                 )
+    
+    def get_new_version(self):
+        """returns a :class:`~oyProjectManager.core.models.Version` instance
+        from the UI by looking at the input fields
+        
+        :returns: :class:`~oyProjectManager.core.models.Version` instance
+        """
+        
+        # create a new version
+        versionable = self.get_versionable()
+        versionType = self.get_version_type()
+        take_name = self.takes_comboBox.currentText()
+        user = self.get_user()
+        
+        note = self.note_textEdit.toPlainText()
+        
+        version = Version(
+            versionable, versionable.code, version_type, user,
+            take_name=take_name, note=note
+        )
+        
+        return version
+    
+    def get_user(self):
+        """returns the current User instance from the interface by looking at
+        the name of the user from the users comboBox
+        
+        :return: :class:`~oyProjectManager.core.models.User` instance
+        """
+        
+        # first try to get the user from the project
+        # if there is no user with that name
+        # use the config and get first user matching this name
+        # and return it
+        # it will be automatically added to the project
+        # if the user is used to create a version
+        
+        user_name = self.user_comboBox.currentText()
+        project = self.projects_comboBox.project
+        
+        user = project.query(User).filter_by(name=user_name).first()
+        
+        if user is not None:
+            # we found the user in the current project
+            # return it
+            return user
+        else:
+            # sorry but the user is not in the current project
+            # return it from the config
+            for user in conf.users:
+                print user.name
+                if user.name == user_name:
+                    return user
+        
+        # still no user, fuck, somebody hacked the UI
+        raise RuntimeError("No user with name %s, what the fuck is going on! "
+                           "(in no circumstance this should not run by the "
+                           "way!)" % user_name)
+        
+    
+    def export_as_pushButton_clicked(self):
+        """runs when the export_as_pushButton clicked
+        """
+        
+        # get the new version
+        new_version = self.get_new_version()
+        
+        # call the environments export_as method
+        
+        if self.environment is not None:
+            self.environment.export_as(new_version)
+    

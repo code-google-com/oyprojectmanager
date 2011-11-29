@@ -12,10 +12,32 @@ from PySide.QtTest import QTest
 
 from oyProjectManager import config
 from oyProjectManager.core.models import (Project, Asset, Version, User,
-                                          VersionType, Sequence, Shot)
+                                          VersionType, Sequence, Shot,
+                                          EnvironmentBase)
 from oyProjectManager.ui import version_creator
 
 conf = config.Config()
+
+
+# exceptions for test purposes
+class ExportAs(Exception):
+    pass
+
+class TestEnvironment(EnvironmentBase):
+    """A test environment which just raises errors to check if the correct
+    method has been called
+    """
+    
+    def export_as(self, version):
+        """the test method for the original export_as method
+        
+        :param version: A :class:`~oyProjectManager.core.models.Version`
+            instance
+        """
+        
+        raise ExportAs
+    
+    pass
 
 class VersionCreatorTester(unittest.TestCase):
     """tests the oyProjectManager.ui.version_creator class
@@ -97,8 +119,8 @@ class VersionCreatorTester(unittest.TestCase):
         # see if the projects filled with projects
         self.assertEqual(dialog.projects_comboBox.currentIndex(), 0)
     
-    def test_projects_comboBox_has_project_obj_attribute(self):
-        """testing if there is a project_obj object holding the current Project
+    def test_projects_comboBox_has_project_attribute(self):
+        """testing if there is a project object holding the current Project
         instance
         """
         # create a couple of test projects
@@ -112,11 +134,11 @@ class VersionCreatorTester(unittest.TestCase):
         
         dialog = version_creator.MainDialog_New()
         
-        # check if the projects_comboBox has an attribute called project_obj
-        self.assertTrue(hasattr(dialog.projects_comboBox, "project_obj"))
+        # check if the projects_comboBox has an attribute called project
+        self.assertTrue(hasattr(dialog.projects_comboBox, "project"))
     
-    def test_projects_comboBox_project_obj_attribute_is_Project_instance(self):
-        """testing if the project_obj attribute in the projects_comboBox is a
+    def test_projects_comboBox_project_attribute_is_Project_instance(self):
+        """testing if the project attribute in the projects_comboBox is a
         Project instance
         """
         # create a couple of test projects
@@ -130,11 +152,11 @@ class VersionCreatorTester(unittest.TestCase):
         
         dialog = version_creator.MainDialog_New()
         
-        # check if the project_obj is a Project instance
-        self.assertIsInstance(dialog.projects_comboBox.project_obj, Project)
+        # check if the project is a Project instance
+        self.assertIsInstance(dialog.projects_comboBox.project, Project)
     
-    def test_projects_comboBox_project_obj_attributes_name_is_same_with_comboBox_text(self):
-        """testing if the Project instance which is held in the project_obj
+    def test_projects_comboBox_project_attributes_name_is_same_with_comboBox_text(self):
+        """testing if the Project instance which is held in the project
         attribute in the projects_comboBox has the same name with the 
         """
         
@@ -153,7 +175,7 @@ class VersionCreatorTester(unittest.TestCase):
         # selected project
         self.assertEqual(
             dialog.projects_comboBox.currentText(),
-            dialog.projects_comboBox.project_obj.name
+            dialog.projects_comboBox.project.name
         )
     
     def test_project_comboBox_with_no_sequences_and_shots(self):
@@ -192,6 +214,10 @@ class VersionCreatorTester(unittest.TestCase):
         seq1 = Sequence(proj1, "TEST_SEQ1")
         seq2 = Sequence(proj1, "TEST_SEQ2")
         seq3 = Sequence(proj1, "TEST_SEQ3")
+        
+        seq1.save()
+        seq2.save()
+        seq3.save()
         
         # create the dialog
         dialog = version_creator.MainDialog_New()
@@ -802,6 +828,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj.create()
 
         seq1 = Sequence(proj, "TEST_SEQ")
+        seq1.save()
 
         # create the dialog
         dialog = version_creator.MainDialog_New()
@@ -827,6 +854,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj.create()
 
         seq1 = Sequence(proj, "TEST_SEQ1")
+        seq1.save()
 
         shot = Shot(seq1, 1)
         shot.save()
@@ -901,6 +929,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
 
         seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
 
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -951,6 +980,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
         
         seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
         
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -1005,6 +1035,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
         
         seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
         
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -1059,6 +1090,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
         
         seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
         
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -1113,6 +1145,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
         
         seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
         
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -1173,6 +1206,7 @@ class VersionCreatorTester(unittest.TestCase):
         asset2.save()
         
         seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
         
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -1228,6 +1262,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
         
         seq1 = Sequence(proj1, "TEST_SEQUENCE")
+        seq1.save()
         
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -1277,6 +1312,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
         
         seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
         
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -1358,6 +1394,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
 
         seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
 
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -1417,6 +1454,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
 
         seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
 
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -1547,6 +1585,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
 
         seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
 
         asset1 = Asset(proj1, "TEST_ASSET1")
         asset1.save()
@@ -1688,11 +1727,6 @@ class VersionCreatorTester(unittest.TestCase):
         asset1.save()
         
         dialog = version_creator.MainDialog_New()
-        self.assertEqual(
-            conf.default_take_name,
-            dialog.takes_comboBox.currentText()
-        )
-        
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -1701,6 +1735,76 @@ class VersionCreatorTester(unittest.TestCase):
 #            self.app,
 #            QtCore.SLOT("quit()")
 #        )
+        
+        self.assertEqual(
+            conf.default_take_name,
+            dialog.takes_comboBox.currentText()
+        )
+    
+    def test_takes_comboBox_lists_Main_by_default_for_projects_with_no_assets(self):
+        """testing if the takes_comboBox lists "Main" by default for an project
+        with no assets
+        """
+        
+        # TODO: mixed a lot of test cases in to one test, please separate them
+        
+        proj1 = Project("TEST_PROJECT1")
+        proj1.create()
+        
+        proj2 = Project("TEST_PROJECT2")
+        proj2.create()
+        
+        seq1 = Sequence(proj1, "TEST_SEQ1")
+        seq1.save()
+        
+        asset1 = Asset(proj1, "TEST_ASSET")
+        asset1.save()
+        
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+        
+        # create a version with take name is different than Main
+        
+        asset_vtypes = proj1.query(VersionType).\
+            filter(VersionType.type_for=="Asset").all()
+        
+        shot_vtypes = proj1.query(VersionType).\
+            filter(VersionType.type_for=="Shot").all()
+        
+        user = User("Test User")
+        
+        vers1 = Version(asset1, asset1.code, asset_vtypes[0], user,
+                        take_name="TestTake")
+        vers1.save()
+        
+        vers2 = Version(shot1, shot1.code, shot_vtypes[0], user,
+                       take_name="TestTake1")
+        vers2.save()
+        
+        # a project with only one sequence but no shot
+        proj3 = Project("TEST_PROJECT3")
+        proj3.create()
+        
+        seq2 = Sequence(proj3, "TEST_SEQ2")
+        seq2.save()
+        
+        dialog = version_creator.MainDialog_New()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+        
+        # switch to project2
+        dialog.projects_comboBox.setCurrentIndex(1)
+        
+        self.assertEqual(
+            conf.default_take_name,
+            dialog.takes_comboBox.currentText()
+        )
     
     def test_takes_comboBox_lists_Main_by_default_for_new_asset_version_types(self):
         """testing if the takes_comboBox lists "Main" by default for an asset
@@ -2113,6 +2217,11 @@ class VersionCreatorTester(unittest.TestCase):
         seq2 = Sequence(proj1, "TEST_SEQ2")
         seq3 = Sequence(proj1, "TEST_SEQ3")
         seq4 = Sequence(proj1, "TEST_SEQ4")
+        
+        seq1.save()
+        seq2.save()
+        seq3.save()
+        seq4.save()
 
         # user
         user1 = User("Test User", "tu")
@@ -2188,6 +2297,9 @@ class VersionCreatorTester(unittest.TestCase):
 
         seq1 = Sequence(proj1, "TEST_SEQ1")
         seq2 = Sequence(proj1, "TEST_SEQ2")
+        
+        seq1.save()
+        seq2.save()
 
         # for seq1
         shot1_1 = Shot(seq1, 1)
@@ -2268,6 +2380,9 @@ class VersionCreatorTester(unittest.TestCase):
         
         seq1 = Sequence(proj1, "TEST_SEQ1")
         seq2 = Sequence(proj1, "TEST_SEQ2")
+        
+        seq1.save()
+        seq2.save()
         
         # for seq1
         shot1 = Shot(seq1, 1)
@@ -2389,6 +2504,9 @@ class VersionCreatorTester(unittest.TestCase):
         seq1 = Sequence(proj1, "Test Sequence 1")
         seq2 = Sequence(proj1, "Test Sequence 2")
         
+        seq1.save()
+        seq2.save()
+        
         # shots
         shot1 = Shot(seq1, 1)
         shot2 = Shot(seq1, 2)
@@ -2427,13 +2545,134 @@ class VersionCreatorTester(unittest.TestCase):
         vers1.save()
         
         dialog = version_creator.MainDialog_New()
-        dialog.show()
-        self.app.exec_()
-        self.app.connect(
-            self.app,
-            QtCore.SIGNAL("lastWindowClosed()"),
-            self.app,
-            QtCore.SLOT("quit()")
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+        pass
+    
+    def test_add_type_will_not_add_the_same_type_more_than_once(self):
+        """testing if using the add_type will not add the same type to the list
+        over and over again
+        """
+        
+        proj = Project("TEST_PROJECT1")
+        proj.create()
+        
+        # create an asset
+        asset1 = Asset(proj, "TEST_ASSET")
+        asset1.save()
+        
+        # get types for assets and shots
+        asset_vtypes = \
+            proj.query(VersionType).filter_by(type_for="Asset").all()
+        shot_vtypes = \
+            proj.query(VersionType).filter_by(type_for="Shot").all()
+        
+        # create the dialog
+        dialog = version_creator.MainDialog_New()
+        
+        # set the tabWidget to asset
+        dialog.tabWidget.setCurrentIndex(0)
+        
+        # check if the version_type_comboBox has no item
+        self.assertEqual(dialog.version_types_comboBox.count(), 0)
+        
+        # try to add a asset type for the asset
+        dialog.add_type(asset_vtypes[0])
+        
+        # check if the version_type_comboBox has one item
+        self.assertEqual(dialog.version_types_comboBox.count(), 1)
+        
+        # try to add the same thing for a second time
+        dialog.add_type(asset_vtypes[0])
+        
+        # check if the version_type_comboBox has one item
+        self.assertEqual(dialog.version_types_comboBox.count(), 1)
+    
+    def test_add_type_will_not_add_inappropriate_type_for_the_current_versionable(self):
+        """testing if add_type will not add will not add the given type to the
+        list if it is not appropriate for the current versionable object, that
+        is it will not add a new version type if it is not suitable for Shots
+        or for Assets depending to the current tab
+        """
+        
+        proj = Project("TEST_PROJECT1")
+        proj.create()
+        
+        # create an asset
+        asset1 = Asset(proj, "TEST_ASSET")
+        asset1.save()
+        
+        # get types for assets and shots
+        asset_vtypes = \
+            proj.query(VersionType).filter_by(type_for="Asset").all()
+        shot_vtypes = \
+            proj.query(VersionType).filter_by(type_for="Shot").all()
+        
+        # create the dialog
+        dialog = version_creator.MainDialog_New()
+        
+        # set the tabWidget to asset
+        dialog.tabWidget.setCurrentIndex(0)
+        
+        # try to add a shot type for the asset
+        self.assertRaises(TypeError, dialog.add_type, shot_vtypes[0])
+        
+        # check if the version_type_comboBox still has no items
+        self.assertEqual(dialog.version_types_comboBox.count(), 0)
+    
+    def test_add_type_will_add_the_name_of_the_version_type(self):
+        """testing if using the add_type will add the name of the given
+        VersionType to the list
+        """
+        
+        proj = Project("TEST_PROJECT1")
+        proj.create()
+        
+        # create an asset
+        asset1 = Asset(proj, "TEST_ASSET")
+        asset1.save()
+        
+        # get types for assets and shots
+        asset_vtypes = \
+            proj.query(VersionType).filter_by(type_for="Asset").all()
+        shot_vtypes = \
+            proj.query(VersionType).filter_by(type_for="Shot").all()
+        
+        # create the dialog
+        dialog = version_creator.MainDialog_New()
+        
+        # set the tabWidget to asset
+        dialog.tabWidget.setCurrentIndex(0)
+        
+        # check if the version_type_comboBox has no item
+        self.assertEqual(dialog.version_types_comboBox.count(), 0)
+        
+        # try to add a asset type for the asset
+        dialog.add_type(asset_vtypes[0])
+        
+        # check if the version_type_comboBox has one item
+        self.assertEqual(
+            dialog.version_types_comboBox.currentText(),
+            asset_vtypes[0].name
+        )
+    
+    def test_add_type_will_work_with_VersionType_instances_only(self):
+        """testing if the add_type method work only with VersionType instances
+        """
+        
+        proj = Project("TEST_PROJECT")
+        proj.create()
+        
+        dialog = version_creator.MainDialog_New()
+        
+        self.assertRaises(
+            TypeError, dialog.add_type, 13212
         )
     
     def test_get_versionable_returns_the_correct_versionable_instance(self):
@@ -2457,6 +2696,9 @@ class VersionCreatorTester(unittest.TestCase):
         # sequences
         seq1 = Sequence(proj1, "TEST_SEQ1")
         seq2 = Sequence(proj1, "TEST_SEQ2")
+        
+        seq1.save()
+        seq2.save()
         
         # Shots
         shot1 = Shot(seq1, 1)
@@ -2517,4 +2759,263 @@ class VersionCreatorTester(unittest.TestCase):
         input text field
         """
         self.fail("test is not implemented yet")
+
+class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
+    """tests the interaction of the UI with the given environment
+    """
+    
+    def setUp(self):
+        """setup the test
+        """
+        
+        # -----------------------------------------------------------------
+        # start of the setUp
+        # create the environment variable and point it to a temp directory
+        self.temp_config_folder = tempfile.mkdtemp()
+        self.temp_projects_folder = tempfile.mkdtemp()
+        
+        os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
+        os.environ[conf.repository_env_key] = self.temp_projects_folder
+        
+        if QtGui.qApp is None:
+            self.app = QtGui.QApplication(sys.argv)
+        else:
+            self.app = QtGui.qApp
+        
+        # create the necessary data
+        
+        # project
+        self.test_project1 = Project("TEST_PROJECT1")
+        self.test_project1.create()
+        
+        self.test_project2 = Project("TEST_PROJECT2")
+        self.test_project2.create()
+        
+        # sequence
+        self.test_sequence1 = Sequence(self.test_project1, "TEST_SEQUENCE_1")
+        self.test_sequence2 = Sequence(self.test_project1, "TEST_SEQUENCE_2")
+        self.test_sequence3 = Sequence(self.test_project1, "TEST_SEQUENCE_3")
+        
+        self.test_sequence4 = Sequence(self.test_project2, "TEST_SEQUENCE_4")
+        self.test_sequence5 = Sequence(self.test_project2, "TEST_SEQUENCE_5")
+        self.test_sequence6 = Sequence(self.test_project2, "TEST_SEQUENCE_6")
+        
+        # shots for sequence1
+        self.test_shot1 = Shot(self.test_sequence1, 1)
+        self.test_shot2 = Shot(self.test_sequence1, 2)
+        self.test_shot3 = Shot(self.test_sequence1, 3)
+
+        # shots for sequence2
+        self.test_shot4 = Shot(self.test_sequence2, 4)
+        self.test_shot5 = Shot(self.test_sequence2, 5)
+        self.test_shot6 = Shot(self.test_sequence2, 6)
+
+        # shots for sequence3
+        self.test_shot7 = Shot(self.test_sequence3, 7)
+        self.test_shot8 = Shot(self.test_sequence3, 8)
+        self.test_shot9 = Shot(self.test_sequence3, 9)
+        
+        # shots for sequence4
+        self.test_shot10 = Shot(self.test_sequence4, 10)
+        self.test_shot11 = Shot(self.test_sequence4, 11)
+        self.test_shot12 = Shot(self.test_sequence4, 12)
+
+        # shots for sequence5
+        self.test_shot13 = Shot(self.test_sequence5, 13)
+        self.test_shot14 = Shot(self.test_sequence5, 14)
+        self.test_shot15 = Shot(self.test_sequence5, 15)
+
+        # shots for sequence6
+        self.test_shot16 = Shot(self.test_sequence6, 16)
+        self.test_shot17 = Shot(self.test_sequence6, 17)
+        self.test_shot18 = Shot(self.test_sequence6, 18)
+        
+        # assets for project1
+        self.test_asset1 = Asset(self.test_project1, "Test Asset 1")
+        self.test_asset2 = Asset(self.test_project1, "Test Asset 2")
+        self.test_asset3 = Asset(self.test_project1, "Test Asset 3")
+        
+        # assets for project2
+        self.test_asset4 = Asset(self.test_project2, "Test Asset 4")
+        self.test_asset5 = Asset(self.test_project2, "Test Asset 5")
+        self.test_asset6 = Asset(self.test_project2, "Test Asset 6")
+        
+        self.test_user = conf.users[0]
+        
+        self.test_asset_versionTypes_for_project1 = \
+            self.test_asset1.project.session.query(
+                VersionType
+            ).filter(
+                VersionType.type_for=="Asset"
+            ).all()
+        
+        # version for asset1
+        self.test_version1 = Version(
+            self.test_asset1,
+            self.test_asset1.code,
+            self.test_asset_versionTypes_for_project1[0],
+            self.test_user
+        )
+        self.test_version1.save()
+        
+        self.test_project1.session.add_all([
+            self.test_shot1,
+            self.test_shot2,
+            self.test_shot3,
+            self.test_shot4,
+            self.test_shot5,
+            self.test_shot6,
+            self.test_shot7,
+            self.test_shot8,
+            self.test_shot9,
+            self.test_asset1,
+            self.test_asset2,
+            self.test_asset3
+        ])
+        
+        self.test_project2.session.add_all([
+            self.test_shot10,
+            self.test_shot11,
+            self.test_shot12,
+            self.test_shot13,
+            self.test_shot14,
+            self.test_shot15,
+            self.test_shot16,
+            self.test_shot17,
+            self.test_shot18,
+            self.test_asset4,
+            self.test_asset5,
+            self.test_asset6
+        ])
+        
+        self.test_project1.session.commit()
+        self.test_project2.session.commit()
+        
+        self.test_environment = TestEnvironment(name="TESTENV")
+        
+        # the dialog
+        self.test_dialog = version_creator.MainDialog_New()
+#        self.test_dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+    
+    def test_setup(self):
+        """testing the test setup
+        """
+        pass
+    
+    def test_get_version_type_returns_VersionType_instance_from_the_UI(self):
+        """testing if the get_version_type method returns the correct
+        VersionType instance from the UI
+        """
+        
+        # set the project to project1
+        self.test_dialog.projects_comboBox.setCurrentIndex(0)
+        
+        # and to asset1
+        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        
+        # the versionType to the first one
+        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        
+        # now try to get the version type
+        version_type_from_UI = self.test_dialog.get_version_type()
+        
+        self.assertEqual(
+            version_type_from_UI.name,
+            self.test_asset_versionTypes_for_project1[0].name
+        )
+        
+        self.assertEqual(
+            version_type_from_UI.type_for,
+            self.test_asset_versionTypes_for_project1[0].type_for
+        )
+    
+    def test_get_version_type_returns_None_for_no_version_type_name(self):
+        """testing if the get_version_type method returns None when there is
+        no entry in the version_types_comboBox
+        """
+        # set the project to project1
+        self.test_dialog.projects_comboBox.setCurrentIndex(0)
+        
+        # and to asset2
+        self.test_dialog.assets_listWidget.setCurrentRow(1)
+        
+        # be sure that there is no version type name in comboBox
+        self.assertEqual(self.test_dialog.version_types_comboBox.count(), 0)
+        
+        # now try to get the version type
+        version_type_from_UI = self.test_dialog.get_version_type()
+        
+        # check if it is None
+        self.assertEqual(
+            version_type_from_UI,
+            None
+        )
+    
+    def test_get_new_version_returns_correct_Version_instance(self):
+        """testing if the get_new_version method returns the correct version
+        from the interface
+        """
+        
+        # set the project to project1
+        self.test_dialog.projects_comboBox.setCurrentIndex(0)
+        
+        # and to asset1
+        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        
+        # the versionType to the first one
+        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        
+        # take to the first one
+        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        
+        # expect the version to be
+        expected_version = Version(
+            self.test_asset1, self.test_asset1.code,
+            self.test_asset_versionTypes_for_project1[0], self.test_user)
+        
+        self.assertEqual(
+            expected_version,
+            self.test_dialog.get_new_version()
+        )
+    
+    def test_get_user_returns_a_proper_User_instance(self):
+        """testing if the get_user method returns a proper user from the UI
+        """
+        self.assertEqual(
+            self.test_dialog.get_user(),
+            self.test_user
+        )
+    
+    def test_get_user_returns_a_new_user_from_config_if_the_project_doesnt_have_it(self):
+        """testing if the get_user method returns a new User instance from the
+        oyProjectManager.config if the given user is not anyhow related to the
+        current project
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_get_old_version_returns_correct_Version_instance(self):
+        """testing if the get_old_version method returns the correct version
+        from the previous_versions_tableWidget
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_export_as_pushButton_calls_environments_export_as_method(self):
+        """testing if the export_as_pushButton calls the environments export_as
+        method with the correct version given
+        """
+        
+        # hit to the export_as_pushButton
+        self.assertRaises(
+            ExportAs,
+            QTest.mouseClick,
+            self.test_dialog.export_as_pushButton,
+            QtCore.Qt.LeftButton
+        )
     
