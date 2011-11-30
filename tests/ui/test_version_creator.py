@@ -10,7 +10,7 @@ from PySide import QtCore, QtGui
 from PySide.QtCore import Qt
 from PySide.QtTest import QTest
 
-from oyProjectManager import config
+from oyProjectManager import config, db
 from oyProjectManager.core.models import (Project, Asset, Version, User,
                                           VersionType, Sequence, Shot,
                                           EnvironmentBase)
@@ -71,6 +71,9 @@ class VersionCreatorTester(unittest.TestCase):
         self.app.quit()
         del self.app
         
+        # set the db.session to None
+        db.session = None
+        
         # delete the temp folders
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
@@ -119,7 +122,7 @@ class VersionCreatorTester(unittest.TestCase):
         # see if the projects filled with projects
         self.assertEqual(dialog.projects_comboBox.currentIndex(), 0)
     
-    def test_projects_comboBox_has_project_attribute(self):
+    def test_projects_comboBox_has_projects_attribute(self):
         """testing if there is a project object holding the current Project
         instance
         """
@@ -135,9 +138,9 @@ class VersionCreatorTester(unittest.TestCase):
         dialog = version_creator.MainDialog_New()
         
         # check if the projects_comboBox has an attribute called project
-        self.assertTrue(hasattr(dialog.projects_comboBox, "project"))
+        self.assertTrue(hasattr(dialog.projects_comboBox, "projects"))
     
-    def test_projects_comboBox_project_attribute_is_Project_instance(self):
+    def test_projects_comboBox_projects_attribute_is_a_list_of_Project_instances(self):
         """testing if the project attribute in the projects_comboBox is a
         Project instance
         """
@@ -153,30 +156,11 @@ class VersionCreatorTester(unittest.TestCase):
         dialog = version_creator.MainDialog_New()
         
         # check if the project is a Project instance
-        self.assertIsInstance(dialog.projects_comboBox.project, Project)
-    
-    def test_projects_comboBox_project_attributes_name_is_same_with_comboBox_text(self):
-        """testing if the Project instance which is held in the project
-        attribute in the projects_comboBox has the same name with the 
-        """
+        self.assertIsInstance(dialog.projects_comboBox.projects, list)
         
-        # create a couple of test projects
-        proj1 = Project("TEST_PROJ1")
-        proj2 = Project("TEST_PROJ2")
-        proj3 = Project("TEST_PROJ3")
-        
-        proj1.create()
-        proj2.create()
-        proj3.create()
-        
-        dialog = version_creator.MainDialog_New()
-        
-        # check if the name of the project is the same with the currently
-        # selected project
-        self.assertEqual(
-            dialog.projects_comboBox.currentText(),
-            dialog.projects_comboBox.project.name
-        )
+        self.assertIsInstance(dialog.projects_comboBox.projects[0], Project)
+        self.assertIsInstance(dialog.projects_comboBox.projects[1], Project)
+        self.assertIsInstance(dialog.projects_comboBox.projects[2], Project)
     
     def test_project_comboBox_with_no_sequences_and_shots(self):
         """testing if no error will be raised when there are couple of projects
@@ -236,23 +220,35 @@ class VersionCreatorTester(unittest.TestCase):
         # check if the sequences_comboBox is filled with sequences
         self.assertEqual(dialog.sequences_comboBox.count(), 3)
     
-    def test_users_comboBox_is_filled_with_users_from_the_config(self):
+    def test_users_comboBox_is_filled_with_users_from_the_db(self):
         """testing if the users combobox is filled with the user names
         """
-        
         # get the users from the config
-        users = conf.users
+        users = db.query(User).all()
         
         dialog = version_creator.MainDialog_New()
         
-        # check if all the names in the users are in the combobox
-        
-        
-        content = [dialog.user_comboBox.itemText(i)
-                   for i in range(dialog.user_comboBox.count())]
+        # check if all the names in the users are in the comboBox
+        content = [dialog.users_comboBox.itemText(i)
+                   for i in range(dialog.users_comboBox.count())]
         
         for user in users:
             self.assertIn(user.name, content)
+    
+    def test_users_comboBox_has_users_attribute(self):
+        """testing if the users_comboBox has an attribute called users
+        """
+        dialog = version_creator.MainDialog_New()
+        self.assertTrue(hasattr(dialog.users_comboBox, "users"))
+    
+    def test_users_comboBox_users_attribute_is_properly_filled(self):
+        """testing if the users_comboBox users attribute is properly filled
+        with User instances from the db
+        """
+        dialog = version_creator.MainDialog_New()
+        users_from_UI = dialog.users_comboBox.users
+        users_from_DB = db.query(User).all()
+        self.assertItemsEqual(users_from_UI, users_from_DB)
     
     def test_asset_names_list_filled(self):
         """testing if the asset names listWidget is filled with asset names
@@ -1525,7 +1521,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-        proj1.query(VersionType).filter_by(type_for="Asset").all()
+        db.query(VersionType).filter_by(type_for="Asset").all()
 
         vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
                         take_name="Main")
@@ -1607,10 +1603,10 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-        proj1.query(VersionType).filter_by(type_for="Asset").all()
+        db.query(VersionType).filter_by(type_for="Asset").all()
 
         shot_vtypes =\
-        proj1.query(VersionType).filter_by(type_for="Shot").all()
+        db.query(VersionType).filter_by(type_for="Shot").all()
 
         vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
                         take_name="Main")
@@ -1765,10 +1761,10 @@ class VersionCreatorTester(unittest.TestCase):
         
         # create a version with take name is different than Main
         
-        asset_vtypes = proj1.query(VersionType).\
+        asset_vtypes = db.query(VersionType).\
             filter(VersionType.type_for=="Asset").all()
         
-        shot_vtypes = proj1.query(VersionType).\
+        shot_vtypes = db.query(VersionType).\
             filter(VersionType.type_for=="Shot").all()
         
         user = User("Test User")
@@ -1821,7 +1817,7 @@ class VersionCreatorTester(unittest.TestCase):
         dialog = version_creator.MainDialog_New()
         
         # get all the asset version types for project
-        asset_vtypes = proj.query(VersionType).\
+        asset_vtypes = db.query(VersionType).\
             filter(VersionType.type_for=="Asset").all()
         
         type_name = asset_vtypes[0].name
@@ -1858,7 +1854,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-        proj1.query(VersionType).filter_by(type_for="Asset").all()
+            db.query(VersionType).filter_by(type_for="Asset").all()
 
         vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
                         take_name="Main")
@@ -1902,10 +1898,10 @@ class VersionCreatorTester(unittest.TestCase):
             ui_type_names.append(
                 dialog.version_types_comboBox.currentText()
             )
-
+        
         self.assertItemsEqual(
             [asset_vtypes[0].name, asset_vtypes[1].name, asset_vtypes[2].name],
-                                                                              ui_type_names
+            ui_type_names
         )
 
     def test_previous_versions_tableWidget_is_updated_properly(self):
@@ -1928,7 +1924,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-        proj1.query(VersionType).filter_by(type_for="Asset").all()
+        db.query(VersionType).filter_by(type_for="Asset").all()
 
         vers1 = Version(
             asset1,
@@ -2019,7 +2015,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-            proj1.query(VersionType).filter_by(type_for="Asset").all()
+            db.query(VersionType).filter_by(type_for="Asset").all()
         
         vers1 = Version(
             asset1,
@@ -2172,7 +2168,7 @@ class VersionCreatorTester(unittest.TestCase):
 #                proj.session.add(asset)
 #                
 #                asset_types = \
-#                    proj.query(VersionType).filter_by(type_for="Asset").all()
+#                    db.query(VersionType).filter_by(type_for="Asset").all()
 #                
 ##                data.append(asset)
 #                
@@ -2240,11 +2236,11 @@ class VersionCreatorTester(unittest.TestCase):
         shot3 = Shot(seq1, 3)
         shot3.save()
 
-        asset_vtypes = proj1.query(VersionType).\
-        filter_by(type_for="Asset").all()
+        asset_vtypes = db.query(VersionType).\
+            filter_by(type_for="Asset").all()
 
-        shot_vtypes = proj1.query(VersionType).\
-        filter_by(type_for="Shot").all()
+        shot_vtypes = db.query(VersionType).\
+            filter_by(type_for="Shot").all()
 
         # versions
         vers1 = Version(asset1, asset1.code, asset_vtypes[0], user1)
@@ -2532,7 +2528,7 @@ class VersionCreatorTester(unittest.TestCase):
         
         # create a couple of versions
         asset_vtypes =\
-            proj1.query(VersionType).filter_by(type_for="Asset").all()
+            db.query(VersionType).filter_by(type_for="Asset").all()
         
         vers1 = Version(
             asset1,
@@ -2569,9 +2565,9 @@ class VersionCreatorTester(unittest.TestCase):
         
         # get types for assets and shots
         asset_vtypes = \
-            proj.query(VersionType).filter_by(type_for="Asset").all()
+            db.query(VersionType).filter_by(type_for="Asset").all()
         shot_vtypes = \
-            proj.query(VersionType).filter_by(type_for="Shot").all()
+            db.query(VersionType).filter_by(type_for="Shot").all()
         
         # create the dialog
         dialog = version_creator.MainDialog_New()
@@ -2610,9 +2606,9 @@ class VersionCreatorTester(unittest.TestCase):
         
         # get types for assets and shots
         asset_vtypes = \
-            proj.query(VersionType).filter_by(type_for="Asset").all()
+            db.query(VersionType).filter_by(type_for="Asset").all()
         shot_vtypes = \
-            proj.query(VersionType).filter_by(type_for="Shot").all()
+            db.query(VersionType).filter_by(type_for="Shot").all()
         
         # create the dialog
         dialog = version_creator.MainDialog_New()
@@ -2640,9 +2636,9 @@ class VersionCreatorTester(unittest.TestCase):
         
         # get types for assets and shots
         asset_vtypes = \
-            proj.query(VersionType).filter_by(type_for="Asset").all()
+            db.query(VersionType).filter_by(type_for="Asset").all()
         shot_vtypes = \
-            proj.query(VersionType).filter_by(type_for="Shot").all()
+            db.query(VersionType).filter_by(type_for="Shot").all()
         
         # create the dialog
         dialog = version_creator.MainDialog_New()
@@ -2759,7 +2755,15 @@ class VersionCreatorTester(unittest.TestCase):
         input text field
         """
         self.fail("test is not implemented yet")
-
+    
+    def test_setup_defaults_will_setup_the_db(self):
+        """testing if the database also will be setup
+        """
+        
+        self.assertIs(db.session, None)
+        dialog = version_creator.MainDialog_New()
+        self.assertIsNot(db.session, None)
+    
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     """tests the interaction of the UI with the given environment
     """
@@ -2840,14 +2844,12 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_asset5 = Asset(self.test_project2, "Test Asset 5")
         self.test_asset6 = Asset(self.test_project2, "Test Asset 6")
         
-        self.test_user = conf.users[0]
+        self.test_user = db.query(User).first()
         
         self.test_asset_versionTypes_for_project1 = \
-            self.test_asset1.project.session.query(
-                VersionType
-            ).filter(
-                VersionType.type_for=="Asset"
-            ).all()
+            db.query(VersionType).\
+            filter(VersionType.type_for=="Asset").\
+            all()
         
         # version for asset1
         self.test_version1 = Version(
@@ -2858,7 +2860,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         )
         self.test_version1.save()
         
-        self.test_project1.session.add_all([
+        db.session.add_all([
             self.test_shot1,
             self.test_shot2,
             self.test_shot3,
@@ -2870,10 +2872,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
             self.test_shot9,
             self.test_asset1,
             self.test_asset2,
-            self.test_asset3
-        ])
-        
-        self.test_project2.session.add_all([
+            self.test_asset3,
             self.test_shot10,
             self.test_shot11,
             self.test_shot12,
@@ -2888,8 +2887,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
             self.test_asset6
         ])
         
-        self.test_project1.session.commit()
-        self.test_project2.session.commit()
+        db.session.commit()
         
         self.test_environment = TestEnvironment(name="TESTENV")
         
@@ -2903,6 +2901,16 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
 #            self.app,
 #            QtCore.SLOT("quit()")
 #        )
+    
+    def tearDown(self):
+        """cleanup the test
+        """
+        # set the db.session to None
+        db.session = None
+        
+        # delete the temp folder
+        shutil.rmtree(self.temp_config_folder)
+        shutil.rmtree(self.temp_projects_folder)
     
     def test_setup(self):
         """testing the test setup

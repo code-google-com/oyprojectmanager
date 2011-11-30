@@ -5,8 +5,8 @@ import shutil
 import tempfile
 import unittest
 
-from oyProjectManager import config
-from oyProjectManager.core.models import Repository, User, Project
+from oyProjectManager import config, db
+from oyProjectManager.core.models import Repository, Project
 
 conf = config.Config()
 
@@ -29,12 +29,14 @@ class RepositoryTester(unittest.TestCase):
         self.config_fullpath = os.path.join(
             self.temp_config_folder, "config.py"
         )
-        
-        
     
     def tearDown(self):
-        """remove the temp folders
+        """cleanup the test
         """
+        
+        # set the db.session to None
+        db.session = None
+        
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
@@ -66,46 +68,46 @@ class RepositoryTester(unittest.TestCase):
         repo = Repository()
         self.assertEqual(repo.server_path, os.path.expanduser(test_value))
     
-    def test_project_names_is_working_properly(self):
-        """testing if the project_names attribute gives the valid project names
-        correctly
-        """
-        
-        # create a couple of projects
-        real_projects = ["TEST1", "TEST2", "TEST3"]
-        for real_project in real_projects:
-            proj = Project(name=real_project)
-            proj.create()
-        
-        # and a couple of fake folders
-        fake_projects = ["FAKE_PROJ1", "FAKE_PROJ2", "FAKE_PROJ3"]
-        for fake_project in fake_projects:
-            os.mkdir(
-                os.path.join(
-                    self.temp_projects_folder,
-                    fake_project
-                )
-            )
-        
-        
-        
-        # check if all the folders are created
-        folders = []
-        folders.extend(real_projects)
-        folders.extend(fake_projects)
-        for proj_name in folders:
-            self.assertTrue(
-                os.path.exists(
-                    os.path.join(
-                        self.temp_projects_folder,
-                        proj_name
-                    )
-                )
-            )
-        
-        # now check if repository only returns real_project names
-        repo = Repository()
-        self.assertItemsEqual(real_projects, repo.project_names)
+#    def test_project_names_is_working_properly(self):
+#        """testing if the project_names attribute gives the valid project names
+#        correctly
+#        """
+#        
+#        # create a couple of projects
+#        real_projects = ["TEST1", "TEST2", "TEST3"]
+#        for real_project in real_projects:
+#            proj = Project(name=real_project)
+#            proj.create()
+#        
+#        # and a couple of fake folders
+#        fake_projects = ["FAKE_PROJ1", "FAKE_PROJ2", "FAKE_PROJ3"]
+#        for fake_project in fake_projects:
+#            os.mkdir(
+#                os.path.join(
+#                    self.temp_projects_folder,
+#                    fake_project
+#                )
+#            )
+#        
+#        
+#        
+#        # check if all the folders are created
+#        folders = []
+#        folders.extend(real_projects)
+#        folders.extend(fake_projects)
+#        for proj_name in folders:
+#            self.assertTrue(
+#                os.path.exists(
+#                    os.path.join(
+#                        self.temp_projects_folder,
+#                        proj_name
+#                    )
+#                )
+#            )
+#        
+#        # now check if repository only returns real_project names
+#        repo = Repository()
+#        self.assertItemsEqual(real_projects, repo.project_names)
     
     def test_get_project_name_is_working_properly(self):
         """testing if the get_project_name method is working properly

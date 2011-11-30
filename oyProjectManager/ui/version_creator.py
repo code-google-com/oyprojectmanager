@@ -10,7 +10,7 @@ from PySide import QtGui, QtCore
 import version_creator_UI
 
 import oyProjectManager
-from oyProjectManager import utils, config
+from oyProjectManager import utils, config, db
 from oyProjectManager.core.models import Asset, Project, Sequence, Repository, Version, VersionType, Shot, User
 from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import assetUpdater, singletonQApplication
@@ -1648,15 +1648,17 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.config = config.Config()
         self.repo = Repository()
         
-        self.environment = environment
+        # setup the database
+        if db.session is None:
+            db.setup()
         
-#        print self.repo.server_path
-#        print self.repo.project_names
+        self.environment = environment
         
         # create the project attribute in projects_comboBox
         # TODO: create an array of Project instances for each project_name in the comboBox
         #       but just fill them when the Project instance is created
-        self.projects_comboBox.project = None
+        self.users_comboBox.users = []
+        self.projects_comboBox.projects = []
         self.sequences_comboBox.sequences = []
         self.shots_listWidget.shots = []
         self.input_dialog = None
@@ -1824,10 +1826,17 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         logger.debug("started setting up interface defaults")
         
         # fill the projects
-        self.projects_comboBox.addItems(self.repo.project_names)
+        projects = db.query(Project).all()
+        self.projects_comboBox.addItems(
+            map(lambda x: x.name, projects)
+        )
+        self.projects_comboBox.projects = projects
         
         # fill the users
-        self.user_comboBox.addItems([user.name for user in self.config.users])
+#        self.users_comboBox.addItems([user.name for user in self.config.users])
+        users = db.query(User).all()
+        self.users_comboBox.users = users
+        self.users_comboBox.addItems(map(lambda x:x.name, users))
         
         # add "Main" by default to the takes_comboBox
         self.takes_comboBox.addItem(conf.default_take_name)
@@ -1843,27 +1852,6 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         logger.debug("project_comboBox has changed in the UI")
         
-        # fill the assets for the current project
-        # get the current project name
-        project_name = self.projects_comboBox.currentText()
-        
-#        for i in range(self.projects_comboBox.count()):
-#            print self.projects_comboBox.itemText(i)
-#        
-#        if project_name == "":
-#            return
-#        
-#        print "project_name: %s" % project_name
-        
-        # create the project
-        proj = Project(project_name)
-        
-        if not proj.exists:
-            return
-        
-        # assign it to the comboBox
-        self.projects_comboBox.project = proj
-        
         # call tabWidget_changed with the current index
         curr_tab_index = self.tabWidget.currentIndex()
         
@@ -1873,7 +1861,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """called when the tab widget is changed
         """
         
-        proj = self.projects_comboBox.project
+        proj = self.get_project()
         
         # if assets is the current tab
         if index == 0:
@@ -1881,8 +1869,8 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             # TODO: don't update if the project is the same with the cached one
             
-            # get all the assets
-            assets = proj.query(Asset).all()
+            # get all the assets of the project
+            assets = db.query(Asset).filter(Asset.project==proj).all()
             
             # add their names to the list
             self.assets_listWidget.clear()
@@ -1917,7 +1905,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             logger.debug("tabWidget index changed to shots")
             
             # update the sequence comboBox
-            seqs = proj.query(Sequence).all()
+            seqs = db.query(Sequence).filter(Sequence.project==proj).all()
             
             self.sequences_comboBox.clear()
             self.sequences_comboBox.addItems([seq.name for seq in seqs])
@@ -1950,7 +1938,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             return
         
         # update the shots_listWidget
-        shots = seq.project.query(Shot).filter(Shot.sequence==seq).all()
+        shots = db.query(Shot).filter(Shot.sequence==seq).all()
         
         # add their names to the list
         self.shots_listWidget.clear()
@@ -1977,8 +1965,13 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """updates the asset related fields with the current asset information
         """
         
-        proj = self.projects_comboBox.project
-        asset = proj.query(Asset).filter_by(name=asset_name).first()
+        proj = self.get_project()
+        
+        asset = \
+            db.query(Asset).\
+            filter(Asset.project==proj).\
+            filter_by(name=asset_name).\
+            first()
         
         if asset is None:
             return
@@ -1994,8 +1987,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # get all the types for this asset
         types = map(
             lambda x: x[0],
-            proj.query(distinct(VersionType.name)).join(Version).
-            filter(Version.version_of==asset).all()
+            db.query(distinct(VersionType.name)).
+            join(Version).
+            filter(Version.version_of==asset).
+            all()
         )
         
         # add the types to the version types list
@@ -2009,7 +2004,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """updates the shot related fields with the current shot information
         """
         
-        proj = self.projects_comboBox.project
+        proj = self.get_project()
         
         # get the shot from the index
         index = self.shots_listWidget.currentIndex().row()
@@ -2026,8 +2021,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # get all the types for this asset
         types = map(
             lambda x: x[0],
-            proj.query(distinct(VersionType.name)).join(Version).
-            filter(Version.version_of==shot).all()
+            db.query(distinct(VersionType.name)).
+            join(Version).
+            filter(Version.version_of==shot).
+            all()
         )
         
         # add the types to the version types list
@@ -2042,7 +2039,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """
         
         # get all the takes for this type
-        proj = self.projects_comboBox.project
+        proj = self.get_project()
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
@@ -2052,7 +2049,11 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             except AttributeError:
                 asset_name = None
             
-            versionable = proj.query(Asset).filter_by(name=asset_name).first()
+            versionable = \
+                db.query(Asset).\
+                filter(Asset.project==proj).\
+                filter_by(name=asset_name).\
+                first()
             
             if asset_name is not None:
                 logger.debug("updating take list for asset: %s" % versionable.name)
@@ -2073,9 +2074,11 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # get all the takes of the current asset
         takes = map(
             lambda x: x[0],
-            proj.query(distinct(Version.take_name)).
-            join(VersionType).filter(VersionType.name==version_type_name).
-            filter(Version.version_of==versionable).all()
+            db.query(distinct(Version.take_name)).
+            join(VersionType).
+            filter(VersionType.name==version_type_name).
+            filter(Version.version_of==versionable).
+            all()
         )
         
         self.takes_comboBox.clear()
@@ -2091,7 +2094,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """runs when the takes_comboBox has changed
         """
         
-        proj = self.projects_comboBox.project
+        proj = self.get_project()
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
@@ -2103,7 +2106,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 # just return
                 asset_name = None
             
-            versionable = proj.query(Asset).filter_by(name=asset_name).first()
+            versionable = db.query(Asset).\
+                filter(Asset.project==proj).\
+                filter(Asset.name==asset_name).\
+                first()
             
             if versionable is not None:
                 logger.debug("updating take list for asset: %s" % versionable.name)
@@ -2126,7 +2132,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         logger.debug("take_name: %s" % take_name)
         
         # query the Versions of this type and take
-        versions = proj.query(Version).join(VersionType).\
+        versions = db.query(Version).join(VersionType).\
             filter(VersionType.name==version_type_name).\
             filter(Version.version_of==versionable).\
             filter(Version.take_name==take_name).\
@@ -2262,8 +2268,12 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             button.setStyleSheet("")
             text_field.setReadOnly(True)
             
-            proj = self.projects_comboBox.project
-            asset = proj.query(Asset).filter_by(name=asset_name).first()
+            proj = self.get_project()
+            asset = \
+                db.query(Asset).\
+                filter(Asset.project==proj).\
+                filter_by(name=asset_name).\
+                first()
             
             # update the asset description
             logger.debug("asset description of %s changed to %s" % (
@@ -2399,7 +2409,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                          "not creating a new asset")
             return
         
-        proj = self.projects_comboBox.project
+        proj = self.get_project()
         
         try:
             new_asset = Asset(proj, asset_name)
@@ -2428,15 +2438,19 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """returns the versionable from the UI, it is an asset or a shot
         depending on to the current tab
         """
-        proj = self.projects_comboBox.project
+        proj = self.get_project()
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
             asset_name = self.assets_listWidget.currentItem().text()
-            versionable = proj.query(Asset).filter_by(name=asset_name).first()
+            versionable = \
+                db.query(Asset).\
+                filter(Asset.project==proj).\
+                filter_by(name=asset_name).\
+                first()
 
             logger.debug("updating take list for asset: %s" % versionable.name)
-
+        
         else:
             index = self.shots_listWidget.currentIndex().row()
             versionable = self.shots_listWidget.shots[index]
@@ -2453,7 +2467,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         :returns: :class:`~oyProjectManager.core.models.VersionType`
         """
         
-        project = self.projects_comboBox.project
+        project = self.get_project()
         if project is None:
             return None
         
@@ -2466,11 +2480,23 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         version_type_name = self.version_types_comboBox.currentText()
         
         # get the version type instance
-        return project.query(VersionType).filter(
-            VersionType.type_for==type_for
-        ).filter(
-            VersionType.name==version_type_name
-        ).first()
+        return db.query(VersionType).\
+            filter(VersionType.type_for==type_for).\
+            filter(VersionType.name==version_type_name).\
+            first()
+    
+    def get_project(self):
+        """Returns the currently selected project instance in the
+        projects_comboBox
+        :return: :class:`~oyProjectManager.core.models.Project` instance
+        """
+        
+        index = self.projects_comboBox.currentIndex()
+        
+        try:
+            return self.projects_comboBox.projects[index]
+        except IndexError:
+            return None
     
     def add_type(self, version_type):
         """adds new types to the version_types_comboBox
@@ -2501,7 +2527,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def add_type_toolButton_clicked(self):
         """adds a new type for the currently selected Asset or Shot
         """
-        proj = self.projects_comboBox.project
+        proj = self.get_project()
         
         # get the versionable
         versionable = self.get_versionable()
@@ -2509,7 +2535,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # get all the version types which doesn't have any version defined
 #        current_types = map(
 #            lambda x: x[0],
-#            proj.query(distinct(VersionType.name)).join(Version).
+#            db.query(distinct(VersionType.name)).join(Version).
 #            filter(Version.version_of==versionable).all()
 #        )
         
@@ -2520,9 +2546,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         avialable_types = map(
             lambda x: x[0],
-            proj.query(distinct(VersionType.name)).\
-            filter(VersionType.type_for==versionable.__class__.__name__).\
-            filter(~ VersionType.name.in_(current_types)).all()
+            db.query(distinct(VersionType.name)).
+            filter(VersionType.type_for==versionable.__class__.__name__).
+            filter(~ VersionType.name.in_(current_types)).
+            all()
         )
         
         # create a QInputDialog with comboBox
@@ -2541,7 +2568,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # it the current selection
         if ok:
             # get the type
-            vers_type = proj.query(VersionType).filter_by(name=type_name).first()
+            vers_type = db.query(VersionType).filter_by(name=type_name).first()
             
             try:
                 self.add_type(vers_type)
@@ -2585,7 +2612,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # create a new version
         versionable = self.get_versionable()
-        versionType = self.get_version_type()
+        version_type = self.get_version_type()
         take_name = self.takes_comboBox.currentText()
         user = self.get_user()
         
@@ -2605,35 +2632,29 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         :return: :class:`~oyProjectManager.core.models.User` instance
         """
         
-        # first try to get the user from the project
-        # if there is no user with that name
-        # use the config and get first user matching this name
-        # and return it
-        # it will be automatically added to the project
-        # if the user is used to create a version
-        
-        user_name = self.user_comboBox.currentText()
-        project = self.projects_comboBox.project
-        
-        user = project.query(User).filter_by(name=user_name).first()
-        
-        if user is not None:
-            # we found the user in the current project
-            # return it
-            return user
-        else:
-            # sorry but the user is not in the current project
-            # return it from the config
-            for user in conf.users:
-                print user.name
-                if user.name == user_name:
-                    return user
-        
-        # still no user, fuck, somebody hacked the UI
-        raise RuntimeError("No user with name %s, what the fuck is going on! "
-                           "(in no circumstance this should not run by the "
-                           "way!)" % user_name)
-        
+#        user_name = self.users_comboBox.currentText()
+#        project = self.get_project()
+#        
+#        user = db.query(User).filter_by(name=user_name).first()
+#        
+#        if user is not None:
+#            # we found the user in the current project
+#            # return it
+#            return user
+#        else:
+#            # sorry but the user is not in the current project
+#            # return it from the config
+#            for user in conf.users:
+#                print user.name
+#                if user.name == user_name:
+#                    return user
+#        
+#        # still no user, fuck, somebody hacked the UI
+#        raise RuntimeError("No user with name %s, what the fuck is going on! "
+#                           "(in no circumstance this should not run by the "
+#                           "way!)" % user_name)
+        index = self.users_comboBox.currentIndex()
+        return self.users_comboBox.users[index]
     
     def export_as_pushButton_clicked(self):
         """runs when the export_as_pushButton clicked

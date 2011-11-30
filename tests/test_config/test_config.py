@@ -40,7 +40,7 @@ class ConfigTester(unittest.TestCase):
         test_value = ".test_value.db"
         config_file = open(self.config_fullpath, "w")
         config_file.writelines(["#-*- coding: utf-8 -*-\n",
-                                'database_file_name = "' + test_value + '"\n'])
+                                'database_url = "' + test_value + '"\n'])
         config_file.close()
 
         # now import the config.py and see if it updates the
@@ -48,7 +48,7 @@ class ConfigTester(unittest.TestCase):
         from oyProjectManager import config
         conf = config.Config()
 
-        self.assertEqual(test_value, conf.database_file_name)
+        self.assertEqual(test_value, conf.database_url)
 
     def test_config_variable_doesnt_create_new_variables_with_user_config(self):
         """testing if the config will not be updated by the user config by
@@ -81,10 +81,10 @@ class ConfigTester(unittest.TestCase):
         os.environ["var2"] = var2
         os.environ["OYPROJECTMANAGER_PATH"] = "$var1/$var2"
         
-        test_value = ".test_value.db"
+        test_value = "sqlite3:///.test_value.db"
         config_file = open(self.config_fullpath, "w")
         config_file.writelines(["#-*- coding: utf-8 -*-\n",
-                                'database_file_name = "' + test_value + '"\n'])
+                                'database_url = "' + test_value + '"\n'])
         config_file.close()
         
         # now import the config.py and see if it updates the
@@ -92,7 +92,7 @@ class ConfigTester(unittest.TestCase):
         from oyProjectManager import config
         conf = config.Config()
         
-        self.assertEqual(test_value, conf.database_file_name)
+        self.assertEqual(test_value, conf.database_url)
         
     def test_env_variable_with_deep_vars_module_import_with_shortcuts(self):
         """testing if the module path has multiple shortcuts like ~ and other
@@ -108,10 +108,10 @@ class ConfigTester(unittest.TestCase):
         os.environ["var3"] = var3
         os.environ["OYPROJECTMANAGER_PATH"] = "$var3"
         
-        test_value = ".test_value.db"
+        test_value = "sqlite:///.test_value.db"
         config_file = open(self.config_fullpath, "w")
         config_file.writelines(["#-*- coding: utf-8 -*-\n",
-                                'database_file_name = "' + test_value + '"\n'])
+                                'database_url = "' + test_value + '"\n'])
         config_file.close()
         
         # now import the config.py and see if it updates the
@@ -119,7 +119,7 @@ class ConfigTester(unittest.TestCase):
         from oyProjectManager import config
         conf = config.Config()
         
-        self.assertEqual(test_value, conf.database_file_name)
+        self.assertEqual(test_value, conf.database_url)
     
     def test_non_existing_path_in_environment_variable(self):
         """testing if the non existing path situation will be handled
@@ -147,39 +147,39 @@ class ConfigTester(unittest.TestCase):
         from oyProjectManager import config
         self.assertRaises(RuntimeError, config.Config)
     
-    def test_users_attribute_will_return_a_list_of_User_instances(self):
-        """testing if the config.users will return a list of
-        oyProjectManager.core.models.User instances defined in the config.py
-        file with the users_data variable
-        """
-        
-        config_file = open(self.config_fullpath, "w")
-        config_file.writelines(["#-*- coding: utf-8 -*-\n",
-                                'users_data = [\n'
-                                '    {"name":"Test User 1",\n',
-                                '     "initials":"tu1",\n'
-                                '     "email": "testuser1@user.com"},\n'
-                                '    {"name":"Test User 2",\n',
-                                '     "initials":"tu2",\n'
-                                '     "email": "testuser2@user.com"},\n'
-                                ']\n'])
-        config_file.close()
-        
-        # now import the config.py and see if it updates the
-        # database_file_name variable
-        from oyProjectManager import config
-        conf = config.Config()
-        
-        self.assertIsInstance(conf.users, list)
-        user1 = conf.users[0]
-        user2 = conf.users[1]
-        self.assertIsInstance(user1, User)
-        self.assertIsInstance(user2, User)
-        
-        self.assertEqual(user1.name, "Test User 1")
-        self.assertEqual(user1.initials, "tu1")
-        self.assertEqual(user1.email, "testuser1@user.com")
-        
-        self.assertEqual(user2.name, "Test User 2")
-        self.assertEqual(user2.initials, "tu2")
-        self.assertEqual(user2.email, "testuser2@user.com")
+#    def test_users_attribute_will_return_a_list_of_User_instances(self):
+#        """testing if the config.users will return a list of
+#        oyProjectManager.core.models.User instances defined in the config.py
+#        file with the users_data variable
+#        """
+#        
+#        config_file = open(self.config_fullpath, "w")
+#        config_file.writelines(["#-*- coding: utf-8 -*-\n",
+#                                'users_data = [\n'
+#                                '    {"name":"Test User 1",\n',
+#                                '     "initials":"tu1",\n'
+#                                '     "email": "testuser1@user.com"},\n'
+#                                '    {"name":"Test User 2",\n',
+#                                '     "initials":"tu2",\n'
+#                                '     "email": "testuser2@user.com"},\n'
+#                                ']\n'])
+#        config_file.close()
+#        
+#        # now import the config.py and see if it updates the
+#        # database_file_name variable
+#        from oyProjectManager import config
+#        conf = config.Config()
+#        
+#        self.assertIsInstance(conf.users, list)
+#        user1 = conf.users[0]
+#        user2 = conf.users[1]
+#        self.assertIsInstance(user1, User)
+#        self.assertIsInstance(user2, User)
+#        
+#        self.assertEqual(user1.name, "Test User 1")
+#        self.assertEqual(user1.initials, "tu1")
+#        self.assertEqual(user1.email, "testuser1@user.com")
+#        
+#        self.assertEqual(user2.name, "Test User 2")
+#        self.assertEqual(user2.initials, "tu2")
+#        self.assertEqual(user2.email, "testuser2@user.com")

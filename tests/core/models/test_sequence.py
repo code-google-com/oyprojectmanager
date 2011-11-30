@@ -32,8 +32,11 @@ class SequenceTester(unittest.TestCase):
         os.environ[conf.repository_env_key] = self.temp_projects_folder
 
     def tearDown(self):
-        """remove the temp folders
+        """cleanup the test
         """
+        # set the db.session to None
+        db.session = None
+        
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
@@ -365,6 +368,8 @@ class Sequence_DB_Tester(unittest.TestCase):
     def tearDown(self):
         """clean up the test
         """
+        # set the db.session to None
+        db.session = None
         
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
@@ -378,18 +383,18 @@ class Sequence_DB_Tester(unittest.TestCase):
         new_proj = Project(name="TEST_PROJECT")
         self.assertRaises(RuntimeError, Sequence, new_proj, name="TEST_SEQ")
     
-    def test_sequence_session_is_project_session(self):
-        """testing if the session instance is passed correctly to the sequence
-        instance
-        """
-        
-        new_proj = Project(name="TEST_PROJECT")
-        new_proj.create()
-        
-        new_seq = Sequence(new_proj, name="TEST_SEQ")
-        new_seq.create()
-        
-        self.assertIs(new_proj.session, new_seq.session)
+#    def test_sequence_session_is_project_session(self):
+#        """testing if the session instance is passed correctly to the sequence
+#        instance
+#        """
+#        
+#        new_proj = Project(name="TEST_PROJECT")
+#        new_proj.create()
+#        
+#        new_seq = Sequence(new_proj, name="TEST_SEQ")
+#        new_seq.create()
+#        
+#        self.assertIs(db.session, new_seq.session)
     
     def test_database_simple_data(self):
         """testing if the database file has the necessary information related to

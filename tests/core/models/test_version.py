@@ -4,7 +4,7 @@ import os
 import shutil
 import tempfile
 import unittest
-from oyProjectManager import config
+from oyProjectManager import config, db
 from oyProjectManager.core.errors import CircularDependencyError
 from oyProjectManager.core.models import (Asset, Shot, Version, VersionType,
                                           User, Project, Sequence)
@@ -39,7 +39,6 @@ class VersionTester(unittest.TestCase):
         self.test_shot = Shot(self.test_sequence, 1)
         
         self.test_versionType = VersionType(
-            project=self.test_project,
             name="Test Animation",
             code="TANIM",
             path="SHOTS/{{version.base_name}}/{{type.code}}",
@@ -95,8 +94,10 @@ class VersionTester(unittest.TestCase):
         ]
     
     def tearDown(self):
-        """remove the temp folders
+        """cleanup the test
         """
+        # set the db.session to None
+        db.session = None
         
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
@@ -164,7 +165,6 @@ class VersionTester(unittest.TestCase):
         """testing if the type attribute is read-only
         """
         new_type = VersionType(
-            project=self.test_project,
             name="Test Model",
             code="TMODEL",
             path="ASSETS/{{base_name}}/{{type_name}}",
@@ -188,7 +188,7 @@ class VersionTester(unittest.TestCase):
         
         # create a new VersionType which is suitable for Shots
         new_vtype = VersionType(
-            self.test_project, "Test Type", code="TType",
+            "Test Type", code="TType",
             path="SHOTS/{{version.base_name}}/{{type.code}}",
             filename="{{version.base_name}}_{{version.take_name}}_\
             {{type.code}}_v{{'%03d'|format(version.version_number)}}_\

@@ -5,8 +5,8 @@ import shutil
 import tempfile
 import unittest
 from sqlalchemy.exc import IntegrityError
-from oyProjectManager import config
-from oyProjectManager.core.models import Project, Sequence, Shot, Asset
+from oyProjectManager import config, db
+from oyProjectManager.core.models import Project, Asset
 
 conf = config.Config()
 
@@ -68,8 +68,11 @@ class AssetTester(unittest.TestCase):
         ]
     
     def tearDown(self):
-        """remove the temp folders
+        """cleanup the test
         """
+        
+        # set the db.session to None
+        db.session = None
         
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
@@ -283,7 +286,7 @@ class AssetTester(unittest.TestCase):
         """testing if the save method saves the asset to the database
         """
         self.test_asset.save()
-        self.assertIn(self.test_asset, self.test_proj.session)
+        self.assertIn(self.test_asset, db.session)
     
     def test_equality_of_assets(self):
         """testing if two assets are equal if their names and projects are also

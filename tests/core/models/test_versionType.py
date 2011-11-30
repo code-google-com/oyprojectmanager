@@ -5,9 +5,8 @@ import shutil
 import tempfile
 import unittest
 from sqlalchemy.exc import IntegrityError
-from oyProjectManager import config
-from oyProjectManager.core.models import (VersionableBase, VersionType,
-                                          Project)
+from oyProjectManager import config, db
+from oyProjectManager.core.models import (VersionType, Project)
 
 conf = config.Config()
 
@@ -33,7 +32,7 @@ class VersionTypeTester(unittest.TestCase):
         self.test_project.save()
         
         self.kwargs = {
-            "project": self.test_project,
+#            "project": self.test_project,
             "name":"Test VType",
             "code":"TVT",
             "path":"SHOTS/{{version.base_name}}/{{type.code}}",
@@ -74,68 +73,14 @@ class VersionTypeTester(unittest.TestCase):
         ]
     
     def tearDown(self):
-        """remove the temp folders
+        """cleanup the test
         """
+        # set the db.session to None
+        db.session = None
         
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
-    
-    def test_project_argument_is_skipped(self):
-        """testing if a TypeError will be raised when the project argument
-        is skipped
-        """
-        self.kwargs.pop("project")
-        self.assertRaises(TypeError, VersionType, **self.kwargs)
-    
-    def test_project_argument_is_None(self):
-        """testing if a TypeError will be raised when the project argument
-        is None
-        """
-        self.kwargs["project"] = None
-        self.assertRaises(TypeError, VersionType, **self.kwargs)
-    
-    def test_project_argument_is_not_a_Project_instance(self):
-        """testing if a TypeError will be raised when the project argument is
-        not a Project instance
-        """
-        
-        self.kwargs["project"] = 123
-        self.assertRaises(TypeError, VersionType, **self.kwargs)
-    
-    def test_project_argument_is_string_will_raise_TypeError_even_the_project_is_created(self):
-        """testing if a TypeError will be raised when the project argument is
-        given as a string even the project is created and valid
-        """
-        new_proj = Project("TEST_PROJECT")
-        new_proj.create()
-        
-        self.kwargs["project"] = "TEST_PROJECT"
-        self.assertRaises(TypeError, VersionType, **self.kwargs)
-    
-    def test_project_argument_is_working_properly(self):
-        """testing if the project argument is working properly
-        """
-        new_proj = Project("TEST_PROJECT")
-        new_proj.create()
-        
-        self.kwargs["project"] = new_proj
-        new_vtype = VersionType(**self.kwargs)
-        
-        self.assertEqual(new_vtype.project, new_proj)
-    
-    def test_project_attribute_is_read_only(self):
-        """testing if the project attribute is read-only
-        """
-        self.assertRaises(AttributeError, setattr, self.test_versionType,
-                          "project", self.kwargs["project"])
-    
-    def test_name_argument_is_skipped(self):
-        """testing if a TypeError will be raised when the name argument is
-        skipped
-        """
-        self.kwargs.pop("name")
-        self.assertRaises(TypeError, VersionType, **self.kwargs)
     
     def test_name_argument_is_None(self):
         """testing if a TypeError will be raised when the name argument is
@@ -556,12 +501,11 @@ class VersionTypeTester(unittest.TestCase):
         name = new_vtype.name
         output_path = new_vtype.output_path
         path = new_vtype.path
-        project = new_vtype.project
         type_for = new_vtype.type_for
         
 #        del new_vtype
         
-        new_vtypeDB = self.test_project.query(VersionType).\
+        new_vtypeDB = db.query(VersionType).\
             filter_by(name=self.kwargs["name"]).first()
         
         self.assertEqual(code, new_vtypeDB.code)
@@ -569,8 +513,101 @@ class VersionTypeTester(unittest.TestCase):
         self.assertEqual(name, new_vtypeDB.name)
         self.assertEqual(output_path, new_vtypeDB.output_path)
         self.assertEqual(path, new_vtypeDB.path)
-        self.assertEqual(project, new_vtypeDB.project)
         self.assertEqual(type_for, new_vtypeDB.type_for)
         self.assertEqual(environments, new_vtypeDB.environments)
     
+    def test__eq__(self):
+        """testing the equality operator
+        """
+        
+        verst1 = VersionType(
+            name="Test Type",
+            code="TT",
+            path="path",
+            filename="filename",
+            output_path="output_path",
+            environments=["MAYA", "NUKE"],
+            type_for="Asset"
+        )
+        
+        verst2 = VersionType(
+            name="Test Type",
+            code="TT",
+            path="path",
+            filename="filename",
+            output_path="output_path",
+            environments=["MAYA", "NUKE"],
+            type_for="Asset"
+        )
+        
+        verst3 = VersionType(
+            name="Test Type 2",
+            code="TT",
+            path="path",
+            filename="filename",
+            output_path="output_path",
+            environments=["MAYA", "NUKE"],
+            type_for="Asset"
+        )
+        
+        verst4 = VersionType(
+            name="Test Type 3",
+            code="TT3",
+            path="path",
+            filename="filename",
+            output_path="output_path",
+            environments=["MAYA", "NUKE"],
+            type_for="Asset"
+        )
+        
+        self.assertTrue(verst1==verst2)
+        self.assertFalse(verst1==verst3)
+        self.assertFalse(verst3==verst4)
     
+    def test__ne__(self):
+        """testing the equality operator
+        """
+        
+        verst1 = VersionType(
+            name="Test Type",
+            code="TT",
+            path="path",
+            filename="filename",
+            output_path="output_path",
+            environments=["MAYA", "NUKE"],
+            type_for="Asset"
+        )
+        
+        verst2 = VersionType(
+            name="Test Type",
+            code="TT",
+            path="path",
+            filename="filename",
+            output_path="output_path",
+            environments=["MAYA", "NUKE"],
+            type_for="Asset"
+        )
+        
+        verst3 = VersionType(
+            name="Test Type 2",
+            code="TT",
+            path="path",
+            filename="filename",
+            output_path="output_path",
+            environments=["MAYA", "NUKE"],
+            type_for="Asset"
+        )
+        
+        verst4 = VersionType(
+            name="Test Type 3",
+            code="TT3",
+            path="path",
+            filename="filename",
+            output_path="output_path",
+            environments=["MAYA", "NUKE"],
+            type_for="Asset"
+        )
+        
+        self.assertFalse(verst1!=verst2)
+        self.assertTrue(verst1!=verst3)
+        self.assertTrue(verst3!=verst4)

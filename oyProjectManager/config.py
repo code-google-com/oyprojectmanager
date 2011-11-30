@@ -84,7 +84,7 @@ class Config(object):
     
     TODO: Add explanation of each variable
     
-    database_file_name = ".metadata.db",
+    database_url = "sqlite:///$REPO/.metadata.db"
     shot_number_prefix = "SH"
     shot_number_padding = 3
     
@@ -143,7 +143,10 @@ class Config(object):
     
     default_config_values = dict(
         
-        database_file_name = ".metadata.db",
+#        database_path = "$REPO",
+#        database_file_name = ".metadata.db",
+        
+        database_url = "sqlite:///$REPO/.metadata.db",
         
         shot_number_prefix = "SH",
         shot_number_padding = 3,
@@ -226,8 +229,8 @@ class Config(object):
             {
                 "name": "Animation",
                 "code": "ANIM",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -236,8 +239,8 @@ class Config(object):
             {
                 "name": "Camera",
                 "code": "CAMERA",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -246,8 +249,8 @@ class Config(object):
             {
                 "name": "Composition",
                 "code": "COMP",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Nuke"],
@@ -256,8 +259,8 @@ class Config(object):
             {
                 "name": "Edit",
                 "code": "EDIT",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Nuke"],
@@ -266,8 +269,8 @@ class Config(object):
             {
                 "name":"FX",
                 "code": "FX",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": """{{version.path}}/anim
                         {{version.path}}/cache
@@ -284,8 +287,8 @@ class Config(object):
             {
                 "name":"Model",
                 "code": "MODEL",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "Assets/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -294,8 +297,8 @@ class Config(object):
             {
                 "name": "Other",
                 "code": "OTHER",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "Others/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini", "Nuke"],
@@ -304,8 +307,8 @@ class Config(object):
             {
                 "name": "Previs",
                 "code": "PREVIS",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -314,8 +317,8 @@ class Config(object):
             {
                 "name": "Lighting",
                 "code": "LIGHTING",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -324,8 +327,8 @@ class Config(object):
             {
                 "name": "Rig",
                 "code": "RIG",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "Assets/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -334,8 +337,8 @@ class Config(object):
             {
                 "name": "Scene Assembly",
                 "code": "SCNASS",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path":"{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -344,8 +347,8 @@ class Config(object):
             {
                 "name": "Matte Paint",
                 "code": "MATTE",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "{{sequence.code}}/Shots/{{version.base_name}}/PAINTINGS/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Photoshop"],
@@ -354,8 +357,8 @@ class Config(object):
             {
                 "name": "Texture Paint",
                 "code": "TEXTURE",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "Assets/{{version.base_name}}/PAINTINGS/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Photoshop"],
@@ -364,8 +367,8 @@ class Config(object):
             {
                 "name": "Illustration",
                 "code": "ILLUSTRATION",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "Assets/{{version.base_name}}/PAINTINGS/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Photoshop"],
@@ -374,8 +377,8 @@ class Config(object):
             {
                 "name": "Shading",
                 "code": "SHADING",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "Assets/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -384,8 +387,8 @@ class Config(object):
             {
                 "name": "Tracking",
                 "code": "TRACK",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "path": "{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["3DEqualizer"],
@@ -456,19 +459,19 @@ class Config(object):
                 logger.warning("The $OYPROJETMANAGER_PATH:" + resolved_path + \
                                " doesn't exists! skipping user config")
             
-            # ---------------------------------------------------
-            # create the users
-            from oyProjectManager.core.models import User
-            
-            self.users = []
-            for user_data in self.users_data:
-                name = user_data.get("name")
-                initials = user_data.get("initials")
-                email = user_data.get("email")
-                
-                self.users.append(
-                    User(name, initials, email)
-                )
+#            # ---------------------------------------------------
+#            # create the users
+#            from oyProjectManager.core.models import User
+#            
+#            self.users = []
+#            for user_data in self.users_data:
+#                name = user_data.get("name")
+#                initials = user_data.get("initials")
+#                email = user_data.get("email")
+#                
+#                self.users.append(
+#                    User(name, initials, email)
+#                )
     
     def __getattr__(self, name):
         return self.config_values[name]

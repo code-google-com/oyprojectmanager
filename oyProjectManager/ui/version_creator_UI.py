@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Thu Nov 24 16:52:36 2011
+# Created: Wed Nov 30 10:45:40 2011
 #      by: pyside-uic 0.2.11 running on PySide 1.0.8
 #
 # WARNING! All changes made in this file will be lost!
@@ -48,9 +48,9 @@ class Ui_Dialog(object):
         self.user_label = QtGui.QLabel(self.verticalWidget)
         self.user_label.setObjectName("user_label")
         self.horizontalLayout_11.addWidget(self.user_label)
-        self.user_comboBox = QtGui.QComboBox(self.verticalWidget)
-        self.user_comboBox.setObjectName("user_comboBox")
-        self.horizontalLayout_11.addWidget(self.user_comboBox)
+        self.users_comboBox = QtGui.QComboBox(self.verticalWidget)
+        self.users_comboBox.setObjectName("users_comboBox")
+        self.horizontalLayout_11.addWidget(self.users_comboBox)
         self.horizontalLayout_11.setStretch(2, 1)
         self.verticalLayout.addLayout(self.horizontalLayout_11)
         self.tabWidget = QtGui.QTabWidget(self.verticalWidget)
@@ -401,8 +401,8 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
-        Dialog.setTabOrder(self.projects_comboBox, self.user_comboBox)
-        Dialog.setTabOrder(self.user_comboBox, self.tabWidget)
+        Dialog.setTabOrder(self.projects_comboBox, self.users_comboBox)
+        Dialog.setTabOrder(self.users_comboBox, self.tabWidget)
         Dialog.setTabOrder(self.tabWidget, self.create_asset_pushButton)
         Dialog.setTabOrder(self.create_asset_pushButton, self.assets_listWidget)
         Dialog.setTabOrder(self.assets_listWidget, self.asset_description_edit_pushButton)

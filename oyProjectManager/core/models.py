@@ -18,8 +18,8 @@ from sqlalchemy.schema import Table
 from oyProjectManager import utils
 from oyProjectManager.utils import cache
 from oyProjectManager import db
-from oyProjectManager.core.errors import CircularDependencyError
 from oyProjectManager.db.declarative import Base
+from oyProjectManager.core.errors import CircularDependencyError
 
 # create a cache with the CacheManager
 #bCache = cache.CacheManager()
@@ -247,45 +247,6 @@ class Project(Base):
     The Project class is in the center of the Asset Management system.
     Everything starts with the Project instance.
     
-    .. versionadded:: 0.2.0
-        SQLite3 Database:
-        
-        To hold the information about all the data created, there is a
-        ".metadata.db" file in the project root. This SQLite3 database has
-        information about all the
-        :class:`~oyProjectManager.core.models.Sequence`\ s,
-        :class:`~oyProjectManager.core.models.Shot`\ s,
-        :class:`~oyProjectManager.core.models.Asset`\ s and
-        :class:`~oyProjectManager.core.models.VersionType` created within
-        the Project, the settings of the Project. So anytime a new
-        :class:`~oyProjectManager.core.models.Sequence`,
-        :class:`~oyProjectManager.core.models.Shot`,
-        :class:`~oyProjectManager.core.models.Asset` or
-        :class:`~oyProjectManager.core.models.Version` 
-        :class:`~oyProjectManager.core.models.VersionType` is created the
-        related data is saved to this SQLite3 database.
-        
-        With this new extension it is much faster to query any data needed.
-    
-    Querying data is very simple and fun. To get any kind of data from the
-    database, first create a Project instance with the desired project name
-    then use the ``Project.query`` attribute to query any information needed.
-    For a simple example, lets get all the shots for a Sequence called
-    "TEST_SEQ" in the "TEST_PROJECT"::
-      
-      from oyProjectManager.core.models import Project, Sequence, Shot
-      
-      proj = Project("TEST_PROJECT") # a previously created project
-      all_shots = proj.query(Shot).filter(Shot.sequence.name=="TEST_SEQ").all()
-    
-    that's it.
-    
-    .. note::
-      All the connection to the database is created over an
-      ``sqlalchemy.orm.Session`` instance and the session created by the
-      Project instance and all the other classes retrieve the session from
-      their related Project class.
-    
     **Creating a Project**
     
     All Projects have their own folder structure in the repository. Creating a
@@ -372,7 +333,7 @@ class Project(Base):
         primaryjoin="Sequences.c.project_id==Projects.c.id"
     )
     
-    version_types = relationship("VersionType")
+#    version_types = relationship("VersionType")
     
     def __new__(cls, name=None, code=None):
         """the overridden __new__ method to manage the creation of a Project
@@ -382,55 +343,33 @@ class Project(Base):
         time, may be in another Python session will return the Project instance
         from the database.
         """
-        # get the config
-#        from oyProjectManager import config
-#        conf = config.Config()
-        from oyProjectManager import conf
         
         # check the name argument
         if name:
             # condition the name
             name = Project._condition_name(name)
             
-            repo = Repository()
-            path = repo.server_path
-            fullPath = os.path.join(path, name)
-            
-            metadata_db_name = conf.database_file_name
-            metadata_full_path = os.path.join(
-                fullPath,
-                metadata_db_name
-            ).replace("\\", "/")
-            
             # now get the instance from the db
-            if os.path.exists(metadata_full_path):
-                logger.debug("Project metadata exists in %s" %
-                              metadata_full_path)
+            if db.session is None:
+                # create the session first
+                logger.debug("db.session is None, setting up a new session")
+                db.setup()
+            
+            proj_db = db.session.query(Project).filter_by(name=name).first()
+            
+            if proj_db is not None:
+                # return the database instance
+                logger.debug("found the project in the database")
+                logger.debug("returning the Project instance from the "
+                              "database")
                 
-                logger.debug("creating a new session")
-                session = db.setup(metadata_full_path)
+                # skip the __init__
+                proj_db.__skip_init__ = None
                 
-                proj_db = session.query(Project).filter_by(name=name).first()
+                from oyProjectManager import conf
+                proj_db.conf = conf
                 
-                if proj_db is not None:
-                    # return the database instance
-                    logger.debug("found the project in the database")
-                    logger.debug("returning the Project instance from the "
-                                  "database")
-                    
-                    proj_db.session = session
-                    proj_db.query = session.query
-                    logger.debug("attaching session to the created project "
-                                 "instance, the session id is: %s" % 
-                                 id(session))
-                    
-                    # set the config
-                    proj_db.conf = conf
-                    
-                    # skip the __init__
-                    proj_db.__skip_init__ = None
-                    
-                    return proj_db
+                return proj_db
             else:
                 logger.debug("Project doesn't exists")
         
@@ -444,35 +383,21 @@ class Project(Base):
             return
         
         # get the config
-#        from oyProjectManager import config
-#        self.conf = config.Config()
         from oyProjectManager import conf
         self.conf = conf
         
         self._path = ""
         self._fullpath = ""
         
-        # if the project is not retrieved from the database it doesn't have a
-        # session attribute, so create one
-        
-        if not hasattr(self, "session"):
-            self.session = None
-        
-        if not hasattr(self, "query"):
-            self.query = None
-        
         self.name = name
         self.code = code
         
-        self._repository = Repository()
-        self._path = self._repository.server_path
-        self._fullpath = os.path.join(self.path, self.name)
+#        self._repository = Repository()
+        repository = Repository()
         
-        self.metadata_db_name = self.conf.database_file_name
-        self.metadata_full_path = os.path.join(
-            self.fullpath,
-            self.metadata_db_name
-        ).replace("\\", "/")
+#        self._path = self._repository.server_path
+        self._path = repository.server_path
+        self._fullpath = os.path.join(self.path, self.name)
         
         self.shot_number_prefix = self.conf.shot_number_prefix
         self.shot_number_padding = self.conf.shot_number_padding
@@ -490,13 +415,6 @@ class Project(Base):
         
         self._exists = None
         
-        # initialize the version_type attribute from the config file. This
-        # should only run for a newly created project instance not for a one
-        # get from the db
-        for version_type in self.conf.version_types:
-            version_type["project"] = self
-            self.version_types.append(VersionType(**version_type))
-        
         # and the structure
         self.structure = self.conf.project_structure
     
@@ -505,21 +423,10 @@ class Project(Base):
         """init when loaded from the db
         """
         
-        self._repository = Repository()
-        self.session = None
-        self.query = None
+#        self._repository = Repository()
         
-        # get the config
-#        from oyProjectManager import config
-#        self.conf = config.Config()
         from oyProjectManager import conf
         self.conf = conf
-        
-        self.metadata_db_name = self.conf.database_file_name
-        self.metadata_full_path = os.path.join(
-            self.fullpath,
-            self.metadata_db_name
-        ).replace("\\", "/")
         
         self._sequenceList = []
         
@@ -621,18 +528,16 @@ class Project(Base):
         call the :meth:`~oyProjectManager.core.models.Project.create` method.
         """
         
-        logger.debug("saving project settings to %s" % self.metadata_full_path)
+        logger.debug("saving project settings to %s" % db.database_url)
         
         # create the database
-        if self.session is None:
+        if db.session is None:
             logger.debug("there is no session, creating a new one")
-            self.session = db.setup(self.metadata_full_path)
-            self.query = self.session.query
         
-        if self not in self.session:
-            self.session.add(self)
+        if self not in db.session:
+            db.session.add(self)
         
-        self.session.commit()
+        db.session.commit()
     
     def create(self):
         """Creates the project directory structure and saves the project, thus
@@ -643,7 +548,6 @@ class Project(Base):
         utils.mkdir(self.fullpath)
         
         # create the structure if it is not present
-        
         rendered_structure = jinja2.Template(self.structure).\
                              render(project=self)
         
@@ -659,7 +563,7 @@ class Project(Base):
         """returns True if the project folder exists
         """
         if self._exists is None:
-            self._exists = os.path.exists(self.metadata_full_path)
+            self._exists = os.path.exists(self.fullpath)
         
         return self._exists
     
@@ -744,8 +648,8 @@ class Sequence(Base):
             name = Sequence.condition_name(name)
             
             # now get it from the database
-            seq_db = project.session.query(Sequence).\
-                                     filter_by(name=name).first()
+            seq_db = db.session.query(Sequence).\
+                filter_by(name=name).first()
             
             if seq_db is not None:
                 logger.debug("found the sequence in the database")
@@ -771,10 +675,10 @@ class Sequence(Base):
         logger.debug("initializing the Sequence")
         
         self._project = self._check_project(project)
-        logger.debug("id(project.session): %s" % id(self.project.session))
+        logger.debug("id(project.session): %s" % id(db.session))
         
-        self.session = self.project.session
-        logger.debug("id(sequence.session): %s" % id(self.session))
+#        self.session = self.project.session
+#        logger.debug("id(sequence.session): %s" % id(self.session))
         
         self.name = name
         
@@ -789,7 +693,7 @@ class Sequence(Base):
     def __init_on_load__(self):
         """method that will run for database loaded instances
         """
-        self.session = self.project.session
+#        self.session = self.project.session
     
 #    def create(self):
 #        """creates the sequence structure by calling self.save() and then a
@@ -815,10 +719,10 @@ class Sequence(Base):
         # because a Sequence can not be created
         # without an already created Project instance
         
-        if self not in self.session:
-            self.session.add(self)
+        if self not in db.session:
+            db.session.add(self)
         
-        self.session.commit()
+        db.session.commit()
     
     def addShots(self, shots):
         """adds new shots to the sequence
@@ -969,9 +873,9 @@ class Sequence(Base):
                          "Project instance")
             
             project = Project(project)
-            logger.debug(str(project))
-            logger.debug(type(project))
-            logger.debug("project.session: %s" % str(project.session))
+#            logger.debug(str(project))
+#            logger.debug(type(project))
+#            logger.debug("project.session: %s" % str(db.session))
         
         if not isinstance(project, Project):
             raise TypeError("The project should be and instance of "
@@ -1254,11 +1158,11 @@ class Shot(VersionableBase):
                              "supply something like 1, 2, 3A, 10B")
 
         # now check if the number is present for the current Sequence
-        shot_instance = self.sequence.session.query(Shot).\
-        filter(Shot.number==number).\
-        filter(Shot.sequence_id==self.sequence.id).\
-        first()
-
+        shot_instance = db.session.query(Shot).\
+            filter(Shot.number==number).\
+            filter(Shot.sequence_id==self.sequence.id).\
+            first()
+        
         if shot_instance is not None:
             raise ValueError("Shot.number already exists for the given "
                              "sequence please give a unique shot code")
@@ -1269,10 +1173,10 @@ class Shot(VersionableBase):
         """commits the shot to the database
         """
         logger.debug("saving shot to the database")
-        if self not in self.sequence.session:
-            self.sequence.session.add(self)
+        if self not in db.session:
+            db.session.add(self)
         
-        self.sequence.session.commit()
+        db.session.commit()
 
     @synonym_for("_code")
     @property
@@ -1484,13 +1388,12 @@ class Asset(VersionableBase):
     def save(self):
         """saves the asset to the related projects database
         """
-        session = self.project.session
-        if self not in session:
+        if self not in db.session:
             logger.debug("adding %s to the session" % self)
-            session.add(self)
+            db.session.add(self)
         
         logger.debug("saving the asset %s" % self)
-        session.commit()
+        db.session.commit()
 
 class Version(Base):
     """Holds versions of assets or shots.
@@ -1646,16 +1549,14 @@ class Version(Base):
         backref="referenced_by"
     )
 
-    def __init__(
-    self,
-    version_of,
-    base_name,
-    type,
-    created_by,
-    take_name="MAIN",
-    version_number=1,
-    note="",
-    ):
+    def __init__(self,
+                 version_of,
+                 base_name,
+                 type,
+                 created_by,
+                 take_name="MAIN",
+                 version_number=1,
+                 note=""):
         self._version_of = version_of
         self._type = type
         # TODO: base_name should be get from VersionableBase.name
@@ -1843,16 +1744,13 @@ class Version(Base):
         database.
         """
 
-        a_version = self.version_of.project.session.\
-        query(
-            Version
-        ).filter(
-            Version.base_name == self.base_name
-        ).filter(
-            Version.take_name == self.take_name
-        ).order_by(
-            Version.version_number.desc() # sort descending
-        ).first()
+        a_version = db.session.\
+            query(Version).\
+            filter(Version.base_name == self.base_name)\
+            .filter(Version.take_name == self.take_name)\
+            .order_by(Version.version_number.desc())\
+            .first()
+        
         if a_version:
             max_version = a_version.version_number
         else:
@@ -1897,13 +1795,9 @@ class Version(Base):
     def save(self):
         """commits the changes to the database
         """
-
-        session = self.version_of.project.session
-
-        if self not in session:
-            session.add(self)
-
-        session.commit()
+        if self not in db.session:
+            db.session.add(self)
+        db.session.commit()
 
     @validates("note")
     def _validate_note(self, key, note):
@@ -1992,13 +1886,6 @@ class VersionType(Base):
     For previously created projects, where a new type is needed to be added you
     can still create a new VersionType instance and save it to the Projects'
     database.
-    
-    :param project: A VersionType instance can not be created without defining
-      which :class:`~oyProjectManager.core.models.Project` it belongs to. So it
-      can not be None or anything other than a
-      :class:`oyProjectManager.core.models.Project` instance.
-    
-    :type project: :class:`~oyProjectManager.core.models.Project`
     
     :param str name: The name of this template. The name is not formatted in
       anyway. It can not be skipped or it can not be None or it can not be an
@@ -2130,6 +2017,12 @@ class VersionType(Base):
       not be skipped.
     
     """
+#    :param project: A VersionType instance can not be created without defining
+#      which :class:`~oyProjectManager.core.models.Project` it belongs to. So it
+#      can not be None or anything other than a
+#      :class:`oyProjectManager.core.models.Project` instance.
+#    
+#    :type project: :class:`~oyProjectManager.core.models.Project`
 
     # TODO: add a link to the "config.py" in the documentation to let the user
     # learn about configuration of oyProjectManager
@@ -2137,8 +2030,8 @@ class VersionType(Base):
     __tablename__ = "VersionTypes"
     id = Column(Integer, primary_key=True)
 
-    project_id = Column(Integer, ForeignKey("Projects.id"))
-    _project = relationship("Project")
+#    project_id = Column(Integer, ForeignKey("Projects.id"))
+#    _project = relationship("Project")
 
     name = Column(String, unique=True)
     code = Column(String, unique=True)
@@ -2198,7 +2091,6 @@ class VersionType(Base):
     )
 
     def __init__(self,
-                 project,
                  name,
                  code,
                  path,
@@ -2208,7 +2100,7 @@ class VersionType(Base):
                  type_for,
                  extra_folders=None
     ):
-        self._project = self._check_project(project)
+#        self._project = self._check_project(project)
         self.name = name
         self.code = code
         self.filename = filename
@@ -2216,9 +2108,19 @@ class VersionType(Base):
         self.output_path = output_path
         self.environments = environments
         self.extra_folders = extra_folders
-        self._project = project
+#        self._project = project
         self._type_for = type_for
-
+    
+    def __eq__(self, other):
+        """equality operator
+        """
+        return isinstance(other, VersionType) and self.name == other.name
+    
+    def __ne__(self, other):
+        """inequality operator
+        """
+        return not self.__eq__(other)
+    
     @validates("name")
     def _validate_name(self, key, name):
         """validates the given name value
@@ -2324,42 +2226,41 @@ class VersionType(Base):
 
         return output_path
 
-    @classmethod
-    def _check_project(cls, project):
-        """A convenience function which checks the given project argument value
-        
-        It is a ``classmethod``, so can be called both in ``__new__`` and other
-        methods like ``_validate_project``.
-        
-        Checks the given project for a couple of conditions, like being None or
-        not being an Project instance etc.
-        """
+#    @classmethod
+#    def _check_project(cls, project):
+#        """A convenience function which checks the given project argument value
+#        
+#        It is a ``classmethod``, so can be called both in ``__new__`` and other
+#        methods like ``_validate_project``.
+#        
+#        Checks the given project for a couple of conditions, like being None or
+#        not being an Project instance etc.
+#        """
+#
+#        if project is None:
+#            raise TypeError("VersionType.project can not be None")
+#
+#        if not isinstance(project, Project):
+#            raise TypeError("The project should be and instance of "
+#                            "oyProjectManager.core.models.Project")
+#
+#        return project
 
-        if project is None:
-            raise TypeError("VersionType.project can not be None")
-
-        if not isinstance(project, Project):
-            raise TypeError("The project should be and instance of "
-                            "oyProjectManager.core.models.Project")
-
-        return project
-
-    @synonym_for("_project")
-    @property
-    def project(self):
-        """A read-only attribute to return the related Project of this Sequence
-        instance
-        """
-
-        return self._project
+#    @synonym_for("_project")
+#    @property
+#    def project(self):
+#        """A read-only attribute to return the related Project of this Sequence
+#        instance
+#        """
+#
+#        return self._project
 
     def save(self):
         """Saves the current VersionType to the database
         """
-        session = self.project.session
-        if self not in self.project.session:
-            session.add(self)
-        session.commit()
+        if self not in db.session:
+            db.session.add(self)
+        db.session.commit()
 
     @validates("_type_for")
     def _validate_type_for(self, key, type_for):

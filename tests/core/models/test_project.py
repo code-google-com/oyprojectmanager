@@ -17,9 +17,7 @@ conf = config.Config()
 class Project_DB_Tester(unittest.TestCase):
     """Tests the design of the Projects after v0.2.0
     """
-
-
-    #----------------------------------------------------------------------
+    
     def setUp(self):
 
         # create the environment variable and point it to a temp directory
@@ -32,6 +30,10 @@ class Project_DB_Tester(unittest.TestCase):
     def tearDown(self):
         """clean up the test
         """
+        
+        # set the db.session to None
+        db.session = None
+        
         # delete the temp folders
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
@@ -47,15 +49,12 @@ class Project_DB_Tester(unittest.TestCase):
     def test_project_creation_for_new_project(self):
         """testing if the project creation occurs without any problem
         """
-
+        
         new_proj = Project("TEST_PROJECT")
         new_proj.create()
-
+        
         # now check if the folder is created
         self.assertTrue(os.path.exists(new_proj.fullpath))
-
-        # and there is a .metadata.db file in that path
-        self.assertTrue(os.path.exists(new_proj.metadata_full_path))
 
     def test_project_stored_and_retrieved_correctly(self):
         """testing if the project is stored and retrieved correctly
@@ -104,11 +103,11 @@ class Project_DB_Tester(unittest.TestCase):
         # we need to create a new project and a sequence
         new_proj = Project("TEST_PROJECT")
         new_proj.create()
-
+        
         new_seq = Sequence(new_proj, "TEST_SEQ")
         new_seq.save()
         new_seq.create()
-
+        
         db.session.add(new_proj)
         db.session.commit()
 
@@ -212,8 +211,12 @@ class ProjectTester(unittest.TestCase):
         ]
 
     def tearDown(self):
-        """remove the temp folders
+        """cleanup the test
         """
+        
+        # set the db.session to None
+        db.session = None
+        
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
@@ -382,7 +385,7 @@ class ProjectTester(unittest.TestCase):
         """
         new_proj = Project("TEST_PROJECT")
         new_proj.create()
-
+        
         self.assertEqual(new_proj.shot_number_prefix, conf.shot_number_prefix)
 
     def test_shot_number_prefix_attribute_initialization_from_DB(self):
@@ -411,62 +414,63 @@ class ProjectTester(unittest.TestCase):
 
         for version_type in conf.version_types:
             version_type_name = version_type["name"]
-
             vtype_from_proj =\
-            new_proj.query(VersionType).\
-            filter_by(name=version_type_name).first()
+                db.query(VersionType).\
+                filter_by(name=version_type_name).\
+                first()
+            
             self.assertIsNot(vtype_from_proj, None)
 
-    def test_version_types_attribute_initialization_for_a_Project_created_from_db(self):
-        """testing if the version_types attribute will be initialized correctly
-        for a previously created Project instance
-        """
-
-        new_proj = Project("TEST_PROJECT")
-        new_proj.create()
-
-        # remove all the version_types from the project
-        for vtype in new_proj.version_types:
-            new_proj.session.delete(vtype)
-        
-        new_proj.save()
-
-        # now check if all the version types are removed from the db
-        self.assertEqual(new_proj.query(VersionType).all(), [])
-
-        # now add a new asset type with known name
-        vtype = VersionType(
-            project=new_proj,
-            name="Test Version Type",
-            code="TVT",
-            path="this is the path",
-            filename="this is the filename",
-            output_path="this is the output path",
-            extra_folders="this is the extra folder",
-            environments=["RANDOM ENV NAME1"],
-            type_for="Asset",
-            )
-
-        new_proj.version_types.append(vtype)
-        new_proj.save()
-
-        # now delete the project and create it again
-        del new_proj
-
-        new_proj = Project("TEST_PROJECT")
-
-        # first check if there is only one version type
-        self.assertEqual(len(new_proj.version_types), 1)
-
-        # now check attributes
-        vtype_db = new_proj.version_types[0]
-        self.assertEqual(vtype.name, vtype_db.name)
-        self.assertEqual(vtype.code, vtype_db.code)
-        self.assertEqual(vtype.filename, vtype_db.filename)
-        self.assertEqual(vtype.path, vtype_db.path)
-        self.assertEqual(vtype.output_path,vtype_db.output_path)
-        self.assertEqual(vtype.extra_folders, vtype_db.extra_folders)
-        self.assertEqual(vtype.environments, vtype_db.environments)
+#    def test_version_types_attribute_initialization_for_a_Project_created_from_db(self):
+#        """testing if the version_types attribute will be initialized correctly
+#        for a previously created Project instance
+#        """
+#
+#        new_proj = Project("TEST_PROJECT")
+#        new_proj.create()
+#
+#        # remove all the version_types from the project
+#        for vtype in new_proj.version_types:
+#            db.session.delete(vtype)
+#        
+#        new_proj.save()
+#
+#        # now check if all the version types are removed from the db
+#        self.assertEqual(db.query(VersionType).all(), [])
+#
+#        # now add a new asset type with known name
+#        vtype = VersionType(
+#            project=new_proj,
+#            name="Test Version Type",
+#            code="TVT",
+#            path="this is the path",
+#            filename="this is the filename",
+#            output_path="this is the output path",
+#            extra_folders="this is the extra folder",
+#            environments=["RANDOM ENV NAME1"],
+#            type_for="Asset",
+#            )
+#
+#        new_proj.version_types.append(vtype)
+#        new_proj.save()
+#
+#        # now delete the project and create it again
+#        del new_proj
+#
+#        new_proj = Project("TEST_PROJECT")
+#
+#        # first check if there is only one version type
+#        self.assertEqual(len(new_proj.version_types), 1)
+#
+#        # now check attributes
+#        vtype_db = new_proj.version_types[0]
+#        self.assertEqual(vtype.name, vtype_db.name)
+#        self.assertEqual(vtype.code, vtype_db.code)
+#        self.assertEqual(vtype.filename, vtype_db.filename)
+#        self.assertEqual(vtype.path, vtype_db.path)
+#        self.assertEqual(vtype.output_path,vtype_db.output_path)
+#        self.assertEqual(vtype.extra_folders, vtype_db.extra_folders)
+#        self.assertEqual(vtype.environments, vtype_db.environments)
 
     def test_code_argument_is_skipped(self):
         """testing if the code attribute will be generated from the name

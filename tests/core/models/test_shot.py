@@ -4,7 +4,7 @@ import shutil
 import tempfile
 import unittest
 from sqlalchemy.exc import IntegrityError
-from oyProjectManager import config
+from oyProjectManager import config, db
 from oyProjectManager.core.models import Project, Sequence, Shot
 
 conf = config.Config()
@@ -56,11 +56,12 @@ class ShotTester(unittest.TestCase):
             ("45asf78wr", "45A"),
             ("'^+'afsd2342'^+'asdFGH", "2342A"),
         ]
-        
     
     def tearDown(self):
-        """remove the temp folders
+        """cleanup the test
         """
+        # set the db.session to None
+        db.session = None
         
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
@@ -137,8 +138,8 @@ class ShotTester(unittest.TestCase):
         self.kwargs["number"] = 101
         new_shot1 = Shot(**self.kwargs)
         new_shot2 = Shot(**self.kwargs)
-        new_shot2.sequence.session.add_all([new_shot1, new_shot2])
-        self.assertRaises(IntegrityError, new_shot2.sequence.session.commit)
+        db.session.add_all([new_shot1, new_shot2])
+        self.assertRaises(IntegrityError, db.session.commit)
     
     def test_number_is_already_defined_in_the_sequence_for_an_already_created_one(self):
         """testing if a ValueError will be raised when the number is already
@@ -278,7 +279,6 @@ class ShotTester(unittest.TestCase):
         """
         self.test_shot.start_frame = None
         self.assertEqual(self.test_shot.start_frame, 1)
-        
     
     def test_start_frame_argument_is_not_integer(self):
         """testing if a TypeError will be raised when the start_frame argument
@@ -447,7 +447,7 @@ class ShotTester(unittest.TestCase):
         new_shot.save()
         
         # now query the database if it is created and read correctly
-        self.assertEqual(new_shot, new_proj.query(Shot).first())
+        self.assertEqual(new_shot, db.query(Shot).first())
         
         # now update it
         new_shot.start_frame = 100
@@ -456,18 +456,18 @@ class ShotTester(unittest.TestCase):
 
         self.assertEqual(
             new_shot.start_frame,
-            new_proj.query(Shot).first().start_frame
+            db.query(Shot).first().start_frame
         )
         self.assertEqual(
             new_shot.end_frame,
-            new_proj.query(Shot).first().end_frame
+            db.query(Shot).first().end_frame
         )
         
         # now delete it
-        new_proj.session.delete(new_shot)
-        new_proj.session.commit()
+        db.session.delete(new_shot)
+        db.session.commit()
         
-        self.assertEqual(new_proj.query(Shot).all(), [])
+        self.assertEqual(db.query(Shot).all(), [])
     
     def test_equality_of_shots(self):
         """testing if the equality operator is working properly
