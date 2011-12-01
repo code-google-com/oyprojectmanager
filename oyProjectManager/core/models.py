@@ -1570,6 +1570,20 @@ class Version(Base):
         self._filename = jinja2.Template(self.type.filename).render(**kwargs)
         self._path = jinja2.Template(self.type.path).render(**kwargs)
     
+    def __eq__(self, other):
+        """the equality operator
+        """
+        return isinstance(other, Version) and \
+               self.base_name==other.base_name and \
+               self.version_of==other.version_of and \
+               self.type==other.type and self.take_name==other.take_name and \
+               self.version_number==other.version_number
+    
+    def __ne__(self, other):
+        """the not equal operator
+        """
+        return not self.__eq__(other)
+    
     @validates("_version_of")
     def _validate_version_of(self, key, version_of):
         """validates the given version of value

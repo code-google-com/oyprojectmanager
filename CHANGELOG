@@ -1,16 +1,31 @@
 Version History
 ===============
 
-0.2.0
------
+0.2.0a2
+-------
 
-* The system now uses SQLAlchemy Declarative in its data models. And a central
-  database whose url can be defined by the studio. This database governed to
-  hold all information and relation about the data for all the Projects.
-  The system doesn't scan the file system anymore, so it is way more faster
-  than the previous versions. There are a lot of interface changes in the
-  classes:
-  
+* Because every project had its own SQLite3 database it was hard to manage the
+  same User in different projects, for that reason the system now uses a
+  central database whose placement (if SQLite3) is defined by the config.py.
+  Also, the system is able to use different databases than SQLite3. This latest
+  improvement added another level of flexibility to the system.
+
+* The ``assetManager.py`` is renamed to ``version_creator.py`` to reflect its
+  functionality more clearly. And the interface is redesigned from scratch and
+  programmed with TDD practices.
+
+* Because there is a bug in the ``Beaker`` package, reintroduced the
+  :mod:`oyProjectManager.utils.cache` module.
+
+0.2.0a1
+-------
+
+* The system now uses SQLAlchemy Declarative in its data models. And a new
+  settings file located in the Project root with the name ``.metadata.db`` is
+  governed to hold the related data for that Project. The system doesn't scan
+  the file system anymore but instead uses this ``.metadata.db`` SQLite3 file.
+  There are a lot of interface changes in the classes: 
+
   * The Project.sequenceNames and Project.updateSequenceList methods are no
     longer needed and they don't exist anymore.
   
@@ -176,10 +191,3 @@ Version History
   * ``settings_dir_path`` (no settings dir)
   * ``time_units`` (no time unit concept, use
     :attr:`~oyProjectManager.core.models.Project.fps` instead)
-
-* The ``assetManager.py`` is renamed to ``version_creator.py`` to reflect its
-  functionality more clearly. And the interface is redesigned from scratch and
-  programmed with TDD practices.
-
-* Because there is a bug in the ``Beaker`` package, reintroduced the
-  :mod:`oyProjectManager.utils.cache` module.

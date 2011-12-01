@@ -28,16 +28,35 @@ class TestEnvironment(EnvironmentBase):
     method has been called
     """
     
-    def export_as(self, version):
-        """the test method for the original export_as method
-        
-        :param version: A :class:`~oyProjectManager.core.models.Version`
-            instance
-        """
-        
-        raise ExportAs
+    test_data = {
+        "export_as": {"call count": 0, "data": None},
+        "save_as": {"call count": 0, "data": None},
+        "open_": {"call count": 0, "data": None},
+        "reference": {"call count": 0, "data": None},
+        "import_": {"call count": 0, "data": None},
+    }
     
-    pass
+    def export_as(self, version):
+        self.test_data["export_as"]["call count"] += 1
+        self.test_data["export_as"]["data"] = version
+
+    def save_as(self, version):
+        self.test_data["save_as"]["call count"] += 1
+        self.test_data["save_as"]["data"] = version
+    
+    def open_(self, version):
+        self.test_data["open_"]["call count"] += 1
+        self.test_data["open_"]["data"] = version
+    
+    def reference(self, version):
+        self.test_data["reference"]["call count"] += 1
+        self.test_data["reference"]["data"] = version
+    
+    def import_(self, version):
+        self.test_data["import_"]["call count"] += 1
+        self.test_data["import_"]["data"] = version
+    
+        
 
 class VersionCreatorTester(unittest.TestCase):
     """tests the oyProjectManager.ui.version_creator class
@@ -2892,7 +2911,9 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_environment = TestEnvironment(name="TESTENV")
         
         # the dialog
-        self.test_dialog = version_creator.MainDialog_New()
+        self.test_dialog = \
+            version_creator.MainDialog_New(self.test_environment)
+        
 #        self.test_dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -3001,29 +3022,266 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
             self.test_user
         )
     
-    def test_get_user_returns_a_new_user_from_config_if_the_project_doesnt_have_it(self):
-        """testing if the get_user method returns a new User instance from the
-        oyProjectManager.config if the given user is not anyhow related to the
-        current project
-        """
-        self.fail("test is not implemented yet")
-    
     def test_get_old_version_returns_correct_Version_instance(self):
-        """testing if the get_old_version method returns the correct version
+        """testing if the get_previous_version method returns the correct version
         from the previous_versions_tableWidget
         """
-        self.fail("test is not implemented yet")
+        
+        # set to the first project
+        self.test_dialog.projects_comboBox.setCurrentIndex(0)
+        
+        # set to the assets tab
+        self.test_dialog.tabWidget.setCurrentIndex(0)
+        
+        # set to the first asset
+        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        
+        # set to the first version type
+        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        
+        # set to the first take name
+        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        
+        # get the first version from the previous_versions_tableWidget
+        version = self.test_dialog.previous_versions_tableWidget.versions[0]
+        
+        # get it by using the UI
+        version_from_UI = self.test_dialog.get_previous_version()
+        
+        # check if they are equal
+        self.assertTrue(version, version_from_UI)
     
     def test_export_as_pushButton_calls_environments_export_as_method(self):
         """testing if the export_as_pushButton calls the environments export_as
-        method with the correct version given
+        method with the correct version given  to it
         """
         
+        # set to the first project
+        self.test_dialog.projects_comboBox.setCurrentIndex(0)
+        
+        # set to the Asset tab
+        self.test_dialog.tabWidget.setCurrentIndex(0)
+        
+        # set to the first Asset
+        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        
+        # set to the first version type
+        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        
+        # set to the first take name
+        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        
+        # set the note to a known one
+        test_note = "test note"
+        self.test_dialog.note_textEdit.setText(test_note)
+        
+        # check if the run_count of export_as is 0
+        self.assertEqual(
+            self.test_environment.test_data["export_as"]["call count"], 0)
+        self.assertIs(
+            self.test_environment.test_data["export_as"]["data"], None)
+        
         # hit to the export_as_pushButton
-        self.assertRaises(
-            ExportAs,
-            QTest.mouseClick,
+        QTest.mouseClick(
             self.test_dialog.export_as_pushButton,
             QtCore.Qt.LeftButton
         )
+        
+        # check if the run_count of export_as is raised to 1
+        self.assertEqual(
+            self.test_environment.test_data["export_as"]["call count"], 1)
+        
+        version_instance = self.test_environment.test_data["export_as"]["data"]
+        
+        self.assertIsInstance(version_instance, Version)
+        self.assertEqual(version_instance.version_of, self.test_asset1)
+        self.assertEqual(version_instance.type.name,
+                         self.test_dialog.version_types_comboBox.currentText())
+        self.assertEqual(version_instance.take_name,
+                         self.test_dialog.takes_comboBox.currentText())
+        self.assertEqual(version_instance.note, test_note)
     
+    def test_save_as_pushButton_calls_environments_save_as_method(self):
+        """testing if the save_as_pushButton calls the environments save_as
+        method with the correct version given  to it
+        """
+        
+        # set to the first project
+        self.test_dialog.projects_comboBox.setCurrentIndex(0)
+        
+        # set to the Asset tab
+        self.test_dialog.tabWidget.setCurrentIndex(0)
+        
+        # set to the first Asset
+        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        
+        # set to the first version type
+        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        
+        # set to the first take name
+        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        
+        # set the note to a known one
+        test_note = "test note"
+        self.test_dialog.note_textEdit.setText(test_note)
+        
+        # check if the run_count of save_as is 0
+        self.assertEqual(
+            self.test_environment.test_data["save_as"]["call count"], 0)
+        self.assertIs(
+            self.test_environment.test_data["save_as"]["data"], None)
+        
+        # hit to the export_as_pushButton
+        QTest.mouseClick(
+            self.test_dialog.save_as_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the run_count of save_as is raised to 1
+        self.assertEqual(
+            self.test_environment.test_data["save_as"]["call count"], 1)
+        
+        version_instance = self.test_environment.test_data["save_as"]["data"]
+        
+        self.assertIsInstance(version_instance, Version)
+        self.assertEqual(version_instance.version_of, self.test_asset1)
+        self.assertEqual(version_instance.type.name,
+                         self.test_dialog.version_types_comboBox.currentText())
+        self.assertEqual(version_instance.take_name,
+                         self.test_dialog.takes_comboBox.currentText())
+        self.assertEqual(version_instance.note, test_note)
+    
+    def test_open_pushButton_calls_environments_open_method(self):
+        """testing if the open_pushButton calls the environments open method
+        with the correct version given to it
+        """
+        
+        # set to the first project
+        self.test_dialog.projects_comboBox.setCurrentIndex(0)
+        
+        # set to the Asset tab
+        self.test_dialog.tabWidget.setCurrentIndex(0)
+        
+        # set to the first Asset
+        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        
+        # set to the first version type
+        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        
+        # set to the first take name
+        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        
+        # check if the run_count of open_ is 0
+        self.assertEqual(
+            self.test_environment.test_data["open_"]["call count"], 0)
+        self.assertIs(
+            self.test_environment.test_data["open_"]["data"], None)
+        
+        # hit to the open_pushButton
+        QTest.mouseClick(
+            self.test_dialog.open_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the run_count of open_ is raised to 1
+        self.assertEqual(
+            self.test_environment.test_data["open_"]["call count"], 1)
+        
+        version_instance = self.test_environment.test_data["open_"]["data"]
+        
+        self.assertIsInstance(version_instance, Version)
+        self.assertEqual(version_instance.version_of, self.test_asset1)
+        self.assertEqual(version_instance.type.name,
+                         self.test_dialog.version_types_comboBox.currentText())
+        self.assertEqual(version_instance.take_name,
+                         self.test_dialog.takes_comboBox.currentText())
+    
+    def test_reference_pushButton_calls_environments_reference_method(self):
+        """testing if the reference_pushButton calls the environments open method
+        with the correct version given to it
+        """
+        
+        # set to the first project
+        self.test_dialog.projects_comboBox.setCurrentIndex(0)
+        
+        # set to the Asset tab
+        self.test_dialog.tabWidget.setCurrentIndex(0)
+        
+        # set to the first Asset
+        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        
+        # set to the first version type
+        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        
+        # set to the first take name
+        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        
+        # check if the run_count of reference is 0
+        self.assertEqual(
+            self.test_environment.test_data["reference"]["call count"], 0)
+        self.assertIs(
+            self.test_environment.test_data["reference"]["data"], None)
+        
+        # hit to the reference_pushButton
+        QTest.mouseClick(
+            self.test_dialog.reference_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the run_count of reference is raised to 1
+        self.assertEqual(
+            self.test_environment.test_data["reference"]["call count"], 1)
+        
+        version_instance = self.test_environment.test_data["reference"]["data"]
+        
+        self.assertIsInstance(version_instance, Version)
+        self.assertEqual(version_instance.version_of, self.test_asset1)
+        self.assertEqual(version_instance.type.name,
+                         self.test_dialog.version_types_comboBox.currentText())
+        self.assertEqual(version_instance.take_name,
+                         self.test_dialog.takes_comboBox.currentText())
+    
+    def test_import_pushButton_calls_environments_reference_method(self):
+        """testing if the import_pushButton calls the environments open method
+        with the correct version given to it
+        """
+        
+        # set to the first project
+        self.test_dialog.projects_comboBox.setCurrentIndex(0)
+        
+        # set to the Asset tab
+        self.test_dialog.tabWidget.setCurrentIndex(0)
+        
+        # set to the first Asset
+        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        
+        # set to the first version type
+        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        
+        # set to the first take name
+        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        
+        # check if the run_count of import_ is 0
+        self.assertEqual(
+            self.test_environment.test_data["import_"]["call count"], 0)
+        self.assertIs(
+            self.test_environment.test_data["import_"]["data"], None)
+        
+        # hit to the import_pushButton
+        QTest.mouseClick(
+            self.test_dialog.import_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the run_count of import is raised to 1
+        self.assertEqual(
+            self.test_environment.test_data["import_"]["call count"], 1)
+        
+        version_instance = self.test_environment.test_data["import_"]["data"]
+        
+        self.assertIsInstance(version_instance, Version)
+        self.assertEqual(version_instance.version_of, self.test_asset1)
+        self.assertEqual(version_instance.type.name,
+                         self.test_dialog.version_types_comboBox.currentText())
+        self.assertEqual(version_instance.take_name,
+                         self.test_dialog.takes_comboBox.currentText())

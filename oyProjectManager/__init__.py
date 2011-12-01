@@ -31,7 +31,7 @@ Another advantage of oyProjectManager is, it gives a framework to the project
 manager, to edit all the project and sequences with very simple Python scripts.
 """
 
-__version__ = "0.2.0a1"
+__version__ = "0.2.0a2"
 
 
 import logging

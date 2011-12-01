@@ -731,3 +731,79 @@ class VersionTester(unittest.TestCase):
         self.assertRaises(CircularDependencyError,
             vers1.references.append, vers2
         )
+    
+    def test__eq__operator(self):
+        """testing the equality operator
+        """
+        
+        vers1 = Version(**self.kwargs)
+        vers2 = Version(**self.kwargs)
+        
+        # different version_of
+        self.kwargs["version_of"] = Shot(self.test_sequence, 2)
+        vers3 = Version(**self.kwargs)
+        
+        # different base_name
+        self.kwargs["base_name"] = "AnotherBaseName"
+        vers4 = Version(**self.kwargs)
+        
+        # different version_type
+        
+        new_versionType = VersionType(
+            name="Test Model",
+            code="TMODEL",
+            path="SHOTS/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_\
+{{type.code}}_v{{'%03d'|format(version.version_number)}}_\
+{{version.created_by.initials}}",
+            output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/\
+{{version.take_name}}",
+            environments=["MAYA", "HOUDINI"],
+            type_for="Shot"
+        )
+        
+        self.kwargs["type"] = new_versionType
+        vers5 = Version(**self.kwargs)
+        
+        self.assertTrue(vers1==vers2)
+        self.assertFalse(vers1==vers3)
+        self.assertFalse(vers3==vers4)
+        self.assertFalse(vers4==vers5)
+    
+    def test__ne__operator(self):
+        """testing the not equal operator
+        """
+        
+        vers1 = Version(**self.kwargs)
+        vers2 = Version(**self.kwargs)
+        
+        # different version_of
+        self.kwargs["version_of"] = Shot(self.test_sequence, 2)
+        vers3 = Version(**self.kwargs)
+        
+        # different base_name
+        self.kwargs["base_name"] = "AnotherBaseName"
+        vers4 = Version(**self.kwargs)
+        
+        # different version_type
+        
+        new_versionType = VersionType(
+            name="Test Model",
+            code="TMODEL",
+            path="SHOTS/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_\
+{{type.code}}_v{{'%03d'|format(version.version_number)}}_\
+{{version.created_by.initials}}",
+            output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/\
+{{version.take_name}}",
+            environments=["MAYA", "HOUDINI"],
+            type_for="Shot"
+        )
+        
+        self.kwargs["type"] = new_versionType
+        vers5 = Version(**self.kwargs)
+        
+        self.assertFalse(vers1!=vers2)
+        self.assertTrue(vers1!=vers3)
+        self.assertTrue(vers3!=vers4)
+        self.assertTrue(vers4!=vers5)

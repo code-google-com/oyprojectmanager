@@ -1662,9 +1662,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.sequences_comboBox.sequences = []
         self.shots_listWidget.shots = []
         self.input_dialog = None
+        self.previous_versions_tableWidget.versions = []
         
-        # set previous_version_tableWidget_labels
-        self.previous_versions_tableWidget_labels = [
+        # set previous_version_tableWidget.labels
+        self.previous_versions_tableWidget.labels = [
 #            "Name",
 #            "Type",
 #            "Take",
@@ -1816,6 +1817,33 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.export_as_pushButton_clicked
         )
         
+        # save_as
+        QtCore.QObject.connect(
+            self.save_as_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.save_as_pushButton_clicked
+        )
+        
+        # open
+        QtCore.QObject.connect(
+            self.open_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.open_pushButton_clicked
+        )
+        
+        # reference
+        QtCore.QObject.connect(
+            self.reference_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.reference_pushButton_clicked
+        )
+        
+        # import
+        QtCore.QObject.connect(
+            self.import_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.import_pushButton_clicked
+        )
         
         logger.debug("finished setting up interface signals")
     
@@ -2143,7 +2171,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.previous_versions_tableWidget.setRowCount(len(versions))
         
         self.previous_versions_tableWidget.setHorizontalHeaderLabels(
-            self.previous_versions_tableWidget_labels
+            self.previous_versions_tableWidget.labels
         )
         
         # update the previous versions list
@@ -2224,7 +2252,9 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
 #        self.previous_versions_tableWidget.resizeColumnToContents(5)
 #        self.previous_versions_tableWidget.resizeColumnToContents(6)
 #        self.previous_versions_tableWidget.resizeColumnToContents(7)
-        pass
+        
+        # add the versions to the widget
+        self.previous_versions_tableWidget.versions = versions
     
     def asset_description_edit_pushButton_clicked(self):
         """checks the asset_description_edit_pushButton
@@ -2625,6 +2655,16 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         return version
     
+    def get_previous_version(self):
+        """returns the :class:`~oyProjectManager.core.models.Version` instance
+        from the UI by looking at the previous_versions_tableWidget
+        """
+        
+        index = self.previous_versions_tableWidget.currentRow()
+        version = self.previous_versions_tableWidget.versions[index]
+        
+        return version
+    
     def get_user(self):
         """returns the current User instance from the interface by looking at
         the name of the user from the users comboBox
@@ -2632,27 +2672,6 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         :return: :class:`~oyProjectManager.core.models.User` instance
         """
         
-#        user_name = self.users_comboBox.currentText()
-#        project = self.get_project()
-#        
-#        user = db.query(User).filter_by(name=user_name).first()
-#        
-#        if user is not None:
-#            # we found the user in the current project
-#            # return it
-#            return user
-#        else:
-#            # sorry but the user is not in the current project
-#            # return it from the config
-#            for user in conf.users:
-#                print user.name
-#                if user.name == user_name:
-#                    return user
-#        
-#        # still no user, fuck, somebody hacked the UI
-#        raise RuntimeError("No user with name %s, what the fuck is going on! "
-#                           "(in no circumstance this should not run by the "
-#                           "way!)" % user_name)
         index = self.users_comboBox.currentIndex()
         return self.users_comboBox.users[index]
     
@@ -2660,11 +2679,64 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """runs when the export_as_pushButton clicked
         """
         
+        logger.debug("exporting the data as a new version")
+        
         # get the new version
         new_version = self.get_new_version()
         
         # call the environments export_as method
-        
         if self.environment is not None:
             self.environment.export_as(new_version)
+    
+    def save_as_pushButton_clicked(self):
+        """runs when the save_as_pushButton clicked
+        """
+        
+        logger.debug("saving the data as a new version")
+        
+        # get the new version
+        new_version = self.get_new_version()
+        
+        # call the environments save_as method
+        if self.environment is not None:
+            self.environment.save_as(new_version)
+    
+    def open_pushButton_clicked(self):
+        """runs when the open_pushButton clicked
+        """
+        
+        # get the new version
+        old_version = self.get_previous_version()
+
+        logger.debug("opening version %s" % old_version)
+        
+        # call the environments open_ method
+        if self.environment is not None:
+            self.environment.open_(old_version)
+    
+    def reference_pushButton_clicked(self):
+        """runs when the reference_pushButton clicked
+        """
+        
+        # get the new version
+        previous_version = self.get_previous_version()
+        
+        logger.debug("referencing version %s" % previous_version)
+        
+        # call the environments reference method
+        if self.environment is not None:
+            self.environment.reference(previous_version)
+    
+    def import_pushButton_clicked(self):
+        """runs when the import_pushButton clicked
+        """
+        
+        # get the previous version
+        previous_version = self.get_previous_version()
+        
+        logger.debug("importing version %s" % previous_version)
+        
+        # call the environments import_ method
+        if self.environment is not None:
+            self.environment.import_(previous_version)
     
