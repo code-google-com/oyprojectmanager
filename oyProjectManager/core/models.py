@@ -295,6 +295,9 @@ class Project(Base):
     """
     
     __tablename__ = "Projects"
+    __table_args__  = (
+        {"extend_existing":True}
+    )
     
     id = Column(Integer, primary_key=True)
     
@@ -355,7 +358,7 @@ class Project(Base):
                 logger.debug("db.session is None, setting up a new session")
                 db.setup()
             
-            proj_db = db.session.query(Project).filter_by(name=name).first()
+            proj_db = db.query(Project).filter_by(name=name).first()
             
             if proj_db is not None:
                 # return the database instance
@@ -380,7 +383,10 @@ class Project(Base):
     def __init__(self, name, code=None):
         # do not initialize if it is created from the DB
         if hasattr(self, "__skip_init__"):
+            logging.debug("skipping the __init__ on Project")
             return
+        
+        logger.debug("initializing the Project")
         
         # get the config
         from oyProjectManager import conf
@@ -621,6 +627,10 @@ class Sequence(Base):
     """
     
     __tablename__ = "Sequences"
+    __table_args__  = (
+        {"extend_existing":True}
+    )
+    
     id = Column(Integer, primary_key=True)
     name = Column(String(256), unique=True)
     code = Column(String(256), unique=True)
@@ -915,6 +925,9 @@ class VersionableBase(Base):
     """
     
     __tablename__ = "Versionables"
+    __table_args__  = (
+        {"extend_existing":True}
+    )
     
     versionable_type = Column(String(128), nullable=False)
     
@@ -990,7 +1003,8 @@ class Shot(VersionableBase):
 
     __tablename__ = "Shots"
     __table_args__  = (
-        UniqueConstraint("sequence_id", "number"), {}
+        UniqueConstraint("sequence_id", "number"),
+        {"extend_existing":True}
     )
     __mapper_args__ = {"polymorphic_identity": "Shot"}
 
@@ -1251,7 +1265,12 @@ class Asset(VersionableBase):
     __tablename__ = "Assets"
 #    __table_args__  = (
 #        UniqueConstraint("name", "number"), {}
-#    )    
+#    )
+    
+    __table_args__  = (
+        {"extend_existing":True}
+    )
+    
     __mapper_args__ = {"polymorphic_identity": "Asset"}
     
     asset_id = Column("id", Integer, ForeignKey("Versionables.id"),
@@ -1516,10 +1535,11 @@ class Version(Base):
     # timeFormat = '%d.%m.%Y %H:%M'
 
     __tablename__ = "Versions"
-
+    
     __table_args__  = (
-        UniqueConstraint("base_name", "take_name", "_version_number"), {}
-        )
+        UniqueConstraint("base_name", "take_name", "_version_number"),
+        {"extend_existing":True}
+    )
 
     id = Column(Integer, primary_key=True)
     version_of_id = Column(Integer, ForeignKey("Versionables.id"),
@@ -1531,6 +1551,7 @@ class Version(Base):
 
     _filename = Column(String)
     _path = Column(String)
+    extension = Column(String)
     
     base_name = Column(String)
     take_name = Column(String, default="MAIN")
@@ -1548,7 +1569,7 @@ class Version(Base):
         secondaryjoin="Version_References.c.reference_id==Versions.c.id",
         backref="referenced_by"
     )
-
+    
     def __init__(self,
                  version_of,
                  base_name,
@@ -1645,10 +1666,10 @@ class Version(Base):
     def _template_variables(self):
         kwargs = {
             "project": self.version_of.project,
-            "sequence": self.version_of.sequence\
+            "sequence": self.version_of.sequence \
             if isinstance(self.version_of, Shot) else "",
             "version": self,
-            "type": self.type
+            "type": self.type,
         }
         return kwargs
 
@@ -1705,7 +1726,6 @@ class Version(Base):
         ])
 
         return name
-
 
     @validates("base_name")
     def _validate_base_name(self, key, base_name):
@@ -2042,6 +2062,10 @@ class VersionType(Base):
     # learn about configuration of oyProjectManager
     
     __tablename__ = "VersionTypes"
+    __table_args__  = (
+        {"extend_existing":True}
+    )
+    
     id = Column(Integer, primary_key=True)
 
 #    project_id = Column(Integer, ForeignKey("Projects.id"))
@@ -2305,6 +2329,10 @@ class VersionTypeEnvironments(Base):
     """
 
     __tablename__ = "VersionType_Environments"
+    __table_args__  = (
+        {"extend_existing":True}
+    )
+    
     versionType_id = Column(Integer, ForeignKey("VersionTypes.id"),
                             primary_key=True)
     environment_name = Column(
@@ -2360,6 +2388,9 @@ class User(Base):
     """
 
     __tablename__ = "Users"
+    __table_args__  = (
+        {"extend_existing":True}
+    )
 
     id = Column(Integer, primary_key=True)
 
@@ -2643,7 +2674,8 @@ class EnvironmentBase(object):
 Version_References = Table(
     "Version_References", Base.metadata,
     Column("referencer_id", Integer, ForeignKey("Versions.id"), primary_key=True),
-    Column("reference_id", Integer, ForeignKey("Versions.id"), primary_key=True)
+    Column("reference_id", Integer, ForeignKey("Versions.id"), primary_key=True),
+    extend_existing=True
 )
 
 def _check_circular_dependency(version, check_for_version):

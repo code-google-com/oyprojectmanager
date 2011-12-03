@@ -12,14 +12,14 @@ class Maya(EnvironmentBase):
     """the maya environment class
     """
     
-    def save(self):
-        """the save action for maya environment
+    def save_as(self, version):
+        """the save_as action for maya environment
 
-        uses PyMel to save the file (not necessary but comfortable )
+        uses PyMel to save the file (not necessary but comfortable)
         """
         
         # set asset extension
-        self._asset.extension = 'ma'
+        version.extension = 'ma'
         
         # set the project to the current environment
         pm.workspace.open(self._asset.sequenceFullPath)

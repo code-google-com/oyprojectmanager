@@ -48,7 +48,6 @@ from oyProjectManager.db.declarative import Base
 
 # SQLAlchemy database engine
 engine = None
-secondary_engine = None
 
 # SQLAlchemy session manager
 session = None
@@ -57,21 +56,18 @@ query = None
 # SQLAlchemy metadata
 metadata = Base.metadata
 
-# a couple of helper attributes
-__mappers__ = []
-
 database_url = None
 
 # create a logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-def setup(database_url=None):
+def setup(database_url_in=None):
     """Utility function that helps to connect the system to the given database.
     
     Returns the created session
     
-    :param database_url: The database address, default is None. If the
+    :param database_url_in: The database address, default is None. If the
         database_url is skipped or given as None, the default database url
         from the :mod:`oyProjectManager.config` will be used. This is good,
         just call ``db.setup()`` and then use ``db.session`` and ``db.query``
@@ -80,51 +76,55 @@ def setup(database_url=None):
     :returns: sqlalchemy.orm.session
     """
     
-    from oyProjectManager import db
+    global engine
+    global session
+    global query
+    global metadata
+    global database_url
     
     # import all the models to let them attach themselves to the Base.mapper
-    from oyProjectManager.core.models import *
+    from oyProjectManager.core import models
     
     # create engine
     # TODO: create tests for this
     
-    if database_url is None:
+    if database_url_in is None:
         logger.debug("using the default database_url from the config file")
         
         # use the default database
         conf = oyProjectManager.conf
-        database_url = conf.database_url
+        database_url_in = conf.database_url
     
     # expand user and env variables if any
-    database_url = os.path.expanduser(
+    database_url_in = os.path.expanduser(
         os.path.expandvars(
             os.path.expandvars(
-                database_url
+                database_url_in
             )
         )
     )
     
-    db.database_url = database_url
+    database_url = database_url_in
     
-    logger.debug("setting up database in %s" % db.database_url)
+    logger.debug("setting up database in %s" % database_url)
     
-    db.engine = sqlalchemy.create_engine(db.database_url, echo=False)
+    engine = sqlalchemy.create_engine(database_url, echo=False)
     
-    # create the database
-    db.metadata.create_all(db.engine)
+    # create the tables
+    metadata.create_all(engine)
     
     # create the Session class
-    Session = sqlalchemy.orm.sessionmaker(bind=db.engine)
+    Session = sqlalchemy.orm.sessionmaker(bind=engine)
     
-    # create and save session object to db.session
-    db.session = Session()
-    db.query = db.session.query
+    # create and save session object to session
+    session = Session()
+    query = session.query
     
     # initialize the db
     __init_db__()
     
-    # TODO: create a test to check if the returned session is db.session
-    return db.session
+    # TODO: create a test to check if the returned session is session
+    return session
 
 def __init_db__():
     """initializes the just setup database
@@ -139,7 +139,8 @@ def __init_db__():
     
     logger.debug("db is newly created, initializing the db")
     
-    from oyProjectManager import db
+    global query
+    global session
     
     # get the users from the config
     from oyProjectManager import conf
@@ -150,7 +151,7 @@ def __init_db__():
     # create the users
     
     # get all users from db
-    users_from_db = db.query(User).all()
+    users_from_db = query(User).all()
     
     for user_data in conf.users_data:
         name = user_data.get("name")
@@ -160,18 +161,19 @@ def __init_db__():
         user_from_config = User(name, initials, email)
         
         if user_from_config not in users_from_db:
-            db.session.add(user_from_config)
+            session.add(user_from_config)
+    
     
     # ------------------------------------------------------
     # add the VersionTypes
-    version_types_from_db = db.query(VersionType).all()
+    version_types_from_db = query(VersionType).all()
     
     for version_type in conf.version_types:
         version_type_from_conf = VersionType(**version_type)
         
         if version_type_from_conf not in version_types_from_db:
-            db.session.add(version_type_from_conf)
+            session.add(version_type_from_conf)
     
-    db.session.commit()
+    session.commit()
     
     logger.debug("finished initialization of the db")

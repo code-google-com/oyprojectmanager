@@ -185,6 +185,7 @@ class Houdini(EnvironmentBase):
         
         # also set it using hscript, hou is a little bit problematic
         hou.hscript("set -g JOB = '" + str(sequence_path) + "'")
+        hou.allowEnvironmentVariableToOverwriteVariable("JOB", True)
         #hou.hscript(
         #    "set -g " + repo.repository_path_env_key + " = '" + \
         #    str(os.environ[repo.repository_path_env_key]) + "'"

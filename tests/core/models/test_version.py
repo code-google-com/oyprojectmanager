@@ -807,3 +807,9 @@ class VersionTester(unittest.TestCase):
         self.assertTrue(vers1!=vers3)
         self.assertTrue(vers3!=vers4)
         self.assertTrue(vers4!=vers5)
+    
+    def test_extension_attribute_is_working_properly(self):
+        """testing if the extension attribute is working properly
+        """
+        self.test_version.extension = "ma"
+        self.assertEqual(self.test_version.extension, "ma")

@@ -17,6 +17,9 @@ Version History
 * Because there is a bug in the ``Beaker`` package, reintroduced the
   :mod:`oyProjectManager.utils.cache` module.
 
+* Added :attr:`~oyProjectManager.core.models.Version.extension` attribute to
+  the :class:`~oyProjectManager.core.models.Version` class.
+
 0.2.0a1
 -------
 
