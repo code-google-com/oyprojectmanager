@@ -195,19 +195,28 @@ class ProjectTester(unittest.TestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
         
+        
         self._name_test_values = [
-            ("test project", "TEST_PROJECT"),
-            ("123123 test_project", "TEST_PROJECT"),
-            ("123432!+!'^+Test_PRoject323^+'^%&+%&324", "TEST_PROJECT323324"),
-            ("    ---test 9s_project", "TEST_9S_PROJECT"),
-            ("    ---test 9s-project", "TEST_9S_PROJECT"),
+            # (input, name, code)
+            ("test project", "test project", "TEST_PROJECT"),
+            ("123 test project", "test project", "TEST_PROJECT"),
+            ("£#$£#$test£#$£#$project", "testproject", "TESTPROJECT"),
+            ("_123test project", "test project", "TEST_PROJECT"),
+            ("CamelCase", "CamelCase", "CAMEL_CASE"),
+            ("234CamelCase", "CamelCase", "CAMEL_CASE"),
+            ("camelCase", "camelCase", "CAMEL_CASE"),
+            ("CamelCase", "CamelCase", "CAMEL_CASE"),
+            ("minus-sign", "minus-sign", "MINUS_SIGN"),
+            ("123432!+!'^+Test_PRoject323^+'^%&+%&324", "Test_PRoject323324",
+                "TEST_PROJECT323324"),
+            ("    ---test 9s_project", "test 9s_project", "TEST_9S_PROJECT"),
+            ("    ---test 9s-project", "test 9s-project", "TEST_9S_PROJECT"),
             (" multiple     spaces are    converted to under     scores",
+             "multiple     spaces are    converted to under     scores",
              "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
-            ("camelCase", "CAMEL_CASE"),
-            ("CamelCase", "CAMEL_CASE"),
-            ("_Project_Setup_", "PROJECT_SETUP_"),
-            ("_PROJECT_SETUP_", "PROJECT_SETUP_"),
-            ("FUL_3D", "FUL_3D"),
+            ("_Project_Setup_", "Project_Setup_", "PROJECT_SETUP_"),
+            ("_PROJECT_SETUP_", "PROJECT_SETUP_", "PROJECT_SETUP_"),
+            ("FUL_3D", "FUL_3D", "FUL_3D"),
         ]
 
     def tearDown(self):
@@ -541,10 +550,10 @@ class ProjectTester(unittest.TestCase):
         """
         for test_value in self._name_test_values:
             project_code = test_value[0]
-            expected_project_code = test_value[1]
-
+            expected_project_code = test_value[2]
+            
             new_project = Project(name="TEST_PROJ1", code=project_code)
-
+            
             self.assertEqual(new_project.code, expected_project_code)
 
     def test_code_attribute_is_formatted_correctly(self):
@@ -555,7 +564,7 @@ class ProjectTester(unittest.TestCase):
 
         for test_value in self._name_test_values:
             project_code = test_value[0]
-            expected_project_code = test_value[1]
+            expected_project_code = test_value[2]
 
             new_proj.code = project_code
 

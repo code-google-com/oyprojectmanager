@@ -1525,7 +1525,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
                     assetUpdaterMainDialog.exec_()
                     
                 # load references (Maya Only - for now)
-                self._environment.loadReferences()
+                self._environment.load_references()
                 
             elif self._environment.name == 'NUKE':
                 envStatus = self._environment.open_()

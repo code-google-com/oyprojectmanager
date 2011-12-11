@@ -5,7 +5,7 @@ import shutil
 import tempfile
 import unittest
 from oyProjectManager import db, config
-from oyProjectManager.core.models import Project, Sequence, Repository
+from oyProjectManager.core.models import Project, Sequence, Repository, Shot
 
 import logging
 logger = logging.getLogger("oyProjectManager.core.models")
@@ -483,3 +483,80 @@ class Sequence_DB_Tester(unittest.TestCase):
 #        print "calling new_seq2.create"
         new_seq2.create()
     
+    def test_add_shots_method_creates_shots_based_on_the_given_range_formulat(self):
+        """testing if the add_shots will create shots based on the
+        shot_range_formula argument
+        """
+        
+        new_proj = Project(name="Test Project")
+        new_proj.create()
+        
+        new_seq1 = Sequence(new_proj, "Test Sequence 1", "TEST_SEQ1")
+        new_seq1.save()
+        
+        expected_shot_numbers = [
+            '1', '2', '3', '4', '5', '6', '7', '8', '10', '12', '13', '14',
+            '15'
+        ]
+        
+        # assert there is no shots in the sequence
+        self.assertTrue(len(new_seq1.shots)==0)
+        
+        # add a new shot
+        new_seq1.add_shots("1")
+        self.assertTrue(len(new_seq1.shots)==1)
+        self.assertIn(new_seq1.shots[0].number, expected_shot_numbers)
+        
+        # add a couple of shots
+        new_seq1.add_shots("2-4")
+        self.assertTrue(len(new_seq1.shots)==4)
+        self.assertIn(new_seq1.shots[1].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[2].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[3].number, expected_shot_numbers)
+        
+        # add a couple of more
+        new_seq1.add_shots("5-8,10,12-15")
+        self.assertTrue(len(new_seq1.shots)==13)
+        self.assertIn(new_seq1.shots[4].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[5].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[6].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[7].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[8].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[9].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[10].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[11].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[12].number, expected_shot_numbers)
+    
+    def test_add_alternative_shot_is_working_properly(self):
+        """testing if the add_alternative_shot method is working properly
+        """
+        
+        new_proj = Project("Test Project")
+        new_proj.create()
+        
+        new_seq = Sequence(new_proj, "Test Sequence", "TEST_SEQ1")
+        new_seq.save()
+        
+        new_shot = Shot(new_seq, 1)
+        new_shot.save()
+        
+        # check if the sequence has only one shot
+        self.assertEqual(len(new_seq.shots), 1)
+        
+        # now create an alternative to this shot
+        new_seq.add_alternative_shot(1)
+        
+        # now check if the sequence has two shots
+        self.assertEqual(len(new_seq.shots), 2)
+        
+        # and the second shots number is 1A
+        self.assertEqual(new_seq.shots[1].number, "1A")
+        
+        # add a new alternative
+        new_seq.add_alternative_shot("1")
+        
+        # check if there is three shots
+        self.assertEqual(len(new_seq.shots), 3)
+        
+        # and the third shots number is 1B
+        self.assertEqual(new_seq.shots[2].number, "1B")

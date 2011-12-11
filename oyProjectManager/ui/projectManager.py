@@ -216,7 +216,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         # create the sequence object
         newSeq = project.Sequence( project.Project( projectName ) , sequenceName )
-        newSeq.addShots(shotRange)
+        newSeq.add_shots(shotRange)
         newSeq.create()
         newSeq.timeUnit = timeUnit
         newSeq.save()
@@ -238,7 +238,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         
         shotRange = unicode(self.shotRange_lineEdit3.text())
         
-        seq.addShots(shotRange)
+        seq.add_shots(shotRange)
         seq.createShots()
         seq.save()
         
@@ -366,7 +366,7 @@ class MainDialog(QtGui.QDialog, projectManager_UI.Ui_Dialog):
         sequenceObj = project.Sequence( projectObj, sequenceName )
         
         # invoke sequence objects add alternate shot method with the given shot number
-        alternativeShotName = sequenceObj.addAlternativeShot( shotNumber )
+        alternativeShotName = sequenceObj.add_alternative_shot( shotNumber )
         
         #print "projectManager -> adding alternative shot to shot %s" % shotNumber
         

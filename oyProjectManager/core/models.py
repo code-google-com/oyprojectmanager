@@ -8,7 +8,7 @@ import jinja2
 #from beaker import cache
 
 from sqlalchemy import (orm, Column, String, Integer, Enum, PickleType,
-                        ForeignKey, UniqueConstraint)
+                        ForeignKey, UniqueConstraint, Boolean)
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import synonym_for
 from sqlalchemy.orm import relationship, synonym, backref
@@ -268,26 +268,35 @@ class Project(Base):
     will not change after the name of the project is changed.
     
     :param name: The name of the project. Should be a string or unicode. Name
-      can not be None, a TypeError will be raised when it is given as None.
-      The default value is None, so it will raise a TypeError.
+      can not be None, a TypeError will be raised when it is given as None,
+      can not be an empty string, a ValueError will be raised when it is an
+      empty string.
       
       The given project name is validated against the following rules:
-        
-        * The name can only have A-Z and 0-9 and "_" characters, all the other
-          chars are going to be filtered out.
+      
+        * The name can only have a-z, A-Z, 0-9 and "-_" characters, all the
+          other characters will be filtered out.
         * The name can only start with literals, no spaces, no numbers or any
           other character is not allowed.
-        * Numbers and underscores are only allowed if they are not the first
+        * Numbers and underscores are only be allowed if they are not the first
           letter.
-        * All the letters should be upper case.
-        * All the "-" (minus) signs are converted to "_" (under score)
-        * All the CamelCase formatting are expanded to underscore (Camel_Case)
     
     :param code: The code of the project. Should be a string or unicode. If
       given as None it will be generated from the
       :attr:`~oyProjectManager.core.models.Project.name` attribute. If it an
       empty string or become an empty string after validation a ValueError will
       be raised.
+      
+        * The name can only have A-Z and 0-9 and "_" characters, all the other
+          chars are going to be filtered out.
+        * The name can only start with literals, no spaces, no numbers or any
+          other character is not allowed.
+        * Numbers and underscores are only be allowed if they are not the first
+          letter.
+        * All the letters should be upper case.
+        * All the minus ("-") signs will be converted to underscores ("_")
+        * All the CamelCase formatting are expanded to underscore (CAMEL_CASE)
+    
     
     :param int fps: The frame rate in frame per second format. It is an 
       integer. The default value is 25. It can be skipped. If set to None. 
@@ -463,24 +472,50 @@ class Project(Base):
         
         # strip the name
         name = name.strip()
-        # convert all the "-" signs to "_"
-        name = name.replace("-", "_")
-        # replace camel case letters
-        name = re.sub(r"(.+?[a-z]+)([A-Z])", r"\1_\2", name)
         # remove unnecessary characters from the string
-        name = re.sub("([^a-zA-Z0-9\s_]+)", r"", name)
+        name = re.sub("([^a-zA-Z0-9\s_\-]+)", r"", name)
         # remove all the characters from the beginning which are not alphabetic
         name = re.sub("(^[^a-zA-Z]+)", r"", name)
-        # substitute all spaces with "_" characters
-        name = re.sub("([\s])+", "_", name)
-        # convert it to upper case
-        name = name.upper()
         
         # check if the name became empty string after validation
         if name is "":
             raise ValueError("The Project.name is not valid after validation")
         
         return name
+
+    @classmethod
+    def _condition_code(cls, code):
+        
+        if code is None:
+            raise TypeError("The Project.code can not be None")
+        
+        if not isinstance(code, (str, unicode)):
+            raise TypeError("Project.code should be an instance of string or "
+                            "unicode not %s" % type(code))
+        
+        if code is "":
+            raise ValueError("The Project.code can not be an empty string")
+        
+        # strip the code
+        code = code.strip()
+        # convert all the "-" signs to "_"
+        code = code.replace("-", "_")
+        # replace camel case letters
+        code = re.sub(r"(.+?[a-z]+)([A-Z])", r"\1_\2", code)
+        # remove unnecessary characters from the string
+        code = re.sub("([^a-zA-Z0-9\s_]+)", r"", code)
+        # remove all the characters from the beginning which are not alphabetic
+        code = re.sub("(^[^a-zA-Z]+)", r"", code)
+        # substitute all spaces with "_" characters
+        code = re.sub("([\s])+", "_", code)
+        # convert it to upper case
+        code = code.upper()
+        
+        # check if the code became empty string after validation
+        if code is "":
+            raise ValueError("The Project.code is not valid after validation")
+        
+        return code
     
     @validates("name")
     def _validate_name(self, key, name_in):
@@ -504,20 +539,7 @@ class Project(Base):
         if code is "":
             raise ValueError("Project.code can not be an empty string")
         
-        # strip the code
-        code = code.strip()
-        # convert all the "-" signs to "_"
-        code = code.replace("-", "_")
-        # replace camel case letters
-        code = re.sub(r"(.+?[a-z]+)([A-Z])", r"\1_\2", code)
-        # remove unnecessary characters from the string
-        code = re.sub("([^a-zA-Z0-9\s_]+)", r"", code)
-        # remove all the characters from the beginning which are not alphabetic
-        code = re.sub("(^[^a-zA-Z]+)", r"", code)
-        # substitute all spaces with "_" characters
-        code = re.sub("([\s])+", "_", code)
-        # convert it to upper case
-        code = code.upper()
+        code = self._condition_code(code)
         
         # check if the code became empty string after validation
         if code is "":
@@ -734,10 +756,10 @@ class Sequence(Base):
         
         db.session.commit()
     
-    def addShots(self, shots):
+    def add_shots(self, shot_range_formula):
         """adds new shots to the sequence
         
-        shots should be a range in on of the following format:
+        shot_range_formula should be a range in on of the following format:
         #
         #,#
         #-#
@@ -745,93 +767,68 @@ class Sequence(Base):
         #,#-#,#
         #-#,#
         etc.
-        
-        you need to invoke self.createShots to make the changes permanent
         """
         
-        # TODO: update this method
-        
-        # for now consider the shots as a string of range
+        # for now consider the shot_range_formula as a string of range
         # do the hard work later
         
-        newShotsList = utils.uncompress_range(shots)
+        new_shot_numbers = utils.uncompress_range(shot_range_formula)
         
         # convert the list to strings
-        newShotsList = map(str, newShotsList)
+        new_shot_numbers = map(str, new_shot_numbers)
         
-        # add the shotList to the current _shotList
-        self._shotList.extend(newShotsList)
-        self._shotList = utils.unique(self._shotList)
+        new_shots = []
+        for shot_number in new_shot_numbers:
+            # create a new shot instance
+            new_shots.append(Shot(self, shot_number))
         
-        # sort the shotList
-        self._shotList = utils.sort_string_numbers(self._shotList)
-        
-        # just create shot objects with shot name and leave the start and end
-        # frame and description empty, it will be edited later
-        newShotObjects = []
-        
-        # create a shot names buffer
-        shotNamesBuffer = [shot.name for shot in self.shots]
-        
-        for shotName in newShotsList:
-            # check if the shot already exists
-            if shotName not in shotNamesBuffer:
-                shot = Shot(shotName, self)
-                newShotObjects.append(shot)
-        
-        # add the new shot objects to the existing ones
-        self._shots.extend(newShotObjects)
-        
-        # sort the shot objects
-        self._shots = utils.sort_string_numbers(self._shots)
+        db.session.add_all(new_shots)
+        db.session.commit()
 
-    def addAlternativeShot(self, shotNumber):
+    def add_alternative_shot(self, shot_number):
         """adds a new alternative to the given shot
-        
-        you need to invoke self.createShots to make the changes permanent
         
         returns the alternative shot number
         """
         
-        # TODO: update this method
+        # TODO: this functionality shoould be shifted to the Shot class
         
-        # shotNumber could be an int convert it to str
-        shotNumberAsString = str(shotNumber)
-        
+        # shot_number could be an int convert it to str
         # get the first integer as int in the string
-        shotNumber = utils.embedded_numbers(shotNumberAsString)[1]
+        shot_number = utils.embedded_numbers(str(shot_number))[1]
         
         # get the next available alternative shot number for that shot
-        alternativeShotName = self.getNextAlternateShotName(shotNumber)
+        alternative_shot_number = \
+            self.get_next_alternate_shot_number(shot_number)
         
         # add that alternative shot to the shot list
-        if alternativeShotName is not None:
-            self._shotList.append(alternativeShotName)
-            
-            # create a new shot object
-            alternativeShot = Shot(alternativeShotName, self)
-            self._shots.append(alternativeShot)
+        if alternative_shot_number is not None:
+            new_alternative_shot = Shot(self, alternative_shot_number)
+            db.session.add(new_alternative_shot)
+            db.session.commit()
         
-        return alternativeShotName
+        return alternative_shot_number
 
-    def getNextAlternateShotName(self, shot):
-        """returns the next alternate shot number for the given shot number
+    def get_next_alternate_shot_number(self, shot_number):
+        """returns the next alternate shot_number number for the given shot_number number
         """
         
-        # TODO: update this method
-
-        # get the shot list
-        shotList = self.shotList
-        alternateLetters = 'ABCDEFGHIJKLMNOPRSTUVWXYZ'
+        # get the shot_number list
+        alternate_letters = 'ABCDEFGHIJKLMNOPRSTUVWXYZ'
         
-        for letter in alternateLetters:
+        for letter in alternate_letters:
             #check if the alternate is in the list
             
-            newShotNumber = str(shot) + letter
+            new_shot_number = str(shot_number) + letter
             
-            if not newShotNumber in shotList:
-                return newShotNumber
-
+            shot_from_db = db.query(Shot).\
+                filter(Shot.sequence_id==self.id).\
+                filter(Shot.number==new_shot_number).\
+                first()
+            
+            if not shot_from_db:
+                return new_shot_number
+        
         return None
     
     def __eq__(self, other):
@@ -1017,7 +1014,10 @@ class Shot(VersionableBase):
     description = Column(String)
 
     sequence_id = Column(Integer, ForeignKey("Sequences.id"))
-    _sequence = relationship("Sequence")
+    _sequence = relationship(
+        "Sequence",
+        primaryjoin="Shots.c.sequence_id==Sequences.c.id"
+    )
 
     def __init__(self,
                  sequence,
@@ -1525,11 +1525,14 @@ class Version(Base):
       instance.
     
     :type created_by: :class:`~oyProjectManager.core.models.User`
+    
+    :param str extension: A string holding the file extension of this version.
+      It may or may not include a dot (".") sign as the first character.
     """
 
     # TODO: add relation attributes like, references and referenced_by
     # TODO: add audit info like date_created, date_updated, created_at and updated_by
-    # TODO: add file extension field
+    
     # 
     # file_size_format = "%.2f MB"
     # timeFormat = '%d.%m.%Y %H:%M'
@@ -1551,17 +1554,18 @@ class Version(Base):
 
     _filename = Column(String)
     _path = Column(String)
+    _output_path = Column(String)
     extension = Column(String)
     
     base_name = Column(String)
     take_name = Column(String, default="MAIN")
     revision_number = Column(Integer, default=0)
     _version_number = Column(Integer, default=1, nullable=False)
-
+    
     note = Column(String)
     created_by_id = Column(Integer, ForeignKey("Users.id"))
     created_by = relationship("User")
-
+    
     references = relationship(
         "Version",
         secondary="Version_References",
@@ -1577,7 +1581,8 @@ class Version(Base):
                  created_by,
                  take_name="MAIN",
                  version_number=1,
-                 note=""):
+                 note="",
+                 extension=""):
         self._version_of = version_of
         self._type = type
         # TODO: base_name should be get from VersionableBase.name
@@ -1586,10 +1591,13 @@ class Version(Base):
         self.version_number = version_number
         self.note = note
         self.created_by = created_by
-
+        self.extension = extension
+        
         kwargs = self._template_variables()
         self._filename = jinja2.Template(self.type.filename).render(**kwargs)
         self._path = jinja2.Template(self.type.path).render(**kwargs)
+        self._output_path = jinja2.Template(self.type.output_path).\
+            render(**kwargs)
     
     def __eq__(self, other):
         """the equality operator
@@ -1652,7 +1660,22 @@ class Version(Base):
             )
         
         return type
-
+    
+    @validates("extension")
+    def _validate_extension(self, key, extension):
+        """Validates the given extension value
+        """
+        
+        if not isinstance(extension, (str, unicode)):
+            raise TypeError("Version.extension should be an instance of "
+                            "string or unicode")
+        
+        if extension != "":
+            if not extension.startswith("."):
+                extension = "." + extension
+        
+        return extension
+    
     @synonym_for("_type")
     @property
     def type(self):
@@ -1688,8 +1711,14 @@ class Version(Base):
     def path(self):
         """The path of this version.
         
-        It is automatically created by rendering the VersionType.path template
-        with the information supplied with this Version instance.
+        It is automatically created by rendering the template in
+        :attr:`~oyProjectManager.core.models.VersionType.path` of the
+        :class`~oyProjectManager.core.models.Version` class with the
+        information supplied by this
+        :class:`~oyProjectManager.core.models.Version` instance.
+        
+        Be careful about that the
+        :attr:`~oyProjectManager.core.models.Version.path` is an absolute path.
         """
         return self._path
 
@@ -1697,11 +1726,30 @@ class Version(Base):
     def fullpath(self):
         """The fullpath of this version.
         
-        It is the join of the
-        :attr:`~oyProjectManager.core.models.Version.filename` and
-        :attr:`~oyProjectManager.core.models.Version.path`.
+        It is and absolute path of the current Version instance which is
+        created by joining the
+        :attr:`~oyProjectManager.core.models.Project.fullpath`\ ,
+        :attr:`~oyProjectManager.core.models.Version.path` and
+        :attr:`~oyProjectManager.core.models.Version.filename`.
+        
+        Be careful about that the
+        :attr:`~oyProjectManager.core.models.Version.fullpath` is an absolute
+        path.
         """
-        return os.path.join(self.path, self.filename).replace("\\", "/")
+        return os.path.join(
+            self.path,
+            self.filename
+        ).replace("\\", "/")
+
+    @synonym_for("_output_path")
+    @property
+    def output_path(self):
+        """The output_path of this version.
+        
+        It is automatically created by rendering the VersionType.output_path
+        template with the information supplied with this Version instance.
+        """
+        return self._output_path
 
     def _condition_name(self, name):
         """conditions the base name, see the
@@ -1772,21 +1820,30 @@ class Version(Base):
 
         return take_name
 
+    def latest_version(self):
+        """returns the Version instance with the highest version number in this
+        series
+        
+        :returns: :class:`~oyProjectManager.core.models.Version` instance
+        """
+        return db.session.\
+            query(Version).\
+            filter(Version.base_name == self.base_name).\
+            filter(Version.take_name == self.take_name).\
+            order_by(Version.version_number.desc()).\
+            first()
+    
     @property
     def max_version(self):
         """returns the maximum version number for this Version from the
         database.
-        """
-
-        a_version = db.session.\
-            query(Version).\
-            filter(Version.base_name == self.base_name)\
-            .filter(Version.take_name == self.take_name)\
-            .order_by(Version.version_number.desc())\
-            .first()
         
-        if a_version:
-            max_version = a_version.version_number
+        :returns: int
+        """
+        last_version = self.latest_version()
+        
+        if last_version:
+            max_version = last_version.version_number
         else:
             max_version = 0
 
@@ -1874,6 +1931,19 @@ class Version(Base):
         _check_circular_dependency(reference, self)
         
         return reference
+    
+    @property
+    def project(self):
+        """The :class:`~oyProjectManager.core.models.Project` instance that
+        this Version belongs to
+        """
+        
+        return self.version_of.project
+    
+    def is_latest_version(self):
+        """returns True if this is the latest Version False otherwise
+        """
+        return self.max_version == self.version_number
 
 class VersionType(Base):
     """A template for :class:`~oyProjectManager.core.models.Version` class.
@@ -1978,7 +2048,8 @@ class VersionType(Base):
       filename::
       
         {{version.base_name}}_{{version.take_name}}_{{type.code}}_\\
-           v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}
+          v{{'%03d'|format(version.version_number)}}_\\
+          {{version.created_by.initials}}
       
       Which will render something like that::
         
@@ -1990,20 +2061,23 @@ class VersionType(Base):
       TypeError will be raised to prevent creation of files with no names.
     
     :param str path: The path template. It is a single line Jinja2 template
-      showing the path of the :class:`~oyProjectManager.core.models.Version`
-      instance. Look for the above `table`_ for possible variables those can be
-      used in the template code.
+      showing the absolute path of this
+      :class:`~oyProjectManager.core.models.Version` instance. Look for the
+      above `table`_ for possible variables those can be used in the template
+      code.
         
       For an example the following is a nice template for a Shot version::
       
-        Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}
+        {{project.fullpath}}/Sequences/{{sequence.code}}/Shots/\\
+          {{version.base_name}}/{{type.code}}
       
       This will place a Shot Version whose base_name is SH001 and let say that
       the type is Animation (where the code is ANIM) to a path like::
       
-        Sequences/SEQ1/Shots/SH001/ANIM
+        M:/JOBs/PROJ1/Sequences/SEQ1/Shots/SH001/ANIM
       
-      All the animation files will be saved inside that folder.
+      All the animation files realted to this shot will be saved inside that
+      folder.
     
     :param str output_path: It is a single line Jinja2 template which shows
       where to place the outputs of this kind of
@@ -2019,7 +2093,7 @@ class VersionType(Base):
       
       Which will render as::
         
-        Sequences/SEQ1/Shots/SH001/ANIM/Outputs
+        M:/JOBs/PROJ1/Sequences/SEQ1/Shots/SH001/ANIM/Outputs
     
     :param str extra_folders: It is a list of single line Jinja2 template codes
       which are showing the extra folders those need to be created. It is
@@ -2086,6 +2160,10 @@ class VersionType(Base):
         the same :class:`~oyProjectManager.core.models.Asset` or
         :class:`~oyProjectManager.core.models.Shot` may placed to different
         folders according to your new template.
+        
+        The template **should not** include a dot (".") sign before the
+        extension, it is handled by the
+        :class:`~oyProjectManager.core.models.Version` instance.
         """
     )
 
@@ -2101,6 +2179,9 @@ class VersionType(Base):
         the same :class:`~oyProjectManager.core.models.Asset` or
         :class:`~oyProjectManager.core.models.Shot` may placed to different
         folders according to your new template.
+        
+        The path template should be an absolute one, so don't forget to place
+        ``{{project.fullpath}}`` at the beginning of your template.
         """
     )
 
@@ -2120,7 +2201,7 @@ class VersionType(Base):
         "version_type_environments",
         "environment_name"
     )
-
+    
     _type_for = Column(
         Enum("Asset", "Shot"),
         doc="""A enum value showing if this version type is valid for Assets or
@@ -2138,7 +2219,6 @@ class VersionType(Base):
                  type_for,
                  extra_folders=None
     ):
-#        self._project = self._check_project(project)
         self.name = name
         self.code = code
         self.filename = filename
@@ -2146,7 +2226,6 @@ class VersionType(Base):
         self.output_path = output_path
         self.environments = environments
         self.extra_folders = extra_folders
-#        self._project = project
         self._type_for = type_for
     
     def __eq__(self, other):
@@ -2343,7 +2422,7 @@ class VersionTypeEnvironments(Base):
         """
     )
 
-    user = relationship(
+    version_type = relationship(
         "VersionType",
         backref=backref(
             "version_type_environments",
@@ -2397,13 +2476,16 @@ class User(Base):
     name = Column(String)
     initials = Column(String)
     email = Column(String)
-
+    
+    active = Column(Boolean, default=True)
+    
     versions_created = relationship("Version")
-
-    def __init__(self, name, initials=None, email=None):
+    
+    def __init__(self, name, initials=None, email=None, active=True):
         self.name = name
         self.initials = initials
         self.email = email
+        self.active = True
     
     def __eq__(self, other):
         """the equality operator
@@ -2473,6 +2555,8 @@ class EnvironmentBase(object):
     #    __tablename__ = "Environments"
     #    id = Column(Integer, primary_key=True)
     
+    name = "EnvironmentBase"
+    
     def __init__(self, name=""):
         
         self._name = name
@@ -2526,7 +2610,7 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
 
-    def open_(self, force=False):
+    def open_(self, version, force=False):
         """the open action
         """
         raise NotImplemented
@@ -2588,7 +2672,7 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
 
-#    def updateAssets(self, assetTupleList):
+#    def update_versions(self, assetTupleList):
 #        """updates the assets to the latest versions
 #        """
 #        raise NotImplemented
@@ -2601,7 +2685,8 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
 
-    def set_frame_range(self, start_frame=1, end_frame=100):
+    def set_frame_range(self, start_frame=1, end_frame=100,
+                        adjust_frame_range=False):
         """Sets the frame range in the environment to the given start and end
         frames
         """

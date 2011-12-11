@@ -291,7 +291,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
         markedAssets = self.getMarkedAssets()
         
         # send them back to environment
-        self._environment.updateAssets( markedAssets )
+        self._environment.update_versions( markedAssets )
         
         # close the interface
         self.close()

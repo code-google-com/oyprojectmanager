@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-houdini.py by Erkan Ozgur Yilmaz (c) 2009-2010
+houdiniEnv.py by Erkan Ozgur Yilmaz (c) 2009-2010
 
 Description:
 ------------

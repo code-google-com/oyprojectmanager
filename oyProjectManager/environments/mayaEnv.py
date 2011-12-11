@@ -4,13 +4,61 @@ import os
 from pymel import versions
 from pymel import core as pm
 import maya.cmds as mc
-from oyProjectManager.core.models import Asset, Project, Sequence, Repository, EnvironmentBase
+
+from oyProjectManager import conf, db
+from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
+                                          EnvironmentBase, Version)
 from oyProjectManager import utils
 
 
 class Maya(EnvironmentBase):
     """the maya environment class
     """
+    
+    name = "Maya"
+    
+    time_to_fps = {
+        u'sec': 1,
+        u'2fps': 2,
+        u'3fps': 3,
+        u'4fps': 4,
+        u'5fps': 5,
+        u'6fps': 6,
+        u'8fps': 8,
+        u'10fps': 10,
+        u'12fps': 12,
+        u'game': 15,
+        u'16fps': 16,
+        u'20fps': 20,
+        u'film': 24,
+        u'pal': 25,
+        u'ntsc': 30,
+        u'40fps': 40,
+        u'show': 48,
+        u'palf': 50,
+        u'ntscf': 60,
+        u'75fps': 75,
+        u'80fps': 80,
+        u'100fps': 100,
+        u'120fps': 120,
+        u'125fps': 125,
+        u'150fps': 150,
+        u'200fps': 200,
+        u'240fps': 240,
+        u'250fps': 250,
+        u'300fps': 300,
+        u'375fps': 375,
+        u'400fps': 400,
+        u'500fps': 500,
+        u'600fps': 600,
+        u'750fps': 750,
+        u'millisec': 1000,
+        u'1200fps': 1200,
+        u'1500fps': 1500,
+        u'2000fps': 2000,
+        u'3000fps': 3000,
+        u'6000fps': 6000,
+    }
     
     def save_as(self, version):
         """the save_as action for maya environment
@@ -19,79 +67,89 @@ class Maya(EnvironmentBase):
         """
         
         # set asset extension
-        version.extension = 'ma'
+        version.extension = '.ma'
         
-        # set the project to the current environment
-        pm.workspace.open(self._asset.sequenceFullPath)
+        # create a workspace file at the parent folder of the current version
+        workspace_path = os.path.dirname(version.path)
+        
+        self.create_workspace_file(workspace_path)
+        pm.workspace.open(workspace_path)
         
         # set the render file name and version
-        self.setRenderFileName()
+        self.set_render_fileName(version)
         
         # set the playblast file name
-        self.setPlayblastFileName()
+        self.set_playblast_file_name(version)
         
         # create the folder if it doesn't exists
-        utils.createFolder(self._asset.path)
+        utils.createFolder(version.path)
         
         # delete the unknown nodes
         unknownNodes = pm.ls(type='unknown')
         pm.delete(unknownNodes)
         
         # set the file paths for external resources
-        self.replace_external_paths()
+        self.replace_external_paths(version)
         
         # save the file
-        pm.saveAs(self._asset.fullPath, type='mayaAscii')
+        pm.saveAs(
+            version.fullpath,
+            type='mayaAscii'
+        )
         
         # append it to the recent file list
-        self.appendToRecentFiles(self._asset.fullPath)
+        self.appendToRecentFiles(
+            version.fullpath
+        )
         
         return True
     
-    def export(self, asset):
+    def export_as(self, version):
         """the export action for maya environment
         """
         
         # check if there is something selected
         if len(pm.ls(sl=True)) < 1:
-            print "selection error"
-            return False
+            raise RuntimeError("There is nothing selected to export")
         
         # set the extension to ma by default
-        asset.extension = 'ma'
+        version.extension = '.ma'
         
         # create the folder if it doesn't exists
-        utils.createFolder(asset.path)
+        utils.createFolder(version.path)
         
         # export the file
-        pm.exportSelected(asset.fullPath, type='mayaAscii')
+        pm.exportSelected(version.fullPath, type='mayaAscii')
         
         return True
     
-    def open_(self, force=False):
+    def open_(self, version, force=False):
         """the open action for maya environment
         
-        returns assets those needs to be updated as a list of asset objects
+        returns Version instances which are referenced in to the opened version
+        and those need to be updated
         """
         
         # check for unsaved changes
-        assetFullPath = self._asset.fullPath
-        
-        pm.openFile(assetFullPath, f=force, loadReferenceDepth='none')
+        pm.openFile(version.fullPath, f=force, loadReferenceDepth='none')
         
         # set the project
-        pm.workspace.open(self._asset.sequenceFullPath)
+        pm.workspace.open(
+            os.path.dirname(
+                version.path
+            )
+        )
         
         # set the playblast folder
-        self.setPlayblastFileName()
+        self.set_playblast_file_name(version)
         
-        self.appendToRecentFiles(assetFullPath)
+        self.appendToRecentFiles(version.fullPath)
         
         # replace_external_paths
-        self.replace_external_paths()
+        self.replace_external_paths(version)
         
         # check the referenced assets for newer version
-        toUpdateList = self.checkReferenceVersions()
+        toUpdateList = self.check_reference_versions()
         
         return True, toUpdateList
     
@@ -233,54 +291,46 @@ class Maya(EnvironmentBase):
                 
         return fileName, path
     
-    def setRenderFileName(self):
+    def set_render_fileName(self, version):
         """sets the render file name
         """
         
-        parentSeq = self._asset.sequence
-        assert(isinstance(parentSeq, Sequence))
+        assert isinstance(version, Version)
         
-        parentSeqFullPath = parentSeq.fullPath.replace("\\", "/")
-        renderOutputFolder = self._asset.output_path # RENDERED_IMAGES/{{assetBaseName}}/{{assetSubName}}
+        render_output_folder = version.type.output_path.replace("\\", "/")
         
         # image folder from the workspace.mel
-        imageFolderFromWS = pm.workspace.fileRules['image'] # RENDERED_IMAGES/
+        # {{project.full_path}}/Sequences/{{seqence.code}}/Shots/{{shot.code}}/.maya_files/RENDERED_IMAGES
+        image_folder_from_ws = pm.workspace.fileRules['image'] 
+        image_folder_from_ws_full_path = os.path.join(
+            os.path.dirname(version.path),
+            image_folder_from_ws
+        ).replace("\\", "/")
         
-        imageFolderFromWS_full_path = os.path.join(parentSeqFullPath,
-                                                   imageFolderFromWS)
-        imageFolderFromWS_full_path = \
-            imageFolderFromWS_full_path.replace("\\", "/")
+        version_base_name = version.base_name
+        version_take_name = version.take_name
+        render_file_name = ''
         
-        assetBaseName = self._asset.baseName
-        renderFileName = ''
+        render_file_full_path = \
+            render_output_folder + "/<Layer>/" + \
+            version.base_name + "_" + version.take_name + \
+            "_<Layer>_<RenderPass>_<Version>"
         
-        if parentSeq.no_sub_name_field:
-            render_file_full_path = parentSeqFullPath + "/" + \
-                renderOutputFolder + "/<Layer>/" + \
-                assetBaseName + "_<Layer>_<RenderPass>_<Version>"
-            
-        else: # remove later when the support for old project is over
-            assetSubName = self._asset.subName
-            render_file_full_path = parentSeqFullPath + "/" + \
-                renderOutputFolder + "/" + "/<Layer>/" + \
-                assetBaseName + "_" + assetSubName + \
-                "_<Layer>_<RenderPass>_<Version>"
-        
-        # convert he render_file_full_path to a relative path to the
+        # convert the render_file_full_path to a relative path to the
         # imageFolderFromWS_full_path
         
-        print "imageFolderFromWS_full_path: %s" % imageFolderFromWS_full_path
+        print "imageFolderFromWS_full_path: %s" % image_folder_from_ws_full_path
         print "render_file_full_path: %s" % render_file_full_path
         
         render_file_rel_path = utils.relpath(
-            imageFolderFromWS_full_path,
+            image_folder_from_ws_full_path,
             render_file_full_path,
             sep="/"
         )
         
         if self.hasStereoCamera():
             # just add the <Camera> template variable to the file name
-            render_file_rel_path = render_file_rel_path + "_<Camera>"
+            render_file_rel_path += "_<Camera>"
         
         
         # SHOTS/ToonShading/TestTransition/incidence/ToonShading_TestTransition_incidence_MasterPass_v050.####.iff
@@ -288,16 +338,16 @@ class Maya(EnvironmentBase):
         # defaultRenderGlobals
         dRG = pm.PyNode('defaultRenderGlobals')
         dRG.setAttr('imageFilePrefix', render_file_rel_path)
-        dRG.setAttr('renderVersion', self._asset.versionString )
+        dRG.setAttr('renderVersion', "%03d" % version.version_number )
         dRG.setAttr('animation', 1)
         dRG.setAttr('outFormatControl', 0 )
         dRG.setAttr('extensionPadding', 3 )
         dRG.setAttr('imageFormat', 7 ) # force the format to iff
         dRG.setAttr('pff', 1)
         
-        self.setOutputFileFormat()
+        self.set_output_file_format()
     
-    def setOutputFileFormat(self):
+    def set_output_file_format(self):
         """sets the output file format
         """
         dRG = pm.PyNode('defaultRenderGlobals')
@@ -333,30 +383,23 @@ class Maya(EnvironmentBase):
             ## if the renderer is set to mayaSoftware (which is very rare)
             #if dRG.getAttr('currentRenderer') == 'mayaSoftware':
     
-    def setPlayblastFileName(self):
+    def set_playblast_file_name(self, version):
         """sets the playblast file name
         """
         
-        playblastFolderPath = self._asset.output_path
+        playblast_path = os.path.join(
+            version.output_path,
+            "Playblast"
+        )
         
-        assert(isinstance(self._asset, Asset))
-        
-        seqFullPath = self._asset.sequence.fullPath
-        
-        # baseName = self._asset.baseName
-        
-        playblastPath = os.path.join(seqFullPath, playblastFolderPath,
-                                     "Playblast")
-        
-        playblastFullPath = os.path.join(playblastPath,
-                                         self._asset.fileNameWithoutExtension)
+        playblast_full_path = os.path.join(
+            playblast_path,
+            version.filename
+        ).replace('\\','/')
         
         # create the folder
-        utils.mkdir(playblastPath)
-        
-        playblastFullPath = playblastFullPath.replace('\\','/')
-        
-        pm.optionVar['playblastFile'] = playblastFullPath
+        utils.mkdir(playblast_path)
+        pm.optionVar['playblastFile'] = playblast_full_path
     
     def setProject(self, projectName, sequenceName ):
         """sets the project
@@ -405,167 +448,150 @@ class Maya(EnvironmentBase):
         #assert(isinstance(recentFiles,pm.OptionVarList))
         recentFiles.appendVar( path )
     
-    def checkReferenceVersions(self):
+    def check_reference_versions(self):
         """checks the referenced assets versions
         
-        returns a list of asset and maya reference objects in a tupple
+        returns a list of Version instances and maya Reference objects in a
+        tupple
         """
         
-        # get all the valid asset references
-        assetTupleList = self.getReferencedAssets()
+        # get all the valid version references
+        version_tuple_list = self.get_referenced_versions()
         
-        updateList = []
+        to_be_updated_list = []
         
-        for assetTuple in assetTupleList:
+        for version_tuple in version_tuple_list:
             
-            asset = assetTuple[0]
+            version = version_tuple[0]
             
-            if not asset.isLatestVersion():
-                # add asset to the update list
-                updateList.append(assetTuple)
+            if not version.is_latest_version():
+                # add version to the update list
+                to_be_updated_list.append(version_tuple)
             
-        #return updateList
-        
-        # sort the list according to assetFilepath
-        return sorted(updateList, None, lambda x: x[2])
+        # sort the list according to fullpath
+        return sorted(to_be_updated_list, None, lambda x: x[2])
     
-    def getReferencedAssets(self):
-        """returns the valid assets those been referenced to the current scene
+    def get_referenced_versions(self):
+        """Returns the versions those been referenced to the current scene
         
-        returns asset objects and the corresponding reference object as a
-        tupple in a list, and a string showing the path of the reference.
+        Returns Version instances and the corresponding Reference instance as a
+        tupple in a list, and a string showing the path of the Reference.
         Replaces all the relative paths to absolute paths.
+        
+        The returned tuple format is as follows:
+        (Version, Reference, fullpath)
         """
         
-        validAssets = []
+        valid_versions = []
         
         # get all the references
-        allReferences = pm.listReferences()
+        references = pm.listReferences()
         
         # create a repository object
-        repo = repository.Repository()
+#        repo = repository.Repository()
         
-        osName = os.name
+#        osName = os.name
         
-        refsAndPaths = []
+        refs_and_paths = []
         # iterate over them to find valid assets
-        for ref in allReferences:
+        for reference in references:
             # it is a dictionary
+            temp_version_fullpath = reference.path
             
-            #assert(isinstance(ref, pm.FileReference))
-            tempAssetFullPath = ref.path
-
-            # check and convert it to absolute path
-            #tempAssetFullPath = utils.abspath(self.getWorkspacePath, tempAssetFullPath)
+            temp_version_fullpath = \
+                os.path.expandvars(
+                    os.path.expanduser(
+                        os.path.normpath(
+                            temp_version_fullpath
+                        )
+                    )
+                )
             
-            #if osName == 'nt':
-            #    tempAssetFullPath = tempAssetFullPath.replace('/','\\')
-            tempAssetFullPath = os.path.expandvars(
-                                    os.path.expanduser(
-                                        os.path.normpath(
-                                            tempAssetFullPath
-                                        )
-                                    )
-                                )
-            
-            refsAndPaths.append((ref, tempAssetFullPath))
+            refs_and_paths.append((reference, temp_version_fullpath))
         
         # sort them according to path
-        # to make same paths togather
+        # to make same paths together
         
-        refsAndPaths = sorted(refsAndPaths, None, lambda x: x[1])
+        refs_and_paths = sorted(refs_and_paths, None, lambda x: x[1])
         
-        prevAsset = None
-        prevFullPath = ''
+        prev_version = None
+        prev_fullpath = ''
         
-        for ref, fullPath in refsAndPaths:
+        for reference, fullpath in refs_and_paths:
             
-            if fullPath == prevFullPath:
+            if fullpath == prev_fullpath:
                 # directly append the asset to the list
-                validAssets.append((prevAsset, ref, prevFullPath))
+                valid_versions.append(
+                    (prev_version, reference, prev_fullpath)
+                )
             else:
-                projName, seqName = \
-                    repo.get_project_and_sequence_name_from_file_path(fullPath)
+                # try to get a version with the given path
+                temp_version = \
+                    db.query(Version).filter(Version.fullpath==fullpath).first()
                 
-                proj = Project(projName)
-                seq = Sequence(proj, seqName)
-                
-                tempAssetPath = os.path.basename(fullPath)
-                tempAsset = Asset(proj, seq, tempAssetPath)
-                
-                if tempAsset.isValidAsset:
-                    validAssets.append((tempAsset, ref, fullPath))
+                if temp_version:
+                    valid_versions.append((temp_version, reference, fullpath))
                     
-                    prevAsset = tempAsset
-                    prevFullPath = fullPath
+                    prev_version = temp_version
+                    prev_fullpath = fullpath
                     
         # return a sorted list
-        return sorted(validAssets, None, lambda x: x[2])
+        return sorted(valid_versions, None, lambda x: x[2])
     
-    def updateAssets(self, assetTupleList):
-        """update assets to the latest version
+    def update_versions(self, version_tuple_list):
+        """update versions to the latest version
         """
         
-        previousAssetPath = ''
+        previous_version_fullpath = ''
         
-        for assetTuple in assetTupleList:
+        for version_tuple in version_tuple_list:
+            version = version_tuple[0]
+            reference = version_tuple[1]
+            version_fullpath =  version_tuple[2]
             
-            asset = assetTuple[0]
-            ref = assetTuple[1]
-            assetPath =  assetTuple[2]
+            if version_fullpath != previous_version_fullpath:
+                latest_version = version.latest_version()
+                previous_version_fullpath = version_fullpath
             
-            #assert(isinstance(asset, Asset))
-            #assert(isinstance(ref, pm.FileReference))
-            
-            if assetPath != previousAssetPath:
-                latestAsset = asset.latestVersion2[0]
-                previousAssetPath = assetPath
-            
-            ref.replaceWith(latestAsset.fullPath)
+            reference.replaceWith(latest_version.fullpath)
     
-    def getFrameRange(self):
+    def get_frame_range(self):
         """returns the current playback frame range
         """
-        startFrame = int( pm.playbackOptions(q=True, ast=True) )
-        endFrame = int( pm.playbackOptions(q=True, aet=True) )
-        return startFrame, endFrame
+        start_frame = int(pm.playbackOptions(q=True, ast=True))
+        end_frame = int(pm.playbackOptions(q=True, aet=True))
+        return start_frame, end_frame
     
-    def setFrameRange(self, startFrame=1, endFrame=100, adjust_frame_range=False):
+    def set_frame_range(self, start_frame=1, end_frame=100,
+                        adjust_frame_range=False):
         """sets the start and end frame range
         """
-        
         # set it in the playback
-        pm.playbackOptions(ast=startFrame, aet=endFrame)
+        pm.playbackOptions(ast=start_frame, aet=end_frame)
         
         if adjust_frame_range:
-            pm.playbackOptions( min=startFrame, max=endFrame )
+            pm.playbackOptions( min=start_frame, max=end_frame )
         
         # set in the render range
         dRG = pm.PyNode('defaultRenderGlobals')
-        dRG.setAttr('startFrame', startFrame )
-        dRG.setAttr('endFrame', endFrame )
+        dRG.setAttr('startFrame', start_frame )
+        dRG.setAttr('endFrame', end_frame )
     
-    def getTimeUnit(self):
-        """returns the timeUnit of the environment
+    def get_fps(self):
+        """returns the fps of the environment
         """
         
         # return directly from maya, it uses the same format
-        return (pm.currentUnit(q=1, t=1)).lower()
+        return self.time_to_fps[pm.currentUnit(q=1, t=1)]
     
-    def setTimeUnit(self, timeUnit='pal'):
-        """sets the timeUnit of the environment
+    def set_fps(self, fps=25):
+        """sets the fps of the environment
         """
-        
-        # check if the given unit is in repository
-        repo = Repository()
-        
-        if not repo.time_units.has_key(timeUnit):
-            raise KeyError(timeUnit)
         
         # get the current time, current playback min and max (because maya
         # changes them, try to restore the limits)
         
-        currentTime = pm.currentTime(q=1)
+        current_time = pm.currentTime(q=1)
         pMin = pm.playbackOptions(q=1, min=1)
         pMax = pm.playbackOptions(q=1, max=1)
         pAst = pm.playbackOptions(q=1, ast=1)
@@ -573,41 +599,50 @@ class Maya(EnvironmentBase):
         
         # set the time unit, do not change the keyframe times
         # use the timeUnit as it is
-        pm.currentUnit(t=timeUnit, ua=0)
+        time_unit = u"pal"
+        
+        # try to find a timeUnit for the given fps
+        for key in self.time_to_fps:
+            if self.time_to_fps[key] == fps:
+                time_unit = key
+                break
+        
+        pm.currentUnit(t=time_unit, ua=0)
         # to be sure
-        pm.optionVar['workingUnitTime'] = timeUnit
+        pm.optionVar['workingUnitTime'] = time_unit
         
         # update the playback ranges
-        pm.currentTime(currentTime)
+        pm.currentTime(current_time)
         pm.playbackOptions(ast=pAst, aet=pAet)
         pm.playbackOptions(min=pMin, max=pMax)
 
-    def loadReferences(self):
+    def load_references(self):
         """loads all the references
         """
         
         # get all the references
-        allReferences = pm.listReferences()
+        references = pm.listReferences()
         
-        for reference in allReferences:
+        for reference in references:
             reference.load()
     
-    def replaceAssets(self, sourceRef, targetFile):
-        """replaces the source asset with the target asset
+    def replace_versions(self, source_reference, target_file):
+        """replaces the source reference with the target file
         
-        the sourceAsset may should be in maya reference node
+        the source_reference may should be in maya reference node
         """
         
         # get the reference node
-        baseRefNode = sourceRef.refNode
+        base_reference_node = source_reference.refNode
         
         # get the base namespace before replacing the reference
-        prevNS = self.getFullNamespaceFromNodeName(sourceRef.nodes()[0])
+        previous_namespace = \
+            self.getFullNamespaceFromNodeName(source_reference.nodes()[0])
         
-        # if the sourceRef has referenced files do a dirty edit
+        # if the source_reference has referenced files do a dirty edit
         # by applying all the edits to the referenced node (the old way of
         # replacing references )
-        subReferences = self.getAllSubReferences(sourceRef)
+        subReferences = self.getAllSubReferences(source_reference)
         print "subReferences count:", len(subReferences)
         
         if len(subReferences) > 0:
@@ -615,17 +650,17 @@ class Maya(EnvironmentBase):
             # replaced file with new namespace
             allEdits = []
             for subRef in subReferences:
-                allEdits += subRef.getReferenceEdits(orn= baseRefNode)
+                allEdits += subRef.getReferenceEdits(orn= base_reference_node)
             
             # replace the reference
-            sourceRef.replaceWith(targetFile)
+            source_reference.replaceWith(target_file)
             
             # try to find the new namespace
-            subReferences = self.getAllSubReferences(sourceRef)
+            subReferences = self.getAllSubReferences(source_reference)
             newNS = self.getFullNamespaceFromNodeName(subReferences[0].nodes()[0]) # possible bug here, fix it later
             
             # replace the old namespace with the new namespace in all the edits
-            allEdits = [ edit.replace( prevNS+":", newNS+":") for edit in allEdits ] 
+            allEdits = [ edit.replace( previous_namespace+":", newNS+":") for edit in allEdits ] 
             
             # apply all the edits
             for edit in allEdits:
@@ -637,35 +672,35 @@ class Maya(EnvironmentBase):
         else:
             
             # replace the reference
-            sourceRef.replaceWith( targetFile )
+            source_reference.replaceWith( target_file )
             
             # try to find the new namespace
-            subReferences = self.getAllSubReferences( sourceRef )
+            subReferences = self.getAllSubReferences( source_reference )
             newNS = self.getFullNamespaceFromNodeName( subReferences[0].nodes()[0] ) # possible bug here, fix it later
             
             
-            #subReferences = sourceRef.subReferences()
+            #subReferences = source_reference.subReferences()
             #for subRefData in subReferences.iteritems():
                 #refNode = subRefData[1]
                 #newNS = self.getFullNamespaceFromNodeName( refNode.nodes()[0] )
             
             # if the new namespace is different than the previous one
             # also change the edit targets
-            if prevNS != newNS:
+            if previous_namespace != newNS:
                 # debug
-                print "prevNS", prevNS
+                print "prevNS", previous_namespace
                 print "newNS ", newNS
                 
                 # get the new sub references
-                for subRef in self.getAllSubReferences( sourceRef ):
+                for subRef in self.getAllSubReferences( source_reference ):
                     # for all the nodes in sub references
                     # change the edit targets with new namespace
                     for node in subRef.nodes():
                         # use the long name -- suggested by maya help
                         nodeNewName = node.longName()
-                        nodeOldName = nodeNewName.replace( newNS+':', prevNS+':')
+                        nodeOldName = nodeNewName.replace( newNS+':', previous_namespace+':')
                         
-                        pm.referenceEdit( baseRefNode, changeEditTarget=( nodeOldName, nodeNewName) )
+                        pm.referenceEdit( base_reference_node, changeEditTarget=( nodeOldName, nodeNewName) )
                         #pm.referenceEdit( baseRefNode, orn=baseRefNode, changeEditTarget=( nodeOldName, nodeNewName) )
                         #pm.referenceEdit( subRef, orn=baseRefNode, changeEditTarget=( nodeOldName, nodeNewName ) )
                         #for aRefNode in pm.ls(type='reference'):
@@ -676,7 +711,7 @@ class Maya(EnvironmentBase):
                     
                     
                 # apply all the failed edits again
-                pm.referenceEdit( baseRefNode, applyFailedEdits=True )
+                pm.referenceEdit( base_reference_node, applyFailedEdits=True )
     
     def getAllSubReferences(self, ref):
         """returns the recursive sub references as a list of FileReference
@@ -715,7 +750,7 @@ class Maya(EnvironmentBase):
             # to have a stereoCamera rig
             return False
     
-    def replace_external_paths(self):
+    def replace_external_paths(self, version):
         """replaces all the external paths
         
         replaces:
@@ -727,7 +762,7 @@ class Maya(EnvironmentBase):
         # create a repository
         repo = Repository()
         
-        repo_env_key = "$" + repo.repository_path_env_key
+        repo_env_key = "$" + conf.repository_env_key
         
         # replace reference paths with $REPO
         for ref in pm.listReferences():
@@ -788,7 +823,13 @@ class Maya(EnvironmentBase):
                     #    "/" + mr_texture_path.replace(repo.server_path, repo_env_key)
                     #)
                     new_path = utils.relpath(
-                        self._asset.sequenceFullPath.replace("\\", "/"),
+#                        self._asset.sequenceFullPath.replace("\\", "/"),
+                        os.path.join(
+                            version.version_of.project.fullpath,
+                            os.path.dirname(
+                                version.path
+                            )
+                        ),
                         mr_texture_path.replace("\\", "/"),
                         "/", ".."
                     )
@@ -796,3 +837,82 @@ class Maya(EnvironmentBase):
                         "fileTextureName",
                         new_path
                     )
+    
+    def create_workspace_file(self, path):
+        """creates the workspace.mel at the given path
+        """
+        
+        content = """//Maya 2012 Project Definition
+
+workspace -fr "scene" ".maya_files/OTHERS/";
+workspace -fr "mayaAscii" ".maya_files/OTHERS/";
+workspace -fr "mayaBinary" ".maya_files/OTHERS/";
+
+workspace -fr "movie" ".maya_files/OTHERS/data/";
+workspace -fr "offlineEdit" ".maya_files/OHTERS/edits/";
+workspace -fr "autoSave" ".maya_files/OTHERS/autosave/";
+
+workspace -fr "3dPaintTextures" ".maya_files/PAINTINGS/TEXTURES/";
+workspace -fr "textures" ".maya_files/PAINTINGS/TEXTURES/";
+
+workspace -fr "particles" ".maya_files/OTHERS/particles/";
+workspace -fr "renderScenes" ".maya_files/LIGHTING/";
+workspace -fr "lights" ".maya_files/RENDERED_IMAGES/renderData/shaders/";
+
+workspace -fr "diskCache" ".maya_files/OTHERS/data/";
+
+workspace -fr "furShadowMap" ".maya_files/OTHERS/fur/furShadowMap/";
+workspace -fr "furFiles" ".maya_files/OTHERS/fur/furFiles/";
+workspace -fr "furAttrMap" ".maya_files/OTHERS/fur/furAttrMap/";
+workspace -fr "furImages" ".maya_files/OTHERS/fur/furImages/";
+workspace -fr "furEqualMap" ".maya_files/OTHERS/fur/furEqualMap/";
+
+workspace -fr "image" ".maya_files/RENDERED_IMAGES/";
+workspace -fr "images" ".maya_files/RENDERED_IMAGES/";
+workspace -fr "mentalray" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
+workspace -fr "mentalRay" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
+workspace -fr "iprImages" ".maya_files/RENDERED_IMAGES/renderData/iprImages/";
+workspace -fr "depth" ".maya_files/RENDERED_IMAGES/renderData/depth/";
+
+workspace -fr "animImport" ".maya_files/OTHERS/data/";
+workspace -fr "animExport" ".maya_files/OTHERS/data/";
+workspace -fr "clips" ".maya_files/OTHERS/clips/";
+
+workspace -fr "templates" ".maya_files/OTHERS/assets/";
+
+workspace -fr "audio" ".maya_files/EDIT/SOUND/";
+
+workspace -fr "sourceImages" ".maya_files/PAINTINGS/TEXTURES/";
+
+workspace -fr "mel" ".maya_files/OTHERS/mel/";
+
+workspace -fr "Adobe(R) Illustrator(R)" ".maya_files/OTHERS/data/";
+workspace -fr "aliasWire" ".maya_files/OTHERS/data/";
+workspace -fr "DAE_FBX" ".maya_files/OTHERS/data/";
+workspace -fr "DAE_FBX export" ".maya_files/OTHERS/data/";
+workspace -fr "DXF_FBX" ".maya_files/OTHERS/data/";
+workspace -fr "DXF_FBX export" ".maya_files/OTHERS/data/";
+workspace -fr "DXF" ".maya_files/OTHERS/data/";
+workspace -fr "DXF export" ".maya_files/OTHERS/data/";
+workspace -fr "EPS" ".maya_files/OTHERS/data/";
+workspace -fr "FBX" ".maya_files/OTHERS/data/";
+workspace -fr "FBX export" ".maya_files/OTHERS/data/";
+workspace -fr "IGES" ".maya_files/OTHERS/data/";
+workspace -fr "IGESexport" ".maya_files/OTHERS/data/";
+workspace -fr "move" ".maya_files/OTHERS/data/";
+workspace -fr "OBJ" ".maya_files/OTHERS/data/";
+workspace -fr "OBJexport" ".maya_files/OTHERS/data/";
+workspace -fr "RIBexport" ".maya_files/OTHERS/data/";
+workspace -fr "RIB" ".maya_files/OTHERS/data/";
+        """
+        
+        # check if there is a workspace.mel at the given path
+        full_path = os.path.join(path, "workspace.mel")
+        
+        if not os.path.exists(path):
+            os.makedirs(
+                os.path.dirname(full_path)
+            )
+            workspace_file = file(full_path, "w")
+            workspace_file.write(content)
+            workspace_file.close()

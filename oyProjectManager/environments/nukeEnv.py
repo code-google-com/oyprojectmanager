@@ -3,7 +3,7 @@
 
 
 import os
-import nuke
+import nukeEnv
 from oyProjectManager.core.models import Asset, Sequence, Repository, EnvironmentBase
 from oyProjectManager import utils
 
@@ -28,7 +28,7 @@ class Nuke(EnvironmentBase):
     def getRootNode(self):
         """returns the root node of the current nuke session
         """
-        return nuke.toNode("root")
+        return nukeEnv.toNode("root")
     
     def save(self):
         """"the save action for nuke environment
@@ -58,7 +58,7 @@ class Nuke(EnvironmentBase):
             # path already exists OSError
             pass
         
-        nuke.scriptSaveAs(fullPath)
+        nukeEnv.scriptSaveAs(fullPath)
         
         return True
     
@@ -73,7 +73,7 @@ class Nuke(EnvironmentBase):
         # replace \\ with /
         fullPath = fullPath.replace('\\','/')
         
-        nuke.nodeCopy(fullPath)
+        nukeEnv.nodeCopy(fullPath)
         
         return True
     
@@ -86,7 +86,7 @@ class Nuke(EnvironmentBase):
         # replace \\ with /
         fullPath = fullPath.replace('\\','/')
         
-        nuke.scriptOpen(fullPath)
+        nukeEnv.scriptOpen(fullPath)
         
         # set the project_directory
         self.project_directory = self._asset.sequenceFullPath
@@ -109,7 +109,7 @@ class Nuke(EnvironmentBase):
         # replace \\ with /
         fullPath = fullPath.replace('\\','/')
         
-        nuke.nodePaste( fullPath )
+        nukeEnv.nodePaste( fullPath )
         
         return True
     
@@ -131,7 +131,7 @@ class Nuke(EnvironmentBase):
         else:
             
             # use the last file from the recent file list
-            fullPath = nuke.recentFile(1)
+            fullPath = nukeEnv.recentFile(1)
             
             # for windows replace the path separator
             if os.name == 'nt':
@@ -193,7 +193,7 @@ class Nuke(EnvironmentBase):
         """Returns the main write node in the scene or None.
         """
         # list all the write nodes in the current file
-        all_write_nodes = nuke.allNodes("Write")
+        all_write_nodes = nukeEnv.allNodes("Write")
         
         for write_node in all_write_nodes:
             if write_node.name().startswith(self._main_output_node_name):
@@ -211,7 +211,7 @@ class Nuke(EnvironmentBase):
         
         if main_write_node is None:
             # create one with correct output path
-            main_write_node = nuke.nodes.Write()
+            main_write_node = nukeEnv.nodes.Write()
             main_write_node.setName(self._main_output_node_name)
         
         # set the output path
@@ -254,7 +254,7 @@ class Nuke(EnvironmentBase):
         format_id = 7
         if os.name != "nt":
             # check the nuke version for nuke 6.2 and below
-            if (nuke.NUKE_VERSION_MAJOR + nuke.NUKE_VERSION_MINOR/10.0) < 6.3:
+            if (nukeEnv.NUKE_VERSION_MAJOR + nukeEnv.NUKE_VERSION_MINOR/10.0) < 6.3:
                 format_id = 8
         
         main_write_node["file_type"].setValue(format_id)
@@ -274,7 +274,7 @@ class Nuke(EnvironmentBase):
             return utils.relpath(self.project_directory, path, "/", "..")
         
         # get all read nodes
-        allNodes = nuke.allNodes()
+        allNodes = nukeEnv.allNodes()
         
         readNodes = [node for node in allNodes if node.Class() == "Read"]
         writeNodes = [node for node in allNodes if node.Class() == "Write"]

@@ -41,12 +41,11 @@ class VersionTester(unittest.TestCase):
         self.test_versionType = VersionType(
             name="Test Animation",
             code="TANIM",
-            path="SHOTS/{{version.base_name}}/{{type.code}}",
+            path="{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
             filename="{{version.base_name}}_{{version.take_name}}_\
 {{type.code}}_v{{'%03d'|format(version.version_number)}}_\
-{{version.created_by.initials}}",
-            output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/\
-{{version.take_name}}",
+{{version.created_by.initials}}{{version.extension}}",
+            output_path="{{version.path}}/OUTPUT/{{version.take_name}}",
             environments=["MAYA", "HOUDINI"],
             type_for="Shot"
         )
@@ -64,7 +63,8 @@ class VersionTester(unittest.TestCase):
             "take_name": "MAIN",
             "version_number": 1,
             "note": "this is the note for this version",
-            "created_by": self.test_user
+            "created_by": self.test_user,
+            "extension": ".ma"
         }
         
         self.test_version = Version(**self.kwargs)
@@ -604,7 +604,7 @@ class VersionTester(unittest.TestCase):
             self.kwargs["take_name"] + "_" + \
             self.kwargs["type"].code + "_" + \
             "v" + str(self.kwargs["version_number"]).zfill(3) + "_" + \
-            self.kwargs["created_by"].initials
+            self.kwargs["created_by"].initials + self.kwargs["extension"]
         )
     
     def test_filename_attribute_is_read_only(self):
@@ -630,7 +630,9 @@ class VersionTester(unittest.TestCase):
         # path = "SHOTS/{{version.base_name}}/{{version.type.code}}"
         self.assertEqual(
             self.test_version.path,
-            "SHOTS/" + self.kwargs["base_name"] + "/" + self.kwargs["type"].code
+            self.test_version.project.fullpath +
+            "/Sequences/TEST_SEQ1/Shots/" + self.kwargs["base_name"] + "/" +
+            self.kwargs["type"].code
         )
     
     def test_path_attribute_is_read_only(self):
@@ -649,12 +651,42 @@ class VersionTester(unittest.TestCase):
         
         self.assertEqual(prev_path, self.test_version.path)
     
+    def test_output_path_attribute_is_rendered_properly(self):
+        """testing if the output_path attribute is rendered properly with the
+        given VersionType's output_path template
+        """
+        # output_path = "SHOTS/{{version.base_name}}/{{version.type.code}}/
+        #                    OUTPUT/{{version.take_name}}"
+        self.assertEqual(
+            self.test_version.output_path,
+            self.test_version.path + "/OUTPUT/" + self.kwargs["take_name"]
+        )
+    
+    def test_output_path_attribute_is_read_only(self):
+        """testing if the output_path attribute is read-only
+        """
+        self.assertRaises(AttributeError, setattr, self.test_version,
+                          "output_path", "test_file_name")
+    
+    def test_output_path_attribute_doesnt_change_with_the_VersionType(self):
+        """testing if the output_path stays the same when the VersionType
+        attributes change
+        """
+        prev_output_path = self.test_version.output_path
+        # now change the associated VersionType.output_path
+        self.kwargs["type"].output_path = "A"
+        
+        self.assertEqual(prev_output_path, self.test_version.output_path)
+    
     def test_fullpath_attribute_is_rendered_properly(self):
         """testing if the fullpath attribute is rendered properly
         """
         self.assertEqual(
             self.test_version.fullpath,
-            "SHOTS/SH001/TANIM/SH001_MAIN_TANIM_v001_tu"
+            os.path.join(
+                self.test_version.project.fullpath,
+                "Sequences/TEST_SEQ1/Shots/SH001/TANIM/SH001_MAIN_TANIM_v001_tu.ma"
+            )
         )
 
     def test_fullpath_attribute_is_read_only(self):
@@ -808,8 +840,99 @@ class VersionTester(unittest.TestCase):
         self.assertTrue(vers3!=vers4)
         self.assertTrue(vers4!=vers5)
     
+    def test_extension_argument_is_skipped(self):
+        """testing if the extension will be an empty string if the extension
+        argument is skipped
+        """
+        self.kwargs.pop("extension")
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.extension, "")
+    
+    def test_extension_argument_is_not_a_string_instance(self):
+        """testing if a TypeError will be raised when the extension is not an
+        instance of string of unicode
+        """
+        self.kwargs["extension"] = 123123
+        self.assertRaises(TypeError, Version, **self.kwargs)
+    
+    def test_extension_attribute_is_not_a_string_instance(self):
+        """testing if a TypeError will be raised when the extension attribute
+        is not a string or unicode instance
+        """
+        self.assertRaises(TypeError, setattr, self.test_version, "extension",
+                          1231)
+    
+    def test_extension_argument_without_dot_sign(self):
+        """testing if the extension attribute will include a dot even when the
+        given extension arguments first character is not a dot
+        """
+        self.kwargs["extension"] = "ma"
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.extension, ".ma")
+    
+    def test_extension_attribute_without_a_dot_sign(self):
+        """testing if the extension attribute will include a dot even when the
+        given values first character is not a dot sign
+        """
+        self.test_version.extension = "psd"
+        self.assertEqual(self.test_version.extension, ".psd")
+    
+    def test_extension_argument_is_working_properly(self):
+        """testing if the extension attribute will be properly set to the given
+        value with the extension argument
+        """
+        test_value = ".mov"
+        self.kwargs["extension"] = test_value
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.extension, test_value)
+    
     def test_extension_attribute_is_working_properly(self):
         """testing if the extension attribute is working properly
         """
-        self.test_version.extension = "ma"
-        self.assertEqual(self.test_version.extension, "ma")
+        self.test_version.extension = ".ma"
+        self.assertEqual(self.test_version.extension, ".ma")
+    
+    def test_project_attribute_is_read_only(self):
+        """testing if the project attribute is read only
+        """
+        self.assertRaises(AttributeError, setattr, self.test_version,
+                          "project", self.test_project)
+    
+    def test_project_attribute_is_working_properly(self):
+        """testing if the project attribute is returning the correct project
+        instance
+        """
+        self.assertEqual(self.test_version.project,
+                         self.test_version.version_of.project)
+    
+    def test_is_latest_version_method_is_working_properly(self):
+        """testing if the is_latest_version method returns True if the current
+        Version is the last among the others
+        """
+        
+        version1 = Version(**self.kwargs)
+        version1.save()
+        version2 = Version(**self.kwargs)
+        version2.save()
+        version3 = Version(**self.kwargs)
+        version3.save()
+        
+        self.assertFalse(version1.is_latest_version())
+        self.assertFalse(version2.is_latest_version())
+        self.assertTrue(version3.is_latest_version())
+    
+    def test_latest_version_method_returns_the_latest_versions_instance(self):
+        """testing if the latest_version instance returns the latest Version
+        instance in this series
+        """
+        
+        version1 = Version(**self.kwargs)
+        version1.save()
+        version2 = Version(**self.kwargs)
+        version2.save()
+        version3 = Version(**self.kwargs)
+        version3.save()
+        
+        self.assertTrue(version1.latest_version()==version3)
+        self.assertTrue(version2.latest_version()==version3)
+        self.assertTrue(version3.latest_version()==version3)

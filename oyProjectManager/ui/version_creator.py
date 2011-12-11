@@ -11,7 +11,9 @@ import version_creator_UI
 
 import oyProjectManager
 from oyProjectManager import utils, config, db
-from oyProjectManager.core.models import Asset, Project, Sequence, Repository, Version, VersionType, Shot, User
+from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
+                                          Version, VersionType, Shot, User,
+                                          VersionTypeEnvironments)
 from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import assetUpdater, singletonQApplication
 
@@ -29,17 +31,28 @@ def UI(environment):
     """
     global app
     global mainDialog
-    app = singletonQApplication.QApplication(sys.argv)
+    
+#    app = singletonQApplication.QApplication()
+
+    self_quit = False
+    if QtGui.QApplication.instance() is None:
+        app = QtGui.QApplication(*sys.argv)
+        self_quit = True
+    else:
+        app = QtGui.QApplication.instance()
+    
     mainDialog = MainDialog_New(environment)
     mainDialog.show()
     #app.setStyle('Plastique')
     app.exec_()
-    app.connect(
-        app,
-        QtCore.SIGNAL("lastWindowClosed()"),
-        app,
-        QtCore.SLOT("quit()")
-    )
+    
+    if self_quit:
+        app.connect(
+            app,
+            QtCore.SIGNAL("lastWindowClosed()"),
+            app,
+            QtCore.SLOT("quit()")
+        )
     
     return mainDialog
 
@@ -1415,7 +1428,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                     assetUpdaterMainDialog.exec_()
                     
                 # load references (Maya Only - for now)
-                self._environment.loadReferences()
+                self._environment.load_references()
                 
             elif self._environment.name == 'NUKE':
                 envStatus = self._environment.open_()
@@ -2449,7 +2462,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             if isinstance(error, IntegrityError):
                 # the transaction needs to be rollback
-                proj.session.rollback()
+                db.session.rollback()
                 error.message = "Asset.name or Asset.code is not unique"
             
             # pop up an Message Dialog to give the error message
@@ -2563,21 +2576,19 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         versionable = self.get_versionable()
         
         # get all the version types which doesn't have any version defined
-#        current_types = map(
-#            lambda x: x[0],
-#            db.query(distinct(VersionType.name)).join(Version).
-#            filter(Version.version_of==versionable).all()
-#        )
         
         # get all the current types from the interface
         current_types = []
         for index in range(self.version_types_comboBox.count()):
             current_types.append(self.version_types_comboBox.itemText(index))
         
-        avialable_types = map(
+        # available types for Versionable in this environment
+        available_types = map(
             lambda x: x[0],
             db.query(distinct(VersionType.name)).
+            join(VersionTypeEnvironments).
             filter(VersionType.type_for==versionable.__class__.__name__).
+            filter(VersionTypeEnvironments.environment_name==self.environment.name).
             filter(~ VersionType.name.in_(current_types)).
             all()
         )
@@ -2588,8 +2599,9 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         type_name, ok = self.input_dialog.getItem(
             self,
             "Choose a VersionType",
-            "Version Types",
-            avialable_types,
+            "Available Version Types for %ss in %s" % 
+                (versionable.__class__.__name__, self.environment.name),
+            available_types,
             0,
             False
         )
@@ -2695,11 +2707,29 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         logger.debug("saving the data as a new version")
         
         # get the new version
-        new_version = self.get_new_version()
+        try:
+            new_version = self.get_new_version()
+        except (TypeError, ValueError) as error:
+            
+            # pop up an Message Dialog to give the error message
+            QtGui.QMessageBox.critical(
+                self,
+                "Error",
+                error.message
+            )
+            
+            return None
         
         # call the environments save_as method
         if self.environment is not None:
             self.environment.save_as(new_version)
+        
+        # save the new version to the database
+        db.session.add(new_version)
+        db.session.commit()
+        
+        # close the UI
+        self.close()
     
     def open_pushButton_clicked(self):
         """runs when the open_pushButton clicked

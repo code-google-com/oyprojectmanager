@@ -54,7 +54,7 @@ session = None
 query = None
 
 # SQLAlchemy metadata
-metadata = Base.metadata
+metadata = None
 
 database_url = None
 
@@ -111,6 +111,7 @@ def setup(database_url_in=None):
     engine = sqlalchemy.create_engine(database_url, echo=False)
     
     # create the tables
+    metadata = Base.metadata
     metadata.create_all(engine)
     
     # create the Session class

@@ -20,6 +20,38 @@ Version History
 * Added :attr:`~oyProjectManager.core.models.Version.extension` attribute to
   the :class:`~oyProjectManager.core.models.Version` class.
 
+* :class:`~oyProjectManager.core.models.Version` class now has
+  :attr:`~oyProjectManager.core.models.Version.extension` and
+  :attr:`~oyProjectManager.core.models.Version.output_path` attributes.
+
+* Renamed the environments back to mayaEnv.py, houdiniEnv.py, nukeEnv.py and
+  photoshopEnv.py
+
+* Added an attribute called
+  :attr:`~oyProjectManager.core.models.Version.project` to the
+  :class:`~oyProjectManager.core.models.Version` class which is a shortcut to
+  the ``Version.version_of.project``
+
+* Added :attr:`~oyProjectManager.core.models.Version.absolute_path` attribute
+  to the :class:`~oyProjectManager.core.models.Version` class which returns the
+  absolute path of the version to the
+  :class:`~oyProjectManager.core.models.Project` root
+  
+* The :attr:`~oyProjectManager.core.models.Version.fullpath` attribute in 
+  :class:`~oyProjectManager.core.models.Version` now returns an absolute path.
+
+* The duty of the :attr:`~oyProjectManager.core.models.Project.name` attribute
+  of the :class:`~oyProjectManager.core.models.Project` class is now shifted to
+  the :attr:`~oyProjectManager.core.models.Project.code` attribute, thus, the
+  :attr:`~oyProjectManager.core.models.Project.name` of the
+  :class:`~oyProjectManager.core.models.Project` can now be freely changed,
+  without effecting the file management.
+
+* Updated the :meth:`~oyProjectManager.core.models.Sequence.add_shots`\ ,
+  :meth:`~oyProjectManager.core.models.Sequence.add_alternative_shot` and
+  :meth:`~oyProjectManager.core.models.Sequence.get_next_alternate_shot_number`
+  methods in :class:`~oyProjectManager.core.models.Sequence` class.
+
 0.2.0a1
 -------
 
