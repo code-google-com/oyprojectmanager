@@ -1,6 +1,14 @@
 Version History
 ===============
 
+0.2.0.b1
+--------
+* The ``fullpath`` and the ``path`` attributes of the
+  :class:`~oyProjectManager.core.models.Project` will not be stored in the
+  database anymore. But instead they will be generated from the
+  :attr:`~oyProjectManager.core.models.Project.path` and
+  :attr:`~oyProjectManager.core.models.Project.code` attributes.
+
 0.2.0a2
 -------
 

@@ -80,8 +80,6 @@ class Repository(object):
         logger.debug("initializing repository instance")
         
         # get the config
-#        from oyProjectManager import config
-#        self.conf = config.Config()
         from oyProjectManager import conf
         self.conf = conf
         
@@ -113,8 +111,6 @@ class Repository(object):
         except AttributeError:
             pass
         
-#        # set the repository path from the environment
-#        self.server_path = os.environ[conf.repository_env_key]
         logger.debug("finished initializing repository instance")
     
     def _validate_repository_env_key(self):
@@ -315,8 +311,6 @@ class Project(Base):
     name = Column(String(256), unique=True)
     code = Column(String(256), unique=True)
     description = Column(String)
-    _path = Column(String)
-    _fullpath = Column(String)
     
     shot_number_prefix = Column(String(16))
     shot_number_padding = Column(Integer)
@@ -401,18 +395,10 @@ class Project(Base):
         from oyProjectManager import conf
         self.conf = conf
         
-        self._path = ""
-        self._fullpath = ""
+        self.repository = Repository()
         
         self.name = name
         self.code = code
-        
-#        self._repository = Repository()
-        repository = Repository()
-        
-#        self._path = self._repository.server_path
-        self._path = repository.server_path
-        self._fullpath = os.path.join(self.path, self.name)
         
         self.shot_number_prefix = self.conf.shot_number_prefix
         self.shot_number_padding = self.conf.shot_number_padding
@@ -438,7 +424,7 @@ class Project(Base):
         """init when loaded from the db
         """
         
-#        self._repository = Repository()
+        self.repository = Repository()
         
         from oyProjectManager import conf
         self.conf = conf
@@ -595,20 +581,19 @@ class Project(Base):
         
         return self._exists
     
-    @synonym_for("_path")
     @property
     def path(self):
         """The path of this project instance. Basically it is the same value
         with what $REPO env variable holds
         """
-        return self._path
+        return self.repository.server_path
     
-    @synonym_for("_fullpath")
     @property
     def fullpath(self):
-        """The fullpath of this project instance
+        """The fullpath of this project instance.
         """
-        return self._fullpath
+        return os.path.join(self.path, self.code)
+
 
 class Sequence(Base):
     """Sequence object to help manage sequence related data.
@@ -791,7 +776,7 @@ class Sequence(Base):
         returns the alternative shot number
         """
         
-        # TODO: this functionality shoould be shifted to the Shot class
+        # TODO: this functionality should be shifted to the Shot class
         
         # shot_number could be an int convert it to str
         # get the first integer as int in the string
@@ -1530,7 +1515,6 @@ class Version(Base):
       It may or may not include a dot (".") sign as the first character.
     """
 
-    # TODO: add relation attributes like, references and referenced_by
     # TODO: add audit info like date_created, date_updated, created_at and updated_by
     
     # 
@@ -1585,7 +1569,6 @@ class Version(Base):
                  extension=""):
         self._version_of = version_of
         self._type = type
-        # TODO: base_name should be get from VersionableBase.name
         self.base_name = base_name
         self.take_name = take_name
         self.version_number = version_number
@@ -1985,15 +1968,17 @@ class VersionType(Base):
     instances by hand. Instead, add all the version types you need to your
     config.py file and the :class:`~oyProjectManager.core.models.Project`
     instance will create all the necessary VersionTypes from this config.py
-    configuration file.
+    configuration file. For more information about the the config.py please see
+    the documentation of config.py.
     
     For previously created projects, where a new type is needed to be added you
     can still create a new VersionType instance and save it to the Projects'
     database.
     
+    
     :param str name: The name of this template. The name is not formatted in
       anyway. It can not be skipped or it can not be None or it can not be an
-      empty string. The name attribute should be unique. Be carefull that even
+      empty string. The name attribute should be unique. Be careful that even
       specifying a non unique name VersionType instance will not raise an error
       until :meth:`~oyProjectManager.core.models.VersionType.save` is called.
     
@@ -2132,9 +2117,6 @@ class VersionType(Base):
 #    
 #    :type project: :class:`~oyProjectManager.core.models.Project`
 
-    # TODO: add a link to the "config.py" in the documentation to let the user
-    # learn about configuration of oyProjectManager
-    
     __tablename__ = "VersionTypes"
     __table_args__  = (
         {"extend_existing":True}
