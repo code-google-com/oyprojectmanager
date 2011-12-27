@@ -226,7 +226,7 @@ class Config(object):
             {
                 "name": "Animation",
                 "code": "ANIM",
-                "path": "{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
@@ -236,7 +236,7 @@ class Config(object):
             {
                 "name": "Camera",
                 "code": "CAMERA",
-                "path": "{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
@@ -246,7 +246,7 @@ class Config(object):
             {
                 "name": "Composition",
                 "code": "COMP",
-                "path": "{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
@@ -256,7 +256,7 @@ class Config(object):
             {
                 "name": "Edit",
                 "code": "EDIT",
-                "path": "{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
@@ -266,7 +266,7 @@ class Config(object):
             {
                 "name":"FX",
                 "code": "FX",
-                "path": "{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": """{{version.path}}/anim
@@ -304,7 +304,7 @@ class Config(object):
             {
                 "name": "Previs",
                 "code": "PREVIS",
-                "path": "{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
@@ -314,7 +314,7 @@ class Config(object):
             {
                 "name": "Lighting",
                 "code": "LIGHTING",
-                "path": "{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
@@ -344,7 +344,7 @@ class Config(object):
             {
                 "name": "Matte Paint",
                 "code": "MATTE",
-                "path": "{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/PAINTINGS/{{type.code}}",
+                "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/PAINTINGS/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",
@@ -384,7 +384,7 @@ class Config(object):
             {
                 "name": "Tracking",
                 "code": "TRACK",
-                "path": "{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+                "path": "Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version.path}}/OUTPUT/{{version.take_name}}",
                 "extra_folders": "",

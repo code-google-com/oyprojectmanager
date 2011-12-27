@@ -2914,14 +2914,14 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog = \
             version_creator.MainDialog_New(self.test_environment)
         
-#        self.test_dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+        #        self.test_dialog.show()
+        #        self.app.exec_()
+        #        self.app.connect(
+        #            self.app,
+        #            QtCore.SIGNAL("lastWindowClosed()"),
+        #            self.app,
+        #            QtCore.SLOT("quit()")
+        #        )
     
     def tearDown(self):
         """cleanup the test
@@ -3195,6 +3195,40 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
                          self.test_dialog.version_types_comboBox.currentText())
         self.assertEqual(version_instance.take_name,
                          self.test_dialog.takes_comboBox.currentText())
+    
+    def test_open_pushButton_closes_the_interface_after_successful_open(self):
+        """testing if the interface will be closed after open_pushButton is
+        clicked and a successful open action has been made
+        """
+        
+        # set to the first project
+        self.test_dialog.projects_comboBox.setCurrentIndex(0)
+        
+        # set to the Asset tab
+        self.test_dialog.tabWidget.setCurrentIndex(0)
+        
+        # set to the first Asset
+        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        
+        # set to the first version type
+        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        
+        # set to the first take name
+        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        
+        # check if the interface is still open
+        # show the dialog on purpose
+        self.test_dialog.show()
+        self.assertTrue(self.test_dialog.isVisible())
+
+        # hit to the open_pushButton
+        QTest.mouseClick(
+            self.test_dialog.open_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # check if the interface has been closed
+        self.assertFalse(self.test_dialog.isVisible())
     
     def test_reference_pushButton_calls_environments_reference_method(self):
         """testing if the reference_pushButton calls the environments open method

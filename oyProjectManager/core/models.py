@@ -508,7 +508,6 @@ class Project(Base):
         """validates the given name_in value
         """
         name_in = self._condition_name(name_in)
-#        self.update_paths(name_in)
         return name_in
 
     @validates("code")
@@ -593,7 +592,6 @@ class Project(Base):
         """The fullpath of this project instance.
         """
         return os.path.join(self.path, self.code)
-
 
 class Sequence(Base):
     """Sequence object to help manage sequence related data.
@@ -1535,11 +1533,11 @@ class Version(Base):
 
     type_id = Column(Integer, ForeignKey("VersionTypes.id"))
     _type = relationship("VersionType")
-
+    
     _filename = Column(String)
     _path = Column(String)
     _output_path = Column(String)
-    extension = Column(String)
+    _extension = Column(String)
     
     base_name = Column(String)
     take_name = Column(String, default="MAIN")
@@ -1557,7 +1555,7 @@ class Version(Base):
         secondaryjoin="Version_References.c.reference_id==Versions.c.id",
         backref="referenced_by"
     )
-    
+
     def __init__(self,
                  version_of,
                  base_name,
@@ -1574,13 +1572,13 @@ class Version(Base):
         self.version_number = version_number
         self.note = note
         self.created_by = created_by
-        self.extension = extension
         
-        kwargs = self._template_variables()
-        self._filename = jinja2.Template(self.type.filename).render(**kwargs)
-        self._path = jinja2.Template(self.type.path).render(**kwargs)
-        self._output_path = jinja2.Template(self.type.output_path).\
-            render(**kwargs)
+        self._filename = ""
+        self._path = ""
+        self._output_path = ""
+        
+        # setting the extension will update the path variables already
+        self.extension = extension
     
     def __eq__(self, other):
         """the equality operator
@@ -1595,6 +1593,15 @@ class Version(Base):
         """the not equal operator
         """
         return not self.__eq__(other)
+
+    def update_paths(self):
+        """updates the path variables
+        """
+        kwargs = self._template_variables()
+        self._filename = jinja2.Template(self.type.filename).render(**kwargs)
+        self._path = jinja2.Template(self.type.path).render(**kwargs)
+        self._output_path = jinja2.Template(self.type.output_path).\
+        render(**kwargs)
     
     @validates("_version_of")
     def _validate_version_of(self, key, version_of):
@@ -1644,8 +1651,7 @@ class Version(Base):
         
         return type
     
-    @validates("extension")
-    def _validate_extension(self, key, extension):
+    def _validate_extension(self, extension):
         """Validates the given extension value
         """
         
@@ -1658,6 +1664,31 @@ class Version(Base):
                 extension = "." + extension
         
         return extension
+    
+    def _extension_getter(self):
+        """Returns the extension attribute value
+        """
+        return self._extension
+    
+    def _extension_setter(self, extension):
+        """Sets the extension attribute
+        
+        :param extension: The new extension should be a string or unicode value
+          either starting with a dot sign or not.
+        """
+        
+        self._extension = self._validate_extension(extension)
+        
+        # now update the filename
+        self.update_paths()
+    
+    extension = synonym(
+        "_extension",
+        descriptor=property(fget=_extension_getter, fset=_extension_setter),
+        doc="""The extension of this version file, updating the extension will
+        also update the filename
+        """
+    )
     
     @synonym_for("_type")
     @property
@@ -1701,9 +1732,29 @@ class Version(Base):
         :class:`~oyProjectManager.core.models.Version` instance.
         
         Be careful about that the
-        :attr:`~oyProjectManager.core.models.Version.path` is an absolute path.
+        :attr:`~oyProjectManager.core.models.Version.path` is a relative path
+        to the related :class:`~oyProjectManager.core.models.Project`\ s root.
+        
+        Use :attr:`~oyProjectManager.core.models.Version.abs_path` to get the
+        absolute version of this path.
         """
         return self._path
+    
+    @property
+    def abs_path(self):
+        """The absolute version of the
+        :attr:`~oyProjectManager.core.models.Version.path` attribute.
+        
+        It is no problem if the
+        :attr:`~oyProjectManager.core.models.Version.path` is also an absolute
+        path, this will always return a proper absolute path.
+        
+        :return: string
+        """
+        return os.path.join(
+            self.version_of.project.fullpath,
+            self.path
+        ).replace("\\", "/")
 
     @property
     def fullpath(self):
@@ -1716,11 +1767,13 @@ class Version(Base):
         :attr:`~oyProjectManager.core.models.Version.filename`.
         
         Be careful about that the
-        :attr:`~oyProjectManager.core.models.Version.fullpath` is an absolute
+        :attr:`~oyProjectManager.core.models.Version.fullpath` is always an
+        absolute path, even the
+        :attr:`~oyProjectManager.core.models.Version.path` is also an absolute
         path.
         """
         return os.path.join(
-            self.path,
+            self.abs_path,
             self.filename
         ).replace("\\", "/")
 
@@ -2611,14 +2664,13 @@ class EnvironmentBase(object):
         """gets the file name from environment
         """
         raise NotImplemented
-
+    
     def getProject(self):
         """returns the current project from environment
         """
         raise NotImplemented
-
-#    def setProject(self, projectName, sequenceName):
-    def setProject(self, project):
+    
+    def set_project(self, project):
         """Sets the project to the given project.
         
         :param project: A :class:`~oyProjectManager.core.models.Project`
@@ -2626,7 +2678,7 @@ class EnvironmentBase(object):
             name
         """
         raise NotImplemented
-
+    
 #    def setOutputFileName(self):
 #    def set_output_path(self):
 #        """sets the output file names

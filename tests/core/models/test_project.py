@@ -317,16 +317,16 @@ class ProjectTester(unittest.TestCase):
         new_proj = Project(name="TEST_PROJ1")
         self.assertRaises(TypeError, setattr, new_proj, "name", 12312)
 
-    def test_fullpath_attribute_is_calculated_from_the_project_name(self):
+    def test_fullpath_attribute_is_calculated_from_the_project_code(self):
         """testing if the fullpath attribute is calculated from the project
-        name
+        code
         """
-        new_proj = Project(name="TEST_PROJ1")
+        new_proj = Project(name="Test Project 1", code="TEST_PROJECT_1")
         self.assertEqual(
             new_proj.fullpath,
             os.path.join(
                 os.environ["REPO"],
-                new_proj.name
+                new_proj.code
             )
         )
 

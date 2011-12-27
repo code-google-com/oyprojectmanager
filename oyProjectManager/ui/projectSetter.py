@@ -34,7 +34,7 @@ def setProject(environmentName, insist=False):
         envFactory = environmentFactory.EnvironmentFactory()
         #environment = environmentFactory.EnvironmentFactory.create( None, environmentName )
         environment = envFactory.create( None, environmentName )
-        environment.setProject( projectName, sequenceName )
+        environment.set_project( projectName, sequenceName )
 
 
 

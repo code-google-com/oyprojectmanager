@@ -41,10 +41,8 @@ class VersionTester(unittest.TestCase):
         self.test_versionType = VersionType(
             name="Test Animation",
             code="TANIM",
-            path="{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-            filename="{{version.base_name}}_{{version.take_name}}_\
-{{type.code}}_v{{'%03d'|format(version.version_number)}}_\
-{{version.created_by.initials}}{{version.extension}}",
+            path="Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
             output_path="{{version.path}}/OUTPUT/{{version.take_name}}",
             environments=["MAYA", "HOUDINI"],
             type_for="Shot"
@@ -623,6 +621,42 @@ class VersionTester(unittest.TestCase):
         
         self.assertEqual(prev_filename, self.test_version.filename)
     
+    def test_abs_path_attribute_is_rendered_properly(self):
+        """testing if the abs_path attribute is rendered properly with the
+        given VersionType's path template
+        """
+        # path = "SHOTS/{{version.base_name}}/{{version.type.code}}"
+        self.assertEqual(
+            self.test_version.abs_path,
+            self.test_version.project.fullpath +
+            "/Sequences/TEST_SEQ1/Shots/" + self.kwargs["base_name"] + "/" +
+            self.kwargs["type"].code
+        )
+    
+    def test_abs_path_returns_a_proper_absolute_path_when_path_is_absolute(self):
+        """testing if the abs_path returns a proper absolute path even though
+        the path it self is an absolute path
+        """
+
+        new_versionType = VersionType(
+            name="Test Animation New",
+            code="TANIMNEW",
+            path="{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+            output_path="{{version.path}}/OUTPUT/{{version.take_name}}",
+            environments=["MAYA", "HOUDINI"],
+            type_for="Shot"
+        )
+        
+        self.kwargs["type"] = new_versionType
+        new_version = Version(**self.kwargs)
+        
+        expected_path = self.test_project.fullpath + "/Sequences/" + \
+                        self.test_sequence.code + "/Shots/" + \
+                        new_version.base_name + "/" + new_version.type.code
+        
+        self.assertTrue(new_version.abs_path == expected_path)
+    
     def test_path_attribute_is_rendered_properly(self):
         """testing if the path attribute is rendered properly with the given
         VersionType's path template
@@ -630,8 +664,7 @@ class VersionTester(unittest.TestCase):
         # path = "SHOTS/{{version.base_name}}/{{version.type.code}}"
         self.assertEqual(
             self.test_version.path,
-            self.test_version.project.fullpath +
-            "/Sequences/TEST_SEQ1/Shots/" + self.kwargs["base_name"] + "/" +
+            "Sequences/TEST_SEQ1/Shots/" + self.kwargs["base_name"] + "/" +
             self.kwargs["type"].code
         )
     
@@ -891,6 +924,21 @@ class VersionTester(unittest.TestCase):
         """
         self.test_version.extension = ".ma"
         self.assertEqual(self.test_version.extension, ".ma")
+    
+    def test_extension_attribute_updates_the_filename_attribute(self):
+        """testing if changing the extension attribute also updates the
+        filename attribute
+        """
+        self.kwargs["extension"] = "ma"
+        new_vers = Version(**self.kwargs)
+        
+        self.assertEqual(new_vers.filename, "SH001_MAIN_TANIM_v001_tu.ma")
+        
+        # change the extension
+        new_vers.extension = "mb"
+        
+        # check if the filename is also updated
+        self.assertEqual(new_vers.filename, "SH001_MAIN_TANIM_v001_tu.mb")
     
     def test_project_attribute_is_read_only(self):
         """testing if the project attribute is read only

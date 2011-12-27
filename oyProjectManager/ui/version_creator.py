@@ -1651,6 +1651,9 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
       UI, like the Maya or Nuke.
     """
     
+    # TODO: add only active users to the interface
+    # TODO: add auto last user add support
+    
     def __init__(self, environment=None, parent=None):
         logger.debug("initializing the interface")
         
@@ -2220,7 +2223,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # version_number
             item = QtGui.QTableWidgetItem(str(vers.version_number))
             # align to center and vertical center
-            item.setTextAlignment(0x0002 | 0x0080)
+            item.setTextAlignment(0x0004 | 0x0080)
             self.previous_versions_tableWidget.setItem(i, 0, item)
             # ------------------------------------
         
@@ -2742,7 +2745,43 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # call the environments open_ method
         if self.environment is not None:
-            self.environment.open_(old_version)
+            
+            # environment can throw RuntimeError for unsaved changes
+            
+            try:
+                self.environment.open_(old_version)
+            except RuntimeError as e:
+                # pop a dialog and ask if the user really wants to open the
+                # file
+
+                answer = QtGui.QMessageBox.question(
+                    self,
+                    'RuntimeError',
+                    "There are <b>unsaved changes</b> in the current "
+                    "scene<br><br>Do you really want to open the file?",
+                    QtGui.QMessageBox.Yes,
+                    QtGui.QMessageBox.No
+                )
+                
+                envStatus = False
+                
+                if answer== QtGui.QMessageBox.Yes:
+                    envStatus, to_update_list = \
+                        self.environment.open_(old_version, True)
+                else:
+                    # no, just return
+                    return
+                
+                # check the to_update_list to update old versions
+                if len(to_update_list):
+                    # invoke the assetUpdater for this scene
+                    assetUpdaterMainDialog = assetUpdater.MainDialog(self.environment.name, self )
+                    assetUpdaterMainDialog.exec_()
+                    
+                self.environment.post_open(old_version)
+        
+        # close the dialog
+        self.close()
     
     def reference_pushButton_clicked(self):
         """runs when the reference_pushButton clicked
