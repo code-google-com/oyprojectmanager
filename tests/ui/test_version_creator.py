@@ -175,11 +175,17 @@ class VersionCreatorTester(unittest.TestCase):
         dialog = version_creator.MainDialog_New()
         
         # check if the project is a Project instance
-        self.assertIsInstance(dialog.projects_comboBox.projects, list)
+        self.assertTrue(isinstance(dialog.projects_comboBox.projects, list))
         
-        self.assertIsInstance(dialog.projects_comboBox.projects[0], Project)
-        self.assertIsInstance(dialog.projects_comboBox.projects[1], Project)
-        self.assertIsInstance(dialog.projects_comboBox.projects[2], Project)
+        self.assertTrue(
+            isinstance(dialog.projects_comboBox.projects[0], Project)
+        )
+        self.assertTrue(
+            isinstance(dialog.projects_comboBox.projects[1], Project)
+        )
+        self.assertTrue(
+            isinstance(dialog.projects_comboBox.projects[2], Project)
+        )
     
     def test_project_comboBox_with_no_sequences_and_shots(self):
         """testing if no error will be raised when there are couple of projects
@@ -252,7 +258,7 @@ class VersionCreatorTester(unittest.TestCase):
                    for i in range(dialog.users_comboBox.count())]
         
         for user in users:
-            self.assertIn(user.name, content)
+            self.assertTrue(user.name in content)
     
     def test_users_comboBox_has_users_attribute(self):
         """testing if the users_comboBox has an attribute called users
@@ -267,7 +273,11 @@ class VersionCreatorTester(unittest.TestCase):
         dialog = version_creator.MainDialog_New()
         users_from_UI = dialog.users_comboBox.users
         users_from_DB = db.query(User).all()
-        self.assertItemsEqual(users_from_UI, users_from_DB)
+        
+        # converting from assertItemsEqual
+        self.assertTrue(len(users_from_UI)==len(users_from_DB))
+        for item in users_from_UI:
+            self.assertTrue(item in users_from_DB)
     
     def test_asset_names_list_filled(self):
         """testing if the asset names listWidget is filled with asset names
@@ -303,10 +313,10 @@ class VersionCreatorTester(unittest.TestCase):
         listWidget = dialog.assets_listWidget
         item_texts = [listWidget.item(i).text() for i in range(listWidget.count())]
         
-        self.assertIn(asset1.name, item_texts)
-        self.assertIn(asset2.name, item_texts)
-        self.assertNotIn(asset3.name, item_texts)
-        self.assertNotIn(asset4.name, item_texts)
+        self.assertTrue(asset1.name in item_texts)
+        self.assertTrue(asset2.name in item_texts)
+        self.assertTrue(asset3.name not in item_texts)
+        self.assertTrue(asset4.name not in item_texts)
         
         # now update the project to the second one
         dialog.projects_comboBox.setCurrentIndex(1)
@@ -315,10 +325,10 @@ class VersionCreatorTester(unittest.TestCase):
         listWidget = dialog.assets_listWidget
         item_texts = [listWidget.item(i).text() for i in range(listWidget.count())]
         
-        self.assertNotIn(asset1.name, item_texts)
-        self.assertNotIn(asset2.name, item_texts)
-        self.assertIn(asset3.name, item_texts)
-        self.assertIn(asset4.name, item_texts)
+        self.assertTrue(asset1.name not in item_texts)
+        self.assertTrue(asset2.name not in item_texts)
+        self.assertTrue(asset3.name in item_texts)
+        self.assertTrue(asset4.name in item_texts)
     
     def test_description_text_edit_field_updated(self):
         """testing if the description field is updated with the selected asset
@@ -1585,10 +1595,8 @@ class VersionCreatorTester(unittest.TestCase):
                 dialog.takes_comboBox.currentText()
             )
 
-        self.assertItemsEqual(
-            ["Main", "Test"],
-                            ui_take_names
-        )
+        for take in ["Main", "Test"]:
+            self.assertTrue(take in ui_take_names)
 
     def test_takes_comboBox_lists_all_the_takes_of_current_shot_versions(self):
         """testing if the takes_comboBox lists all the takes of the current
@@ -1698,10 +1706,8 @@ class VersionCreatorTester(unittest.TestCase):
                 dialog.takes_comboBox.currentText()
             )
 
-        self.assertItemsEqual(
-            ["Main", "TestForShot"],
-                                   ui_take_names
-        )
+        for take in ["Main", "TestForShot"]:
+            self.assertTrue(take in ui_take_names)
 
         # check if shot2 has correct takes
         item = dialog.shots_listWidget.item(1)
@@ -1714,11 +1720,10 @@ class VersionCreatorTester(unittest.TestCase):
             ui_take_names.append(
                 dialog.takes_comboBox.currentText()
             )
-
-        self.assertItemsEqual(
-            ["TestForShot2"],
-                            ui_take_names
-        )
+    
+        # converting from assertItemsEqual
+        self.assertTrue(len(ui_take_names)==1)
+        self.assertTrue("TestForShot2" in ui_take_names)
     
     def test_takes_comboBox_lists_Main_by_default(self):
         """testing if the takes_comboBox lists "Main" by default
@@ -1918,10 +1923,10 @@ class VersionCreatorTester(unittest.TestCase):
                 dialog.version_types_comboBox.currentText()
             )
         
-        self.assertItemsEqual(
-            [asset_vtypes[0].name, asset_vtypes[1].name, asset_vtypes[2].name],
-            ui_type_names
-        )
+        # converting from assertItemsEqual
+        self.assertTrue(len(ui_type_names)==3)
+        for item in [asset_vtypes[0].name, asset_vtypes[1].name, asset_vtypes[2].name]:
+            self.assertTrue(item in ui_type_names)
 
     def test_previous_versions_tableWidget_is_updated_properly(self):
         """testing if the previous_versions_tableWidget is updated properly
@@ -2362,11 +2367,12 @@ class VersionCreatorTester(unittest.TestCase):
         # check if the shots_listWidget has the correct items
         listWidget = dialog.shots_listWidget
         item_texts = [listWidget.item(i).text() for i in range(listWidget.count())]
-
-        self.assertItemsEqual(
-            item_texts,
-            ["SH001", "SH002", "SH001A", "SH002A", "SH003"]
-        )
+        
+        for item_text in item_texts:
+            self.assertTrue(
+                item_text in 
+                ["SH001", "SH002", "SH001A", "SH002A", "SH003"]
+            )
 
         # change the sequence to sequence 2
         dialog.sequences_comboBox.setCurrentIndex(1)
@@ -2374,10 +2380,11 @@ class VersionCreatorTester(unittest.TestCase):
         # check if the shots_listWidget has the correct items
         item_texts = [listWidget.item(i).text() for i in range(listWidget.count())]
 
-        self.assertItemsEqual(
-            item_texts,
-            ["SH001", "SH002", "SH003", "SH004", "SH005"]
-        )
+        for item_text in item_texts:
+            self.assertTrue(
+                item_texts in 
+                ["SH001", "SH002", "SH003", "SH004", "SH005"]
+            )
     
     def test_shots_listWidget_has_shots_attribute(self):
         """testing if the shot_listWidget has an attribute called shots
@@ -2441,10 +2448,11 @@ class VersionCreatorTester(unittest.TestCase):
         
         self.assertTrue(all([isinstance(shot, Shot) for shot in dialog.shots_listWidget.shots]))
         
-        self.assertListEqual(
-            expected_list,
-            dialog.shots_listWidget.shots
-        )
+        for shot in dialog.shots_listWidget.shots:
+            self.assertTrue(
+                shot in 
+                expected_list
+            )
     
     def test_create_asset_pushButton_pops_up_a_QInputDialog(self):
         """testing if the create_asset_pushButton pops up a QInputDialog
@@ -2779,9 +2787,9 @@ class VersionCreatorTester(unittest.TestCase):
         """testing if the database also will be setup
         """
         
-        self.assertIs(db.session, None)
+        self.assertTrue(db.session is None)
         dialog = version_creator.MainDialog_New()
-        self.assertIsNot(db.session, None)
+        self.assertTrue(db.session is not None)
     
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     """tests the interaction of the UI with the given environment
@@ -3078,8 +3086,8 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         # check if the run_count of export_as is 0
         self.assertEqual(
             self.test_environment.test_data["export_as"]["call count"], 0)
-        self.assertIs(
-            self.test_environment.test_data["export_as"]["data"], None)
+        self.assertTrue(
+            self.test_environment.test_data["export_as"]["data"] is None)
         
         # hit to the export_as_pushButton
         QTest.mouseClick(
@@ -3093,7 +3101,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         version_instance = self.test_environment.test_data["export_as"]["data"]
         
-        self.assertIsInstance(version_instance, Version)
+        self.assertTrue(isinstance(version_instance, Version))
         self.assertEqual(version_instance.version_of, self.test_asset1)
         self.assertEqual(version_instance.type.name,
                          self.test_dialog.version_types_comboBox.currentText())
@@ -3128,8 +3136,8 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         # check if the run_count of save_as is 0
         self.assertEqual(
             self.test_environment.test_data["save_as"]["call count"], 0)
-        self.assertIs(
-            self.test_environment.test_data["save_as"]["data"], None)
+        self.assertTrue(
+            self.test_environment.test_data["save_as"]["data"] is None)
         
         # hit to the export_as_pushButton
         QTest.mouseClick(
@@ -3143,7 +3151,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         version_instance = self.test_environment.test_data["save_as"]["data"]
         
-        self.assertIsInstance(version_instance, Version)
+        self.assertTrue(isinstance(version_instance, Version))
         self.assertEqual(version_instance.version_of, self.test_asset1)
         self.assertEqual(version_instance.type.name,
                          self.test_dialog.version_types_comboBox.currentText())
@@ -3174,8 +3182,8 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         # check if the run_count of open_ is 0
         self.assertEqual(
             self.test_environment.test_data["open_"]["call count"], 0)
-        self.assertIs(
-            self.test_environment.test_data["open_"]["data"], None)
+        self.assertTrue(
+            self.test_environment.test_data["open_"]["data"] is None)
         
         # hit to the open_pushButton
         QTest.mouseClick(
@@ -3189,7 +3197,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         version_instance = self.test_environment.test_data["open_"]["data"]
         
-        self.assertIsInstance(version_instance, Version)
+        self.assertTrue(isinstance(version_instance, Version))
         self.assertEqual(version_instance.version_of, self.test_asset1)
         self.assertEqual(version_instance.type.name,
                          self.test_dialog.version_types_comboBox.currentText())
@@ -3253,8 +3261,8 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         # check if the run_count of reference is 0
         self.assertEqual(
             self.test_environment.test_data["reference"]["call count"], 0)
-        self.assertIs(
-            self.test_environment.test_data["reference"]["data"], None)
+        self.assertTrue(
+            self.test_environment.test_data["reference"]["data"] is None)
         
         # hit to the reference_pushButton
         QTest.mouseClick(
@@ -3268,7 +3276,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         version_instance = self.test_environment.test_data["reference"]["data"]
         
-        self.assertIsInstance(version_instance, Version)
+        self.assertTrue(isinstance(version_instance, Version))
         self.assertEqual(version_instance.version_of, self.test_asset1)
         self.assertEqual(version_instance.type.name,
                          self.test_dialog.version_types_comboBox.currentText())
@@ -3298,8 +3306,8 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         # check if the run_count of import_ is 0
         self.assertEqual(
             self.test_environment.test_data["import_"]["call count"], 0)
-        self.assertIs(
-            self.test_environment.test_data["import_"]["data"], None)
+        self.assertTrue(
+            self.test_environment.test_data["import_"]["data"] is None)
         
         # hit to the import_pushButton
         QTest.mouseClick(
@@ -3313,7 +3321,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         version_instance = self.test_environment.test_data["import_"]["data"]
         
-        self.assertIsInstance(version_instance, Version)
+        self.assertTrue(isinstance(version_instance, Version))
         self.assertEqual(version_instance.version_of, self.test_asset1)
         self.assertEqual(version_instance.type.name,
                          self.test_dialog.version_types_comboBox.currentText())

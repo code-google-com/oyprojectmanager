@@ -113,7 +113,7 @@ class Nuke(EnvironmentBase):
         
         return True
     
-    def getPathVariables(self):
+    def get_current_version(self):
         """gets the file name from nuke
         """
         

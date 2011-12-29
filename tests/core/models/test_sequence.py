@@ -97,7 +97,7 @@ class SequenceTester(unittest.TestCase):
         new_seq.save()
         
         # now check if the sequence.project is a Project instance
-        self.assertIsInstance(new_seq.project, Project)
+        self.assertTrue(isinstance(new_seq.project, Project))
     
     def test_project_argument_is_a_string_and_the_project_is_not_created(self):
         """testing if a RuntimeError will be generated when the project argument
@@ -220,7 +220,7 @@ class SequenceTester(unittest.TestCase):
         # check if there is no sequence folder
         dir_content = os.listdir(new_proj1.fullpath)
         
-        self.assertNotIn("Sequences", dir_content)
+        self.assertTrue("Sequences" not in dir_content)
         
         new_seq = Sequence(new_proj1, "TEST_SEQ1")
         #new_seq.save()
@@ -230,7 +230,7 @@ class SequenceTester(unittest.TestCase):
         # created
         dir_content = os.listdir(new_proj1.fullpath)
         
-        self.assertNotIn("Sequences", dir_content)
+        self.assertTrue("Sequences" in dir_content)
     
     def test_create_method_creates_the_sequence_structure(self):
         """testing if calling the create method creates the sequence structure
@@ -277,7 +277,7 @@ class SequenceTester(unittest.TestCase):
         # check if there is no sequence folder
         dir_content = os.listdir(new_proj1.fullpath)
         
-        self.assertNotIn("Sequences", dir_content)
+        self.assertTrue("Sequences" not in dir_content)
         
         new_seq = Sequence(new_proj1, "TEST_SEQ1")
         new_seq.save()
@@ -288,7 +288,7 @@ class SequenceTester(unittest.TestCase):
             os.path.join(new_proj1.fullpath, "Sequences")
         )
         
-        self.assertIn("TEST_SEQ1", dir_content)
+        self.assertTrue("TEST_SEQ1" in dir_content)
     
     def test_description_attribute_is_working_properly(self):
         """testing if the description attribute is working properly
@@ -505,27 +505,27 @@ class Sequence_DB_Tester(unittest.TestCase):
         # add a new shot
         new_seq1.add_shots("1")
         self.assertTrue(len(new_seq1.shots)==1)
-        self.assertIn(new_seq1.shots[0].number, expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[0].number in expected_shot_numbers)
         
         # add a couple of shots
         new_seq1.add_shots("2-4")
         self.assertTrue(len(new_seq1.shots)==4)
-        self.assertIn(new_seq1.shots[1].number, expected_shot_numbers)
-        self.assertIn(new_seq1.shots[2].number, expected_shot_numbers)
-        self.assertIn(new_seq1.shots[3].number, expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[1].number in expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[2].number in expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[3].number in expected_shot_numbers)
         
         # add a couple of more
         new_seq1.add_shots("5-8,10,12-15")
         self.assertTrue(len(new_seq1.shots)==13)
-        self.assertIn(new_seq1.shots[4].number, expected_shot_numbers)
-        self.assertIn(new_seq1.shots[5].number, expected_shot_numbers)
-        self.assertIn(new_seq1.shots[6].number, expected_shot_numbers)
-        self.assertIn(new_seq1.shots[7].number, expected_shot_numbers)
-        self.assertIn(new_seq1.shots[8].number, expected_shot_numbers)
-        self.assertIn(new_seq1.shots[9].number, expected_shot_numbers)
-        self.assertIn(new_seq1.shots[10].number, expected_shot_numbers)
-        self.assertIn(new_seq1.shots[11].number, expected_shot_numbers)
-        self.assertIn(new_seq1.shots[12].number, expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[4].number in expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[5].number in expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[6].number in expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[7].number in expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[8].number in expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[9].number in expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[10].number in expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[11].number in expected_shot_numbers)
+        self.assertTrue(new_seq1.shots[12].number in expected_shot_numbers)
     
     def test_add_alternative_shot_is_working_properly(self):
         """testing if the add_alternative_shot method is working properly

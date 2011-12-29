@@ -286,7 +286,7 @@ class AssetTester(unittest.TestCase):
         """testing if the save method saves the asset to the database
         """
         self.test_asset.save()
-        self.assertIn(self.test_asset, db.session)
+        self.assertTrue(self.test_asset in db.session)
     
     def test_equality_of_assets(self):
         """testing if two assets are equal if their names and projects are also

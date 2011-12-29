@@ -1522,7 +1522,7 @@ class Version(Base):
     __tablename__ = "Versions"
     
     __table_args__  = (
-        UniqueConstraint("base_name", "take_name", "_version_number"),
+        UniqueConstraint("base_name", "take_name", "_version_number", "type_id"),
         {"extend_existing":True}
     )
 
@@ -1726,64 +1726,55 @@ class Version(Base):
         """The path of this version.
         
         It is automatically created by rendering the template in
-        :attr:`~oyProjectManager.core.models.VersionType.path` of the
-        :class`~oyProjectManager.core.models.Version` class with the
+        :class`~oyProjectManager.core.models.Version`\.
+        :attr:`~oyProjectManager.core.models.VersionType.path` of the with the
         information supplied by this
         :class:`~oyProjectManager.core.models.Version` instance.
         
-        Be careful about that the
-        :attr:`~oyProjectManager.core.models.Version.path` is a relative path
-        to the related :class:`~oyProjectManager.core.models.Project`\ s root.
-        
-        Use :attr:`~oyProjectManager.core.models.Version.abs_path` to get the
-        absolute version of this path.
-        """
-        return self._path
-    
-    @property
-    def abs_path(self):
-        """The absolute version of the
-        :attr:`~oyProjectManager.core.models.Version.path` attribute.
-        
-        It is no problem if the
-        :attr:`~oyProjectManager.core.models.Version.path` is also an absolute
-        path, this will always return a proper absolute path.
-        
-        :return: string
+        The resultant path is an absolute one. But the stored path in the
+        database is just the relative portion to the
+        :class:`~oyProjectManager.core.models.Repository`\ .\ 
+        :attr:`~oyProjectManager.core.models.Repository.server_path`
         """
         return os.path.join(
-            self.version_of.project.fullpath,
-            self.path
+            self.project.path,
+            self._path
         ).replace("\\", "/")
-
+    
     @property
     def fullpath(self):
         """The fullpath of this version.
         
-        It is and absolute path of the current Version instance which is
-        created by joining the
-        :attr:`~oyProjectManager.core.models.Project.fullpath`\ ,
+        It is the join of
+        :class:`~oyProjectManager.core.models.Repository`.\ 
+        :attr:`~oyProjectManager.core.models.Repository.server_path` and
+        :class:`~oyProjectManager.core.models.Version`.\
         :attr:`~oyProjectManager.core.models.Version.path` and
-        :attr:`~oyProjectManager.core.models.Version.filename`.
+        :class:`~oyProjectManager.core.models.Version`.\
+        :attr:`~oyProjectManager.core.models.Version.filename` attributes.
         
-        Be careful about that the
-        :attr:`~oyProjectManager.core.models.Version.fullpath` is always an
-        absolute path, even the
-        :attr:`~oyProjectManager.core.models.Version.path` is also an absolute
-        path.
+        So, it is an absolute path. The value of the ``fullpath`` is not stored
+        in the database.
         """
         return os.path.join(
-            self.abs_path,
+            self.path,
             self.filename
         ).replace("\\", "/")
-
+    
     @synonym_for("_output_path")
     @property
     def output_path(self):
         """The output_path of this version.
         
-        It is automatically created by rendering the VersionType.output_path
-        template with the information supplied with this Version instance.
+        It is automatically created by rendering the
+        :class:`~oyProjectManager.core.models.VersionType`\ .\ 
+        :attr:`~oyProjectManager.core.models.VersionType.output_path`
+        template with the information supplied with this ``Version`` instance.
+        
+        The resultant path is an absolute one. But the stored path in the
+        database is just the relative portion to the
+        :class:`~oyProjectManager.core.models.Repository`\ .\ 
+        :attr:`~oyProjectManager.core.models.Repository.server_path`.
         """
         return self._output_path
 
@@ -1862,12 +1853,13 @@ class Version(Base):
         
         :returns: :class:`~oyProjectManager.core.models.Version` instance
         """
-        return db.session.\
-            query(Version).\
-            filter(Version.base_name == self.base_name).\
-            filter(Version.take_name == self.take_name).\
-            order_by(Version.version_number.desc()).\
-            first()
+        return db.session\
+            .query(Version)\
+            .filter(Version.type==self.type)\
+            .filter(Version.base_name == self.base_name)\
+            .filter(Version.take_name == self.take_name)\
+            .order_by(Version.version_number.desc())\
+            .first()
     
     @property
     def max_version(self):
@@ -2215,14 +2207,34 @@ class VersionType(Base):
         :class:`~oyProjectManager.core.models.Shot` may placed to different
         folders according to your new template.
         
-        The path template should be an absolute one, so don't forget to place
-        ``{{project.fullpath}}`` at the beginning of your template.
+        The path template should be an relative one to the
+        :attr:`~oyProjectManager.core.models.Repository.server_path`, so don't
+        forget to place ``{{project.code}}`` at the beginning of your template
+        if you are storing all your asset and shots inside the project
+        directory.
+        
+        If you want to store your assets in one place and use them in several
+        projects, you can do it by starting the ``path`` of the VersionType
+        with something like that::
+            
+            "Assets/{{version.base_name}}/{{type.code}}"
+        
+        and if your repository path is "/mnt/M/JOBs" then your assets will be
+        stored in::
+            
+            "/mnt/M/JOBs/Assets"
+        
         """
     )
 
     output_path = Column(
         String,
         doc="""The output path template for this Type of Version instances.
+        
+        To place your output path right beside the original version file you
+        can set the ``output_path`` to::
+            
+            "{{version.path}}/Outputs/{{version.take_name}}"
         """
     )
 
@@ -2660,8 +2672,19 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
 
-    def getPathVariables(self):
-        """gets the file name from environment
+    def get_current_version(self):
+        """Returns the current Version instance from the environment.
+        
+        * It first looks at the current open file full path and tries to match
+          it with a Version instance.
+        * Then searches for the recent files list.
+        * Still not able to find any Version instances, will return the version
+          instance with the highest id which has the current workspace path in
+          its path
+        * Still not able to find any Version instances returns None
+        
+        :returns: :class:`~oyProjectManager.core.models.Version` instance or
+            None
         """
         raise NotImplemented
     
@@ -2690,7 +2713,7 @@ class EnvironmentBase(object):
 #        """
 #        raise NotImplemented
 
-    def check_reference_versions(self):
+    def check_referenced_versions(self):
         """Checks the referenced versions
         
         returns list of asset objects
@@ -2758,9 +2781,9 @@ class EnvironmentBase(object):
         list false otherwise.
         
         accepts:
-        - a full path with extension or not
-        - a file name with extension or not
-        - an extension with a dot on the start or not
+        * a full path with extension or not
+        * a file name with extension or not
+        * an extension with a dot on the start or not
         
         :param filename: A string containing the filename
         """

@@ -1302,7 +1302,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
         """
         
         if self._environment.name != None and self._environment.name != '':
-            self.fileName, self.path = self._environment.getPathVariables()
+            self.fileName, self.path = self._environment.get_current_version()
             
             # update the interface
             self.fillFieldsFromFileInfo()

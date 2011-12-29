@@ -96,7 +96,7 @@ class Houdini(EnvironmentBase):
     
     
     
-    def getPathVariables(self):
+    def get_current_version(self):
         """gets the file name from houdini environment
         """
         

@@ -440,14 +440,18 @@ class VersionTypeTester(unittest.TestCase):
         test_value = ["MAYA", "HOUDINI"]
         self.kwargs["environments"] = test_value
         new_vtype = VersionType(**self.kwargs)
-        self.assertItemsEqual(new_vtype.environments, test_value)
+        
+        for env in test_value:
+            self.assertTrue(env in new_vtype.environments)
     
     def test_environments_attribute_works_properly(self):
         """testing if the environments attribute is working properly
         """
         test_value = ["MAYA", "HOUDINI", "NUKE", "3DEQUALIZER"]
         self.test_versionType.environments = test_value
-        self.assertItemsEqual(self.test_versionType.environments, test_value)
+        
+        for env in test_value:
+            self.assertTrue(env in self.test_versionType.environments)
     
     def test_type_for_argument_is_skipped(self):
         """testing if a TypeError will be raised when the type_for argument is

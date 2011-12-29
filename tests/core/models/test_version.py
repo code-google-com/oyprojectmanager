@@ -41,7 +41,7 @@ class VersionTester(unittest.TestCase):
         self.test_versionType = VersionType(
             name="Test Animation",
             code="TANIM",
-            path="Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+            path="{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
             filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
             output_path="{{version.path}}/OUTPUT/{{version.take_name}}",
             environments=["MAYA", "HOUDINI"],
@@ -125,7 +125,7 @@ class VersionTester(unittest.TestCase):
     def test_version_of_attribute_initialized_correctly(self):
         """testing if the version_of attribute initialized correctly
         """
-        self.assertIs(self.test_version.version_of, self.kwargs["version_of"])
+        self.assertEqual(self.test_version.version_of, self.kwargs["version_of"])
     
     def test_version_of_attribute_is_read_only(self):
         """testing if the version_of attribute is read-only
@@ -157,7 +157,7 @@ class VersionTester(unittest.TestCase):
     def test_type_attribute_initialized_properly(self):
         """testing if the type attribute is initialized correctly
         """
-        self.assertIs(self.test_version.type, self.kwargs["type"])
+        self.assertEqual(self.test_version.type, self.kwargs["type"])
     
     def test_type_attribute_is_read_only(self):
         """testing if the type attribute is read-only
@@ -187,7 +187,7 @@ class VersionTester(unittest.TestCase):
         # create a new VersionType which is suitable for Shots
         new_vtype = VersionType(
             "Test Type", code="TType",
-            path="SHOTS/{{version.base_name}}/{{type.code}}",
+            path="{{project.code}}/Sequences/{{sequence.code}}/SHOTS/{{version.base_name}}/{{type.code}}",
             filename="{{version.base_name}}_{{version.take_name}}_\
             {{type.code}}_v{{'%03d'|format(version.version_number)}}_\
             {{version.created_by.initials}}",
@@ -621,41 +621,41 @@ class VersionTester(unittest.TestCase):
         
         self.assertEqual(prev_filename, self.test_version.filename)
     
-    def test_abs_path_attribute_is_rendered_properly(self):
-        """testing if the abs_path attribute is rendered properly with the
-        given VersionType's path template
-        """
-        # path = "SHOTS/{{version.base_name}}/{{version.type.code}}"
-        self.assertEqual(
-            self.test_version.abs_path,
-            self.test_version.project.fullpath +
-            "/Sequences/TEST_SEQ1/Shots/" + self.kwargs["base_name"] + "/" +
-            self.kwargs["type"].code
-        )
-    
-    def test_abs_path_returns_a_proper_absolute_path_when_path_is_absolute(self):
-        """testing if the abs_path returns a proper absolute path even though
-        the path it self is an absolute path
-        """
-
-        new_versionType = VersionType(
-            name="Test Animation New",
-            code="TANIMNEW",
-            path="{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
-            output_path="{{version.path}}/OUTPUT/{{version.take_name}}",
-            environments=["MAYA", "HOUDINI"],
-            type_for="Shot"
-        )
-        
-        self.kwargs["type"] = new_versionType
-        new_version = Version(**self.kwargs)
-        
-        expected_path = self.test_project.fullpath + "/Sequences/" + \
-                        self.test_sequence.code + "/Shots/" + \
-                        new_version.base_name + "/" + new_version.type.code
-        
-        self.assertTrue(new_version.abs_path == expected_path)
+#    def test_abs_path_attribute_is_rendered_properly(self):
+#        """testing if the abs_path attribute is rendered properly with the
+#        given VersionType's path template
+#        """
+#        # path = "SHOTS/{{version.base_name}}/{{version.type.code}}"
+#        self.assertEqual(
+#            self.test_version.abs_path,
+#            self.test_version.project.fullpath +
+#            "/Sequences/TEST_SEQ1/Shots/" + self.kwargs["base_name"] + "/" +
+#            self.kwargs["type"].code
+#        )
+#    
+#    def test_abs_path_returns_a_proper_absolute_path_when_path_is_absolute(self):
+#        """testing if the abs_path returns a proper absolute path even though
+#        the path it self is an absolute path
+#        """
+#
+#        new_versionType = VersionType(
+#            name="Test Animation New",
+#            code="TANIMNEW",
+#            path="{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+#            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+#            output_path="{{version.path}}/OUTPUT/{{version.take_name}}",
+#            environments=["MAYA", "HOUDINI"],
+#            type_for="Shot"
+#        )
+#        
+#        self.kwargs["type"] = new_versionType
+#        new_version = Version(**self.kwargs)
+#        
+#        expected_path = self.test_project.fullpath + "/Sequences/" + \
+#                        self.test_sequence.code + "/Shots/" + \
+#                        new_version.base_name + "/" + new_version.type.code
+#        
+#        self.assertTrue(new_version.abs_path == expected_path)
     
     def test_path_attribute_is_rendered_properly(self):
         """testing if the path attribute is rendered properly with the given
@@ -664,8 +664,11 @@ class VersionTester(unittest.TestCase):
         # path = "SHOTS/{{version.base_name}}/{{version.type.code}}"
         self.assertEqual(
             self.test_version.path,
-            "Sequences/TEST_SEQ1/Shots/" + self.kwargs["base_name"] + "/" +
-            self.kwargs["type"].code
+            os.path.join(
+                self.test_project.fullpath,
+                "Sequences/TEST_SEQ1/Shots/" + self.kwargs["base_name"] + "/" +
+                self.kwargs["type"].code
+            )
         )
     
     def test_path_attribute_is_read_only(self):
@@ -683,6 +686,11 @@ class VersionTester(unittest.TestCase):
         self.kwargs["type"].path = "A"
         
         self.assertEqual(prev_path, self.test_version.path)
+    
+    def test_path_attribute_is_absolute(self):
+        """testing if the rendered path attribute is absolute
+        """
+        self.assertTrue(os.path.isabs(self.test_version.path))
     
     def test_output_path_attribute_is_rendered_properly(self):
         """testing if the output_path attribute is rendered properly with the
@@ -711,15 +719,21 @@ class VersionTester(unittest.TestCase):
         
         self.assertEqual(prev_output_path, self.test_version.output_path)
     
+    def test_output_path_attribute_is_absolute(self):
+        """testing if the output_path attribute is absolute
+        """
+        self.assertTrue(os.path.isabs(self.test_version.output_path))
+        
     def test_fullpath_attribute_is_rendered_properly(self):
         """testing if the fullpath attribute is rendered properly
         """
+        
         self.assertEqual(
             self.test_version.fullpath,
             os.path.join(
-                self.test_version.project.fullpath,
+                self.test_project.fullpath,
                 "Sequences/TEST_SEQ1/Shots/SH001/TANIM/SH001_MAIN_TANIM_v001_tu.ma"
-            )
+            ).replace("\\", "/")
         )
 
     def test_fullpath_attribute_is_read_only(self):
@@ -738,6 +752,11 @@ class VersionTester(unittest.TestCase):
         self.kwargs["type"].path = "A"
         
         self.assertEqual(prev_fullpath, self.test_version.fullpath)
+    
+    def test_fullpath_attribute_is_absoltue(self):
+        """testing if the fullpath attribute value is absolute
+        """
+        self.assertTrue(os.path.isabs(self.test_version.fullpath))
     
     def test_references_attribute_accepts_Version_instances_only(self):
         """testing if a TypeError will be raised when the value passed to the
@@ -969,6 +988,106 @@ class VersionTester(unittest.TestCase):
         self.assertFalse(version2.is_latest_version())
         self.assertTrue(version3.is_latest_version())
     
+    def test_is_latest_version_method_for_different_takes(self):
+        """testing if the is_latest_version method returns True if the current
+        Version is the last among the others even there are Versions with
+        different takes
+        """
+
+        version1 = Version(**self.kwargs)
+        version1.save()
+        version2 = Version(**self.kwargs)
+        version2.save()
+        
+        self.kwargs["take_name"] = "NewTake"
+        version3 = Version(**self.kwargs)
+        version3.save()
+        version4 = Version(**self.kwargs)
+        version4.save()
+
+        self.assertFalse(version1.is_latest_version())
+        self.assertTrue(version2.is_latest_version())
+        self.assertFalse(version3.is_latest_version())
+        self.assertTrue(version4.is_latest_version())
+    
+    def test_is_latest_version_method_for_different_types(self):
+        """testing if the is_latest_version method returns True if the current
+        Version is the last among the others even there are Versions with
+        different types
+        """
+
+        vType1 = VersionType(
+            name="VersionType1",
+            code="VT1",
+            path="{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+            output_path="{{version.path}}/OUTPUT/{{version.take_name}}",
+            environments=["MAYA", "HOUDINI"],
+            type_for="Shot"
+        )
+        
+        vType2 = VersionType(
+            name="VersionType2",
+            code="VT2",
+            path="{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+            output_path="{{version.path}}/OUTPUT/{{version.take_name}}",
+            environments=["MAYA", "HOUDINI"],
+            type_for="Shot"
+        )
+
+        vType3 = VersionType(
+            name="VersionType3",
+            code="VT3",
+            path="{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+            output_path="{{version.path}}/OUTPUT/{{version.take_name}}",
+            environments=["MAYA", "HOUDINI"],
+            type_for="Shot"
+        )
+        
+        vType1.save()
+        vType2.save()
+        vType3.save()
+        
+        self.kwargs["type"] = vType1
+        vers1 = Version(**self.kwargs)
+        vers1.save()
+        vers2 = Version(**self.kwargs)
+        vers2.save()
+        vers3 = Version(**self.kwargs)
+        vers3.save()
+        
+        self.kwargs["type"] = vType2
+        vers4 = Version(**self.kwargs)
+        vers4.save()
+        vers5 = Version(**self.kwargs)
+        vers5.save()
+        vers6 = Version(**self.kwargs)
+        vers6.save()
+
+        self.kwargs["type"] = vType3
+        vers7 = Version(**self.kwargs)
+        vers7.save()
+        vers8 = Version(**self.kwargs)
+        vers8.save()
+        vers9 = Version(**self.kwargs)
+        vers9.save()
+
+        self.assertFalse(vers1.is_latest_version())
+        self.assertFalse(vers2.is_latest_version())
+        self.assertTrue(vers3.is_latest_version())
+        
+        self.assertFalse(vers4.is_latest_version())
+        self.assertFalse(vers5.is_latest_version())
+        self.assertTrue(vers6.is_latest_version())
+
+        self.assertFalse(vers7.is_latest_version())
+        self.assertFalse(vers8.is_latest_version())
+        self.assertTrue(vers9.is_latest_version())
+
+
+
     def test_latest_version_method_returns_the_latest_versions_instance(self):
         """testing if the latest_version instance returns the latest Version
         instance in this series

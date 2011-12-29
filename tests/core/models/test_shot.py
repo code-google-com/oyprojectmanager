@@ -247,7 +247,7 @@ class ShotTester(unittest.TestCase):
     def test_sequence_argument_is_working_properly(self):
         """testing if the sequence argument is working correctly
         """
-        self.assertIs(self.test_shot.sequence, self.test_seq)
+        self.assertTrue(self.test_shot.sequence is self.test_seq)
     
     def test_sequence_attribute_is_read_only(self):
         """testing if the sequence attribute is read-only
@@ -432,7 +432,8 @@ class ShotTester(unittest.TestCase):
     def test_project_attribute_is_initialized_correctly(self):
         """testing if the project attribute is initialized correctly
         """
-        self.assertIs(self.test_shot.project, self.kwargs["sequence"].project)
+        self.assertTrue(self.test_shot.project is
+                        self.kwargs["sequence"].project)
 
     def test_shot_is_CRUD_properly_in_the_database(self):
         """testing if the shot instance is created properly in the database

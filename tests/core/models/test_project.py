@@ -428,7 +428,7 @@ class ProjectTester(unittest.TestCase):
                 filter_by(name=version_type_name).\
                 first()
             
-            self.assertIsNot(vtype_from_proj, None)
+            self.assertTrue(vtype_from_proj is not None)
 
 #    def test_version_types_attribute_initialization_for_a_Project_created_from_db(self):
 #        """testing if the version_types attribute will be initialized correctly

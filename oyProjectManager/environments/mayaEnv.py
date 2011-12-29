@@ -75,7 +75,7 @@ class Maya(EnvironmentBase):
         version.extension = '.ma'
         
         # create a workspace file at the parent folder of the current version
-        workspace_path = os.path.dirname(version.abs_path)
+        workspace_path = os.path.dirname(version.path)
         
         self.create_workspace_file(workspace_path)
         pm.workspace.open(workspace_path)
@@ -87,7 +87,7 @@ class Maya(EnvironmentBase):
         self.set_playblast_file_name(version)
         
         # create the folder if it doesn't exists
-        utils.createFolder(version.abs_path)
+        utils.createFolder(version.path)
         
         # delete the unknown nodes
         unknownNodes = pm.ls(type='unknown')
@@ -121,7 +121,7 @@ class Maya(EnvironmentBase):
         version.extension = '.ma'
         
         # create the folder if it doesn't exists
-        utils.createFolder(version.abs_path)
+        utils.createFolder(version.path)
         
         # export the file
         pm.exportSelected(version.fullpath, type='mayaAscii')
@@ -145,7 +145,7 @@ class Maya(EnvironmentBase):
         # set the project
         pm.workspace.open(
             os.path.dirname(
-                version.abs_path
+                version.path
             )
         )
         
@@ -158,7 +158,7 @@ class Maya(EnvironmentBase):
         self.replace_external_paths(version)
         
         # check the referenced assets for newer version
-        to_update_list = self.check_reference_versions()
+        to_update_list = self.check_referenced_versions()
         
         return True, to_update_list
     
@@ -188,9 +188,13 @@ class Maya(EnvironmentBase):
         
         new_version_fullpath = version.fullpath
         if version.fullpath.startswith(workspace):
-            new_version_fullpath = utils.relpath(
-                self._asset.sequenceFullPath.replace("\\", "/"),
-                version.fullPath.replace("\\", "/"), "/", ".."
+#            new_version_fullpath = utils.relpath(
+#                self._asset.sequenceFullPath.replace("\\", "/"),
+#                version.fullPath.replace("\\", "/"), "/", ".."
+#            )
+            new_version_fullpath = os.path.relpath(
+                version.fullPath.replace("\\", "/"),
+                self._asset.sequenceFullPath.replace("\\", "/")
             )
         
         # replace the path with environment variable
@@ -209,50 +213,60 @@ class Maya(EnvironmentBase):
         
         return True
     
-    def getPathVariables(self):
-        """gets the file name from maya environment
+    def get_current_version(self):
+        """Returns the current Version instance from the environment.
+        
+        * It first looks at the current open file full path and tries to match
+          it with a Version instance.
+        * Then searches for the recent files list.
+        * Still not able to find any Version instances, will return the version
+          instance with the highest id which has the current workspace path in
+          its path
+        * Still not able to find any Version instances returns None
+        
+        :returns: :class:`~oyProjectManager.core.models.Version` instance or
+            None
         """
         
-        foundValidAsset = False
-        readRecentFile = True
-        fileName = path = None
-        workspacePath = None
+        found_valid_version = False
+        read_recent_file = True
+        filename = path = None
+        workspace_path = None
         
         repo = repository.Repository()
 
         # pm.env.sceneName() always uses "/"
-        fullPath = pm.env.sceneName()
+        fullpath = pm.env.sceneName()
         
-        #if os.name == 'nt':
-        #    fullpath = fullpath.replace('/','\\')
-        
-        #print "the fullpath in maya is ", fullpath
-        
-        if fullPath != '':
-            fileName = os.path.basename(fullPath)
+        if fullpath != '':
+            filename = os.path.basename(fullpath)
+            path = os.path.dirname(path)
             
-            # try to create an asset with that info
-            projName, seqName = repo.get_project_and_sequence_name_from_file_path(fullPath)
-
-            #print "projName", projName
-            #print "seqName", seqName
+            ## try to create an asset with that info
+            #projName, seqName = repo.get_project_and_sequence_name_from_file_path(fullpath)
+            
+            # remove the repository.server_path portion of the path
+            server_path = repo.server_path()
+            if path.startswith(server_path):
+                path = path[len(server_path):]
+            
+            # try to get a version with that info
+            db.query(Version).
 
             if projName != None and seqName != None:
                 proj = Project(projName)
                 seq = Sequence(proj, seqName)
 
-                testAsset = Asset(proj, seq, fileName)
+                testAsset = Asset(proj, seq, filename)
                 
                 if testAsset.isValidAsset:
-                    fileName = testAsset.fileName
+                    filename = testAsset.fileName
                     path = testAsset.path
-                    readRecentFile = False
+                    read_recent_file = False
             else:
-                readRecentFile = True
+                read_recent_file = True
         
-        
-        
-        if readRecentFile:
+        if read_recent_file:
             # read the fileName from recent files list
             # try to get the a valid asset file from starting the last recent file
             
@@ -266,7 +280,7 @@ class Maya(EnvironmentBase):
                 
                 for i in range(len(recentFiles)-1, -1,-1):
                     
-                    fileName = os.path.basename(recentFiles[i])
+                    filename = os.path.basename(recentFiles[i])
                     projName, seqName = repo.get_project_and_sequence_name_from_file_path( recentFiles[i] )
                     
                     if projName != None and seqName != None:
@@ -274,21 +288,21 @@ class Maya(EnvironmentBase):
                         proj = Project(projName)
                         seq = Sequence(proj, seqName)
                         
-                        testAsset = Asset(proj, seq, fileName)
+                        testAsset = Asset(proj, seq, filename)
                         
                         if testAsset.isValidAsset and testAsset.exists:
                             path = testAsset.path
-                            foundValidAsset = True
+                            found_valid_version = True
                             break
                         
             # get the workscape path
-            workspacePath = self.get_workspace_path()
+            workspace_path = self.get_workspace_path()
             returnWorkspace = False
             
-            if foundValidAsset:
+            if found_valid_version:
                 #print "found a valid asset with path", path
                 # check if the recent files path matches the current workspace
-                if not path.startswith( workspacePath ):
+                if not path.startswith( workspace_path ):
                     # use the workspacePath
                     returnWorkspace = True
             else:
@@ -296,11 +310,11 @@ class Maya(EnvironmentBase):
                 returnWorkspace = True
                 
             if returnWorkspace:
-                fileName = None
-                path = workspacePath
+                filename = None
+                path = workspace_path
                 
                 
-        return fileName, path
+        return filename, path
     
     def set_render_fileName(self, version):
         """sets the render file name
@@ -308,14 +322,13 @@ class Maya(EnvironmentBase):
         
         assert isinstance(version, Version)
 
-        render_output_folder = version.type.output_path.replace("\\", "/")
-#        render_output_folder = version.output_path.replace("\\", "/")
+        render_output_folder = version.output_path.replace("\\", "/")
         
         # image folder from the workspace.mel
         # {{project.full_path}}/Sequences/{{seqence.code}}/Shots/{{shot.code}}/.maya_files/RENDERED_IMAGES
         image_folder_from_ws = pm.workspace.fileRules['image'] 
         image_folder_from_ws_full_path = os.path.join(
-            os.path.dirname(version.abs_path),
+            os.path.dirname(version.path),
             image_folder_from_ws
         ).replace("\\", "/")
         
@@ -333,11 +346,15 @@ class Maya(EnvironmentBase):
         
         print "imageFolderFromWS_full_path: %s" % image_folder_from_ws_full_path
         print "render_file_full_path: %s" % render_file_full_path
-        
-        render_file_rel_path = utils.relpath(
-            image_folder_from_ws_full_path,
+
+#        render_file_rel_path = utils.relpath(
+#            image_folder_from_ws_full_path,
+#            render_file_full_path,
+#            sep="/"
+#        )
+        render_file_rel_path = os.path.relpath(
             render_file_full_path,
-            sep="/"
+            image_folder_from_ws_full_path
         )
         
         if self.has_stereo_camera():
@@ -406,7 +423,7 @@ class Maya(EnvironmentBase):
         
         playblast_full_path = os.path.join(
             playblast_path,
-            version.filename
+            os.path.splitext(version.filename)[0]
         ).replace('\\','/')
         
         # create the folder
@@ -454,7 +471,7 @@ class Maya(EnvironmentBase):
         #assert(isinstance(recentFiles,pm.OptionVarList))
         recentFiles.appendVar( path )
     
-    def check_reference_versions(self):
+    def check_referenced_versions(self):
         """checks the referenced assets versions
         
         returns a list of Version instances and maya Reference objects in a
@@ -815,7 +832,8 @@ class Maya(EnvironmentBase):
         
         # replace mentalray textures
         for mr_texture in pm.ls(type="mentalrayTexture"):
-            mr_texture_path =  mr_texture.getAttr("fileTextureName")
+            mr_texture_path =  \
+                mr_texture.getAttr("fileTextureName").replace("\\", "/")
             
             if mr_texture_path is not None:
                 if mr_texture_path.startswith(repo.server_path):
@@ -823,16 +841,25 @@ class Maya(EnvironmentBase):
                     #    "fileTextureName",
                     #    "/" + mr_texture_path.replace(repo.server_path, repo_env_key)
                     #)
-                    new_path = utils.relpath(
-#                        self._asset.sequenceFullPath.replace("\\", "/"),
+#                    new_path = utils.relpath(
+##                        self._asset.sequenceFullPath.replace("\\", "/"),
+#                        os.path.join(
+#                            version.version_of.project.fullpath,
+#                            os.path.dirname(
+#                                version.path
+#                            )
+#                        ),
+#                        mr_texture_path.replace("\\", "/"),
+#                        "/", ".."
+#                    )
+                    new_path = os.path.relpath(
+                        mr_texture_path,
                         os.path.join(
                             version.version_of.project.fullpath,
                             os.path.dirname(
-                                version.abs_path
+                                version.path
                             )
-                        ),
-                        mr_texture_path.replace("\\", "/"),
-                        "/", ".."
+                        )
                     )
                     mr_texture.setAttr(
                         "fileTextureName",
