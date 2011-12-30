@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os
+import os.path
 from setuptools import setup, find_packages
 import oyProjectManager
 

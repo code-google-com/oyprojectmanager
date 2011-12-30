@@ -2693,12 +2693,15 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
     
-    def set_project(self, project):
-        """Sets the project to the given project.
+    def set_project(self, version):
+        """Sets the project to the given version.
         
-        :param project: A :class:`~oyProjectManager.core.models.Project`
-            instance to set the project to or a string containing the project
-            name
+        Because the projects are related to the created Version instances
+        instead of passing a Project instance it is much meaningful to pass a
+        Version instance which will have a reference to the Project instance
+        alread.
+        
+        :param project: A :class:`~oyProjectManager.core.models.Version`.
         """
         raise NotImplemented
     

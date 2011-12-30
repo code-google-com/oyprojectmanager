@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 
 import os
 from pymel import versions
@@ -10,6 +11,8 @@ from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
                                           EnvironmentBase, Version)
 from oyProjectManager import utils
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class Maya(EnvironmentBase):
     """the maya environment class
@@ -74,11 +77,14 @@ class Maya(EnvironmentBase):
         # set version extension to ma
         version.extension = '.ma'
         
-        # create a workspace file at the parent folder of the current version
+        # create a workspace file inside a folder called .maya_files
+        # at the parent folder of the current version
         workspace_path = os.path.dirname(version.path)
         
         self.create_workspace_file(workspace_path)
-        pm.workspace.open(workspace_path)
+        # this sets the project
+        #pm.workspace.open(workspace_path)
+        self.set_project(version)
         
         # set the render file name and version
         self.set_render_fileName(version)
@@ -188,13 +194,9 @@ class Maya(EnvironmentBase):
         
         new_version_fullpath = version.fullpath
         if version.fullpath.startswith(workspace):
-#            new_version_fullpath = utils.relpath(
-#                self._asset.sequenceFullPath.replace("\\", "/"),
-#                version.fullPath.replace("\\", "/"), "/", ".."
-#            )
-            new_version_fullpath = os.path.relpath(
-                version.fullPath.replace("\\", "/"),
-                self._asset.sequenceFullPath.replace("\\", "/")
+            new_version_fullpath = utils.relpath(
+                self._asset.sequenceFullPath.replace("\\", "/"),
+                version.fullPath.replace("\\", "/"), "/", ".."
             )
         
         # replace the path with environment variable
@@ -212,7 +214,115 @@ class Maya(EnvironmentBase):
         )
         
         return True
+
+    def trim_repo_path(self, path_in):
+        """Trims the server_path value from the given path_in
+        
+        :param path_in: The path that wanted to be trimmed
+        :return: str
+        """
+        repo = Repository()
+        
+        server_path = repo.server_path
+        if path_in.startswith(server_path):
+            path_in = path_in[len(os.path.normpath(server_path))+1:]
+        
+        return path_in
     
+    def get_version_from_workspace(self):
+        logger.debug("trying to get the version from workspace")
+        
+        # get the workspace path
+        workspace_path = self.get_workspace_path()
+        logger.debug("workspace_path: %s" % workspace_path)
+        
+        # get the path by trimming the server_path
+        path = self.trim_repo_path(workspace_path)
+        
+        # get the latest created version instance at that path
+        version = db.query(Version)\
+        .filter(Version.path.startswith(path))\
+        .order_by(Version.id.desc())\
+        .first()
+        logger.debug("version from workspace is: %s" % version)
+        return version
+
+    def get_version_from_fullpath(self):
+        """Finds the Version instance from the given fullpath of the Version
+        instance.
+        
+        :return: :class:`~oyProjectManager.core.models.Version`
+        """
+        
+        version = None
+        
+        # pm.env.sceneName() always uses "/"
+        fullpath = pm.env.sceneName()
+        
+        # try to get it from the current open scene
+        if fullpath != '':
+            logger.debug("trying to get the version from current file")
+
+            filename = os.path.basename(fullpath)
+            path = os.path.dirname(fullpath)
+
+            # remove the repository.server_path portion of the path
+            path = self.trim_repo_path(path)
+
+            # try to get a version with that info
+            version = db.query(Version)\
+            .filter(Version.path == path)\
+            .filter(Version.filename == filename)\
+            .first()
+
+            logger.debug("version from current file: %s" % version)
+
+        return version
+    
+    def get_version_from_recent_files(self):
+        """It will try to create a
+        :class:`~oyProjectManager.core.models.Version` instance by looking at
+        the recent files list.
+        
+        It will return None if it can not find one.
+        
+        :return: :class:`~oyProjectManager.core.models.Version`
+        """
+
+        version = None
+        
+        logger.debug("trying to get the version from recent file list")
+        # read the fileName from recent files list
+        # try to get the a valid asset file from starting the last recent file
+        
+        try:
+            recent_files = pm.optionVar['RecentFilesList']
+        except KeyError:
+            print "no recent files"
+            recent_files = None
+        
+        if recent_files is not None:
+            
+            for i in range(len(recent_files)-1, -1, -1):
+                
+                path, filename = os.path.split(recent_files[i])
+                path = trim_repo_path(path)
+                
+                logger.debug("current recent file path is: %s" % path)
+                # try to get a version with that info
+                version = db.query(Version)\
+                    .filter(Version.path==path)\
+                    .filter(Version.filename==filename)\
+                    .first()
+                
+                if version is not None:
+                    break
+            
+            logger.debug("version from recent files is: %s" % version)
+        
+        return version
+
+
     def get_current_version(self):
         """Returns the current Version instance from the environment.
         
@@ -228,93 +338,17 @@ class Maya(EnvironmentBase):
             None
         """
         
-        found_valid_version = False
-        read_recent_file = True
-        filename = path = None
-        workspace_path = None
+        version = self.get_version_from_fullpath()
         
-        repo = repository.Repository()
-
-        # pm.env.sceneName() always uses "/"
-        fullpath = pm.env.sceneName()
+        # read the recent file list
+        if version is None:
+            version = self.get_version_from_recent_files()
         
-        if fullpath != '':
-            filename = os.path.basename(fullpath)
-            path = os.path.dirname(path)
-            
-            ## try to create an asset with that info
-            #projName, seqName = repo.get_project_and_sequence_name_from_file_path(fullpath)
-            
-            # remove the repository.server_path portion of the path
-            server_path = repo.server_path()
-            if path.startswith(server_path):
-                path = path[len(server_path):]
-            
-            # try to get a version with that info
-            db.query(Version).
-
-            if projName != None and seqName != None:
-                proj = Project(projName)
-                seq = Sequence(proj, seqName)
-
-                testAsset = Asset(proj, seq, filename)
-                
-                if testAsset.isValidAsset:
-                    filename = testAsset.fileName
-                    path = testAsset.path
-                    read_recent_file = False
-            else:
-                read_recent_file = True
+        # get the latest possible Version instance by using the workspace path
+        if version is None:
+            version = self.get_version_from_workspace()
         
-        if read_recent_file:
-            # read the fileName from recent files list
-            # try to get the a valid asset file from starting the last recent file
-            
-            try:
-                recentFiles = pm.optionVar['RecentFilesList']
-            except KeyError:
-                print "no recent files"
-                recentFiles = None
-            
-            if recentFiles is not None:
-                
-                for i in range(len(recentFiles)-1, -1,-1):
-                    
-                    filename = os.path.basename(recentFiles[i])
-                    projName, seqName = repo.get_project_and_sequence_name_from_file_path( recentFiles[i] )
-                    
-                    if projName != None and seqName != None:
-                        
-                        proj = Project(projName)
-                        seq = Sequence(proj, seqName)
-                        
-                        testAsset = Asset(proj, seq, filename)
-                        
-                        if testAsset.isValidAsset and testAsset.exists:
-                            path = testAsset.path
-                            found_valid_version = True
-                            break
-                        
-            # get the workscape path
-            workspace_path = self.get_workspace_path()
-            returnWorkspace = False
-            
-            if found_valid_version:
-                #print "found a valid asset with path", path
-                # check if the recent files path matches the current workspace
-                if not path.startswith( workspace_path ):
-                    # use the workspacePath
-                    returnWorkspace = True
-            else:
-                # just get the path from workspace and return an empty fileName
-                returnWorkspace = True
-                
-            if returnWorkspace:
-                filename = None
-                path = workspace_path
-                
-                
-        return filename, path
+        return version
     
     def set_render_fileName(self, version):
         """sets the render file name
@@ -332,10 +366,6 @@ class Maya(EnvironmentBase):
             image_folder_from_ws
         ).replace("\\", "/")
         
-        version_base_name = version.base_name
-        version_take_name = version.take_name
-        render_file_name = ''
-        
         render_file_full_path = \
             render_output_folder + "/<Layer>/" + \
             version.base_name + "_" + version.take_name + \
@@ -347,20 +377,15 @@ class Maya(EnvironmentBase):
         print "imageFolderFromWS_full_path: %s" % image_folder_from_ws_full_path
         print "render_file_full_path: %s" % render_file_full_path
 
-#        render_file_rel_path = utils.relpath(
-#            image_folder_from_ws_full_path,
-#            render_file_full_path,
-#            sep="/"
-#        )
-        render_file_rel_path = os.path.relpath(
+        render_file_rel_path = utils.relpath(
+            image_folder_from_ws_full_path,
             render_file_full_path,
-            image_folder_from_ws_full_path
+            sep="/"
         )
         
         if self.has_stereo_camera():
             # just add the <Camera> template variable to the file name
             render_file_rel_path += "_<Camera>"
-        
         
         # SHOTS/ToonShading/TestTransition/incidence/ToonShading_TestTransition_incidence_MasterPass_v050.####.iff
         
@@ -430,24 +455,24 @@ class Maya(EnvironmentBase):
         utils.mkdir(playblast_path)
         pm.optionVar['playblastFile'] = playblast_full_path
     
-    def set_project(self, projectName, sequenceName ):
-        """sets the project
-        """
-        repo = repository.Repository()
+    def set_project(self, version):
+        """Sets the project to the given version.
         
-        mayaProjectPath = os.path.join(
-            repo.server_path,
-            projectName,
-            sequenceName
+        The Maya version uses :class:`~oyProjectManager.core.models.Version`
+        instances to set the project. Because the Maya workspace is related to
+        the the Asset or Shot which can be derived from the Version instance
+        very easily.
+        """
+        pm.workspace.open(
+            os.path.dirname(
+                version.path
+            )
         )
         
-        pm.workspace.open(mayaProjectPath)
-        
-        proj = Project(projectName)
-        seq = Sequence(proj, sequenceName)
-        
         # set the current timeUnit to match with the environments
-        self.set_fps(seq.timeUnit)
+        self.set_fps(version.project.fps)
+        
+        # TODO: set the resolution
     
     def get_workspace_path(self):
         """returns the workspace path
@@ -625,6 +650,7 @@ class Maya(EnvironmentBase):
         time_unit = u"pal"
         
         # try to find a timeUnit for the given fps
+        # TODO: set it to the closest one
         for key in self.time_to_fps:
             if self.time_to_fps[key] == fps:
                 time_unit = key
@@ -841,25 +867,16 @@ class Maya(EnvironmentBase):
                     #    "fileTextureName",
                     #    "/" + mr_texture_path.replace(repo.server_path, repo_env_key)
                     #)
-#                    new_path = utils.relpath(
-##                        self._asset.sequenceFullPath.replace("\\", "/"),
-#                        os.path.join(
-#                            version.version_of.project.fullpath,
-#                            os.path.dirname(
-#                                version.path
-#                            )
-#                        ),
-#                        mr_texture_path.replace("\\", "/"),
-#                        "/", ".."
-#                    )
-                    new_path = os.path.relpath(
-                        mr_texture_path,
+                    new_path = utils.relpath(
+#                        self._asset.sequenceFullPath.replace("\\", "/"),
                         os.path.join(
                             version.version_of.project.fullpath,
                             os.path.dirname(
                                 version.path
                             )
-                        )
+                        ),
+                        mr_texture_path,
+                        "/", ".."
                     )
                     mr_texture.setAttr(
                         "fileTextureName",
@@ -872,75 +889,76 @@ class Maya(EnvironmentBase):
         
         content = """//Maya 2012 Project Definition
 
-workspace -fr "scene" ".maya_files/OTHERS/";
-workspace -fr "mayaAscii" ".maya_files/OTHERS/";
-workspace -fr "mayaBinary" ".maya_files/OTHERS/";
-
-workspace -fr "movie" ".maya_files/OTHERS/data/";
-workspace -fr "offlineEdit" ".maya_files/OHTERS/edits/";
-workspace -fr "autoSave" ".maya_files/OTHERS/autosave/";
-
 workspace -fr "3dPaintTextures" ".maya_files/PAINTINGS/TEXTURES/";
-workspace -fr "textures" ".maya_files/PAINTINGS/TEXTURES/";
-
-workspace -fr "particles" ".maya_files/OTHERS/particles/";
-workspace -fr "renderScenes" ".maya_files/LIGHTING/";
-workspace -fr "lights" ".maya_files/RENDERED_IMAGES/renderData/shaders/";
-
-workspace -fr "diskCache" ".maya_files/OTHERS/data/";
-
-workspace -fr "furShadowMap" ".maya_files/OTHERS/fur/furShadowMap/";
-workspace -fr "furFiles" ".maya_files/OTHERS/fur/furFiles/";
-workspace -fr "furAttrMap" ".maya_files/OTHERS/fur/furAttrMap/";
-workspace -fr "furImages" ".maya_files/OTHERS/fur/furImages/";
-workspace -fr "furEqualMap" ".maya_files/OTHERS/fur/furEqualMap/";
-
-workspace -fr "image" ".maya_files/RENDERED_IMAGES/";
-workspace -fr "images" ".maya_files/RENDERED_IMAGES/";
-workspace -fr "mentalray" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
-workspace -fr "mentalRay" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
-workspace -fr "iprImages" ".maya_files/RENDERED_IMAGES/renderData/iprImages/";
-workspace -fr "depth" ".maya_files/RENDERED_IMAGES/renderData/depth/";
-
-workspace -fr "animImport" ".maya_files/OTHERS/data/";
-workspace -fr "animExport" ".maya_files/OTHERS/data/";
-workspace -fr "clips" ".maya_files/OTHERS/clips/";
-
-workspace -fr "templates" ".maya_files/OTHERS/assets/";
-
-workspace -fr "audio" ".maya_files/EDIT/SOUND/";
-
-workspace -fr "sourceImages" ".maya_files/PAINTINGS/TEXTURES/";
-
-workspace -fr "mel" ".maya_files/OTHERS/mel/";
-
 workspace -fr "Adobe(R) Illustrator(R)" ".maya_files/OTHERS/data/";
 workspace -fr "aliasWire" ".maya_files/OTHERS/data/";
+workspace -fr "animImport" ".maya_files/OTHERS/data/";
+workspace -fr "animExport" ".maya_files/OTHERS/data/";
+workspace -fr "audio" ".maya_files/EDIT/SOUND/";
+workspace -fr "autoSave" ".maya_files/OTHERS/autosave/";
+workspace -fr "clips" ".maya_files/OTHERS/clips/";
 workspace -fr "DAE_FBX" ".maya_files/OTHERS/data/";
 workspace -fr "DAE_FBX export" ".maya_files/OTHERS/data/";
-workspace -fr "DXF_FBX" ".maya_files/OTHERS/data/";
-workspace -fr "DXF_FBX export" ".maya_files/OTHERS/data/";
+workspace -fr "depth" ".maya_files/RENDERED_IMAGES/renderData/depth/";
+workspace -fr "diskCache" ".maya_files/OTHERS/data/";
 workspace -fr "DXF" ".maya_files/OTHERS/data/";
 workspace -fr "DXF export" ".maya_files/OTHERS/data/";
+workspace -fr "DXF_FBX" ".maya_files/OTHERS/data/";
+workspace -fr "DXF_FBX export" ".maya_files/OTHERS/data/";
+workspace -fr "eps" ".maya_files/OTHERS/data/";
 workspace -fr "EPS" ".maya_files/OTHERS/data/";
 workspace -fr "FBX" ".maya_files/OTHERS/data/";
 workspace -fr "FBX export" ".maya_files/OTHERS/data/";
+workspace -fr "fluidCache" ".maya_files/OTHERS/cache/";
+workspace -fr "furAttrMap" ".maya_files/OTHERS/fur/furAttrMap/";
+workspace -fr "furEqualMap" ".maya_files/OTHERS/fur/furEqualMap/";
+workspace -fr "furFiles" ".maya_files/OTHERS/fur/furFiles/";
+workspace -fr "furImages" ".maya_files/OTHERS/fur/furImages/";
+workspace -fr "furShadowMap" ".maya_files/OTHERS/fur/furShadowMap/";
 workspace -fr "IGES" ".maya_files/OTHERS/data/";
 workspace -fr "IGESexport" ".maya_files/OTHERS/data/";
+workspace -fr "illustrator" ".maya_files/OTHERS/data/";
+workspace -fr "image" ".maya_files/RENDERED_IMAGES/";
+workspace -fr "images" ".maya_files/RENDERED_IMAGES/";
+workspace -fr "iprImages" ".maya_files/RENDERED_IMAGES/renderData/iprImages/";
+workspace -fr "lights" ".maya_files/RENDERED_IMAGES/renderData/shaders/";
+workspace -fr "mayaAscii" ".maya_files/OTHERS/";
+workspace -fr "mayaBinary" ".maya_files/OTHERS/";
+workspace -fr "mel" ".maya_files/OTHERS/mel/";
+workspace -fr "mentalray" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
+workspace -fr "mentalRay" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
 workspace -fr "move" ".maya_files/OTHERS/data/";
+workspace -fr "movie" ".maya_files/OTHERS/data/";
 workspace -fr "OBJ" ".maya_files/OTHERS/data/";
 workspace -fr "OBJexport" ".maya_files/OTHERS/data/";
-workspace -fr "RIBexport" ".maya_files/OTHERS/data/";
+workspace -fr "offlineEdit" ".maya_files/OHTERS/edits/";
+workspace -fr "particles" ".maya_files/OTHERS/particles/";
+workspace -fr "renderData" ".maya_files/LIGHTING/";
+workspace -fr "renderScenes" ".maya_files/LIGHTING/";
 workspace -fr "RIB" ".maya_files/OTHERS/data/";
+workspace -fr "RIBexport" ".maya_files/OTHERS/data/";
+workspace -fr "scene" ".maya_files/OTHERS/";
+workspace -fr "scripts" ".maya_files/OTHERS/mel/";
+workspace -fr "shaders" ".maya_files/RENDERED_IMAGES";
+workspace -fr "sound" ".maya_files/OTHERS/sound/";
+workspace -fr "sourceImages" ".maya_files/PAINTINGS/TEXTURES/";
+workspace -fr "templates" ".maya_files/OTHERS/assets/";
+workspace -fr "textures" ".maya_files/PAINTINGS/TEXTURES/";
+workspace -fr "translatorData" ".maya_files/OTHERS/";
         """
         
         # check if there is a workspace.mel at the given path
         full_path = os.path.join(path, "workspace.mel")
         
-        if not os.path.exists(path):
-            os.makedirs(
-                os.path.dirname(full_path)
-            )
+        if not os.path.exists(full_path):
+            try:
+                os.makedirs(
+                    os.path.dirname(full_path)
+                )
+            except OSError:
+                # dir exists
+                pass
+                
             workspace_file = file(full_path, "w")
             workspace_file.write(content)
             workspace_file.close()
