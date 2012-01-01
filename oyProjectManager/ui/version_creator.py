@@ -22,7 +22,7 @@ logger.setLevel(logging.WARNING)
 
 # create a logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 conf = config.Config()
 
@@ -1748,19 +1748,19 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.shot_changed
         )
         
-        # asset_description_edit_pushButton
-        QtCore.QObject.connect(
-            self.asset_description_edit_pushButton,
-            QtCore.SIGNAL("clicked()"),
-            self.asset_description_edit_pushButton_clicked
-        )
-        
-        # shot_description_edit_pushButton
-        QtCore.QObject.connect(
-            self.shot_description_edit_pushButton,
-            QtCore.SIGNAL("clicked()"),
-            self.shot_description_edit_pushButton_clicked
-        )
+#        # asset_description_edit_pushButton
+#        QtCore.QObject.connect(
+#            self.asset_description_edit_pushButton,
+#            QtCore.SIGNAL("clicked()"),
+#            self.asset_description_edit_pushButton_clicked
+#        )
+#        
+#        # shot_description_edit_pushButton
+#        QtCore.QObject.connect(
+#            self.shot_description_edit_pushButton,
+#            QtCore.SIGNAL("clicked()"),
+#            self.shot_description_edit_pushButton_clicked
+#        )
         
         # types_comboBox
         QtCore.QObject.connect(
@@ -1793,6 +1793,57 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
 #            QtCore.SIGNAL("customContextMenuRequested(const QPoint&)"),
 #            self._show_description_context_menu
 #        )
+        
+        # create_asset_pushButton
+        QtCore.QObject.connect(
+            self.create_asset_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.create_asset_pushButton_clicked
+        )
+
+        # add_take_toolButton
+        QtCore.QObject.connect(
+            self.add_take_toolButton,
+            QtCore.SIGNAL("clicked()"),
+            self.add_take_toolButton_clicked
+        )
+
+        # export_as
+        QtCore.QObject.connect(
+            self.export_as_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.export_as_pushButton_clicked
+        )
+
+        # save_as
+        QtCore.QObject.connect(
+            self.save_as_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.save_as_pushButton_clicked
+        )
+
+        # open
+        QtCore.QObject.connect(
+            self.open_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.open_pushButton_clicked
+        )
+
+        # reference
+        QtCore.QObject.connect(
+            self.reference_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.reference_pushButton_clicked
+        )
+
+        # import
+        QtCore.QObject.connect(
+            self.import_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.import_pushButton_clicked
+        )
+
+        logger.debug("finished setting up interface signals")
     
 #    def _show_description_context_menu(self, position):
 #        """the custom context menu for the asset_description_textEdit
@@ -1811,57 +1862,6 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
 #        if selected_item:
 #            # something is chosen
 #            print selected_item.text()
-        
-        # create_asset_pushButton
-        QtCore.QObject.connect(
-            self.create_asset_pushButton,
-            QtCore.SIGNAL("clicked()"),
-            self.create_asset_pushButton_clicked
-        )
-        
-        # add_take_toolButton
-        QtCore.QObject.connect(
-            self.add_take_toolButton,
-            QtCore.SIGNAL("clicked()"),
-            self.add_take_toolButton_clicked
-        )
-        
-        # export_as
-        QtCore.QObject.connect(
-            self.export_as_pushButton,
-            QtCore.SIGNAL("clicked()"),
-            self.export_as_pushButton_clicked
-        )
-        
-        # save_as
-        QtCore.QObject.connect(
-            self.save_as_pushButton,
-            QtCore.SIGNAL("clicked()"),
-            self.save_as_pushButton_clicked
-        )
-        
-        # open
-        QtCore.QObject.connect(
-            self.open_pushButton,
-            QtCore.SIGNAL("clicked()"),
-            self.open_pushButton_clicked
-        )
-        
-        # reference
-        QtCore.QObject.connect(
-            self.reference_pushButton,
-            QtCore.SIGNAL("clicked()"),
-            self.reference_pushButton_clicked
-        )
-        
-        # import
-        QtCore.QObject.connect(
-            self.import_pushButton,
-            QtCore.SIGNAL("clicked()"),
-            self.import_pushButton_clicked
-        )
-        
-        logger.debug("finished setting up interface signals")
     
     def _setup_defaults(self):
         """sets up the defaults for the interface
@@ -1888,7 +1888,76 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # run the project changed item for the first time
         self.project_changed()
         
-        logger.debug("started setting up interface defaults")
+        if self.environment is not None:
+            logger.debug("restoring the ui with the version from environment")
+            
+            # get the last version from the environment
+            version_from_env = self.environment.get_current_version()
+            
+            logger.debug("version_from_env: %s" % version_from_env)
+            
+            self.restore_ui(version_from_env)
+        
+        logger.debug("finished setting up interface defaults")
+    
+    def restore_ui(self, version):
+        """Restores the UI with the given Version instance
+        
+        :param version: :class:`~oyProjectManager.core.models.Version` instance
+        """
+        
+        logger.debug("restoring ui with the given version: %s", version)
+        
+        # quit if version is None
+        if version is None:
+            return
+        
+        # set the project
+        index = self.projects_comboBox.findText(version.project.name)
+        self.projects_comboBox.setCurrentIndex(index)
+        
+        # set the versionable
+        versionable = version.version_of
+        
+        # set the tab
+        if isinstance(versionable, Asset):
+            self.tabWidget.setCurrentIndex(0)
+            
+            # set the asset name
+            items = self.assets_listWidget.findItems(
+                versionable.name,
+                QtCore.Qt.MatchExactly
+            )
+            self.assets_listWidget.setCurrentItem(items[0])
+            
+        else:
+            self.tabWidget.setCurrentIndex(1)
+            
+            #the sequence
+            index = self.sequences_comboBox.findText(versionable.sequence.name)
+            self.sequences_comboBox.setCurrentIndex(index)
+            
+            # the shot code
+            items = self.shots_listWidget.findItems(
+                versionable.code,
+                QtCore.Qt.MatchExactly
+            )
+            self.shots_listWidget.setCurrentItem(items[0])
+            
+        
+        # version_type name
+        type_name = version.type.name
+        index = self.version_types_comboBox.findText(type_name)
+        self.version_types_comboBox.setCurrentIndex(index)
+        
+        # take_name
+        take_name = version.take_name
+        index = self.takes_comboBox.findText(take_name)
+        self.takes_comboBox.setCurrentIndex(index)
+        
+        
+        
+        
     
     def project_changed(self):
         """updates the assets list_widget and sequences_comboBox for the 
@@ -1930,11 +1999,11 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 # call asset update
                 self.asset_changed(list_item.text())
                 
-                # enable the asset_description_edit_pushButton
-                self.asset_description_edit_pushButton.setEnabled(True)
+#                # enable the asset_description_edit_pushButton
+#                self.asset_description_edit_pushButton.setEnabled(True)
             else:
-                # disable the asset_description_edit_pushButton
-                self.asset_description_edit_pushButton.setEnabled(False)
+#                # disable the asset_description_edit_pushButton
+#                self.asset_description_edit_pushButton.setEnabled(False)
                 
                 # clear the versions comboBox
                 self.version_types_comboBox.clear()
@@ -2000,10 +2069,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # call shots update
 #            self.asset_changed(list_item.text())
             
-            # enable the asset_description_edit_pushButton
-            self.shot_description_edit_pushButton.setEnabled(True)
-        else:
-            self.shot_description_edit_pushButton.setEnabled(False)
+#            # enable the asset_description_edit_pushButton
+#            self.shot_description_edit_pushButton.setEnabled(True)
+#        else:
+#            self.shot_description_edit_pushButton.setEnabled(False)
     
     def asset_changed(self, asset_name):
         """updates the asset related fields with the current asset information
@@ -2020,11 +2089,11 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         if asset is None:
             return
         
-        # set the description
-        if asset.description is not None:
-            self.asset_description_textEdit.setText(asset.description)
-        else:
-            self.asset_description_textEdit.setText("")
+#        # set the description
+#        if asset.description is not None:
+#            self.asset_description_textEdit.setText(asset.description)
+#        else:
+#            self.asset_description_textEdit.setText("")
         
         # update the version data
         # Types
@@ -2054,11 +2123,11 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         index = self.shots_listWidget.currentIndex().row()
         shot = self.shots_listWidget.shots[index]
         
-        # set the description
-        if shot.description is not None:
-            self.shot_description_textEdit.setText(shot.description)
-        else:
-            self.shot_description_textEdit.setText("")
+#        # set the description
+#        if shot.description is not None:
+#            self.shot_description_textEdit.setText(shot.description)
+#        else:
+#            self.shot_description_textEdit.setText("")
         
         # update the version data
         # Types
@@ -2158,7 +2227,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             if versionable is not None:
                 logger.debug("updating take list for asset: %s" % versionable.name)
             else:
-                logger.debug("updateing take list for no asset")
+                logger.debug("updating take list for no asset")
         else:
             index = self.shots_listWidget.currentIndex().row()
             versionable = self.shots_listWidget.shots[index]

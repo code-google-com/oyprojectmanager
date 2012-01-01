@@ -60,7 +60,7 @@ database_url = None
 
 # create a logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 def setup(database_url_in=None):
     """Utility function that helps to connect the system to the given database.

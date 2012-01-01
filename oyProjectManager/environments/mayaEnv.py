@@ -2,17 +2,16 @@
 import logging
 
 import os
-from pymel import versions
+#from pymel import versions
 from pymel import core as pm
-import maya.cmds as mc
+#import maya.cmds as mc
 
 from oyProjectManager import conf, db
-from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
-                                          EnvironmentBase, Version)
+from oyProjectManager.core.models import Repository, EnvironmentBase, Version
 from oyProjectManager import utils
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 class Maya(EnvironmentBase):
     """the maya environment class
@@ -188,7 +187,7 @@ class Maya(EnvironmentBase):
         # use the file name without extension as the namespace
         nameSpace = os.path.basename(version.filename)
         
-        repo = repository.Repository()
+        repo = Repository()
         
         workspace = self.get_workspace_path()
         
@@ -214,20 +213,6 @@ class Maya(EnvironmentBase):
         )
         
         return True
-
-    def trim_repo_path(self, path_in):
-        """Trims the server_path value from the given path_in
-        
-        :param path_in: The path that wanted to be trimmed
-        :return: str
-        """
-        repo = Repository()
-        
-        server_path = repo.server_path
-        if path_in.startswith(server_path):
-            path_in = path_in[len(os.path.normpath(server_path))+1:]
-        
-        return path_in
     
     def get_version_from_workspace(self):
         logger.debug("trying to get the version from workspace")
@@ -236,20 +221,18 @@ class Maya(EnvironmentBase):
         workspace_path = self.get_workspace_path()
         logger.debug("workspace_path: %s" % workspace_path)
         
-        # get the path by trimming the server_path
-        path = self.trim_repo_path(workspace_path)
+        versions = self.get_versions_from_path(workspace_path)
+        version = None
         
-        # get the latest created version instance at that path
-        version = db.query(Version)\
-        .filter(Version.path.startswith(path))\
-        .order_by(Version.id.desc())\
-        .first()
+        if len(versions):
+            version = versions[0]
+        
         logger.debug("version from workspace is: %s" % version)
         return version
 
-    def get_version_from_fullpath(self):
-        """Finds the Version instance from the given fullpath of the Version
-        instance.
+    def get_version_from_scene_name(self):
+        """Finds the Version instance from the given scene name of the current
+        Maya session.
         
         :return: :class:`~oyProjectManager.core.models.Version`
         """
@@ -262,19 +245,9 @@ class Maya(EnvironmentBase):
         # try to get it from the current open scene
         if fullpath != '':
             logger.debug("trying to get the version from current file")
-
-            filename = os.path.basename(fullpath)
-            path = os.path.dirname(fullpath)
-
-            # remove the repository.server_path portion of the path
-            path = self.trim_repo_path(path)
-
-            # try to get a version with that info
-            version = db.query(Version)\
-            .filter(Version.path == path)\
-            .filter(Version.filename == filename)\
-            .first()
-
+            
+            version = self.get_version_from_fullpath(fullpath)
+            
             logger.debug("version from current file: %s" % version)
 
         return version
@@ -305,15 +278,7 @@ class Maya(EnvironmentBase):
             
             for i in range(len(recent_files)-1, -1, -1):
                 
-                path, filename = os.path.split(recent_files[i])
-                path = trim_repo_path(path)
-                
-                logger.debug("current recent file path is: %s" % path)
-                # try to get a version with that info
-                version = db.query(Version)\
-                    .filter(Version.path==path)\
-                    .filter(Version.filename==filename)\
-                    .first()
+                version = self.get_version_from_fullpath(recent_files[i])
                 
                 if version is not None:
                     break
@@ -338,7 +303,7 @@ class Maya(EnvironmentBase):
             None
         """
         
-        version = self.get_version_from_fullpath()
+        version = self.get_version_from_scene_name()
         
         # read the recent file list
         if version is None:

@@ -25,13 +25,12 @@ from oyProjectManager.core.errors import CircularDependencyError
 #bCache = cache.CacheManager()
 
 # disable beaker DEBUG messages
-
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
 
 # create a logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 class Repository(object):
     """Repository class gives information about the repository and projects in
@@ -63,13 +62,13 @@ class Repository(object):
       variable that oyProjectManager uses. The ``repository`` setting in the
       ``config.py`` is there to be able replace the path values for one
       operating system in another, for example, think that a path for a texture
-      file is set to "/Volumes/Fileserver/Projects/TestProject/Texture1". This
-      is obviously a path for OSX, but what happens when you are under linux
-      and open the file, in this case oyProjectManager will try to replace the
-      path with the environment variable by checking if the path matches any of
-      the oses repository path settings and it will reproduce the path as
-      "$REPO/TestProject" in case the repository settings is
-      "/Volumes/Fileserver/Projects" for OSX.
+      file is set to "/mnt/Projects/TestProject/Texture1". This
+      is obviously a path for OSX or linux, but what happens when you are under
+      Windows and open the file, in this case oyProjectManager will try to
+      replace the path with the environment variable by checking if the path
+      matches any of the oses repository path settings and it will reproduce
+      the path as "$REPO/TestProject" in case the repository settings is
+      "/mnt/Projects" for OSX.
     
     There are no parameters that needs to be set to initialize a Repository
     instance.
@@ -2671,6 +2670,76 @@ class EnvironmentBase(object):
         """the reference action
         """
         raise NotImplemented
+    
+    def trim_server_path(self, path_in):
+        """Trims the server_path value from the given path_in
+        
+        :param path_in: The path that wanted to be trimmed
+        :return: str
+        """
+        repo = Repository()
+
+        server_path = repo.server_path
+        if path_in.startswith(server_path):
+            path_in = path_in[len(os.path.normpath(server_path))+1:]
+
+        return path_in
+    
+    def get_versions_from_path(self, path):
+        """Finds Version instances from the given path value.
+        
+        Finds and returns the :class:`~oyProjectManager.core.models.Version`
+        instances from the given path value.
+        
+        Returns an empth list if it can't find any matching.
+        
+        This method is different than
+        :meth:`~oyProjectManager.core.models.EnvironmentBase.get_version_from_fullpath`
+        because it returns a list of
+        :class:`~oyProjectManager.core.models.Version` instances which are
+        residing in that path. The list is ordered by the ``id``\ s of the
+        instances.
+        
+        :param path: A path which has possible
+            :class:`~oyProjectManager.core.models.Version` instances.
+        
+        :return: A list of :class:`~oyProjectManager.core.models.Version`
+            instances.
+        """
+
+        # get the path by trimming the server_path
+        path = self.trim_server_path(path)
+        
+        # get all the version instance at that path
+        return db.query(Version)\
+            .filter(Version.path.startswith(path))\
+            .order_by(Version.id.desc())\
+            .all()
+    
+    def get_version_from_fullpath(self, fullpath):
+        """Finds the Version instance from the given fullpath value.
+        
+        Finds and returns a :class:`~oyProjectManager.core.models.Version`
+        instance from the given fullpath value.
+        
+        Returns None if it can't find any matching.
+        
+        :param fullpath: The fullpath of the desired
+            :class:`~oyProjectManager.core.models.Version` instance.
+        
+        :return: :class:`~oyProjectManager.core.models.Version`
+        """
+
+        path, filename = os.path.split(fullpath)
+        path = self.trim_server_path(path)
+        
+        # try to get a version with that info
+        version = db.query(Version)\
+            .filter(Version.path==path)\
+            .filter(Version.filename==filename)\
+            .first()
+        
+        return version
 
     def get_current_version(self):
         """Returns the current Version instance from the environment.

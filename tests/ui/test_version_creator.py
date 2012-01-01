@@ -56,7 +56,10 @@ class TestEnvironment(EnvironmentBase):
         self.test_data["import_"]["call count"] += 1
         self.test_data["import_"]["data"] = version
     
-        
+    def get_current_version(self):
+        """mock version of the original this returns None all the time
+        """
+        return None
 
 class VersionCreatorTester(unittest.TestCase):
     """tests the oyProjectManager.ui.version_creator class
@@ -329,1205 +332,6 @@ class VersionCreatorTester(unittest.TestCase):
         self.assertTrue(asset2.name not in item_texts)
         self.assertTrue(asset3.name in item_texts)
         self.assertTrue(asset4.name in item_texts)
-    
-    def test_description_text_edit_field_updated(self):
-        """testing if the description field is updated with the selected asset
-        """
-        
-        proj1 = Project("TEST_PROJECT1b")
-        proj2 = Project("TEST_PROJECT2")
-        proj1.create()
-        proj2.create()
-        
-        asset1 = Asset(proj1, "TEST_ASSET1")
-        asset2 = Asset(proj1, "TEST_ASSET2")
-        asset3 = Asset(proj2, "TEST_ASSET3")
-        asset4 = Asset(proj2, "TEST_ASSET4")
-        
-        asset1.description = "Test description for asset 1"
-        asset2.description = "Test description for asset 2"
-        asset3.description = "Test description for asset 3"
-        asset4.description = "Test description for asset 4"
-        
-        asset1.save()
-        asset2.save()
-        asset3.save()
-        asset4.save()
-        
-        dialog = version_creator.MainDialog_New()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
-        
-        # check if the first assets description is shown in the asset
-        # description window
-        self.assertEqual(
-            dialog.asset_description_textEdit.toPlainText(),
-            asset1.description
-        )
-        
-        # select the second asset
-        list_item = dialog.assets_listWidget.item(1)
-        list_item.setSelected(True)
-        dialog.assets_listWidget.setCurrentItem(list_item)
-        
-        self.assertEqual(
-            dialog.asset_description_textEdit.toPlainText(),
-            asset2.description
-        )
-        
-        # change project
-        dialog.projects_comboBox.setCurrentIndex(1)
-        self.assertEqual(
-            dialog.asset_description_textEdit.toPlainText(),
-            asset3.description
-        )
-        
-        # select the second asset
-        list_item = dialog.assets_listWidget.item(1)
-        list_item.setSelected(True)
-        dialog.assets_listWidget.setCurrentItem(list_item)
-        
-        self.assertEqual(
-            dialog.asset_description_textEdit.toPlainText(),
-            asset4.description
-        )
-    
-    def test_asset_description_edit_pushButton_is_disabled_when_there_is_no_asset(self):
-        """testing if the asset_description_edit_pushButton is disabled when
-        there is no asset
-        """
-        
-        proj = Project("TEST_PROJECT")
-        proj.create()
-        
-        # create the dialog
-        dialog = version_creator.MainDialog_New()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
-        
-        # check if it is unchecked by default
-        self.assertFalse(dialog.asset_description_edit_pushButton.isEnabled())
-    
-    def test_asset_description_edit_pushButton_is_checked_when_there_is_an_asset(self):
-        """testing if the edit button changes to done   
-        """
-        proj = Project("TEST_PROJECT")
-        proj.create()
-        
-        asset1 = Asset(proj, "TEST_ASSET")
-        asset1.save()
-        
-        # create the dialog
-        dialog = version_creator.MainDialog_New()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
-        
-        # check if it is unchecked by default
-        self.assertFalse(dialog.asset_description_edit_pushButton.isChecked())
-        
-        # check if the asset_description_edit button text is edit
-        self.assertEqual(
-            dialog.asset_description_edit_pushButton.text(),
-            "Edit"
-        )
-        
-        # check if the dialog.asset_description_textEdit is read only
-        self.assertTrue(dialog.asset_description_textEdit.isReadOnly())
-        
-        # click in the edit button
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check check state
-        self.assertTrue(dialog.asset_description_edit_pushButton.isChecked())
-        
-        # check if the text changed to Done
-        self.assertEqual(
-            dialog.asset_description_edit_pushButton.text(),
-            "Done"
-        )
-        
-        # check if the asset_description_textEdit becomes read-write
-        self.assertFalse(dialog.asset_description_textEdit.isReadOnly())
-        
-        # re click it
-        # click in the edit button
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check the checked state
-        self.assertFalse(dialog.asset_description_edit_pushButton.isChecked())
-        
-        # check the text
-        self.assertEqual(
-            dialog.asset_description_edit_pushButton.text(),
-            "Edit"
-        )
-    
-    def test_asset_description_edit_pushButton_enables_asset_description_textEdit(self):
-        """testing if pushing the edit pushButton for the first time enables
-        the asset_description_textEdit and disables it when pushed for a second
-        time
-        """
-        
-        proj1 = Project("TEST_PROJECT1c")
-        proj1.create()
-        
-        asset1 = Asset(proj1, "TEST_ASSET1")
-        asset1.description = "Description for TEST_ASSET1 before change"
-        
-        asset2 = Asset(proj1, "TEST_ASSET2")
-        asset2.description = "Description for TEST_ASSET2 before change"
-        
-        asset1.save()
-        asset2.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # check if the description textEdit field is read-only
-        self.assertTrue(
-            dialog.asset_description_textEdit.isReadOnly()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if the description textEdit field become writable
-        self.assertFalse(
-            dialog.asset_description_textEdit.isReadOnly()
-        )
-        
-        # hit done pushButton
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        self.assertTrue(
-            dialog.asset_description_textEdit.isReadOnly()
-        )
-    
-    def test_asset_description_edit_pushButton_disables_assets_listWidget(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the assets_listWidget and enables it when pushed for a second
-        time
-        """
-        
-        proj1 = Project("TEST_PROJECT1d")
-        proj1.create()
-        
-        asset1 = Asset(proj1, "TEST_ASSET1")
-        asset1.description = "Description for TEST_ASSET1 before change"
-        
-        asset2 = Asset(proj1, "TEST_ASSET2")
-        asset2.description = "Description for TEST_ASSET2 before change"
-        
-        asset1.save()
-        asset2.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.assets_listWidget.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if the assets_listWidget becomes disabled
-        self.assertFalse(
-            dialog.assets_listWidget.isEnabled()
-        )
-        
-        # hit done pushButton
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes enabled again
-        self.assertTrue(
-            dialog.assets_listWidget.isEnabled()
-        )
-        
-        dialog.close()
-        del dialog
-    
-    def test_asset_description_edit_pushButton_disables_create_asset_pushButton(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the create_asset_pushButton and enables it when pushed for a second
-        time
-        """
-        
-        proj1 = Project("TEST_PROJECT1f")
-        proj1.create()
-        
-        asset1 = Asset(proj1, "TEST_ASSET1")
-        asset1.description = "Description for TEST_ASSET1 before change"
-        
-        asset2 = Asset(proj1, "TEST_ASSET2")
-        asset2.description = "Description for TEST_ASSET2 before change"
-        
-        asset1.save()
-        asset2.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.create_asset_pushButton.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if the create_asset_pushButton becomes disabled
-        self.assertFalse(
-            dialog.create_asset_pushButton.isEnabled()
-        )
-        
-        # push the edit pushButton again
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes enabled again
-        self.assertTrue(
-            dialog.create_asset_pushButton.isEnabled()
-        )
-    
-    def test_asset_description_edit_pushButton_disables_shots_tab(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the shots_tab and enables it when pushed for a second
-        time
-        """
-        
-        proj1 = Project("TEST_PROJECT1g")
-        proj1.create()
-        
-        asset1 = Asset(proj1, "TEST_ASSET1")
-        asset1.description = "Description for TEST_ASSET1 before change"
-        
-        asset2 = Asset(proj1, "TEST_ASSET2")
-        asset2.description = "Description for TEST_ASSET2 before change"
-        
-        asset1.save()
-        asset2.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.shots_tab.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes disabled
-        self.assertFalse(
-            dialog.shots_tab.isEnabled()
-        )
-        
-        # push the edit pushButton again
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes enabled again
-        self.assertTrue(
-            dialog.shots_tab.isEnabled()
-        )
-    
-    def test_asset_description_edit_pushButton_disables_new_version_groupBox(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the new_version_groupBox and enables it when pushed for a second
-        time
-        """
-        
-        proj1 = Project("TEST_PROJECT1g")
-        proj1.create()
-        
-        asset1 = Asset(proj1, "TEST_ASSET1")
-        asset1.description = "Description for TEST_ASSET1 before change"
-        
-        asset2 = Asset(proj1, "TEST_ASSET2")
-        asset2.description = "Description for TEST_ASSET2 before change"
-        
-        asset1.save()
-        asset2.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.new_version_groupBox.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes disabled
-        self.assertFalse(
-            dialog.new_version_groupBox.isEnabled()
-        )
-        
-        # push the edit pushButton again
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes enabled again
-        self.assertTrue(
-            dialog.new_version_groupBox.isEnabled()
-        )
-    
-    def test_asset_description_edit_pushButton_updates_asset_description(self):
-        """testing if the asset description update will be persistent when the
-        edit button is checked and done is selected afterwards
-        """
-        
-        proj1 = Project("TEST_PROJECT1h")
-        proj1.create()
-        
-        asset1 = Asset(proj1, "TEST_ASSET1")
-        asset1.description = "Description for TEST_ASSET1 before change"
-        
-        asset2 = Asset(proj1, "TEST_ASSET2")
-        asset2.description = "Description for TEST_ASSET2 before change"
-        
-        asset1.save()
-        asset2.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        test_value = "Description for TEST_ASSET1 after change"
-        
-        # change the description of asset1
-        dialog.asset_description_textEdit.setText(test_value)
-        
-        # hit done pushButton
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # change the asset to the next one
-        list_item = dialog.assets_listWidget.item(1)
-        list_item.setSelected(True)
-        dialog.assets_listWidget.setCurrentItem(list_item)
-        
-        # check if the description is changed to the asset2's description
-        self.assertEqual(
-            asset2.description,
-            dialog.asset_description_textEdit.toPlainText()
-        )
-        
-        # change the asset back to the first one
-        list_item = dialog.assets_listWidget.item(0)
-        list_item.setSelected(True)
-        dialog.assets_listWidget.setCurrentItem(list_item)
-        
-        # check if the description has updated to the asset1's edited
-        # description
-        self.assertEqual(
-            test_value,
-            dialog.asset_description_textEdit.toPlainText()
-        )
-    
-    def test_asset_description_edit_pushButton_disables_previous_versions_groupBox(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the previous_versions_groupBox and enables it when pushed for a second
-        time
-        """
-
-        proj1 = Project("TEST_PROJECT1h")
-        proj1.create()
-        
-        asset1 = Asset(proj1, "TEST_ASSET1")
-        asset1.description = "Description for TEST_ASSET1 before change"
-        
-        asset2 = Asset(proj1, "TEST_ASSET2")
-        asset2.description = "Description for TEST_ASSET2 before change"
-        
-        asset1.save()
-        asset2.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.previous_versions_groupBox.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes disabled
-        self.assertFalse(
-            dialog.previous_versions_groupBox.isEnabled()
-        )
-        
-        # push the edit pushButton again
-        QTest.mouseClick(
-            dialog.asset_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-
-        # check if it becomes enabled again
-        self.assertTrue(
-            dialog.previous_versions_groupBox.isEnabled()
-        )
-
-    def test_shot_description_edit_pushButton_is_disabled_when_there_is_no_shot(self):
-        """testing if the shot_description_edit_pushButton is disabled when
-        there is no shot
-        """
-
-        proj = Project("TEST_PROJECT")
-        proj.create()
-
-        seq1 = Sequence(proj, "TEST_SEQ")
-        seq1.save()
-
-        # create the dialog
-        dialog = version_creator.MainDialog_New()
-        #        dialog.show()
-        #        self.app.exec_()
-        #        self.app.connect(
-        #            self.app,
-        #            QtCore.SIGNAL("lastWindowClosed()"),
-        #            self.app,
-        #            QtCore.SLOT("quit()")
-        #        )
-
-        # switch to the Shots tab
-        dialog.tabWidget.setCurrentIndex(1)
-
-        # check if it is unchecked by default
-        self.assertFalse(dialog.shot_description_edit_pushButton.isEnabled())
-    
-    def test_shot_description_edit_pushButton_is_checked_when_there_is_a_shot(self):
-        """testing if the edit button changes to done   
-        """
-        proj = Project("TEST_PROJECT")
-        proj.create()
-
-        seq1 = Sequence(proj, "TEST_SEQ1")
-        seq1.save()
-
-        shot = Shot(seq1, 1)
-        shot.save()
-
-        # create the dialog
-        dialog = version_creator.MainDialog_New()
-        #        dialog.show()
-        #        self.app.exec_()
-        #        self.app.connect(
-        #            self.app,
-        #            QtCore.SIGNAL("lastWindowClosed()"),
-        #            self.app,
-        #            QtCore.SLOT("quit()")
-        #        )
-
-        # set to shots tab
-        dialog.tabWidget.setCurrentIndex(1)
-
-        # check if it is unchecked by default
-        self.assertFalse(dialog.shot_description_edit_pushButton.isChecked())
-
-        # check if the shot_description_edit button text is edit
-        self.assertEqual(
-            dialog.shot_description_edit_pushButton.text(),
-            "Edit"
-        )
-
-        # check if the dialog.shot_description_textEdit is read only
-        self.assertTrue(dialog.shot_description_textEdit.isReadOnly())
-
-        # click in the edit button
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-
-        # check check state
-        self.assertTrue(dialog.shot_description_edit_pushButton.isChecked())
-
-        # check if the text changed to Done
-        self.assertEqual(
-            dialog.shot_description_edit_pushButton.text(),
-            "Done"
-        )
-
-        # check if the shot_description_textEdit becomes writable
-        self.assertFalse(dialog.shot_description_textEdit.isReadOnly())
-
-        # re click it
-        # click in the edit button
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-
-        # check the checked state
-        self.assertFalse(dialog.shot_description_edit_pushButton.isChecked())
-
-        # check the text
-        self.assertEqual(
-            dialog.shot_description_edit_pushButton.text(),
-            "Edit"
-        )
-    
-    def test_shot_description_edit_pushButton_enables_shot_description_textEdit(self):
-        """testing if pushing the edit pushButton for the first time enables
-        the shot_description_textEdit and disables it when pushed for a second
-        time
-        """
-
-        proj1 = Project("TEST_PROJECT1c")
-        proj1.create()
-
-        seq1 = Sequence(proj1, "TEST_SEQ1")
-        seq1.save()
-
-        shot1 = Shot(seq1, 1)
-        shot2 = Shot(seq1, 2)
-        shot3 = Shot(seq1, 3)
-
-        shot1.save()
-        shot2.save()
-        shot3.save()
-
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-
-        # set the tab to Shots
-        dialog.tabWidget.setCurrentIndex(1)
-
-        # check if the description textEdit field is read-only
-        self.assertTrue(
-            dialog.shot_description_textEdit.isReadOnly()
-        )
-
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-
-        # check if the description textEdit field become writable
-        self.assertFalse(
-            dialog.shot_description_textEdit.isReadOnly()
-        )
-
-        # hit done pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-
-        self.assertTrue(
-            dialog.shot_description_textEdit.isReadOnly()
-        )
-    
-    def test_shot_description_edit_pushButton_disables_shots_listWidget(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the shots_listWidget and enables it when pushed for a second time
-        """
-        
-        proj1 = Project("TEST_PROJECT1d")
-        proj1.create()
-        
-        seq1 = Sequence(proj1, "TEST_SEQ1")
-        seq1.save()
-        
-        shot1 = Shot(seq1, 1)
-        shot2 = Shot(seq1, 2)
-        shot3 = Shot(seq1, 3)
-        
-        shot1.save()
-        shot2.save()
-        shot3.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # set the tab to Shots
-        dialog.tabWidget.setCurrentIndex(1)
-        
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.shots_listWidget.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if the shots_listWidget becomes disabled
-        self.assertFalse(
-            dialog.shots_listWidget.isEnabled()
-        )
-        
-        # hit done pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes enabled again
-        self.assertTrue(
-            dialog.shots_listWidget.isEnabled()
-        )
-        
-        dialog.close()
-        del dialog
-    
-    def test_shot_description_edit_pushButton_disables_projects_comboBox(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the projects_comboBox and enables it when pushed for a second time
-        """
-        
-        proj1 = Project("TEST_PROJECT1d")
-        proj1.create()
-        
-        seq1 = Sequence(proj1, "TEST_SEQ1")
-        seq1.save()
-        
-        shot1 = Shot(seq1, 1)
-        shot2 = Shot(seq1, 2)
-        shot3 = Shot(seq1, 3)
-        
-        shot1.save()
-        shot2.save()
-        shot3.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # set the tab to Shots
-        dialog.tabWidget.setCurrentIndex(1)
-        
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.projects_comboBox.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if the projects_comboBox becomes disabled
-        self.assertFalse(
-            dialog.projects_comboBox.isEnabled()
-        )
-        
-        # hit done pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes enabled again
-        self.assertTrue(
-            dialog.projects_comboBox.isEnabled()
-        )
-        
-        dialog.close()
-        del dialog
-    
-    def test_shot_description_edit_pushButton_disables_sequences_comboBox(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the sequences_comboBox and enables it when pushed for a second time
-        """
-        
-        proj1 = Project("TEST_PROJECT1d")
-        proj1.create()
-        
-        seq1 = Sequence(proj1, "TEST_SEQ1")
-        seq1.save()
-        
-        shot1 = Shot(seq1, 1)
-        shot2 = Shot(seq1, 2)
-        shot3 = Shot(seq1, 3)
-        
-        shot1.save()
-        shot2.save()
-        shot3.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # set the tab to Shots
-        dialog.tabWidget.setCurrentIndex(1)
-        
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.sequences_comboBox.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if the sequences_comboBox becomes disabled
-        self.assertFalse(
-            dialog.sequences_comboBox.isEnabled()
-        )
-        
-        # hit done pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes enabled again
-        self.assertTrue(
-            dialog.sequences_comboBox.isEnabled()
-        )
-        
-        dialog.close()
-        del dialog
-    
-    def test_shot_description_edit_pushButton_disables_create_shot_pushButton(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the create_shot_pushButton and enables it when pushed for a second time
-        """
-        
-        proj1 = Project("TEST_PROJECT1f")
-        proj1.create()
-        
-        seq1 = Sequence(proj1, "TEST_SEQ1")
-        seq1.save()
-        
-        shot1 = Shot(seq1, 1)
-        shot2 = Shot(seq1, 2)
-        shot3 = Shot(seq1, 3)
-        
-        shot1.save()
-        shot2.save()
-        shot3.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # set the tab to Shots
-        dialog.tabWidget.setCurrentIndex(1)
-        
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.create_shot_pushButton.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if the create_shot_pushButton becomes disabled
-        self.assertFalse(
-            dialog.create_shot_pushButton.isEnabled()
-        )
-        
-        # push the edit pushButton again
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if the create_shot_pushButton becomes enabled again
-        self.assertTrue(
-            dialog.create_shot_pushButton.isEnabled()
-        )
-    
-    def test_shot_description_edit_pushButton_disables_assets_tab(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the assets_tab and enables it when pushed for a second time
-        """
-        
-        proj1 = Project("TEST_PROJECT1g")
-        proj1.create()
-        
-        asset1 = Asset(proj1, "TEST_ASSET1")
-        asset1.description = "Description for TEST_ASSET1 before change"
-        
-        asset2 = Asset(proj1, "TEST_ASSET2")
-        asset2.description = "Description for TEST_ASSET2 before change"
-        
-        asset1.save()
-        asset2.save()
-        
-        seq1 = Sequence(proj1, "TEST_SEQ1")
-        seq1.save()
-        
-        shot1 = Shot(seq1, 1)
-        shot2 = Shot(seq1, 2)
-        shot3 = Shot(seq1, 3)
-        shot4 = Shot(seq1, 4)
-        shot5 = Shot(seq1, 5)
-        
-        shot1.save()
-        shot2.save()
-        shot3.save()
-        shot4.save()
-        shot5.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # switch the tab to Shots
-        dialog.tabWidget.setCurrentIndex(1)
-        
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.assets_tab.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if the create_asset_pushButton becomes disabled
-        self.assertFalse(
-            dialog.assets_tab.isEnabled()
-        )
-        
-        # push the edit pushButton again
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if the create_asset_pushButton becomes enabled again
-        self.assertTrue(
-            dialog.assets_tab.isEnabled()
-        )
-    
-    def test_shot_description_textEdit_updated_with_the_selected_shot(self):
-        """testing if the shot_description_textEdit is updated with the
-        selected shot
-        """
-        
-        proj1 = Project("TEST_PROJECT1")
-        proj1.create()
-        
-        seq1 = Sequence(proj1, "TEST_SEQUENCE")
-        seq1.save()
-        
-        shot1 = Shot(seq1, 1)
-        shot2 = Shot(seq1, 2)
-        shot3 = Shot(seq1, 3)
-        shot4 = Shot(seq1, 4)
-        
-        shot1.description = "SH001 description"
-        shot2.description = "SH002 description"
-        shot3.description = "SH003 description"
-        shot4.description = "SH004 description"
-        
-        shot1.save()
-        shot2.save()
-        shot3.save()
-        shot4.save()
-        
-        dialog = version_creator.MainDialog_New()
-        
-        # set the shots tab
-        dialog.tabWidget.setCurrentIndex(1)
-        
-        # select first sequence
-        dialog.sequences_comboBox.setCurrentIndex(0)
-        
-        # select first shot
-        item = dialog.shots_listWidget.item(0)
-        dialog.shots_listWidget.setCurrentItem(item)
-        
-        # check if the shot_description equals to the shot1.description
-        text = dialog.shot_description_textEdit.toPlainText()
-        self.assertEqual(text, shot1.description)
-        
-        # change to the second shot
-        item = dialog.shots_listWidget.item(1)
-        dialog.shots_listWidget.setCurrentItem(item)
-        
-        # check if the shot_description equals to the shot2.description
-        text = dialog.shot_description_textEdit.toPlainText()
-        self.assertEqual(text, shot2.description)
-    
-    def test_shot_description_edit_pushButton_updates_shot_description(self):
-        """testing if the shot description update will be persistent when the
-        edit button is checked and done is selected afterwards
-        """
-        
-        proj1 = Project("TEST_PROJECT1h")
-        proj1.create()
-        
-        seq1 = Sequence(proj1, "TEST_SEQ1")
-        seq1.save()
-        
-        shot1 = Shot(seq1, 1)
-        shot2 = Shot(seq1, 2)
-        shot3 = Shot(seq1, 3)
-        shot4 = Shot(seq1, 4)
-        
-        shot1.description = "Description for SH001 before change"
-        shot2.description = "Description for SH002 before change"
-        shot3.description = "Description for SH003 before change"
-        shot4.description = "Description for SH004 before change"
-        
-        shot1.save()
-        shot2.save()
-        shot3.save()
-        shot4.save()
-        
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-        
-        # set the tab to Shots
-        dialog.tabWidget.setCurrentIndex(1)
-        
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        test_value = "Description for SH001 after change"
-        
-        # change the description of asset1
-        dialog.shot_description_textEdit.setText(test_value)
-        
-        # hit done pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # change the shot to the next one
-        list_item = dialog.shots_listWidget.item(1)
-        list_item.setSelected(True)
-        dialog.shots_listWidget.setCurrentItem(list_item)
-        
-        # check if the description is changed to the shot2's description
-        self.assertEqual(
-            shot2.description,
-            dialog.shot_description_textEdit.toPlainText()
-        )
-        
-        # change the shot back to the first one
-        list_item = dialog.shots_listWidget.item(0)
-        list_item.setSelected(True)
-        dialog.shots_listWidget.setCurrentItem(list_item)
-        
-        # check if the description has updated to the shot1's edited
-        # description
-        self.assertEqual(
-            test_value,
-            dialog.shot_description_textEdit.toPlainText()
-        )
-    
-    def test_shot_description_edit_pushButton_disables_new_version_groupBox(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the new_version_groupBox and enables it when pushed for a second
-        time
-        """
-
-        proj1 = Project("TEST_PROJECT1h")
-        proj1.create()
-
-        seq1 = Sequence(proj1, "TEST_SEQ1")
-        seq1.save()
-
-        shot1 = Shot(seq1, 1)
-        shot2 = Shot(seq1, 2)
-        shot3 = Shot(seq1, 3)
-        shot4 = Shot(seq1, 4)
-
-        shot1.description = "Description for SH001 before change"
-        shot2.description = "Description for SH002 before change"
-        shot3.description = "Description for SH003 before change"
-        shot4.description = "Description for SH004 before change"
-
-        shot1.save()
-        shot2.save()
-        shot3.save()
-        shot4.save()
-
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-
-        # set to the shots tab
-        dialog.tabWidget.setCurrentIndex(1)
-
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.new_version_groupBox.isEnabled()
-        )
-
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-
-        # check if it becomes disabled
-        self.assertFalse(
-            dialog.new_version_groupBox.isEnabled()
-        )
-
-        # push the edit pushButton again
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-
-        # check if it becomes enabled again
-        self.assertTrue(
-            dialog.new_version_groupBox.isEnabled()
-        )
-
-    def test_shot_description_edit_pushButton_disables_previous_versions_groupBox(self):
-        """testing if pushing the edit pushButton for the first time disables
-        the previous_versions_groupBox and enables it when pushed for a second
-        time
-        """
-
-        proj1 = Project("TEST_PROJECT1h")
-        proj1.create()
-
-        seq1 = Sequence(proj1, "TEST_SEQ1")
-        seq1.save()
-
-        shot1 = Shot(seq1, 1)
-        shot2 = Shot(seq1, 2)
-        shot3 = Shot(seq1, 3)
-        shot4 = Shot(seq1, 4)
-
-        shot1.description = "Description for SH001 before change"
-        shot2.description = "Description for SH002 before change"
-        shot3.description = "Description for SH003 before change"
-        shot4.description = "Description for SH004 before change"
-
-        shot1.save()
-        shot2.save()
-        shot3.save()
-        shot4.save()
-
-        # now create the dialog
-        dialog = version_creator.MainDialog_New()
-
-        # set to the shots tab
-        dialog.tabWidget.setCurrentIndex(1)
-
-        # check if it is already enabled
-        self.assertTrue(
-            dialog.previous_versions_groupBox.isEnabled()
-        )
-        
-        # push the edit pushButton
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-        
-        # check if it becomes disabled
-        self.assertFalse(
-            dialog.previous_versions_groupBox.isEnabled()
-        )
-        
-        # push the edit pushButton again
-        QTest.mouseClick(
-            dialog.shot_description_edit_pushButton,
-            QtCore.Qt.LeftButton
-        )
-
-        # check if it becomes enabled again
-        self.assertTrue(
-            dialog.previous_versions_groupBox.isEnabled()
-        )
     
     def test_takes_comboBox_lists_all_the_takes_of_current_asset_versions(self):
         """testing if the takes_comboBox lists all the takes of the current
@@ -2382,7 +1186,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         for item_text in item_texts:
             self.assertTrue(
-                item_texts in 
+                item_text in 
                 ["SH001", "SH002", "SH003", "SH004", "SH005"]
             )
     
@@ -2791,6 +1595,305 @@ class VersionCreatorTester(unittest.TestCase):
         dialog = version_creator.MainDialog_New()
         self.assertTrue(db.session is not None)
     
+    def test_restore_ui_works_properly(self):
+        """testing if restore_ui method is restoring the environment with the
+        given version instance
+        """
+        
+        proj1 = Project(name="Test Project 1")
+        proj1.create()
+        
+        proj2 = Project(name="Test Project 2")
+        proj2.create()
+        
+        # sequences
+        
+        # for proj1
+        seq1 = Sequence(proj1, "Seq1")
+        seq1.save()
+        
+        seq2 = Sequence(proj1, "Seq2")
+        seq2.save()
+
+        # for proj2
+        seq3 = Sequence(proj2, "Seq3")
+        seq3.save()
+
+        seq4 = Sequence(proj2, "Seq4")
+        seq4.save()
+        
+        # shots
+
+        # for seq1
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+
+        shot2 = Shot(seq1, 2)
+        shot2.save()
+
+        # for seq2
+        shot3 = Shot(seq2, 3)
+        shot3.save()
+
+        shot4 = Shot(seq2, 4)
+        shot4.save()
+
+        # for seq3
+        shot5 = Shot(seq3, 5)
+        shot5.save()
+
+        shot6 = Shot(seq3, 6)
+        shot6.save()
+
+        # for seq4
+        shot7 = Shot(seq4, 7)
+        shot7.save()
+
+        shot8 = Shot(seq4, 8)
+        shot8.save()
+        
+        # create assets
+        asset1 = Asset(proj1, name="Test Asset 1")
+        asset1.save()
+        
+        asset2 = Asset(proj1, name="Test Asset 2")
+        asset2.save()
+
+        asset3 = Asset(proj2, name="Test Asset 3")
+        asset3.save()
+
+        asset4 = Asset(proj2, name="Test Asset 4")
+        asset4.save()
+
+        # user
+        user1 = User(name="Test User 1", initials="TU1")
+        user2 = User(name="Test User 2", initials="TU2")
+        
+        # create versions
+        asset_vTypes = db.query(VersionType)\
+            .filter(VersionType.type_for=="Asset")\
+            .all()
+        
+        shot_vTypes = db.query(VersionType)\
+            .filter(VersionType.type_for=="Shot")\
+            .all()
+
+        # for asset1
+        vers1 = Version(
+            asset1, asset1.code, asset_vTypes[0], user1, take_name="Take1"
+        )
+        vers1.save()
+
+        vers2 = Version(
+            asset1, asset1.code, asset_vTypes[0], user1, take_name="Take1"
+        )
+        vers2.save()
+
+        vers3 = Version(
+            asset1, asset1.code, asset_vTypes[0], user1, take_name="Take2"
+        )
+        vers3.save()
+
+        # for asset2
+        vers4 = Version(
+            asset2, asset2.code, asset_vTypes[1], user2, take_name="Take3"
+        )
+        vers4.save()
+
+        vers5 = Version(
+            asset2, asset2.code, asset_vTypes[1], user2, take_name="Take4"
+        )
+        vers5.save()
+
+        vers6 = Version(
+            asset2, asset2.code, asset_vTypes[2], user1, take_name="Take4"
+        )
+        vers6.save()
+
+        # for asset3
+        vers7 = Version(
+            asset3, asset3.code, asset_vTypes[2], user1, take_name="Take5"
+        )
+        vers7.save()
+
+        vers8 = Version(
+            asset3, asset3.code, asset_vTypes[2], user1, take_name="Take6"
+        )
+        vers8.save()
+
+        vers9 = Version(
+            asset3, asset3.code, asset_vTypes[3], user2, take_name="Take7"
+        )
+        vers9.save()
+
+        # for asset4
+        vers10 = Version(
+            asset4, asset4.code, asset_vTypes[5], user1, take_name="Take8A",
+            note="This is a test note"
+        )
+        vers10.save()
+
+        vers11 = Version(
+            asset4, asset4.code, asset_vTypes[5], user2, take_name="Take8"
+        )
+        vers11.save()
+
+        vers12 = Version(
+            asset4, asset4.code, asset_vTypes[4], user2, take_name="Take8"
+        )
+        vers12.save()
+
+        # for shot1
+        vers13 = Version(
+            shot1, shot1.code, shot_vTypes[0], user1, take_name="Take10"
+        )
+        vers13.save()
+
+        vers14 = Version(
+            shot1, shot1.code, shot_vTypes[0], user1, take_name="Take10"
+        )
+        vers14.save()
+
+        # for shot2
+        vers15 = Version(
+            shot2, shot2.code, shot_vTypes[0], user2, take_name="Take11"
+        )
+        vers15.save()
+
+        vers16 = Version(
+            shot2, shot2.code, shot_vTypes[0], user2, take_name="Take11"
+        )
+        vers16.save()
+
+        # for shot3
+        vers17 = Version(
+            shot3, shot3.code, shot_vTypes[1], user1, take_name="Take12"
+        )
+        vers17.save()
+
+        vers18 = Version(
+            shot3, shot3.code, shot_vTypes[1], user1, take_name="Take12"
+        )
+        vers18.save()
+
+        # for shot4
+        vers19 = Version(
+            shot4, shot4.code, shot_vTypes[1], user1, take_name="Take13"
+        )
+        vers19.save()
+
+        vers20 = Version(
+            shot4, shot4.code, shot_vTypes[1], user1, take_name="Take13"
+        )
+        vers20.save()
+
+        # for shot5
+        vers21 = Version(
+            shot5, shot5.code, shot_vTypes[2], user1, take_name="Take14"
+        )
+        vers21.save()
+
+        vers22 = Version(
+            shot5, shot5.code, shot_vTypes[2], user1, take_name="Take14"
+        )
+        vers22.save()
+
+        # for shot6
+        vers23 = Version(
+            shot6, shot6.code, shot_vTypes[2], user1, take_name="Take15"
+        )
+        vers23.save()
+
+        vers24 = Version(
+            shot6, shot6.code, shot_vTypes[2], user1, take_name="Take15"
+        )
+        vers24.save()
+
+        # for shot7
+        vers25 = Version(
+            shot7, shot7.code, shot_vTypes[3], user1, take_name="Take16"
+        )
+        vers25.save()
+
+        vers26 = Version(
+            shot7, shot7.code, shot_vTypes[3], user1, take_name="Take16"
+        )
+        vers26.save()
+
+        # for shot8
+        vers27 = Version(
+            shot8, shot8.code, shot_vTypes[4], user1, take_name="Take17"
+        )
+        vers27.save()
+
+        vers28 = Version(
+            shot8, shot8.code, shot_vTypes[4], user1, take_name="Take17"
+        )
+        vers28.save()
+
+        dialog = version_creator.MainDialog_New()
+        
+        # try to restore the ui with version10
+        dialog.restore_ui(vers10)
+        
+        # check for an asset
+        # check if the fields show data from version10
+        self.assertEqual(
+            dialog.projects_comboBox.currentText(),
+            vers10.project.name
+        )
+        
+        self.assertEqual(
+            dialog.tabWidget.currentIndex(), 0
+        )
+        
+        self.assertEqual(
+            dialog.assets_listWidget.currentItem().text(),
+            vers10.version_of.name
+        )
+        
+        self.assertEqual(
+            dialog.version_types_comboBox.currentText(),
+            vers10.type.name
+        )
+        
+        self.assertEqual(
+            dialog.takes_comboBox.currentText(),
+            vers10.take_name
+        )
+        
+        # check for a shot
+        dialog.restore_ui(vers28)
+
+        self.assertEqual(
+            dialog.projects_comboBox.currentText(),
+            vers28.project.name
+        )
+
+        self.assertEqual(
+            dialog.tabWidget.currentIndex(), 1
+        )
+        
+        self.assertEqual(
+            dialog.sequences_comboBox.currentText(),
+            vers28.version_of.sequence.name
+        )
+        
+        self.assertEqual(
+            dialog.shots_listWidget.currentItem().text(),
+            vers28.version_of.code
+        )
+
+        self.assertEqual(
+            dialog.version_types_comboBox.currentText(),
+            vers28.type.name
+        )
+
+        self.assertEqual(
+            dialog.takes_comboBox.currentText(),
+            vers28.take_name
+        )
+
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     """tests the interaction of the UI with the given environment
     """
