@@ -1103,3 +1103,117 @@ class VersionTester(unittest.TestCase):
         self.assertTrue(version1.latest_version()==version3)
         self.assertTrue(version2.latest_version()==version3)
         self.assertTrue(version3.latest_version()==version3)
+    
+    def test_dependency_update_list_method_returns_a_list_of_Versions_that_needs_update(self):
+        """testing if the dependency_update_list returns a list of Version
+        instances which are referenced by this Version instance but have newer
+        versions available
+        """
+        
+        # create a couple of Versions
+        
+        # Group 1
+        self.kwargs["take_name"] = "Take1"
+        versionRef_A1 = Version(**self.kwargs)
+        versionRef_A1.save()
+        versionRef_A2 = Version(**self.kwargs)
+        versionRef_A2.save()
+        versionRef_A3 = Version(**self.kwargs)
+        versionRef_A3.save()
+        
+        # Group 2
+        # just change the take
+        self.kwargs["take_name"] = "Take2"
+        versionRef_B1 = Version(**self.kwargs)
+        versionRef_B1.save()
+        versionRef_B2 = Version(**self.kwargs)
+        versionRef_B2.save()
+        versionRef_B3 = Version(**self.kwargs)
+        versionRef_B3.save()
+
+        # Group 3
+        # just change the take
+        self.kwargs["take_name"] = "Take3"
+        versionRef_C1 = Version(**self.kwargs)
+        versionRef_C1.save()
+        versionRef_C2 = Version(**self.kwargs)
+        versionRef_C2.save()
+        versionRef_C3 = Version(**self.kwargs)
+        versionRef_C3.save()
+        
+        # Main Version
+        self.kwargs["take_name"] = "Take4"
+        versionMain = Version(**self.kwargs)
+        versionMain.save()
+
+        # and reference them to each other
+        versionMain.references.append(versionRef_A1)
+        versionMain.references.append(versionRef_B1)
+        versionMain.references.append(versionRef_C3)
+        versionMain.save()
+        
+        # check if the dependency_update_list has only two elements
+        self.assertEqual(len(versionMain.dependency_update_list), 2)
+        
+        # and versionRef_A1 and versionRef_B1 are the ones in the list
+        self.assertTrue(versionRef_A1 in versionMain.dependency_update_list)
+        self.assertTrue(versionRef_B1 in versionMain.dependency_update_list)
+
+    def test_dependency_update_list_method_returns_a_list_of_Versions_that_needs_update_for_deeper_references(self):
+        """testing if the dependency_update_list returns a list of Version
+        instances which are referenced by this Version instance but have newer
+        versions available and also return their references if they also have
+        newer versions
+        """
+
+        # create a couple of Versions
+
+        # Group 1
+        self.kwargs["take_name"] = "Take1"
+        versionRef_A1 = Version(**self.kwargs)
+        versionRef_A1.save()
+        versionRef_A2 = Version(**self.kwargs)
+        versionRef_A2.save()
+        versionRef_A3 = Version(**self.kwargs)
+        versionRef_A3.save()
+
+        # Group 2
+        # just change the take
+        self.kwargs["take_name"] = "Take2"
+        versionRef_B1 = Version(**self.kwargs)
+        versionRef_B1.save()
+        versionRef_B2 = Version(**self.kwargs)
+        versionRef_B2.save()
+        versionRef_B3 = Version(**self.kwargs)
+        versionRef_B3.save()
+
+        # Group 3
+        # just change the take
+        self.kwargs["take_name"] = "Take3"
+        versionRef_C1 = Version(**self.kwargs)
+        versionRef_C1.save()
+        versionRef_C2 = Version(**self.kwargs)
+        versionRef_C2.save()
+        versionRef_C3 = Version(**self.kwargs)
+        versionRef_C3.save()
+
+        # Main Version
+        self.kwargs["take_name"] = "Take4"
+        versionMain = Version(**self.kwargs)
+        versionMain.save()
+
+        # and reference them to each other
+        versionMain.references.append(versionRef_A1)
+        versionRef_A1.references.append(versionRef_B1)
+        versionRef_B1.references.append(versionRef_C1)
+        versionMain.save()
+        versionRef_A1.save()
+        versionRef_B1.save()
+
+        # check if the dependency_update_list has only two elements
+        self.assertEqual(len(versionMain.dependency_update_list), 3)
+
+        # and versionRef_A1 and versionRef_B1 are the ones in the list
+        self.assertTrue(versionRef_A1 in versionMain.dependency_update_list)
+        self.assertTrue(versionRef_B1 in versionMain.dependency_update_list)
+        self.assertTrue(versionRef_C1 in versionMain.dependency_update_list)

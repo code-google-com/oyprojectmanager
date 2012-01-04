@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ozgur/maya/scripts/oy-maya-scripts/oyTools/oyProjectManager/ui/assetUpdater.ui'
+# Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/version_updater.ui'
 #
-# Created: Thu Jun  3 09:26:08 2010
-#      by: PyQt4 UI code generator 4.7.2
+# Created: Sun Jan  1 03:49:21 2012
+#      by: pyside-uic 0.2.11 running on PySide 1.0.9
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from PySide import QtCore, QtGui
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -43,6 +43,7 @@ class Ui_Dialog(object):
         self.horizontalWidget.setSizePolicy(sizePolicy)
         self.horizontalWidget.setObjectName("horizontalWidget")
         self.horizontalLayout = QtGui.QHBoxLayout(self.horizontalWidget)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)

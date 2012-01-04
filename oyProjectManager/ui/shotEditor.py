@@ -135,7 +135,7 @@ class MainDialog(QtGui.QDialog, shotEditor_UI.Ui_Dialog):
         
         if self._environment != None:
             if self._environment.name != None and self._environment.name != '':
-                fileName, path = self._environment.get_current_version()
+                fileName, path = self._environment.get_last_version()
                 
                 #print "fileName : ", fileName
                 #print "path : ", path

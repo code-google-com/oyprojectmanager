@@ -56,7 +56,7 @@ class TestEnvironment(EnvironmentBase):
         self.test_data["import_"]["call count"] += 1
         self.test_data["import_"]["data"] = version
     
-    def get_current_version(self):
+    def get_last_version(self):
         """mock version of the original this returns None all the time
         """
         return None

@@ -7,7 +7,7 @@ import logging
 import jinja2
 #from beaker import cache
 
-from sqlalchemy import (orm, Column, String, Integer, Enum, PickleType,
+from sqlalchemy import (orm, Column, String, Integer, Float, Enum, PickleType,
                         ForeignKey, UniqueConstraint, Boolean)
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import synonym_for
@@ -323,14 +323,14 @@ class Project(Base):
     fps = Column(
         Integer,
         doc="""The frames per second setting of this project. The default value
-        is 25
+        is 25   
         """
     )
     
-    width = Column(String)
-    height = Column(String)
-    pixel_aspect = Column(String)
-    
+    width = Column(Integer)
+    height = Column(Integer)
+    pixel_aspect = Column(Float)
+        
     structure = Column(PickleType)
     
     sequences = relationship(
@@ -905,6 +905,8 @@ class VersionableBase(Base):
     
     __tablename__ = "Versionables"
     __table_args__  = (
+        UniqueConstraint("_code", "project_id"),
+#        UniqueConstraint("_code"),
         {"extend_existing":True}
     )
     
@@ -925,7 +927,6 @@ class VersionableBase(Base):
     
     _code = Column(
         String,
-        unique=True,
         doc="""The nicely formatted version of the
         :attr:`~oyProjectManager.core.models.Asset.name` attribute or
         :attr:`~oyProjectManager.core.models.Shot.number` attribute. It will
@@ -1193,7 +1194,7 @@ class Shot(VersionableBase):
         """
         number = re.sub(r"[A-Z]+", "", self.number)
         alter = re.sub(r"[0-9]+", "", self.number)
-
+        
         return self.project.shot_number_prefix +\
                number.zfill(self.project.shot_number_padding) + alter
 
@@ -1245,10 +1246,6 @@ class Asset(VersionableBase):
     """
 
     __tablename__ = "Assets"
-#    __table_args__  = (
-#        UniqueConstraint("name", "number"), {}
-#    )
-    
     __table_args__  = (
         {"extend_existing":True}
     )
@@ -1257,19 +1254,13 @@ class Asset(VersionableBase):
     
     asset_id = Column("id", Integer, ForeignKey("Versionables.id"),
                       primary_key=True)
-
+    
     name = Column(
         String, unique=True,
         doc="""The name of this Asset instance, try to be brief.
         """
     )
-
-#    code = Column(
-#        String, unique=True,
-#        doc="""The code of this Asset instance, if it is given as None or as an
-#        empty string it will be get from the name attribute."""
-#    )
-
+    
     description = Column(
         String,
         doc="The description of this asset."
@@ -1775,7 +1766,10 @@ class Version(Base):
         :class:`~oyProjectManager.core.models.Repository`\ .\ 
         :attr:`~oyProjectManager.core.models.Repository.server_path`.
         """
-        return self._output_path
+        return os.path.join(
+            self.project.path,
+            self._output_path
+        ).replace("\\", "/")
 
     def _condition_name(self, name):
         """conditions the base name, see the
@@ -1971,6 +1965,33 @@ class Version(Base):
         """returns True if this is the latest Version False otherwise
         """
         return self.max_version == self.version_number
+    
+    @property
+    def dependency_update_list(self):
+        """Calculates a list of :class:`~oyProjectManager.core.models.Version`
+        instances, which are referenced by this Version and has a newer
+        version.
+        
+        Also checks the references in the referenced Version and appends the
+        resultant list to the current dependency_update_list. Resulting a much
+        deeper update info.
+        
+        :return: list of :class:`~oyProjectManager.core.models.Version`
+            instances.
+        """
+        
+        # loop through the referenced Version instances and check if they have
+        # newer Versions
+        
+        update_list = []
+        
+        for ref in self.references:
+            if not ref.is_latest_version():
+                update_list.append(ref)
+            # also loop in their references
+            update_list.extend(ref.dependency_update_list)
+        
+        return update_list
 
 class VersionType(Base):
     """A template for :class:`~oyProjectManager.core.models.Version` class.
@@ -2740,9 +2761,16 @@ class EnvironmentBase(object):
             .first()
         
         return version
-
+    
     def get_current_version(self):
         """Returns the current Version instance from the environment.
+        
+        :returns: :class:`~oyProjectManager.core.models.Version` instance or
+            None
+        """
+
+    def get_last_version(self):
+        """Returns the last opened Version instance from the environment.
         
         * It first looks at the current open file full path and tries to match
           it with a Version instance.
@@ -2763,12 +2791,12 @@ class EnvironmentBase(object):
         raise NotImplemented
     
     def set_project(self, version):
-        """Sets the project to the given version.
+        """Sets the project to the given versions project.
         
         Because the projects are related to the created Version instances
         instead of passing a Project instance it is much meaningful to pass a
         Version instance which will have a reference to the Project instance
-        alread.
+        already.
         
         :param project: A :class:`~oyProjectManager.core.models.Version`.
         """

@@ -15,7 +15,7 @@ from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
                                           Version, VersionType, Shot, User,
                                           VersionTypeEnvironments)
 from oyProjectManager.environments import environmentFactory
-from oyProjectManager.ui import assetUpdater, singletonQApplication
+from oyProjectManager.ui import version_updater, singletonQApplication
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
@@ -62,7 +62,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     """
     
     def __init__(self, environmentName=None, parent=None):
-        super(MainDialog,self).__init__(parent)
+        super(MainDialog, self).__init__(parent)
         self.setupUi(self)
         
         # change the window title
@@ -1197,7 +1197,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """
         
         if self._environment.name is not None and self._environment.name != '':
-            self.fileName, self.path = self._environment.get_current_version()
+            self.fileName, self.path = self._environment.get_last_version()
             
             # update the interface
             self.fillFieldsFromFileInfo()
@@ -1424,7 +1424,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 # check the toUpdateList to update old assets
                 if len(toUpdateList):
                     # invoke the assetUpdater for this scene
-                    assetUpdaterMainDialog = assetUpdater.MainDialog( self._environment.name, self )
+                    assetUpdaterMainDialog = version_updater.MainDialog( self._environment.name, self )
                     assetUpdaterMainDialog.exec_()
                     
                 # load references (Maya Only - for now)
@@ -1828,6 +1828,14 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             QtCore.SIGNAL("clicked()"),
             self.open_pushButton_clicked
         )
+        
+        # add double clicking to previous_versions_tableWidget too
+        QtCore.QObject.connect(
+            self.previous_versions_tableWidget,
+            QtCore.SIGNAL("cellDoubleClicked(int,int)"),
+            self.open_pushButton_clicked
+        )
+
 
         # reference
         QtCore.QObject.connect(
@@ -1892,7 +1900,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             logger.debug("restoring the ui with the version from environment")
             
             # get the last version from the environment
-            version_from_env = self.environment.get_current_version()
+            version_from_env = self.environment.get_last_version()
             
             logger.debug("version_from_env: %s" % version_from_env)
             
@@ -2841,11 +2849,11 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                     # no, just return
                     return
                 
-                # check the to_update_list to update old versions
-                if len(to_update_list):
-                    # invoke the assetUpdater for this scene
-                    assetUpdaterMainDialog = assetUpdater.MainDialog(self.environment.name, self )
-                    assetUpdaterMainDialog.exec_()
+#                # check the to_update_list to update old versions
+#                if len(to_update_list):
+#                    # invoke the assetUpdater for this scene
+#                    assetUpdaterMainDialog = version_updater.MainDialog(self.environment.name, self )
+#                    assetUpdaterMainDialog.exec_()
                     
                 self.environment.post_open(old_version)
         

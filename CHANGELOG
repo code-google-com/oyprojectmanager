@@ -39,6 +39,20 @@ Version History
   and  :class:`~oyProjectManager.core.models.EnvironmentBase.trim_server_path`,
   methods to :class:`~oyProjectManager.core.models.EnvironmentBase` class.
 
+* Added :meth:`~oyProjectManager.core.models.Version.dependency_update_list`
+  property to the :class:`~oyProjectManager.core.models.Version` class. Which
+  returns a list of :class:`~oyProjectManager.core.models.Version` instances
+  which are referenced by this :class:`~oyProjectManager.core.models.Version`
+  or are referenced by the references of this
+  :class:`~oyProjectManager.core.models.Version` and those have newer versions
+  in the database, resulting a deeper update information.
+
+* Fixed a little bug, it is now possible to create
+  :class:`~oyProjectManager.core.models.VersionableBase` instances (
+  :class:`~oyProjectManager.core.models.Asset` and
+  :class:`~oyProjectManager.core.models.Shot` instances particularly) with the
+  same ``code`` value if their ``project_id`` is not the same.
+
 0.2.0a2
 -------
 

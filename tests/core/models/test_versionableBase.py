@@ -4,9 +4,10 @@ import os
 import shutil
 import tempfile
 import unittest
+from sqlalchemy.exc import IntegrityError
 
 from oyProjectManager import config, db
-from oyProjectManager.core.models import VersionableBase
+from oyProjectManager.core.models import VersionableBase, Project
 
 conf = config.Config()
 
@@ -51,3 +52,56 @@ class VersionableBaseTester(unittest.TestCase):
         new_vbase = VersionableBase()
         self.assertRaises(AttributeError, setattr, new_vbase, "project",
                           123124)
+
+    def test__code_is_not_unique_for_the_same_project(self):
+        """testing if a IntegrityError will be raised when the code attribute
+        is not unique for the same project
+        """
+
+        project = Project("CODE_TEST_PROJECT")
+        project.save()
+
+        vbase1 = VersionableBase()
+        vbase1._code = "Test"
+        vbase1._project = project
+
+        db.session.add(vbase1)
+        db.session.commit()
+
+        vbase2 = VersionableBase()
+        vbase2._code = "Test"
+        vbase1._project = project
+
+        db.session.add(vbase2)
+
+        # now expect an IntegrityError
+        self.assertRaises(IntegrityError, db.session.commit)
+
+    def test__code_is_not_unique_for_the_different_project(self):
+        """testing if no IntegrityError will be raised when the code attribute
+        is not unique for to different projects
+        """
+
+        project1 = Project("CODE_TEST_PROJECT_1")
+        project1.save()
+
+        project2 = Project("CODE_TEST_PROJECT_2")
+        project2.save()
+
+        vbase1 = VersionableBase()
+        vbase1._code = "Test"
+        vbase1._project = project1
+
+        db.session.add(vbase1)
+        db.session.commit()
+
+        vbase2 = VersionableBase()
+        vbase2._code = "Test"
+        vbase1._project = project2
+
+        db.session.add(vbase2)
+        
+        # do not expect any IntegrityError
+        db.session.commit()
+    
+    

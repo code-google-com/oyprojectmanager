@@ -10,7 +10,7 @@ import oyProjectManager
 from oyProjectManager import utils
 from oyProjectManager.core.models import Asset, Project, Sequence, Repository
 from oyProjectManager.environments import environmentFactory
-from oyProjectManager.ui import assetUpdater, singletonQApplication
+from oyProjectManager.ui import version_updater, singletonQApplication
 from oyProjectManager.ui import assetCreator_UI
 
 
@@ -1302,7 +1302,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
         """
         
         if self._environment.name != None and self._environment.name != '':
-            self.fileName, self.path = self._environment.get_current_version()
+            self.fileName, self.path = self._environment.get_last_version()
             
             # update the interface
             self.fillFieldsFromFileInfo()
@@ -1521,7 +1521,7 @@ class MainDialog(QtGui.QDialog, assetManager2_UI.Ui_Dialog):
                 # check the toUpdateList to update old assets
                 if len(toUpdateList):
                     # invoke the assetUpdater for this scene
-                    assetUpdaterMainDialog = assetUpdater.MainDialog( self._environment.name, self )
+                    assetUpdaterMainDialog = version_updater.MainDialog( self._environment.name, self )
                     assetUpdaterMainDialog.exec_()
                     
                 # load references (Maya Only - for now)

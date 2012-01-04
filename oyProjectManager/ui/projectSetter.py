@@ -96,7 +96,7 @@ class MainDialog(QtGui.QDialog, projectSetter_UI.Ui_Dialog):
         
         # get the current project
         # get it from the environment
-        fileName, filePath = self._environment.get_current_version()
+        fileName, filePath = self._environment.get_last_version()
         
         currentProjectName, currentSequenceName = self._repo.get_project_and_sequence_name_from_file_path( filePath )
         

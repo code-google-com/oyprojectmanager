@@ -96,7 +96,7 @@ class Houdini(EnvironmentBase):
     
     
     
-    def get_current_version(self):
+    def get_last_version(self):
         """gets the file name from houdini environment
         """
         

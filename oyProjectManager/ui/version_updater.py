@@ -3,47 +3,58 @@
 
 
 import os, sys
-from PyQt4 import QtGui, QtCore
-import assetUpdater_UI
+from PySide import QtGui, QtCore
+import version_updater_UI
 
 from oyProjectManager.environments import environmentFactory
 from oyProjectManager.ui import singletonQApplication
 
 
 
-#----------------------------------------------------------------------
-def UI( environmentName=None ):
+
+def UI(environment):
     """the UI to call the dialog by itself
     """
     global app
     global mainDialog
-    app = singletonQApplication.QApplication(sys.argv)
-    mainDialog = MainDialog( environmentName )
+    
+#    app = singletonQApplication.QApplication(sys.argv)
+
+    self_quit = False
+    if QtGui.QApplication.instance() is None:
+        app = QtGui.QApplication(*sys.argv)
+        self_quit = True
+    else:
+        app = QtGui.QApplication.instance()
+
+    mainDialog = MainDialog(environment)
     mainDialog.show()
     #app.setStyle('Plastique')
     app.exec_()
-    app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
 
 
-
-
-
-
-#######################################################################
-class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
-    """the main dialog of the asset updater system
+    if self_quit:
+        app.connect(
+            app,
+            QtCore.SIGNAL("lastWindowClosed()"),
+            app,
+            QtCore.SLOT("quit()")
+        )
     
-    the assetTuple list consist of an asset object and a reference object
+    return mainDialog
+
+class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
+    """The main dialog of the version updater system
     
-    for Maya environment the reference object is the PyMel Reference node,
+    The version_tuple list consist of a Version instance and a reference
+    object.
+    
+    For Maya environment the reference object is the PyMel Reference node,
     for other environments reference object type will be as native as it can be
     """
     
-    
-    
-    #----------------------------------------------------------------------
     def __init__(self, environmentName=None, parent=None):
-        super(MainDialog,self).__init__(parent)
+        super(MainDialog, self).__init__(parent)
         self.setupUi(self)
         
         # change the window title
@@ -97,7 +108,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _centerWindow(self):
         """centers the window to the screen
         """
@@ -107,7 +118,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getAssetTupleListFromEnvironment(self):
         """gets the references from environment
         
@@ -117,7 +128,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
         return self._environment.checkReferenceVersions()
     
     
-    #----------------------------------------------------------------------
+    
     def getAssetTupleList(self):
         """returns the asset tuple list
         """
@@ -125,7 +136,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setAssetTupleList(self, assetTupleList):
         """sets the asset tuple list
         """
@@ -136,7 +147,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getEnvironmentName(self):
         """returns the environment name
         """
@@ -144,7 +155,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setEnvironmentName(self, environmentName):
         """sets the environment name
         """
@@ -158,7 +169,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getEnvironment(self):
         """returns the environment object
         """
@@ -166,7 +177,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def setEnvironment(self, environment):
         """sets the environment
         """
@@ -176,7 +187,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    ##----------------------------------------------------------------------
+    #
     #def _testDataFill(self):
         #"""creates some test data to test the interface
         #"""
@@ -197,7 +208,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _fillUI(self):
         """fills the UI with the asset data
         """
@@ -251,7 +262,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _doEnvRead(self):
         """gets the asset tuple from env
         """
@@ -260,7 +271,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def _selectAllAssets(self):
         """selects all the assets in the tableWidget
         """
@@ -270,7 +281,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
             currentItem.setCheckState( 2 )
     
     
-    #----------------------------------------------------------------------
+    
     def _selectNoAsset(self):
         """deselects all assets in the tableWidget
         """
@@ -282,7 +293,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def updateAssets(self):
         """updates the assets if it is checked in the
         """
@@ -298,7 +309,7 @@ class MainDialog(QtGui.QDialog, assetUpdater_UI.Ui_Dialog):
     
     
     
-    #----------------------------------------------------------------------
+    
     def getMarkedAssets(self):
         """returns the assets as tuple again, if it is checked in the interface
         """

@@ -18,7 +18,7 @@ setup(name="oyProjectManager",
       version=oyProjectManager.__version__,
       author="Erkan Ozgur Yilmaz",
       author_email="eoyilmaz@gmail.com",
-      description=("A Simple Asset Management System for animation packages"),
+      description=("A Simple Asset Management System for Animation and VFX Studios"),
       long_description=read("README"),
       keywords=["production", "asset", "management", "vfx", "animation", "maya"
                 "houdini", "nuke", "xsi", "blender", "vue"],
