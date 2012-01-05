@@ -167,7 +167,7 @@ class VersionTester(unittest.TestCase):
             code="TMODEL",
             path="ASSETS/{{base_name}}/{{type_name}}",
             filename="{{base_name}}_{{take_name}}_{{type_name}}_v{{version}}_{{created_by.initials}}",
-            environments="MAYA,HOUDINI",
+            environments=["MAYA", "HOUDINI"],
             output_path="ASSETS/{{assetBaseName}}/{{assetTypeName}}/OUTPUT/{{assetSubName}}",
             type_for="Asset"
         )
@@ -491,6 +491,53 @@ class VersionTester(unittest.TestCase):
         B_new = Version(**self.kwargs)
         B_new.save()
         self.assertEqual(B_new.version_number, 101)
+    
+    def test_version_number_continues_correctly_even_if_the_Versionable_name_has_changed(self):
+        """testing if the version_number continues correctly even if the
+        Versionable's name has changed
+        """
+        
+        new_asset = Asset(self.test_project, "Asset 1")
+        new_asset.save()
+        
+        self.kwargs["version_of"] = new_asset
+        
+        new_type = VersionType(
+            name="TModel2",
+            code="TModel2",
+            path="{{project.code}}/Assets/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+            output_path="{{version._path}}/Output/{{version.take_name}}",
+            extra_folders="",
+            environments=["Maya", "Houdini"],
+            type_for="Asset"
+        )
+        
+        self.kwargs["type"] = new_type
+        
+        # create a couple of versions
+        version1 = Version(**self.kwargs)
+        version1.save()
+        
+        self.assertEqual(version1.version_number, 1)
+        
+        version2 = Version(**self.kwargs)
+        version2.save()
+        
+        self.assertEqual(version2.version_number, 2)
+        
+        # rename the asset
+        new_asset.name = "Asset 2"
+        new_asset.code = "Asset 2"
+        new_asset.save()
+        self.kwargs["base_name"] = new_asset.code
+        
+        version3 = Version(**self.kwargs)
+        version3.save()
+        
+        print version3.filename
+        
+        self.assertEqual(version3.version_number, 3)
     
     def test_note_argument_skipped(self):
         """testing if the note attribute will be an empty string if the note
@@ -834,15 +881,13 @@ class VersionTester(unittest.TestCase):
         # different version_type
         
         new_versionType = VersionType(
-            name="Test Model",
-            code="TMODEL",
-            path="SHOTS/{{version.base_name}}/{{type.code}}",
-            filename="{{version.base_name}}_{{version.take_name}}_\
-{{type.code}}_v{{'%03d'|format(version.version_number)}}_\
-{{version.created_by.initials}}",
-            output_path="SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/\
-{{version.take_name}}",
-            environments=["MAYA", "HOUDINI"],
+            name="Shot Type 1",
+            code="ShotType1",
+            path="{{project.code}}/Shots/{{version.base_name}}/{{type.code}}",
+            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+            output_path="{{version._path}}/Output/{{version.take_name}}",
+            extra_folders="",
+            environments=["Maya", "Houdini"],
             type_for="Shot"
         )
         
@@ -872,8 +917,8 @@ class VersionTester(unittest.TestCase):
         # different version_type
         
         new_versionType = VersionType(
-            name="Test Model",
-            code="TMODEL",
+            name="Test Model 3",
+            code="TMODEL3",
             path="SHOTS/{{version.base_name}}/{{type.code}}",
             filename="{{version.base_name}}_{{version.take_name}}_\
 {{type.code}}_v{{'%03d'|format(version.version_number)}}_\
@@ -1217,3 +1262,4 @@ class VersionTester(unittest.TestCase):
         self.assertTrue(versionRef_A1 in versionMain.dependency_update_list)
         self.assertTrue(versionRef_B1 in versionMain.dependency_update_list)
         self.assertTrue(versionRef_C1 in versionMain.dependency_update_list)
+

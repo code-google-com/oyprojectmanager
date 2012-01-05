@@ -54,7 +54,7 @@ class VersionableBaseTester(unittest.TestCase):
                           123124)
 
     def test__code_is_not_unique_for_the_same_project(self):
-        """testing if a IntegrityError will be raised when the code attribute
+        """testing if a IntegrityError will be raised when the _code attribute
         is not unique for the same project
         """
 
@@ -70,7 +70,7 @@ class VersionableBaseTester(unittest.TestCase):
 
         vbase2 = VersionableBase()
         vbase2._code = "Test"
-        vbase1._project = project
+        vbase2._project = project
 
         db.session.add(vbase2)
 
@@ -78,7 +78,58 @@ class VersionableBaseTester(unittest.TestCase):
         self.assertRaises(IntegrityError, db.session.commit)
 
     def test__code_is_not_unique_for_the_different_project(self):
-        """testing if no IntegrityError will be raised when the code attribute
+        """testing if no IntegrityError will be raised when the _code attribute
+        is not unique for to different projects
+        """
+        
+        project1 = Project("CODE_TEST_PROJECT_1")
+        project1.save()
+        
+        project2 = Project("CODE_TEST_PROJECT_2")
+        project2.save()
+        
+        vbase1 = VersionableBase()
+        vbase1._code = "Test"
+        vbase1._project = project1
+        
+        db.session.add(vbase1)
+        db.session.commit()
+        
+        vbase2 = VersionableBase()
+        vbase2._code = "Test"
+        vbase2._project = project2
+        
+        db.session.add(vbase2)
+        
+        # do not expect any IntegrityError
+        db.session.commit()
+
+    def test__name_is_not_unique_for_the_same_project(self):
+        """testing if a IntegrityError will be raised when the _name attribute
+        is not unique for the same project
+        """
+
+        project = Project("CODE_TEST_PROJECT")
+        project.save()
+        
+        vbase1 = VersionableBase()
+        vbase1._name = "Test"
+        vbase1._project = project
+
+        db.session.add(vbase1)
+        db.session.commit()
+
+        vbase2 = VersionableBase()
+        vbase2._name = "Test"
+        vbase2._project = project
+        
+        db.session.add(vbase2)
+        
+        # now expect an IntegrityError
+        self.assertRaises(IntegrityError, db.session.commit)
+
+    def test__name_is_not_unique_for_the_different_project(self):
+        """testing if no IntegrityError will be raised when the _name attribute
         is not unique for to different projects
         """
 
@@ -89,19 +140,53 @@ class VersionableBaseTester(unittest.TestCase):
         project2.save()
 
         vbase1 = VersionableBase()
-        vbase1._code = "Test"
+        vbase1._name = "Test"
         vbase1._project = project1
 
         db.session.add(vbase1)
         db.session.commit()
 
         vbase2 = VersionableBase()
-        vbase2._code = "Test"
-        vbase1._project = project2
+        vbase2._name = "Test"
+        vbase2._project = project2
 
         db.session.add(vbase2)
-        
+
         # do not expect any IntegrityError
         db.session.commit()
+
+    def test_description_attribute_is_set_to_None(self):
+        """testing if a TypeError will be raised when the description attribute
+        is set to None
+        """
+        vbase = VersionableBase()
+        self.assertRaises(TypeError, setattr, vbase, "description", None)
+
+    def test_description_attribute_is_not_a_string(self):
+        """testing if a TypeError will be raised when the description attribute
+        is not set to a string or unicode
+        """
+        vbase = VersionableBase()
+        self.assertRaises(TypeError, setattr, vbase, "description", 234235)
+
+    def test_description_attribute_is_working_properly(self):
+        """testing if the description attribute is working properly
+        """
+        vbase = VersionableBase()
+        test_value = "this is the description"
+        vbase.description = test_value
+        self.assertEqual(vbase.description, test_value)
     
-    
+    def test_project_can_not_be_None(self):
+        """testing if a IntegrityError will be raised when the project
+        attribute is None
+        """
+        vbase = VersionableBase()
+        vbase._name = "Test"
+        vbase._project = None
+        
+        db.setup()
+        db.session.add(vbase)
+        
+        self.assertRaises(IntegrityError, db.session.commit)
+        

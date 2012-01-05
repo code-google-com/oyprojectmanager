@@ -906,11 +906,11 @@ class VersionableBase(Base):
     __tablename__ = "Versionables"
     __table_args__  = (
         UniqueConstraint("_code", "project_id"),
-#        UniqueConstraint("_code"),
+        UniqueConstraint("_name", "project_id"),
         {"extend_existing":True}
     )
     
-    versionable_type = Column(String(128), nullable=False)
+    versionable_type = Column(String(64), nullable=False)
     
     __mapper_args__ = {
         "polymorphic_on": versionable_type,
@@ -921,12 +921,12 @@ class VersionableBase(Base):
     
     version_id = Column(Integer)
     _versions = relationship("Version")
-    
-    project_id = Column(Integer, ForeignKey("Projects.id"))
+
+    project_id = Column(Integer, ForeignKey("Projects.id"), nullable=False)
     _project = relationship("Project")
     
     _code = Column(
-        String,
+        String(128),
         doc="""The nicely formatted version of the
         :attr:`~oyProjectManager.core.models.Asset.name` attribute or
         :attr:`~oyProjectManager.core.models.Shot.number` attribute. It will
@@ -934,6 +934,10 @@ class VersionableBase(Base):
         :class:`~oyProjectManager.core.models.Shot` class.
         """
     )
+
+    _name = Column(String(128))
+    
+    description = Column(String)
     
     @synonym_for("_versions")
     @property
@@ -954,6 +958,18 @@ class VersionableBase(Base):
         """
         
         return self._project
+
+    @validates("description")
+    def _validate_description(self, key, description):
+        """validates the given description value
+        """
+        if not isinstance(description, (str, unicode)):
+            raise TypeError("Asset.description should be an instance of "
+                            "string or unicode")
+        
+        return description
+
+
 
 class Shot(VersionableBase):
     """The class that enables the system to manage shot data.
@@ -994,8 +1010,7 @@ class Shot(VersionableBase):
     #    _code = Column(String)
     start_frame = Column(Integer, default=1)
     end_frame = Column(Integer, default=1)
-    description = Column(String)
-
+    
     sequence_id = Column(Integer, ForeignKey("Sequences.id"))
     _sequence = relationship(
         "Sequence",
@@ -1255,17 +1270,6 @@ class Asset(VersionableBase):
     asset_id = Column("id", Integer, ForeignKey("Versionables.id"),
                       primary_key=True)
     
-    name = Column(
-        String, unique=True,
-        doc="""The name of this Asset instance, try to be brief.
-        """
-    )
-    
-    description = Column(
-        String,
-        doc="The description of this asset."
-    )
-    
     def __init__(self, project, name, code=None):
         self._project = project
         self.name = name
@@ -1335,18 +1339,7 @@ class Asset(VersionableBase):
         )
     )
     
-    @validates("description")
-    def _validate_description(self, key, description):
-        """validates the given description value
-        """
-        if not isinstance(description, (str, unicode)):
-            raise TypeError("Asset.description should be an instance of "
-                            "string or unicode")
-        
-        return description
-    
-    @validates("name")
-    def _validate_name(self, key, name):
+    def _validate_name(self, name):
         """validates the given name value
         """
         if name is None:
@@ -1376,6 +1369,26 @@ class Asset(VersionableBase):
         name = name[0].upper() + name[1:]
         
         return name
+    
+    def _name_getter(self):
+        """getter for the name attribute
+        """
+        return self._name
+    
+    def _name_setter(self, name):
+        """setter for the name attribute
+        """
+        name = self._validate_name(name)
+        self._name = name
+    
+    name = synonym(
+        "_name",
+        descriptor=property(
+            _name_getter,
+            _name_setter,
+            doc="""The name of this Asset instance, try to be brief."""
+        )
+    )
     
     def save(self):
         """saves the asset to the related projects database
@@ -1504,15 +1517,16 @@ class Version(Base):
     """
 
     # TODO: add audit info like date_created, date_updated, created_at and updated_by
+    # TODO: add needs_update flag, primarily need to be used with renamed versions
     
-    # 
     # file_size_format = "%.2f MB"
     # timeFormat = '%d.%m.%Y %H:%M'
 
     __tablename__ = "Versions"
     
     __table_args__  = (
-        UniqueConstraint("base_name", "take_name", "_version_number", "type_id"),
+#        UniqueConstraint("base_name", "take_name", "_version_number", "type_id"),
+        UniqueConstraint("version_of_id", "take_name", "_version_number", "type_id"),
         {"extend_existing":True}
     )
 
@@ -1846,10 +1860,11 @@ class Version(Base):
         
         :returns: :class:`~oyProjectManager.core.models.Version` instance
         """
+        #            .filter(Version.base_name == self.base_name)\
         return db.session\
             .query(Version)\
             .filter(Version.type==self.type)\
-            .filter(Version.base_name == self.base_name)\
+            .filter(Version.version_of == self.version_of)\
             .filter(Version.take_name == self.take_name)\
             .order_by(Version.version_number.desc())\
             .first()
@@ -1875,7 +1890,7 @@ class Version(Base):
         """
 
         max_version = self.max_version
-
+        
         if version_number is None:
             # get the smallest possible value for the version_number
             # from the database

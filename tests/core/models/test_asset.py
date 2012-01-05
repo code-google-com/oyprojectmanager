@@ -261,27 +261,6 @@ class AssetTester(unittest.TestCase):
         new_asset = Asset(**self.kwargs)
         self.assertRaises(IntegrityError, new_asset.save)
     
-    def test_description_attribute_is_set_to_None(self):
-        """testing if a TypeError will be raised when the description attribute
-        is set to None
-        """
-        self.assertRaises(TypeError, setattr, self.test_asset, "description",
-                          None)
-    
-    def test_description_attribute_is_not_a_string(self):
-        """testing if a TypeError will be raised when the description attribute
-        is not set to a string or unicode
-        """
-        self.assertRaises(TypeError, setattr, self.test_asset, "description",
-                          234235)
-    
-    def test_description_attribute_is_working_properly(self):
-        """testing if the description attribute is working properly
-        """
-        test_value = "this is the description"
-        self.test_asset.description = test_value
-        self.assertEqual(self.test_asset.description, test_value)
-    
     def test_save_method_saves_the_asset_to_the_database(self):
         """testing if the save method saves the asset to the database
         """

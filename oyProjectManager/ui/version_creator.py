@@ -1783,16 +1783,16 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.add_type_toolButton_clicked
         )
         
-#        # custom context menu for the asset description
-#        self.asset_description_textEdit.setContextMenuPolicy(
-#            QtCore.Qt.CustomContextMenu
-#        )
-#        
-#        QtCore.QObject.connect(
-#            self.asset_description_textEdit,
-#            QtCore.SIGNAL("customContextMenuRequested(const QPoint&)"),
-#            self._show_description_context_menu
-#        )
+        # custom context menu for the assets_listWidget
+        self.assets_listWidget.setContextMenuPolicy(
+            QtCore.Qt.CustomContextMenu
+        )
+        
+        QtCore.QObject.connect(
+            self.assets_listWidget,
+            QtCore.SIGNAL("customContextMenuRequested(const QPoint&)"),
+            self._show_assets_listWidget_context_menu
+        )
         
         # create_asset_pushButton
         QtCore.QObject.connect(
@@ -1853,23 +1853,55 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
 
         logger.debug("finished setting up interface signals")
     
-#    def _show_description_context_menu(self, position):
-#        """the custom context menu for the asset_description_textEdit
-#        """
+    def _show_assets_listWidget_context_menu(self, position):
+        """the custom context menu for the assets_listWidget
+        """
 #        print "this has been run"
-#        # convert the position to global screen position
-#        global_position = self.asset_description_textEdit.mapToGlobal(position)
-#        
-#        # create the menu
-#        self.asset_description_menu = QtGui.QMenu()
-#        self.asset_description_menu.addAction("Save Description")
-#        self.asset_description_menu.addAction("Revert To Original")
-#        
-#        selected_item = self.asset_description_menu.exec_(global_position)
-#        
-#        if selected_item:
-#            # something is chosen
-#            print selected_item.text()
+        # convert the position to global screen position
+        global_position = self.assets_listWidget.mapToGlobal(position)
+        
+        # create the menu
+        self.assets_listWidget_menu = QtGui.QMenu()
+        self.assets_listWidget_menu.addAction("Rename Asset")
+        #self.asset_description_menu.addAction("Delete Asset")
+        
+        selected_item = self.assets_listWidget_menu.exec_(global_position)
+        
+        if selected_item:
+            # something is chosen
+            if selected_item.text() == "Rename Asset":
+                
+                # show a dialog
+                self.input_dialog = QtGui.QInputDialog(self)
+
+                new_asset_name, ok = self.input_dialog.getText(
+                    self,
+                    "Rename Asset",
+                    "New Asset Name"
+                )
+                
+                if ok:
+                    # if it is not empty
+                    if new_asset_name != "":
+                        # get the asset from the list
+                        asset = self.get_versionable()
+                        asset.name = new_asset_name
+                        asset.code = new_asset_name
+                        asset.save()
+                        
+                        # update assets_listWidget
+                        self.tabWidget_changed(0)
+                
+    
+    def rename_asset(self, asset, new_name):
+        """Renames the asset with the given new name
+        
+        :param asset: The :class:`~oyProjectManager.core.models.Asset` instance
+          to be renamed.
+        
+        :param new_name: The desired new name for the asset.
+        """
+        pass
     
     def _setup_defaults(self):
         """sets up the defaults for the interface
@@ -1982,7 +2014,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """called when the tab widget is changed
         """
         
-        proj = self.get_project()
+        proj = self.get_current_project()
         
         # if assets is the current tab
         if index == 0:
@@ -2086,7 +2118,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """updates the asset related fields with the current asset information
         """
         
-        proj = self.get_project()
+        proj = self.get_current_project()
         
         asset = \
             db.query(Asset).\
@@ -2125,7 +2157,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """updates the shot related fields with the current shot information
         """
         
-        proj = self.get_project()
+        proj = self.get_current_project()
         
         # get the shot from the index
         index = self.shots_listWidget.currentIndex().row()
@@ -2160,7 +2192,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """
         
         # get all the takes for this type
-        proj = self.get_project()
+        proj = self.get_current_project()
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
@@ -2215,7 +2247,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """runs when the takes_comboBox has changed
         """
         
-        proj = self.get_project()
+        proj = self.get_current_project()
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
@@ -2391,7 +2423,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             button.setStyleSheet("")
             text_field.setReadOnly(True)
             
-            proj = self.get_project()
+            proj = self.get_current_project()
             asset = \
                 db.query(Asset).\
                 filter(Asset.project==proj).\
@@ -2532,7 +2564,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                          "not creating a new asset")
             return
         
-        proj = self.get_project()
+        proj = self.get_current_project()
         
         try:
             new_asset = Asset(proj, asset_name)
@@ -2561,7 +2593,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """returns the versionable from the UI, it is an asset or a shot
         depending on to the current tab
         """
-        proj = self.get_project()
+        proj = self.get_current_project()
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
@@ -2590,7 +2622,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         :returns: :class:`~oyProjectManager.core.models.VersionType`
         """
         
-        project = self.get_project()
+        project = self.get_current_project()
         if project is None:
             return None
         
@@ -2608,7 +2640,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             filter(VersionType.name==version_type_name).\
             first()
     
-    def get_project(self):
+    def get_current_project(self):
         """Returns the currently selected project instance in the
         projects_comboBox
         :return: :class:`~oyProjectManager.core.models.Project` instance
@@ -2650,7 +2682,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def add_type_toolButton_clicked(self):
         """adds a new type for the currently selected Asset or Shot
         """
-        proj = self.get_project()
+        proj = self.get_current_project()
         
         # get the versionable
         versionable = self.get_versionable()

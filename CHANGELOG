@@ -53,6 +53,26 @@ Version History
   :class:`~oyProjectManager.core.models.Shot` instances particularly) with the
   same ``code`` value if their ``project_id`` is not the same.
 
+* To be able to make the :attr:`~oyProjectManager.core.models.Asset.name`
+  attribute in the :class:`~oyProjectManager.core.models.Asset` unique, the
+  column moved to the ``VersionableBases`` table which also has the
+  ``project_id`` column.
+
+* Moved the ``description`` attribute to the
+ :class:`~oyProjectManager.core.models.VersionableBase` class, which
+  was a common attribute for the
+  :class:`~oyProjectManager.core.models.Asset`` and
+  :class:`~oyProjectManager.core.models.Shot` classes.
+
+* The :attr:`~oyProjectManager.core.models.Version.version_number` attribute is
+  now depending on to the
+  :attr:`~oyProjectManager.core.models.Version.version_of` attribute instead of
+  the :attr:`~oyProjectManager.core.models.Version.base_name` attribute, to
+  prevent the ``version_number`` from being started over from 1 again in case
+  of renames in :class:`~oyProjectManager.core.models.VersionableBase`
+  instances attached to a particular
+  :class:`~oyProjectManager.core.models.Version` instance.
+
 0.2.0a2
 -------
 

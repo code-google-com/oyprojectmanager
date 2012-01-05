@@ -360,61 +360,6 @@ class ShotTester(unittest.TestCase):
         self.test_shot.end_frame = 200
         self.assertEqual(self.test_shot.start_frame, 1)
         self.assertEqual(self.test_shot.duration, 200)
-       
-    def test_description_argument_is_skipped(self):
-        """testing if the description attribute will be set to an empty string
-        when the description argument is skipped
-        """
-        self.kwargs.pop("description")
-        new_shot = Shot(**self.kwargs)
-        self.assertEqual(new_shot.description, "")
-    
-    def test_description_argument_is_None(self):
-        """testing if the description attribute will be set to an empty string
-        when the description argument is None
-        """
-        self.kwargs["description"] = None
-        new_shot = Shot(**self.kwargs)
-        self.assertEqual(new_shot.description, "")
-    
-    def test_description_attribute_is_None(self):
-        """testing if the description attribute will be set to an empty string
-        when it is set to none
-        """
-        new_shot = Shot(**self.kwargs)
-        new_shot.description = None
-        self.assertEqual(new_shot.description, "")
-    
-    def test_description_argument_is_not_string(self):
-        """testing if a TypeError will be raised when the description argument
-        is not a string
-        """
-        self.kwargs["description"] = 10
-        self.assertRaises(TypeError, Shot, **self.kwargs)
-    
-    def test_description_attribute_is_not_string(self):
-        """testing if a TypeError will be raised when the description attribute
-        is not a string
-        """
-        self.assertRaises(TypeError, setattr, self.test_shot, "description",
-                          123123)
-
-    def test_description_attribute_initialized_properly(self):
-        """testing if the description attribute is initialized correctly with
-        the given description argument
-        """
-        test_value = "test value"
-        self.kwargs["description"] = test_value
-        new_shot = Shot(**self.kwargs)
-        self.assertEqual(new_shot.description, test_value)
-
-    def test_description_attribute_is_working_properly(self):
-        """testing if the description attribute is working properly
-        """
-        new_shot = Shot(**self.kwargs)
-        test_value = "test value"
-        new_shot.description = test_value
-        self.assertEqual(new_shot.description, test_value)
     
     def test_duration_attribute_is_updated_correctly(self):
         """testing if the duration attribute is updated correctly with the
