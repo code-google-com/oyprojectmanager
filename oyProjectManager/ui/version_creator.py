@@ -1696,7 +1696,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self._setup_signals()
         
         # setup defaults
-        self._setup_defaults()
+        self._set_defaults()
         
         logger.debug("finished initializing the interface")
     
@@ -1903,7 +1903,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """
         pass
     
-    def _setup_defaults(self):
+    def _set_defaults(self):
         """sets up the defaults for the interface
         """
         

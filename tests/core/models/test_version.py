@@ -535,8 +535,6 @@ class VersionTester(unittest.TestCase):
         version3 = Version(**self.kwargs)
         version3.save()
         
-        print version3.filename
-        
         self.assertEqual(version3.version_number, 3)
     
     def test_note_argument_skipped(self):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Thu Jan  5 00:36:34 2012
+# Created: Thu Jan  5 18:12:19 2012
 #      by: pyside-uic 0.2.11 running on PySide 1.0.9
 #
 # WARNING! All changes made in this file will be lost!
@@ -267,7 +267,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_5.addWidget(self.import_pushButton)
         self.verticalLayout_7.addLayout(self.horizontalLayout_5)
         self.horizontalLayout_14.addWidget(self.previous_versions_groupBox)
-        self.horizontalLayout_14.setStretch(1, 1)
+        self.horizontalLayout_14.setStretch(4, 1)
         self.verticalLayout.addLayout(self.horizontalLayout_14)
         self.horizontalLayout_8 = QtGui.QHBoxLayout()
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")

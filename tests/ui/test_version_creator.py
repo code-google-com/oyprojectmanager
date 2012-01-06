@@ -104,6 +104,9 @@ class VersionCreatorTester(unittest.TestCase):
         """testing if the close button is closing the ui
         """
         dialog = version_creator.MainDialog_New()
+        dialog.show()
+
+        self.assertEqual(dialog.isVisible(), True)
         
         # now run the UI
         QTest.mouseClick(dialog.close_pushButton, Qt.LeftButton)

@@ -73,6 +73,8 @@ Version History
   instances attached to a particular
   :class:`~oyProjectManager.core.models.Version` instance.
 
+* Updated the ``project_manager`` ui.
+
 0.2.0a2
 -------
 

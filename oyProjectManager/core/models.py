@@ -413,6 +413,7 @@ class Project(Base):
         self.height = self.conf.resolution_height
         self.pixel_aspect = self.conf.resolution_pixel_aspect
         
+        # TODO: do we really need to have an attribute called exists
         self._exists = None
         
         # and the structure
