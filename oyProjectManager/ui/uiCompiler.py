@@ -35,8 +35,8 @@ uicFilePaths.append(os.path.join(ui_path, "project_properties.ui"))
 pyFilePaths.append(os.path.join(ui_path, "project_properties_UI.py"))
 
 # assetUpdater
-#uicFilePaths.append(os.path.join(ui_path, "version_updater.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "version_updater_UI.py"))
+uicFilePaths.append(os.path.join(ui_path, "version_updater.ui"))
+pyFilePaths.append(os.path.join(ui_path, "version_updater_UI.py"))
 #
 ## shotEditor
 #uicFilePaths.append(os.path.join(ui_path, "shotEditor.ui"))
