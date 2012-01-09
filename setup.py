@@ -16,7 +16,7 @@ import oyProjectManager
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-required_packages = ["pyqt", "pyseq"]
+required_packages = ["pyside", "sqlalchemy", "jinja2"]
 
 setup(name="oyProjectManager",
       version=oyProjectManager.__version__,
