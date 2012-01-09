@@ -7,6 +7,20 @@ Version History
 
 * Updated the license text on module headers.
 
+0.2.1
+-----
+
+* Fixed a bug when a :class:`~oyProjectManager.core.models.Project` doesn't
+  have any Sequence, :meth:`~oyProjectManager.core.models.create` will raise
+  ``OSErrors`` about not being able to create the resultant directory which is
+  an empty string.
+
+* Because at time of this release it was hard to reach PySide on every
+  platform, the system has been moved back to PyQt4 for now. PySide will
+  definitely be used in the future, when all the main programs (Maya, Houdini
+  and Nuke) are supporting it (for now it is just Nuke which is delivered with
+  PySide).
+
 0.2.0.b1
 --------
 * The ``fullpath`` and the ``path`` attributes of the

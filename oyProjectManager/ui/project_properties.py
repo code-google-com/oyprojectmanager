@@ -4,7 +4,13 @@
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
-from PySide import QtGui, QtCore
+
+#from PySide import QtGui, QtCore
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+from PyQt4 import QtGui, QtCore
+
 import logging
 from oyProjectManager import conf
 from oyProjectManager.core.models import Project

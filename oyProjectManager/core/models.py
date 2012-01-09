@@ -572,13 +572,19 @@ class Project(Base):
         
         # check if the folder already exists
         utils.mkdir(self.full_path)
-        
+
         # create the structure if it is not present
         rendered_structure = jinja2.Template(self.structure).\
                              render(project=self)
         
-        for folder in rendered_structure.split("\n"):
-            utils.createFolder(folder.strip())
+        folders = rendered_structure.split("\n")
+        
+        if len(folders):
+            for folder in rendered_structure.split("\n"):
+                try:
+                    utils.createFolder(folder.strip())
+                except OSError:
+                    pass
         
         self._exists = True
         

@@ -11,7 +11,12 @@ from sqlalchemy.exc import IntegrityError
 
 from sqlalchemy.sql.expression import distinct
 
-from PySide import QtGui, QtCore
+#from PySide import QtGui, QtCore
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+from PyQt4 import QtGui, QtCore
+
 import version_creator_UI
 
 import oyProjectManager

@@ -226,8 +226,7 @@ class Config(object):
         
         default_resolution_preset = "HD 1080",
         
-        project_structure = """
-        {% for sequence in project.sequences %}
+        project_structure = """{% for sequence in project.sequences %}
             {% set seq_path = project.full_path + '/Sequences/' + sequence.code %}
             {{seq_path}}/Edit/Offline
             {{seq_path}}/Edit/Sound
