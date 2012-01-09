@@ -578,7 +578,7 @@ class Project(Base):
                              render(project=self)
         
         for folder in rendered_structure.split("\n"):
-            utils.createFolder(os.path.join(self.full_path, folder.strip()))
+            utils.createFolder(folder.strip())
         
         self._exists = True
         

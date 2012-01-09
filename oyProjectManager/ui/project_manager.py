@@ -26,7 +26,7 @@ def UI():
         self_quit = True
     else:
         app = QtGui.QApplication.instance()
-
+    
     mainDialog = MainDialog()
     mainDialog.show()
     #app.setStyle('Plastique')

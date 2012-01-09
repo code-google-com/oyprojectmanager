@@ -228,7 +228,7 @@ class Config(object):
         
         project_structure = """
         {% for sequence in project.sequences %}
-            {% set seq_path = 'Sequences/' + sequence.code %}
+            {% set seq_path = project.full_path + '/Sequences/' + sequence.code %}
             {{seq_path}}/Edit/Offline
             {{seq_path}}/Edit/Sound
             {{seq_path}}/References/Artworks
