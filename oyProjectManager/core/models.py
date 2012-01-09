@@ -939,9 +939,7 @@ class VersionableBase(Base):
     
     id = Column(Integer, primary_key=True)
     
-    version_id = Column(Integer)
     _versions = relationship("Version")
-
     project_id = Column(Integer, ForeignKey("Projects.id"), nullable=False)
     _project = relationship("Project")
     
@@ -994,6 +992,17 @@ class VersionableBase(Base):
 class Shot(VersionableBase):
     """The class that enables the system to manage shot data.
     
+    .. note::
+      
+      There is a design flaw, which I've recognized at the day I'll release
+      version 0.2.0. The ``_code`` of the Shot is not stored in the database,
+      whereas the ``_code`` of a the Asset is. So one can not query Shot's by
+      using the ``_code`` attribute, but it is easy to get the same effect by
+      using the ``number`` attribute. So you need to create you queries with
+      ``number`` instead of ``_code``.
+      
+      I hope I'll fix it in a later version.
+    
     :param sequence: The :class:`~oyProjectManager.core.models.Sequence`
       instance that this Shot should belong to. The Sequence may not be created
       yet. Skipping it or passing None will raise TypeError, and anything
@@ -1027,7 +1036,7 @@ class Shot(VersionableBase):
     shot_id =  Column("id", Integer, ForeignKey("Versionables.id") ,primary_key=True)
 
     number = Column(String)
-    #    _code = Column(String)
+    
     start_frame = Column(Integer, default=1)
     end_frame = Column(Integer, default=1)
     
@@ -1036,7 +1045,7 @@ class Shot(VersionableBase):
         "Sequence",
         primaryjoin="Shots.c.sequence_id==Sequences.c.id"
     )
-
+    
     def __init__(self,
                  sequence,
                  number,
@@ -1045,11 +1054,12 @@ class Shot(VersionableBase):
                  description=''):
 
         self._sequence = self._validate_sequence(sequence)
-        self.number = number
-        self.description = description
-
         # update the project attribute
         self._project = self._sequence.project
+        
+        self.number = number
+        
+        self.description = description
 
         self._duration = 1
         self.start_frame = start_frame

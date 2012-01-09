@@ -60,7 +60,7 @@ class VersionableBaseTester(unittest.TestCase):
 
         project = Project("CODE_TEST_PROJECT")
         project.save()
-
+        
         vbase1 = VersionableBase()
         vbase1._code = "Test"
         vbase1._project = project
