@@ -268,29 +268,29 @@ def fixWindowsPath(path):
 def findFiles(pattern, search_path, pathsep=os.pathsep):
     return glob.glob(os.path.join(path,pattern))
 
-def getChildFolders(path, returnFullPath=False):
+def getChildFolders(path, return_full_path=False):
     """returns the child folders for the given path
     """
     childFolders = os.listdir( path )
     childFolders = filter( os.path.isdir, map( os.path.join, [path] * len(childFolders), childFolders ) )
     
-    if returnFullPath:
+    if return_full_path:
         return childFolders
     else:
         return map( os.path.basename, childFolders )
 
-def getChildFiles(path, returnFullPath=False):
+def getChildFiles(path, return_full_path=False):
     """returns the child files for the given path
     """
     childFiles = os.listdir( path )
     childFiles = filter( os.path.isfile, map( os.path.join, [path] * len(childFiles), childFiles ) )
     
-    if returnFullPath:
+    if return_full_path:
         return childFiles
     else:
         return map( os.path.basename, childFiles )
 
-def backupFile( fullPath, maximum_backupCount=None ):
+def backupFile(full_path, maximum_backupCount=None):
     """backups a file by copying it and then renaming it by adding .#.bak
     to the end of the file name
     
@@ -299,41 +299,41 @@ def backupFile( fullPath, maximum_backupCount=None ):
     """
     
     # check if the file exists
-    exists = os.path.exists( fullPath )
+    exists = os.path.exists(full_path)
     
     if not exists:
         # just return without doing anything
         return
     
     # get the base name of the file
-    baseName = os.path.basename( fullPath )
+    baseName = os.path.basename(full_path)
     
     # start the backup number from 1
-    backupNo = 1
-    backupExtension = '.bak'
-    backupFileFullPath = ''
+    backup_no = 1
+    backup_extension = '.bak'
+    backup_file_full_path = ''
     
     # try to find maximum backup number
     # get the files
-    backupNo = getMaximumBackupNumber(fullPath) + 1
+    backup_no = getMaximumBackupNumber(full_path) + 1
     
     # now try to get the maximum backup number
     while True:
         
-        backupFileFullPath = fullPath + '.' + str(backupNo) + backupExtension
+        backup_file_full_path = full_path + '.' + str(backup_no) + backup_extension
         
-        if os.path.exists( fullPath + '.' + str(backupNo) + backupExtension ):
-            backupNo += 1
+        if os.path.exists( full_path + '.' + str(backup_no) + backup_extension ):
+            backup_no += 1
         else:
             break
     
     # now copy the file with the new name
-    shutil.copy( fullPath, backupFileFullPath )
+    shutil.copy( full_path, backup_file_full_path )
     
     if maximum_backupCount is not None:
-        maintainMaximumBackupCount( fullPath, maximum_backupCount )
+        maintainMaximumBackupCount( full_path, maximum_backupCount )
 
-def getBackupFiles( fullPath ):
+def getBackupFiles(full_path):
     """returns the backup files of the given file, returns None if couldn't
     find any
     """
@@ -343,11 +343,11 @@ def getBackupFiles( fullPath ):
     # .settings.xml.*.bak
     
     backUpExtension = '.bak'
-    pattern = fullPath + '.*' + backUpExtension
+    pattern = full_path + '.*' + backUpExtension
     
     return sort_strings_with_embedded_numbers( glob.glob(pattern) )
 
-def getBackupNumber(fullPath):
+def getBackupNumber(full_path):
     """returns the backup number of the file
     """
     
@@ -359,25 +359,25 @@ def getBackupNumber(fullPath):
     backupNumber = 0
     
     try:
-        backupNumber = int(fullPath[0:-len(backupExtension)].split('.')[-1])
+        backupNumber = int(full_path[0:-len(backupExtension)].split('.')[-1])
     except (IndexError, ValueError):
         backupNumber = 0
     
     return backupNumber
 
-def getMaximumBackupNumber(fullPath):
+def getMaximumBackupNumber(full_path):
     """returns the maximum backup number of the file
     """
     
-    backupFiles = getBackupFiles( fullPath )
+    backupFiles = getBackupFiles(full_path)
     maximumBackupNumber = 0
     
     if len(backupFiles):
-        maximumBackupNumber = getBackupNumber( backupFiles[-1] )
+        maximumBackupNumber = getBackupNumber(backupFiles[-1])
     
     return maximumBackupNumber
 
-def maintainMaximumBackupCount( fullPath, maximum_backup_count ):
+def maintainMaximumBackupCount(full_path, maximum_backup_count):
     """keeps maximum of given number of backups for the given file
     """
     
@@ -385,7 +385,7 @@ def maintainMaximumBackupCount( fullPath, maximum_backup_count ):
         return
     
     # get the backup files
-    backupFiles = getBackupFiles( fullPath )
+    backupFiles = getBackupFiles(full_path)
     
     if len(backupFiles) > maximum_backup_count:
         # delete the older backups

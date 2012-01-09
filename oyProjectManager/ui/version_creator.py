@@ -2361,8 +2361,8 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # ------------------------------------
         
             # ------------------------------------
-            # fullpath
-            item = QtGui.QTableWidgetItem(vers.fullpath)
+            # full_path
+            item = QtGui.QTableWidgetItem(vers.full_path)
             # align to center and vertical center
             item.setTextAlignment(0x0001 | 0x0080)
             self.previous_versions_tableWidget.setItem(i, 4, item)

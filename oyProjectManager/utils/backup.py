@@ -104,12 +104,12 @@ class BackUp(object):
         """
         
         print self.project
-        print self.project.fullPath
+        print self.project.full_path
         
         # get the last compositing
         for sequence in self.project.sequences():
             print sequence.name
-            print sequence.fullPath
+            print sequence.full_path
             comp_Assets = sequence.getAllAssetsForType("COMP")
             print comp_Assets
         

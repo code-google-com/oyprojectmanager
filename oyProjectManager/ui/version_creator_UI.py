@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Thu Jan  5 18:12:19 2012
+# Created: Mon Jan  9 00:52:03 2012
 #      by: pyside-uic 0.2.11 running on PySide 1.0.9
 #
 # WARNING! All changes made in this file will be lost!

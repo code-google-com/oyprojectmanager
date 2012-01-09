@@ -462,35 +462,76 @@ class VersionTester(unittest.TestCase):
         
         self.assertEqual(new_vers1.version_number, 1)
         self.assertEqual(new_vers1.version_number, 1)
-    
-    def test_max_version_returns_the_maximum_version_number_from_the_database(self):
+
+    def test_max_version_returns_the_maximum_version_number_from_the_database_for_changing_types(self):
         """testing if the max_version is returning the maximum version number
-        for the current Version from the database
+        for the current Version from the database for changing type values
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_max_version_returns_the_maximum_version_number_from_the_database_for_changing_version_ofs(self):
+        """testing if the max_version is returning the maximum version number
+        for the current Version from the database for changing version_of
+        values
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_max_version_returns_the_maximum_version_number_from_the_database_for_changing_take_names(self):
+        """testing if the max_version is returning the maximum version number
+        for the current Version from the database for changing take_name values
         """
         
         self.kwargs.pop("version_number")
         
-        self.kwargs["base_name"] = "A"
+        self.kwargs["take_name"] = "A"
         for i in range(50):
             new_A = Version(**self.kwargs)
             new_A.save()
         
-        self.kwargs["base_name"] = "B"
+        self.kwargs["take_name"] = "B"
         for i in range(100):
             new_B = Version(**self.kwargs)
             new_B.save()
         
         # now try to create a new A and expect the version number to be 51
-        self.kwargs["base_name"] = "A"
+        self.kwargs["take_name"] = "A"
         A_new = Version(**self.kwargs)
         A_new.save()
         self.assertEqual(A_new.version_number, 51)
         
         # and B should be 101
-        self.kwargs["base_name"] = "B"
+        self.kwargs["take_name"] = "B"
         B_new = Version(**self.kwargs)
         B_new.save()
         self.assertEqual(B_new.version_number, 101)
+
+    def test_max_version_will_not_be_effected_by_base_name(self):
+        """testing if the max_version is not effected by changing base_names
+        """
+
+        self.kwargs.pop("version_number")
+
+        self.kwargs["base_name"] = "A"
+        for i in range(50):
+            new_A = Version(**self.kwargs)
+            new_A.save()
+
+        self.kwargs["base_name"] = "B"
+        for i in range(100):
+            new_B = Version(**self.kwargs)
+            new_B.save()
+
+        # now try to create a new A and expect the version number to be 151
+        self.kwargs["base_name"] = "A"
+        A_new = Version(**self.kwargs)
+        A_new.save()
+        self.assertEqual(A_new.version_number, 151)
+
+        # and B should be 152
+        self.kwargs["base_name"] = "B"
+        B_new = Version(**self.kwargs)
+        B_new.save()
+        self.assertEqual(B_new.version_number, 152)
     
     def test_version_number_continues_correctly_even_if_the_Versionable_name_has_changed(self):
         """testing if the version_number continues correctly even if the
@@ -673,7 +714,7 @@ class VersionTester(unittest.TestCase):
 #        # path = "SHOTS/{{version.base_name}}/{{version.type.code}}"
 #        self.assertEqual(
 #            self.test_version.abs_path,
-#            self.test_version.project.fullpath +
+#            self.test_version.project.full_path +
 #            "/Sequences/TEST_SEQ1/Shots/" + self.kwargs["base_name"] + "/" +
 #            self.kwargs["type"].code
 #        )
@@ -686,7 +727,7 @@ class VersionTester(unittest.TestCase):
 #        new_versionType = VersionType(
 #            name="Test Animation New",
 #            code="TANIMNEW",
-#            path="{{project.fullpath}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
+#            path="{{project.full_path}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
 #            filename="{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
 #            output_path="{{version.path}}/OUTPUT/{{version.take_name}}",
 #            environments=["MAYA", "HOUDINI"],
@@ -696,7 +737,7 @@ class VersionTester(unittest.TestCase):
 #        self.kwargs["type"] = new_versionType
 #        new_version = Version(**self.kwargs)
 #        
-#        expected_path = self.test_project.fullpath + "/Sequences/" + \
+#        expected_path = self.test_project.full_path + "/Sequences/" + \
 #                        self.test_sequence.code + "/Shots/" + \
 #                        new_version.base_name + "/" + new_version.type.code
 #        
@@ -710,7 +751,7 @@ class VersionTester(unittest.TestCase):
         self.assertEqual(
             self.test_version.path,
             os.path.join(
-                self.test_project.fullpath,
+                self.test_project.full_path,
                 "Sequences/TEST_SEQ1/Shots/" + self.kwargs["base_name"] + "/" +
                 self.kwargs["type"].code
             )
@@ -769,39 +810,39 @@ class VersionTester(unittest.TestCase):
         """
         self.assertTrue(os.path.isabs(self.test_version.output_path))
         
-    def test_fullpath_attribute_is_rendered_properly(self):
-        """testing if the fullpath attribute is rendered properly
+    def test_full_path_attribute_is_rendered_properly(self):
+        """testing if the full_path attribute is rendered properly
         """
         
         self.assertEqual(
-            self.test_version.fullpath,
+            self.test_version.full_path,
             os.path.join(
-                self.test_project.fullpath,
+                self.test_project.full_path,
                 "Sequences/TEST_SEQ1/Shots/SH001/TANIM/SH001_MAIN_TANIM_v001_tu.ma"
             ).replace("\\", "/")
         )
 
-    def test_fullpath_attribute_is_read_only(self):
-        """testing if the fullpath attribute is read-only
+    def test_full_path_attribute_is_read_only(self):
+        """testing if the full_path attribute is read-only
         """
         self.assertRaises(AttributeError, setattr, self.test_version,
-                          "fullpath", "test/full/name")
+                          "full_path", "test/full/name")
     
-    def test_fullpath_attribute_doesnt_change_with_the_VersionType(self):
-        """testing if the fullpath stays the same when the VersionType
+    def test_full_path_attribute_doesnt_change_with_the_VersionType(self):
+        """testing if the full_path stays the same when the VersionType
         attributes change
         """
-        prev_fullpath = self.test_version.fullpath
+        prev_full_path = self.test_version.full_path
         # now change the associated VersionType.path
         self.kwargs["type"].filename = "A"
         self.kwargs["type"].path = "A"
         
-        self.assertEqual(prev_fullpath, self.test_version.fullpath)
+        self.assertEqual(prev_full_path, self.test_version.full_path)
     
-    def test_fullpath_attribute_is_absoltue(self):
-        """testing if the fullpath attribute value is absolute
+    def test_full_path_attribute_is_absolute(self):
+        """testing if the full_path attribute value is absolute
         """
-        self.assertTrue(os.path.isabs(self.test_version.fullpath))
+        self.assertTrue(os.path.isabs(self.test_version.full_path))
     
     def test_references_attribute_accepts_Version_instances_only(self):
         """testing if a TypeError will be raised when the value passed to the

@@ -133,6 +133,10 @@ class VersionCreatorTester(unittest.TestCase):
         # see if the projects filled with projects
         self.assertEqual(dialog.projects_comboBox.count(), 2)
     
+    def test_projects_comboBox_is_filled_with_active_projects_only(self):
+        """
+        """
+    
     def test_projects_comboBox_first_project_is_selected(self):
         """testing if the first project is selected in the project combo box
         """
@@ -823,7 +827,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         self.assertEqual(
             dialog.previous_versions_tableWidget.item(0, 4).text(),
-            vers1.fullpath
+            vers1.full_path
         )
 
     def test_previous_versions_tableWidget_is_filled_with_proper_info(self):
@@ -971,7 +975,7 @@ class VersionCreatorTester(unittest.TestCase):
 
             self.assertEqual(
                 dialog.previous_versions_tableWidget.item(i,4).text(),
-                versions[i].fullpath
+                versions[i].full_path
             )
 
 #    def test_speed_test(self):

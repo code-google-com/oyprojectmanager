@@ -26,7 +26,7 @@ class RepositoryTester(unittest.TestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
         
-        self.config_fullpath = os.path.join(
+        self.config_full_path = os.path.join(
             self.temp_config_folder, "config.py"
         )
     

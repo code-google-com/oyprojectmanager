@@ -30,6 +30,40 @@ class SequenceTester(unittest.TestCase):
         
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
+        
+        self.test_project = Project("Test Project")
+        self.test_project.save()
+        
+        self.kwargs = {
+            "project": self.test_project,
+            "name": "Test Sequence",
+            "code": "TEST_SEQUENCE"
+        }
+        
+        self.test_sequence = Sequence(**self.kwargs)
+        
+        self._name_test_values = [
+            # (input, name, code)
+            ("test sequence", "test sequence", "TEST_SEQUENCE"),
+            ("123 test sequence", "test sequence", "TEST_SEQUENCE"),
+            ("£#$£#$test£#$£#$sequence", "testsequence", "TESTSEQUENCE"),
+            ("_123test sequence", "test sequence", "TEST_SEQUENCE"),
+            ("CamelCase", "CamelCase", "CAMEL_CASE"),
+            ("234CamelCase", "CamelCase", "CAMEL_CASE"),
+            ("camelCase", "camelCase", "CAMEL_CASE"),
+            ("CamelCase", "CamelCase", "CAMEL_CASE"),
+            ("minus-sign", "minus-sign", "MINUS_SIGN"),
+            ("123432!+!'^+Test_SEquence323^+'^%&+%&324", "Test_SEquence323324",
+             "TEST_SEQUENCE323324"),
+            ("    ---test 9s_sequence", "test 9s_sequence", "TEST_9S_SEQUENCE"),
+            ("    ---test 9s-sequence", "test 9s-sequence", "TEST_9S_SEQUENCE"),
+            (" multiple     spaces are    converted to under     scores",
+             "multiple     spaces are    converted to under     scores",
+             "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
+            ("_Sequence_Setup_", "Sequence_Setup_", "SEQUENCE_SETUP_"),
+            ("_SEQUENCE_SETUP_", "SEQUENCE_SETUP_", "SEQUENCE_SETUP_"),
+            ("FUL_3D", "FUL_3D", "FUL_3D"),
+        ]
 
     def tearDown(self):
         """cleanup the test
@@ -56,56 +90,31 @@ class SequenceTester(unittest.TestCase):
         """testing if a TypeError will be raised when the project argument is
         skipped
         """
-        self.assertRaises(TypeError, Sequence, name="test_seq")
+        self.kwargs.pop("project")
+        self.assertRaises(TypeError, Sequence, **self.kwargs)
     
     def test_project_argument_is_None(self):
         """testing if a TypeError will be raised when a None passed with the
         project argument
         """
-        self.assertRaises(TypeError, Sequence, project=None)
+        self.kwargs["project"] = None
+        self.assertRaises(TypeError, Sequence, **self.kwargs)
     
     def test_project_attribute_is_read_only(self):
         """testing if the project attribute is read-only
         """
-        new_proj = Project("TEST_PROJECT1")
-        new_proj.create()
-        new_seq = Sequence(new_proj, "TEST_SEQ")
-        new_seq.save()
-        
         new_proj2 = Project("TEST_PROJECT2")
-        new_proj2.create()
-        self.assertRaises(AttributeError, setattr, new_seq, "project",
-                          new_proj2)
+        new_proj2.save()
+        self.assertRaises(AttributeError, setattr, self.test_sequence,
+            "project", new_proj2)
     
     def test_project_argument_is_not_a_Project_instance(self):
         """testing if a TypeError will be raised when the project argument is
         not a oyProjectManager.core.models.Project instance
         """
+        self.kwargs["project"] = "Test Project"
+        self.assertRaises(TypeError, Sequence, **self.kwargs)
         
-        self.assertRaises(TypeError, Sequence, 1231, "TEST_SEQ1")
-    
-    def test_project_argument_is_a_string(self):
-        """testing if a sequence can be created by passing the name of the
-        project as a string
-        """
-        new_proj = Project("TEST_PROJECT")
-        new_proj.create()
-        
-        # it should be possible to create a sequence
-        # with a string in the project argument
-        new_seq = Sequence("TEST_PROJECT", "TEST_SEQUENCE1")
-        new_seq.save()
-        
-        # now check if the sequence.project is a Project instance
-        self.assertTrue(isinstance(new_seq.project, Project))
-    
-    def test_project_argument_is_a_string_and_the_project_is_not_created(self):
-        """testing if a RuntimeError will be generated when the project argument
-        is string and the project is not created yet
-        """
-        
-        self.assertRaises(RuntimeError, Sequence, "TEST_PROJ", "TEST_SEQ")
-    
     def test___eq___operator(self):
         """testing the __eq__ (equal) operator
         """
@@ -114,7 +123,7 @@ class SequenceTester(unittest.TestCase):
         # then create three new sequence objects to compare each of them
         # with the other
 
-        new_proj = Project("TEST_PROJECT")
+        new_proj = Project("TEST_PROJECT_FOR_EQ_TEST")
         new_proj.create()
         
         seq1 = Sequence(new_proj, "SEQ1")
@@ -139,7 +148,7 @@ class SequenceTester(unittest.TestCase):
         # then create three new sequence objects to compare each of them
         # with the other
 
-        new_proj = Project("TEST_PROJECT")
+        new_proj = Project("TEST_PROJECT_FOR_NE_TEST")
         new_proj.create()
         
         seq1 = Sequence(new_proj, "SEQ1")
@@ -159,198 +168,114 @@ class SequenceTester(unittest.TestCase):
         """testing if the code attribute will equal to name argument if it is
         skipped
         """
-        new_proj1 = Project("TEST_PROJ1")
-        new_proj1.create()
-        
-        new_seq1 = Sequence(new_proj1, "TEST_SEQ1")
-        self.assertEqual(new_seq1.code, new_seq1.name)
+        self.kwargs.pop("code")
+        self.kwargs["name"] = "Test Sequence"
+        expected_value = "TEST_SEQUENCE"
+        new_seq1 = Sequence(**self.kwargs)
+        self.assertEqual(new_seq1.code, expected_value)
+
+    def test_code_argument_is_formatted_correctly(self):
+        """testing if the code attribute is formatted correctly on Sequence
+        instance creation
+        """
+        self.kwargs["name"] = "TEST_SEQ1"
+        for test_value in self._name_test_values:
+            self.kwargs["code"] = test_value[0]
+            expected_value = test_value[2]
+            
+            new_sequence = Sequence(**self.kwargs)
+            
+            self.assertEqual(new_sequence.code, expected_value)
     
     def test_code_argument_is_None(self):
         """testing if the code argument is given as None the code attribute
         will be set to the same value with the name attribute
         """
-        new_proj1 = Project("TEST_PROJ1")
-        new_proj1.create()
-        
-        new_seq1 = Sequence(project=new_proj1, name="TEST_SEQ1", code=None)
-        self.assertEqual(new_seq1.code, new_seq1.name)
+        self.kwargs["code"] = None
+        self.kwargs["name"] = "Test Sequence"
+        expected_value = "TEST_SEQUENCE"
+        new_seq1 = Sequence(**self.kwargs)
+        self.assertEqual(new_seq1.code, expected_value)
     
-    def test_create_method_will_not_create_the_sequence_structure_if_save_is_not_called_before(self):
-        """testing if the sequence structure is not created if the save method
-        is not called previously
+    def test_code_argument_is_not_a_string_instance(self):
+        """testing if a TypeError will be raised when the given code argument
+        is not an instance of str or unicode
         """
-        
-        # create a config file which has a known placement for sequences
-        config_content = \
-        "project_structure = \"\"\"{% for sequence in project.sequences %}\n" + \
-        "    {% set seq_path = 'Sequences/' + sequence.code %}\n" + \
-        "    {{seq_path}}/Edit/Offline\n" + \
-        "    {{seq_path}}/Edit/Sound\n" + \
-        "    {{seq_path}}/References/Artworks\n" + \
-        "    {{seq_path}}/References/Text/Scenario\n" + \
-        "    {{seq_path}}/References/Photos_Images\n" + \
-        "    {{seq_path}}/References/Videos\n" + \
-        "    {{seq_path}}/References/Others\n" + \
-        "    {{seq_path}}/Others\n" + \
-        "    {{seq_path}}/Others/assets\n" + \
-        "    {{seq_path}}/Others/clips\n" + \
-        "    {{seq_path}}/Others/data\n" + \
-        "    {{seq_path}}/Others/fur\n" + \
-        "    {{seq_path}}/Others/fur/furAttrMap\n" + \
-        "    {{seq_path}}/Others/fur/furEqualMap\n" + \
-        "    {{seq_path}}/Others/fur/furFiles\n" + \
-        "    {{seq_path}}/Others/fur/furImages\n" + \
-        "    {{seq_path}}/Others/fur/furShadowMap\n" + \
-        "    {{seq_path}}/Others/mel\n" + \
-        "    {{seq_path}}/Others/particles\n" + \
-        "{% endfor %}\n" + \
-        "\"\"\"\n"
-        
-        # write it to a file called config.py in the OYPROJECTMANAGER_PATH
-        config_file = open(
-            os.path.join(self.temp_config_folder, "config.py"), "w"
-        )
-        
-        config_file.writelines([config_content])
-        config_file.close()
-        
-        new_proj1 = Project("TEST_PROJ1")
-        new_proj1.create()
-        
-        # check if there is no sequence folder
-        dir_content = os.listdir(new_proj1.fullpath)
-        
-        self.assertTrue("Sequences" not in dir_content)
-        
-        new_seq = Sequence(new_proj1, "TEST_SEQ1")
-        #new_seq.save()
-        new_seq.create()
-        
-        # check if a sequence folder with the name of the sequence is not
-        # created
-        dir_content = os.listdir(new_proj1.fullpath)
-        
-        self.assertTrue("Sequences" in dir_content)
-    
-    def test_create_method_creates_the_sequence_structure(self):
-        """testing if calling the create method creates the sequence structure
-        by calling Project.create
-        """
-        
-        # create a config file which has a known placement for sequences
-        config_content = \
-        "project_structure = \"\"\"{% for sequence in project.sequences %}\n" + \
-        "    {% set seq_path = 'Sequences/' + sequence.code %}\n" + \
-        "    {{seq_path}}/Edit/Offline\n" + \
-        "    {{seq_path}}/Edit/Sound\n" + \
-        "    {{seq_path}}/References/Artworks\n" + \
-        "    {{seq_path}}/References/Text/Scenario\n" + \
-        "    {{seq_path}}/References/Photos_Images\n" + \
-        "    {{seq_path}}/References/Videos\n" + \
-        "    {{seq_path}}/References/Others\n" + \
-        "    {{seq_path}}/Others\n" + \
-        "    {{seq_path}}/Others/assets\n" + \
-        "    {{seq_path}}/Others/clips\n" + \
-        "    {{seq_path}}/Others/data\n" + \
-        "    {{seq_path}}/Others/fur\n" + \
-        "    {{seq_path}}/Others/fur/furAttrMap\n" + \
-        "    {{seq_path}}/Others/fur/furEqualMap\n" + \
-        "    {{seq_path}}/Others/fur/furFiles\n" + \
-        "    {{seq_path}}/Others/fur/furImages\n" + \
-        "    {{seq_path}}/Others/fur/furShadowMap\n" + \
-        "    {{seq_path}}/Others/mel\n" + \
-        "    {{seq_path}}/Others/particles\n" + \
-        "{% endfor %}\n" + \
-        "\"\"\"\n"
-        
-        # write it to a file called config.py in the OYPROJECTMANAGER_PATH
-        config_file = open(
-            os.path.join(self.temp_config_folder, "config.py"), "w"
-        )
-        
-        config_file.writelines([config_content])
-        config_file.close()
-        
-        new_proj1 = Project("TEST_PROJ1")
-        new_proj1.create()
-        
-        # check if there is no sequence folder
-        dir_content = os.listdir(new_proj1.fullpath)
-        
-        self.assertTrue("Sequences" not in dir_content)
-        
-        new_seq = Sequence(new_proj1, "TEST_SEQ1")
-        new_seq.save()
-        new_seq.create()
-        
-        # check if a sequence folder with the name of the sequence is created
-        dir_content = os.listdir(
-            os.path.join(new_proj1.fullpath, "Sequences")
-        )
-        
-        self.assertTrue("TEST_SEQ1" in dir_content)
+        self.kwargs["code"] = 23123
+        self.assertRaises(TypeError, Sequence, **self.kwargs)
     
     def test_description_attribute_is_working_properly(self):
         """testing if the description attribute is working properly
         """
-        new_proj = Project("TEST_PROJ1")
-        new_proj.create()
-        
-        new_seq = Sequence(new_proj, "TEST_SEQ1")
         test_value = "test description"
-        new_seq.description = test_value
-        self.assertEqual(new_seq.description, test_value)
+        self.test_sequence.description = test_value
+        self.assertEqual(self.test_sequence.description, test_value)
     
     def test_name_argument_is_skipped(self):
         """testing if a TypeError will be raised when the name argument is
         skipped
         """
-        self.fail("test is not implemented yet")
+        self.kwargs.pop("name")
+        self.assertRaises(TypeError, Sequence, **self.kwargs)
     
     def test_name_argument_is_None(self):
         """testing if a TypeError will be raised when the name argument is None
         """
-        self.fail("test is not implemented yet")
+        self.kwargs["name"] = None
+        self.assertRaises(TypeError, Sequence, **self.kwargs )
     
     def test_name_attribute_is_None(self):
         """testing if a TypeError will be raised when the name attribute is set
         to None
         """
-        self.fail("test is not implemented yet")
+        self.assertRaises(TypeError, setattr, self.test_sequence, "name", None)
     
     def test_name_argument_is_not_a_string_or_unicode_instance(self):
         """testing if a TypeError will be raised when the name argument is not
         an instance of string or unicode
         """
-        self.fail("test is not implemented yet")
+        self.kwargs["name"] = 23423
+        self.assertRaises(TypeError, Sequence, **self.kwargs)
     
     def test_name_attribute_is_not_a_string_or_unicode_instance(self):
         """testing if a TypeError will be raised when the name attribute is not
         an instance of string or unicode
         """
-        self.fail("test is not implemented yet")
+        self.assertRaises(TypeError, setattr, self.test_sequence, "name", 2131)
     
     def test_name_argument_is_working_properly(self):
         """testing if the name attribute is set properly with the given value
         for the name argument
         """
-        self.fail("test is not implemented yet")
+        test_value = "Test Sequence With Name"
+        self.kwargs["name"] = test_value
+        new_seq = Sequence(**self.kwargs)
+        self.assertEqual(new_seq.name, test_value)
     
     def test_name_attribute_is_working_properly(self):
         """testing if the name attribute is working properly
         """
-        self.fail("test is not implemented yet")
-    
+        test_value = "Test Sequence New Name"
+        self.test_sequence.name = test_value
+        self.assertEqual(self.test_sequence.name, test_value)
+
     def test_name_argument_formatting(self):
-        """testing if the name attribute is formatted correctly with the given
-        value to the name argument
+        """testing if the name will be formatted correctly when creating a
+        new project.
         """
-        self.fail("test is not implemented yet")
-    
+        for test_value in self._name_test_values:
+            self.kwargs["name"] = test_value[0]
+            expected_name = test_value[1]
+            new_sequence = Sequence(**self.kwargs)
+            self.assertEqual(new_sequence.name, expected_name)
+
     def test_name_attribute_formatting(self):
-        """testing if the name attribute is formatted correctly
+        """testing if the name property will be formatted correctly.
         """
-        self.fail("test is not implemented yet")
+        for test_value in self._name_test_values:
+            self.test_sequence.name = test_value[0]
+            expected_name = test_value[1]
+            self.assertEqual(self.test_sequence.name, expected_name)
 
 class Sequence_DB_Tester(unittest.TestCase):
     """Tests the new type Sequence class with a database
@@ -374,27 +299,6 @@ class Sequence_DB_Tester(unittest.TestCase):
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
-    
-    def test_sequence_raises_error_when_the_given_project_is_not_created_yet(self):
-        """testing if the sequence raises an error when the project is not
-        created yet
-        """
-        
-        new_proj = Project(name="TEST_PROJECT")
-        self.assertRaises(RuntimeError, Sequence, new_proj, name="TEST_SEQ")
-    
-#    def test_sequence_session_is_project_session(self):
-#        """testing if the session instance is passed correctly to the sequence
-#        instance
-#        """
-#        
-#        new_proj = Project(name="TEST_PROJECT")
-#        new_proj.create()
-#        
-#        new_seq = Sequence(new_proj, name="TEST_SEQ")
-#        new_seq.create()
-#        
-#        self.assertIs(db.session, new_seq.session)
     
     def test_database_simple_data(self):
         """testing if the database file has the necessary information related to

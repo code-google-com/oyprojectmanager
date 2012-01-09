@@ -75,6 +75,14 @@ Version History
 
 * Updated the ``project_manager`` ui.
 
+* :class:`~oyProjectManager.core.models.Sequence` will not accept strings for
+  the ``project`` argument anymore.
+
+* The :attr:`~oyProjectManager.core.models.Sequence.name` and
+  :attr:`~oyProjectManager.core.models.Sequence.code` attributes of
+  :class:`~oyProjectManager.core.models.Sequence` class is now working as
+  expected.
+
 0.2.0a2
 -------
 
@@ -125,6 +133,12 @@ Version History
   :meth:`~oyProjectManager.core.models.Sequence.add_alternative_shot` and
   :meth:`~oyProjectManager.core.models.Sequence.get_next_alternate_shot_number`
   methods in :class:`~oyProjectManager.core.models.Sequence` class.
+
+* Added resolution presets to the config file.
+
+* Added :attr:`~oyProjectManager.core.models.Project.active` attribute to the
+  :class:`~oyProjectManager.core.models.Project` class to track the status of
+  the :class:`~oyProjectManager.core.models.Project`.
 
 0.2.0a1
 -------

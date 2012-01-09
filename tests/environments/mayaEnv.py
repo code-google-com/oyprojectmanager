@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""These tests should run with Maya's own ptyhon interpreter
+"""
+
+
 import os
 import shutil
 import tempfile
@@ -79,18 +83,18 @@ class MayaTester(unittest.TestCase):
         # quit maya
         pm.runtime.Quit()
     
-    def test_save_as_creates_a_maya_file_at_version_fullpath(self):
-        """testing if the save_as creates a maya file at the Version.fullpath
+    def test_save_as_creates_a_maya_file_at_version_full_path(self):
+        """testing if the save_as creates a maya file at the Version.full_path
         """
         
         # check the version file doesn't exists
-        self.assertFalse(os.path.exists(self.version1.fullpath))
+        self.assertFalse(os.path.exists(self.version1.full_path))
         
         # save the version
         self.mEnv.save_as(self.version1)
         
         # check the file exists
-        self.assertTrue(os.path.exists(self.version1.fullpath))
+        self.assertTrue(os.path.exists(self.version1.full_path))
     
     def test_save_as_sets_the_version_extension_to_ma(self):
         """testing if the save_as method sets the version extension to ma
@@ -484,12 +488,14 @@ class MayaTester(unittest.TestCase):
             version_of=asset1,
             base_name=asset1.code,
             type=self.asset_vtypes[0],
+            created_by=self.user1
         )
         
         version2 = Version(
             version_of=asset2,
             base_name=asset2.code,
-            type=self.asset_vtypes[0]
+            type=self.asset_vtypes[0],
+            created_by=self.user1
         )
         
         # save the current scene for asset1

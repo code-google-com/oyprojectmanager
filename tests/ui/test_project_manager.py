@@ -311,14 +311,14 @@ class ProjectManager_Tester(unittest.TestCase):
         db.session.commit()
         
         dialog = project_manager.MainDialog()
-        dialog.show()
-        self.app.exec_()
-        self.app.connect(
-            self.app,
-            QtCore.SIGNAL("lastWindowClosed()"),
-            self.app,
-            QtCore.SLOT("quit()")
-        )
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
         
         # set to project1
         index = dialog.projects_comboBox.findText(project1.name)

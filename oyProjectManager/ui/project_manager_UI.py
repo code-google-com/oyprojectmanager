@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/project_manager.ui'
 #
-# Created: Fri Jan  6 15:25:01 2012
+# Created: Mon Jan  9 00:52:04 2012
 #      by: pyside-uic 0.2.11 running on PySide 1.0.9
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_dialog(object):
     def setupUi(self, dialog):
         dialog.setObjectName("dialog")
-        dialog.resize(361, 145)
+        dialog.resize(523, 148)
         self.verticalLayout = QtGui.QVBoxLayout(dialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.gridLayout = QtGui.QGridLayout()
@@ -23,15 +23,9 @@ class Ui_dialog(object):
         self.projects_comboBox = QtGui.QComboBox(dialog)
         self.projects_comboBox.setObjectName("projects_comboBox")
         self.gridLayout.addWidget(self.projects_comboBox, 0, 1, 1, 1)
-        self.add_project_toolButton = QtGui.QToolButton(dialog)
-        self.add_project_toolButton.setObjectName("add_project_toolButton")
-        self.gridLayout.addWidget(self.add_project_toolButton, 0, 2, 1, 1)
         self.sequences_comboBox = QtGui.QComboBox(dialog)
         self.sequences_comboBox.setObjectName("sequences_comboBox")
         self.gridLayout.addWidget(self.sequences_comboBox, 1, 1, 1, 1)
-        self.add_sequence_toolButton = QtGui.QToolButton(dialog)
-        self.add_sequence_toolButton.setObjectName("add_sequence_toolButton")
-        self.gridLayout.addWidget(self.add_sequence_toolButton, 1, 2, 1, 1)
         self.sequences_label = QtGui.QLabel(dialog)
         self.sequences_label.setObjectName("sequences_label")
         self.gridLayout.addWidget(self.sequences_label, 1, 0, 1, 1)
@@ -41,9 +35,24 @@ class Ui_dialog(object):
         self.shots_comboBox = QtGui.QComboBox(dialog)
         self.shots_comboBox.setObjectName("shots_comboBox")
         self.gridLayout.addWidget(self.shots_comboBox, 2, 1, 1, 1)
-        self.add_shots_toolButton = QtGui.QToolButton(dialog)
-        self.add_shots_toolButton.setObjectName("add_shots_toolButton")
-        self.gridLayout.addWidget(self.add_shots_toolButton, 2, 2, 1, 1)
+        self.new_project_pushButton = QtGui.QPushButton(dialog)
+        self.new_project_pushButton.setObjectName("new_project_pushButton")
+        self.gridLayout.addWidget(self.new_project_pushButton, 0, 3, 1, 1)
+        self.edit_project_pushButton = QtGui.QPushButton(dialog)
+        self.edit_project_pushButton.setObjectName("edit_project_pushButton")
+        self.gridLayout.addWidget(self.edit_project_pushButton, 0, 2, 1, 1)
+        self.new_sequence_pushButton = QtGui.QPushButton(dialog)
+        self.new_sequence_pushButton.setObjectName("new_sequence_pushButton")
+        self.gridLayout.addWidget(self.new_sequence_pushButton, 1, 3, 1, 1)
+        self.edit_sequence_pushButton = QtGui.QPushButton(dialog)
+        self.edit_sequence_pushButton.setObjectName("edit_sequence_pushButton")
+        self.gridLayout.addWidget(self.edit_sequence_pushButton, 1, 2, 1, 1)
+        self.edit_shot_pushButton = QtGui.QPushButton(dialog)
+        self.edit_shot_pushButton.setObjectName("edit_shot_pushButton")
+        self.gridLayout.addWidget(self.edit_shot_pushButton, 2, 2, 1, 1)
+        self.new_shots_pushButton = QtGui.QPushButton(dialog)
+        self.new_shots_pushButton.setObjectName("new_shots_pushButton")
+        self.gridLayout.addWidget(self.new_shots_pushButton, 2, 3, 1, 1)
         self.gridLayout.setColumnStretch(1, 1)
         self.verticalLayout.addLayout(self.gridLayout)
         self.horizontalLayout = QtGui.QHBoxLayout()
@@ -61,10 +70,13 @@ class Ui_dialog(object):
     def retranslateUi(self, dialog):
         dialog.setWindowTitle(QtGui.QApplication.translate("dialog", "Project Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.projects_label.setText(QtGui.QApplication.translate("dialog", "Projects", None, QtGui.QApplication.UnicodeUTF8))
-        self.add_project_toolButton.setText(QtGui.QApplication.translate("dialog", "+", None, QtGui.QApplication.UnicodeUTF8))
-        self.add_sequence_toolButton.setText(QtGui.QApplication.translate("dialog", "+", None, QtGui.QApplication.UnicodeUTF8))
         self.sequences_label.setText(QtGui.QApplication.translate("dialog", "Sequences", None, QtGui.QApplication.UnicodeUTF8))
         self.shots_label.setText(QtGui.QApplication.translate("dialog", "Shots", None, QtGui.QApplication.UnicodeUTF8))
-        self.add_shots_toolButton.setText(QtGui.QApplication.translate("dialog", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.new_project_pushButton.setText(QtGui.QApplication.translate("dialog", "New", None, QtGui.QApplication.UnicodeUTF8))
+        self.edit_project_pushButton.setText(QtGui.QApplication.translate("dialog", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.new_sequence_pushButton.setText(QtGui.QApplication.translate("dialog", "New", None, QtGui.QApplication.UnicodeUTF8))
+        self.edit_sequence_pushButton.setText(QtGui.QApplication.translate("dialog", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.edit_shot_pushButton.setText(QtGui.QApplication.translate("dialog", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.new_shots_pushButton.setText(QtGui.QApplication.translate("dialog", "New", None, QtGui.QApplication.UnicodeUTF8))
         self.close_pushButton.setText(QtGui.QApplication.translate("dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
 

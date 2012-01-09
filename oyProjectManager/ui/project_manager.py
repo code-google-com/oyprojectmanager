@@ -6,6 +6,7 @@ from PySide import QtGui, QtCore
 
 import oyProjectManager
 from oyProjectManager import db
+from oyProjectManager.ui import project_properties
 import project_manager_UI
 from oyProjectManager.core.models import Project, Sequence, Shot
 
@@ -43,7 +44,7 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
     """
     
     def __init__(self, parent=None):
-        super(MainDialog,self).__init__(parent)
+        super(MainDialog, self).__init__(parent)
         self.setupUi(self)
         
         # change the window title
@@ -101,26 +102,33 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
             QtCore.SIGNAL("currentIndexChanged(int)"),
             self.sequences_changed
         )
-        
-        # add_project_toolButton
+
+        # new_project_pushButton
         QtCore.QObject.connect(
-            self.add_project_toolButton,
+            self.new_project_pushButton,
             QtCore.SIGNAL("clicked()"),
-            self.add_project_toolButton_clicked
+            self.new_project_pushButton_clicked
+        )
+
+        # edit_project_pushButton
+        QtCore.QObject.connect(
+            self.edit_project_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.edit_project_pushButton_clicked
+        )
+
+        # new_sequence_pushButton
+        QtCore.QObject.connect(
+            self.new_sequence_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.new_sequence_pushButton_clicked
         )
         
-        # add_sequence_toolButton
+        # new_shots_pushButton
         QtCore.QObject.connect(
-            self.add_sequence_toolButton,
+            self.new_shots_pushButton,
             QtCore.SIGNAL("clicked()"),
-            self.add_sequence_toolButton_clicked
-        )
-        
-        # add_shots_toolButton
-        QtCore.QObject.connect(
-            self.add_shots_toolButton,
-            QtCore.SIGNAL("clicked()"),
-            self.add_shots_toolButton_clicked
+            self.new_shots_pushButton_clicked
         )
 
     def _set_defaults(self):
@@ -215,32 +223,44 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
         
         return None
 
-    def add_project_toolButton_clicked(self):
-        """runs when add_project_toolButton is clicked
+    def new_project_pushButton_clicked(self):
+        """runs when new_project_pushButton is clicked
+        """
+
+        # just call the project_properties dialog
+        proj_pro_dialog = project_properties.MainDialog(self)
+        proj_pro_dialog.exec_()
+
+        new_project = proj_pro_dialog.project
+
+        if new_project is not None:
+            # update projects_comboBox
+            self.update_project_comboBox()
+
+            # set it to the new project
+            index = self.projects_comboBox.findText(new_project.name)
+            self.projects_comboBox.setCurrentIndex(index)
+
+    def edit_project_pushButton_clicked(self):
+        """runs when edit_project_pushButton is clicked
         """
         
-        dialog = QtGui.QInputDialog()
+        # get the project from UI
+        project = self.get_current_project()
         
-        project_name, ok = dialog.getText(
-            self,
-            "Add Project",
-            "New Project Name"
-        )
-        
-        if ok:
-            if project_name != "":
-                new_project = Project(project_name)
-                new_project.create()
-                
-                # update projects_comboBox
-                self.update_project_comboBox()
-                
-                # set it to the new project
-                index = self.projects_comboBox.findText(new_project.name)
-                self.projects_comboBox.setCurrentIndex(index)
+        # just call the project_properties dialog
+        proj_pro_dialog = project_properties.MainDialog(self, project)
+        proj_pro_dialog.exec_()
 
-    def add_sequence_toolButton_clicked(self):
-        """runs when add_sequence_toolButton is clicked
+        # update projects_comboBox
+        self.update_project_comboBox()
+
+        # set it to the project
+        index = self.projects_comboBox.findText(project.name)
+        self.projects_comboBox.setCurrentIndex(index)
+
+    def new_sequence_pushButton_clicked(self):
+        """runs when new_sequence_pushButton is clicked
         """
         
         project = self.get_current_project()
@@ -269,8 +289,8 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
                 index = self.sequences_comboBox.findText(new_sequence.name)
                 self.sequences_comboBox.setCurrentIndex(index)
     
-    def add_shots_toolButton_clicked(self):
-        """runs when add_shots_toolButton clicked
+    def new_shots_pushButton_clicked(self):
+        """runs when new_shots_pushButton clicked
         """
         
         sequence = self.get_current_sequence()
@@ -279,7 +299,7 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
             return
         
         assert isinstance(sequence, Sequence)
-
+        
         dialog = QtGui.QInputDialog()
         
         shot_template, ok = dialog.getText(

@@ -18,14 +18,17 @@ pyFilePaths = []
 path = os.path.dirname(oyProjectManager.__file__)
 ui_path = os.path.join(path, "ui")
 
-# assetManager3.ui
-#uicFilePaths.append(os.path.join(ui_path, "version_creator.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "version_creator_UI.py"))
+# version_creator
+uicFilePaths.append(os.path.join(ui_path, "version_creator.ui"))
+pyFilePaths.append(os.path.join(ui_path, "version_creator_UI.py"))
 
-# projectManager
+# project_manager
 uicFilePaths.append(os.path.join(ui_path, "project_manager.ui"))
 pyFilePaths.append(os.path.join(ui_path, "project_manager_UI.py"))
 
+# project_properties
+uicFilePaths.append(os.path.join(ui_path, "project_properties.ui"))
+pyFilePaths.append(os.path.join(ui_path, "project_properties_UI.py"))
 
 # assetUpdater
 #uicFilePaths.append(os.path.join(ui_path, "version_updater.ui"))

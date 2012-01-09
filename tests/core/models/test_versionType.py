@@ -35,7 +35,7 @@ class VersionTypeTester(unittest.TestCase):
 #            "project": self.test_project,
             "name":"Test VType",
             "code":"TVT",
-            "path":"{{project.fullpath}}/Sequences/{{sequence.code}}/SHOTS/{{version.base_name}}/{{type.code}}",
+            "path":"{{project.full_path}}/Sequences/{{sequence.code}}/SHOTS/{{version.base_name}}/{{type.code}}",
             "filename":"{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}",
             "environments":["MAYA","HOUDINI"],
             "output_path":"SHOTS/{{version.base_name}}/{{type.code}}/OUTPUT/{{version.take_name}}",

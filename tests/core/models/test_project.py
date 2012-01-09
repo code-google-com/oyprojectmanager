@@ -54,7 +54,7 @@ class Project_DB_Tester(unittest.TestCase):
         new_proj.create()
         
         # now check if the folder is created
-        self.assertTrue(os.path.exists(new_proj.fullpath))
+        self.assertTrue(os.path.exists(new_proj.full_path))
 
     def test_project_stored_and_retrieved_correctly(self):
         """testing if the project is stored and retrieved correctly
@@ -65,7 +65,7 @@ class Project_DB_Tester(unittest.TestCase):
 
         name = new_proj.name
         path = new_proj.path
-        fullpath = new_proj.fullpath
+        full_path = new_proj.full_path
 
         del new_proj
 
@@ -73,7 +73,7 @@ class Project_DB_Tester(unittest.TestCase):
 
         self.assertEqual(new_proj_DB.name, name)
         self.assertEqual(new_proj_DB.path, path)
-        self.assertEqual(new_proj_DB.fullpath, fullpath)
+        self.assertEqual(new_proj_DB.full_path, full_path)
 
     def test_project_restores_from_database_1(self):
         """testing if a project restores it self from the database with all its
@@ -317,37 +317,37 @@ class ProjectTester(unittest.TestCase):
         new_proj = Project(name="TEST_PROJ1")
         self.assertRaises(TypeError, setattr, new_proj, "name", 12312)
 
-    def test_fullpath_attribute_is_calculated_from_the_project_code(self):
-        """testing if the fullpath attribute is calculated from the project
+    def test_full_path_attribute_is_calculated_from_the_project_code(self):
+        """testing if the full_path attribute is calculated from the project
         code
         """
         new_proj = Project(name="Test Project 1", code="TEST_PROJECT_1")
         self.assertEqual(
-            new_proj.fullpath,
+            new_proj.full_path,
             os.path.join(
                 os.environ["REPO"],
                 new_proj.code
             )
         )
 
-    def test_fullpath_attribute_does_not_change_when_the_name_of_the_project_is_changed(self):
-        """testing if the fullpath attribute will be the same even the name of
+    def test_full_path_attribute_does_not_change_when_the_name_of_the_project_is_changed(self):
+        """testing if the full_path attribute will be the same even the name of
         the proejct is changed
         """
         new_proj = Project(name="TEST_PROJ1")
-        full_path = new_proj.fullpath
+        full_path = new_proj.full_path
         
         # change the name
         new_proj.name = "TEST_PROJ1_NEW_NAME"
         
-        # now check if the fullpath is still the same
-        self.assertEqual(new_proj.fullpath, full_path)
+        # now check if the full_path is still the same
+        self.assertEqual(new_proj.full_path, full_path)
 
-    def test_fullpath_attribute_is_read_only(self):
-        """testing if the fullpath attribute is read-only
+    def test_full_path_attribute_is_read_only(self):
+        """testing if the full_path attribute is read-only
         """
         new_proj = Project("TEST_PROJ1")
-        self.assertRaises(AttributeError, setattr, new_proj, "fullpath",
+        self.assertRaises(AttributeError, setattr, new_proj, "full_path",
                           "TEST")
 
     def test_path_attribute_is_equal_to_server_path(self):
@@ -495,13 +495,13 @@ class ProjectTester(unittest.TestCase):
         new_proj = Project(name="TEST_PROJ", code=None)
         self.assertEqual(new_proj.name, new_proj.code)
 
-    def test_code_attribute_is_None(self):
-        """testing if the code attribute will be generated from the name if it
-        is set to None
-        """
-        new_proj = Project(name="TEST_PROJ", code="TP")
-        new_proj.code = None
-        self.assertEqual(new_proj.code, new_proj.name)
+#    def test_code_attribute_is_None(self):
+#        """testing if the code attribute will be generated from the name if it
+#        is set to None
+#        """
+#        new_proj = Project(name="TEST_PROJ", code="TP")
+#        new_proj.code = None
+#        self.assertEqual(new_proj.code, new_proj.name)
 
     def test_code_argument_is_empty_string(self):
         """testing if a ValueError will be raised if the code argument is an
@@ -509,12 +509,12 @@ class ProjectTester(unittest.TestCase):
         """
         self.assertRaises(ValueError, Project, name="TEST_PROJ", code="")
 
-    def test_code_attribute_is_empty_string(self):
-        """testing if a ValueError will be raised when the code attribute is
-        set to an empty string
-        """
-        new_proj = Project(name="TEST_PROJ", code="TP")
-        self.assertRaises(ValueError, setattr, new_proj, "code", "")
+#    def test_code_attribute_is_empty_string(self):
+#        """testing if a ValueError will be raised when the code attribute is
+#        set to an empty string
+#        """
+#        new_proj = Project(name="TEST_PROJ", code="TP")
+#        self.assertRaises(ValueError, setattr, new_proj, "code", "")
 
     def test_code_argument_is_not_a_string_instance(self):
         """testing if a TypeError will be raised when the code argument is not
@@ -522,12 +522,12 @@ class ProjectTester(unittest.TestCase):
         """
         self.assertRaises(TypeError, Project, name="TEST_PROJECt", code=123124)
 
-    def test_code_attribute_is_not_a_string_instance(self):
-        """testing if a TypeError will be raised when the code attribute is set
-        to a value which is not a string or unicode
-        """
-        new_proj = Project(name="TEST_PROJECT")
-        self.assertRaises(TypeError, setattr, new_proj, "code", 12314)
+#    def test_code_attribute_is_not_a_string_instance(self):
+#        """testing if a TypeError will be raised when the code attribute is set
+#        to a value which is not a string or unicode
+#        """
+#        new_proj = Project(name="TEST_PROJECT")
+#        self.assertRaises(TypeError, setattr, new_proj, "code", 12314)
 
     def test_code_argument_is_working_properly(self):
         """testing if the code attribute is initialized correctly
@@ -536,13 +536,13 @@ class ProjectTester(unittest.TestCase):
         new_proj = Project(name="TEST_PROJECT", code=test_code)
         self.assertEqual(new_proj.code, test_code)
 
-    def test_code_attribute_is_working_properly(self):
-        """testing if the code attribute is working properly
-        """
-        test_code = "TST"
-        new_proj = Project(name="TEST_PROJ1")
-        new_proj.code = test_code
-        self.assertEqual(new_proj.code, test_code)
+#    def test_code_attribute_is_working_properly(self):
+#        """testing if the code attribute is working properly
+#        """
+#        test_code = "TST"
+#        new_proj = Project(name="TEST_PROJ1")
+#        new_proj.code = test_code
+#        self.assertEqual(new_proj.code, test_code)
 
     def test_code_argument_is_formatted_correctly(self):
         """testing if the code attribute is formatted correctly on Project
@@ -556,19 +556,19 @@ class ProjectTester(unittest.TestCase):
             
             self.assertEqual(new_project.code, expected_project_code)
 
-    def test_code_attribute_is_formatted_correctly(self):
-        """testing if the code attribute is formatted correctly
-        """
-
-        new_proj = Project(name="TEST_PROJECT")
-
-        for test_value in self._name_test_values:
-            project_code = test_value[0]
-            expected_project_code = test_value[2]
-
-            new_proj.code = project_code
-
-            self.assertEqual(new_proj.code, expected_project_code)
+#    def test_code_attribute_is_formatted_correctly(self):
+#        """testing if the code attribute is formatted correctly
+#        """
+#
+#        new_proj = Project(name="TEST_PROJECT")
+#
+#        for test_value in self._name_test_values:
+#            project_code = test_value[0]
+#            expected_project_code = test_value[2]
+#
+#            new_proj.code = project_code
+#
+#            self.assertEqual(new_proj.code, expected_project_code)
 
     def test_code_argument_is_empty_string_after_formatting(self):
         """testing if a ValueError will be raised when the code argument
@@ -578,10 +578,17 @@ class ProjectTester(unittest.TestCase):
         self.assertRaises(ValueError, Project, name="TEST_PROJ1",
                           code=test_value)
 
-    def test_code_attribute_is_empty_string_after_formatting(self):
-        """testing if a ValueError will be raised when the code attribute is an
-        empty string after formatting
+#    def test_code_attribute_is_empty_string_after_formatting(self):
+#        """testing if a ValueError will be raised when the code attribute is an
+#        empty string after formatting
+#        """
+#        test_value = "12'^+'^+"
+#        new_proj = Project(name="TEST_PROJ1", code="TP1")
+#        self.assertRaises(ValueError, setattr, new_proj, "code", test_value)
+    
+    def test_code_attribute_is_read_only(self):
+        """testing if the code attribute is read only
         """
-        test_value = "12'^+'^+"
-        new_proj = Project(name="TEST_PROJ1", code="TP1")
-        self.assertRaises(ValueError, setattr, new_proj, "code", test_value)
+        new_project = Project("Test Project")
+        self.assertRaises(AttributeError, setattr, new_project, "code",
+            "New Code")

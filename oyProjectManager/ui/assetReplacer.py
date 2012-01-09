@@ -648,7 +648,7 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         # iterate over the _assetsToReplaceList
         for repData in self._assetsToReplaceList:
             if repData[1] == True:
-                self._environment.replaceAssets( repData[0][1], repData[2].fullPath )
+                self._environment.replaceAssets( repData[0][1], repData[2].full_path )
         
         # close the interface
         self.close()

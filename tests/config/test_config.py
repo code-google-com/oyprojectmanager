@@ -23,7 +23,7 @@ class ConfigTester(unittest.TestCase):
         # we should set the environment variable
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         
-        self.config_fullpath = os.path.join(self.temp_config_folder, "config.py")
+        self.config_full_path = os.path.join(self.temp_config_folder, "config.py")
     
     def tearDown(self):
         """clean up the test
@@ -38,7 +38,7 @@ class ConfigTester(unittest.TestCase):
         # now create a config.py file and fill it with the desired values
         # like database_file_name = "test_value.db"
         test_value = ".test_value.db"
-        config_file = open(self.config_fullpath, "w")
+        config_file = open(self.config_full_path, "w")
         config_file.writelines(["#-*- coding: utf-8 -*-\n",
                                 'database_url = "' + test_value + '"\n'])
         config_file.close()
@@ -57,7 +57,7 @@ class ConfigTester(unittest.TestCase):
         # now create a config.py file and fill it with the desired values
         # like database_file_name = "test_value.db"
         test_value = ".test_value.db"
-        config_file = open(self.config_fullpath, "w")
+        config_file = open(self.config_full_path, "w")
         config_file.writelines(["#-*- coding: utf-8 -*-\n",
                                 'test_value = "' + test_value + '"\n'])
         config_file.close()
@@ -82,7 +82,7 @@ class ConfigTester(unittest.TestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = "$var1/$var2"
         
         test_value = "sqlite3:///.test_value.db"
-        config_file = open(self.config_fullpath, "w")
+        config_file = open(self.config_full_path, "w")
         config_file.writelines(["#-*- coding: utf-8 -*-\n",
                                 'database_url = "' + test_value + '"\n'])
         config_file.close()
@@ -109,7 +109,7 @@ class ConfigTester(unittest.TestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = "$var3"
         
         test_value = "sqlite:///.test_value.db"
-        config_file = open(self.config_fullpath, "w")
+        config_file = open(self.config_full_path, "w")
         config_file.writelines(["#-*- coding: utf-8 -*-\n",
                                 'database_url = "' + test_value + '"\n'])
         config_file.close()
@@ -137,7 +137,7 @@ class ConfigTester(unittest.TestCase):
         # like database_file_name = "test_value.db"
         # but do a syntax error on purpose, like forgetting the last quato sign
         test_value = ".test_value.db"
-        config_file = open(self.config_fullpath, "w")
+        config_file = open(self.config_full_path, "w")
         config_file.writelines(["#-*- coding: utf-8 -*-\n",
                                 'database_file_name = "' + test_value + '\n'])
         config_file.close()
@@ -153,7 +153,7 @@ class ConfigTester(unittest.TestCase):
 #        file with the users_data variable
 #        """
 #        
-#        config_file = open(self.config_fullpath, "w")
+#        config_file = open(self.config_full_path, "w")
 #        config_file.writelines(["#-*- coding: utf-8 -*-\n",
 #                                'users_data = [\n'
 #                                '    {"name":"Test User 1",\n',

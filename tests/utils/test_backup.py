@@ -36,7 +36,7 @@
 #        """
 #        # remove the project dir
 #        try:
-#            shutil.rmtree(cls.test_project.fullpath)
+#            shutil.rmtree(cls.test_project.full_path)
 #        except IOError:
 #            pass
 #    
@@ -315,7 +315,7 @@
 ##        # create the render image sequence
 ##        self.imageSeq1 = pyseq.uncompress(
 ##            os.path.join(
-##                self.test_seq1.fullPath,
+##                self.test_seq1.full_path,
 ##                self.fx_asset.output_path,
 ##                "test_image_seq1.%03d.jpg 1-100",
 ##            ),
@@ -334,7 +334,7 @@
 ##        
 ##        self.imageSeq2 = pyseq.uncompress(
 ##            os.path.join(
-##                self.test_seq1.fullPath,
+##                self.test_seq1.full_path,
 ##                self.fx_asset.output_path,
 ##                "test_image_seq2.%03d.jpg 1-100",
 ##            ),
@@ -354,7 +354,7 @@
 ##        
 ##        self.imageSeq3 = pyseq.uncompress(
 ##            os.path.join(
-##                self.test_seq1.fullPath,
+##                self.test_seq1.full_path,
 ##                self.fx_asset.output_path,
 ##                "test_image_seq3.%03d.jpg 1-100",
 ##            ),
@@ -373,7 +373,7 @@
 ##        
 ##        self.imageSeq4 = pyseq.uncompress(
 ##            os.path.join(
-##                self.test_seq1.fullPath,
+##                self.test_seq1.full_path,
 ##                self.compositing_asset2.output_path,
 ##                os.path.splitext(self.compositing_asset2.fileName)[0] + \
 ##                    ".%03d.jpg 1-100",
@@ -420,17 +420,17 @@
 ##        
 ##        # write it to the new path
 ##        nuke_output_file = open(
-##            self.compositing_asset2.fullPath,
+##            self.compositing_asset2.full_path,
 ##            "w"
 ##        )
 ##        
-##        print self.compositing_asset2.fullPath
+##        print self.compositing_asset2.full_path
 ##        
 ##        
 ##        nuke_output_file.write(
 ##            nuke_template.render(
-##                project_dir=self.test_seq1.fullPath,
-##                comp_file_path=self.compositing_asset2.fullPath
+##                project_dir=self.test_seq1.full_path,
+##                comp_file_path=self.compositing_asset2.full_path
 ##            )
 ##        )
 ##        
@@ -469,7 +469,7 @@
 ##            all(
 ##                [os.path.exists(
 ##                    item.path.replace(
-##                        self.test_project.fullpath, self.backup_path
+##                        self.test_project.full_path, self.backup_path
 ##                    )
 ##                ) for item in self.imageSeq2]
 ##            )
@@ -479,7 +479,7 @@
 ##            all(
 ##                [os.path.exists(
 ##                    item.path.replace(
-##                        self.test_project.fullpath, self.backup_path
+##                        self.test_project.full_path, self.backup_path
 ##                    )
 ##                ) for item in self.imageSeq3]
 ##            )
@@ -489,7 +489,7 @@
 ##            all(
 ##                [os.path.exists(
 ##                    item.path.replace(
-##                        self.test_project.fullpath, self.backup_path
+##                        self.test_project.full_path, self.backup_path
 ##                    )
 ##                ) for item in self.imageSeq4]
 ##            )

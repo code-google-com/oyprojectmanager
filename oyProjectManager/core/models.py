@@ -291,7 +291,9 @@ class Project(Base):
         * All the letters should be upper case.
         * All the minus ("-") signs will be converted to underscores ("_")
         * All the CamelCase formatting are expanded to underscore (CAMEL_CASE)
-    
+        
+      The :attr:`~oyProjectManager.core.models.Project.code` is a read only
+      attribute.
     
     :param int fps: The frame rate in frame per second format. It is an 
       integer. The default value is 25. It can be skipped. If set to None. 
@@ -305,10 +307,12 @@ class Project(Base):
     
     id = Column(Integer, primary_key=True)
     
+    active = Column(Boolean, default=True)
+    
     # TODO: add doc strings for all the attributes
     
     name = Column(String(256), unique=True)
-    code = Column(String(256), unique=True)
+    _code = Column(String(256), unique=True)
     description = Column(String)
     
     shot_number_prefix = Column(String(16))
@@ -397,7 +401,11 @@ class Project(Base):
         self.repository = Repository()
         
         self.name = name
-        self.code = code
+
+        if code is None:
+            code = self.name
+        
+        self._code = self._condition_code(code)
         
         self.shot_number_prefix = self.conf.shot_number_prefix
         self.shot_number_padding = self.conf.shot_number_padding
@@ -408,13 +416,14 @@ class Project(Base):
         self.ver_number_prefix = self.conf.ver_number_prefix
         self.ver_number_padding = self.conf.ver_number_padding
         
-        self.fps = self.conf.fps
-        self.width = self.conf.resolution_width
-        self.height = self.conf.resolution_height
-        self.pixel_aspect = self.conf.resolution_pixel_aspect
+        # set the default resolution
+        default_resolution_key = conf.default_resolution_preset
+        default_resolution = conf.resolution_presets[default_resolution_key]
         
-        # TODO: do we really need to have an attribute called exists
-        self._exists = None
+        self.fps = self.conf.default_fps
+        self.width = default_resolution[0]
+        self.height = default_resolution[1]
+        self.pixel_aspect = default_resolution[2]
         
         # and the structure
         self.structure = self.conf.project_structure
@@ -510,10 +519,10 @@ class Project(Base):
         name_in = self._condition_name(name_in)
         return name_in
 
-    @validates("code")
-    def _validate_code(self, key, code):
+    def _validate_code(self, code):
         """validates the given code_in value
         """
+        
         if code is None:
             code = self.name
         
@@ -558,27 +567,18 @@ class Project(Base):
         """
         
         # check if the folder already exists
-        utils.mkdir(self.fullpath)
+        utils.mkdir(self.full_path)
         
         # create the structure if it is not present
         rendered_structure = jinja2.Template(self.structure).\
                              render(project=self)
         
         for folder in rendered_structure.split("\n"):
-            utils.createFolder(os.path.join(self.fullpath, folder.strip()))
+            utils.createFolder(os.path.join(self.full_path, folder.strip()))
         
         self._exists = True
         
         self.save()
-    
-    @property
-    def exists(self):
-        """returns True if the project folder exists
-        """
-        if self._exists is None:
-            self._exists = os.path.exists(self.fullpath)
-        
-        return self._exists
     
     @property
     def path(self):
@@ -588,10 +588,23 @@ class Project(Base):
         return self.repository.server_path
     
     @property
-    def fullpath(self):
-        """The fullpath of this project instance.
+    def full_path(self):
+        """The full_path of this project instance.
         """
         return os.path.join(self.path, self.code)
+    
+    @synonym_for("_code")
+    @property
+    def code(self):
+        """Returns the code of this Project instance.
+        
+        The ``code`` attribute is read-only.
+        
+        :return: str
+        """
+        
+        return self._code
+        
 
 class Sequence(Base):
     """Sequence object to help manage sequence related data.
@@ -618,11 +631,7 @@ class Sequence(Base):
       :class:`~oyProjectManager.core.models.Project`. A Sequence instance
       can not be created without a proper
       :class:`~oyProjectManager.core.models.Project` instance passed to it
-      with the ``project`` argument. If the passed
-      :class:`~oyProjectManager.core.models.Project` instance is not created
-      yet then a RuntimeError will be raised. The ``project`` argument also
-      accepts a string value holding the name of the desired
-      :class:`~oyProjectManager.core.models.Project`.
+      with the ``project`` argument.
     
     :type project: :class:`~oyProjectManager.core.models.Project` or string
     
@@ -660,7 +669,7 @@ class Sequence(Base):
             project = Sequence._check_project(project)
             
             # condition the name
-            name = Sequence.condition_name(name)
+            name = Sequence._condition_name(name)
             
             # now get it from the database
             seq_db = db.session.query(Sequence).\
@@ -825,22 +834,14 @@ class Sequence(Base):
         """
         return not self.__eq__(other)
 
-    @classmethod
-    def condition_name(cls, name):
-        # TODO: use the regular approach for formatting the name
-        return utils.stringConditioner(
-            name,
-            allowUnderScores=True,
-            upperCaseOnly=True,
-            capitalize=False
-        )
-
     @validates("name")
     def _validate_name(self, key, name):
         """validates the given name
         """
         
-        return self.condition_name(name)
+        name = Project._condition_name(name)
+        
+        return name
     
     @classmethod
     def _check_project(cls, project):
@@ -856,26 +857,9 @@ class Sequence(Base):
         if project is None:
             raise TypeError("Sequence.project can not be None")
         
-        if isinstance(project, (str, unicode)):
-            # a string is passed as the project name
-            # check if we are able to create a project out of this name
-            logger.debug("string is passed as project, converting to a "
-                         "Project instance")
-            
-            project = Project(project)
-#            logger.debug(str(project))
-#            logger.debug(type(project))
-#            logger.debug("project.session: %s" % str(db.session))
-        
         if not isinstance(project, Project):
             raise TypeError("The project should be and instance of "
                             "oyProjectManager.core.models.Project")
-            
-        if not project.exists:
-            raise RuntimeError(
-                "the given project should exist in the system, please call "
-                "Project.create() before passing it to a new Sequence instance"
-            )
         
         return project
     
@@ -885,8 +869,43 @@ class Sequence(Base):
         """a read-only attribute to return the related Project of this Sequence
         instance
         """
-        
         return self._project
+    
+    @validates("code")
+    def _validate_code(self, key, code):
+        """validates the given code value
+        """
+        
+        if code is None:
+            code = self.name
+        
+        if not isinstance(code, (str, unicode)):
+            raise TypeError("Sequence.code should be an instance of str or "
+                            "unicode, not %s" % type(code))
+        
+        code = Project._condition_code(code)
+        
+        return code
+    
+    @classmethod
+    def _condition_name(cls, name):
+        """Formats the given name value
+        
+        :param name: The name value to be conditioned 
+        :return: str
+        """
+
+        if name is None:
+            raise TypeError("The Sequence.name can not be None")
+
+        if not isinstance(name, (str, unicode)):
+            raise TypeError("Sequence.name should be an instance of string or "
+                            "unicode not %s" % type(name))
+        
+        if name is "":
+            raise ValueError("The Sequence.name can not be an empty string")
+        
+        name = Project._condition_name(name)
 
 class VersionableBase(Base):
     """A base class for :class:`~oyProjectManager.core.models.Shot` and
@@ -1560,7 +1579,7 @@ class Version(Base):
         secondaryjoin="Version_References.c.reference_id==Versions.c.id",
         backref="referenced_by"
     )
-
+    
     def __init__(self,
                  version_of,
                  base_name,
@@ -1747,8 +1766,8 @@ class Version(Base):
         ).replace("\\", "/")
     
     @property
-    def fullpath(self):
-        """The fullpath of this version.
+    def full_path(self):
+        """The full_path of this version.
         
         It is the join of
         :class:`~oyProjectManager.core.models.Repository`.\ 
@@ -1758,7 +1777,7 @@ class Version(Base):
         :class:`~oyProjectManager.core.models.Version`.\
         :attr:`~oyProjectManager.core.models.Version.filename` attributes.
         
-        So, it is an absolute path. The value of the ``fullpath`` is not stored
+        So, it is an absolute path. The value of the ``full_path`` is not stored
         in the database.
         """
         return os.path.join(
@@ -2134,7 +2153,7 @@ class VersionType(Base):
         
       For an example the following is a nice template for a Shot version::
       
-        {{project.fullpath}}/Sequences/{{sequence.code}}/Shots/\\
+        {{project.full_path}}/Sequences/{{sequence.code}}/Shots/\\
           {{version.base_name}}/{{type.code}}
       
       This will place a Shot Version whose base_name is SH001 and let say that
@@ -2356,7 +2375,7 @@ class VersionType(Base):
         """
         if extra_folders is None:
             extra_folders = ""
-
+        
         if not isinstance(extra_folders, (str, unicode)):
             raise TypeError("VersionType.extra_folders should be a string or "
                             "unicode value showing the extra folders those "
@@ -2610,7 +2629,7 @@ class EnvironmentBase(object):
                 \"""
                 
                 # do anything that needs to be done before opening the file
-                my_programs_own_python_api.open(filepath=self.version.fullpath)
+                my_programs_own_python_api.open(filepath=self.version.full_path)
             
             def save():
                 \"""uses the programs own Python API to save the current file
@@ -2618,7 +2637,7 @@ class EnvironmentBase(object):
                 \"""
                 
                 # do anything that needs to be done before saving the file
-                my_programs_own_python_api.save(filepath=self.version.fullpath)
+                my_programs_own_python_api.save(filepath=self.version.full_path)
                 
                 # do anything that needs to be done after saving the file
     
@@ -2681,7 +2700,7 @@ class EnvironmentBase(object):
 
     def save_as(self, version):
         """The save as action of this environment. It should save the current
-        scene or file to the given version.fullpath
+        scene or file to the given version.full_path
         """
         raise NotImplemented
 
@@ -2731,7 +2750,7 @@ class EnvironmentBase(object):
         Returns an empth list if it can't find any matching.
         
         This method is different than
-        :meth:`~oyProjectManager.core.models.EnvironmentBase.get_version_from_fullpath`
+        :meth:`~oyProjectManager.core.models.EnvironmentBase.get_version_from_full_path`
         because it returns a list of
         :class:`~oyProjectManager.core.models.Version` instances which are
         residing in that path. The list is ordered by the ``id``\ s of the
@@ -2753,21 +2772,21 @@ class EnvironmentBase(object):
             .order_by(Version.id.desc())\
             .all()
     
-    def get_version_from_fullpath(self, fullpath):
-        """Finds the Version instance from the given fullpath value.
+    def get_version_from_full_path(self, full_path):
+        """Finds the Version instance from the given full_path value.
         
         Finds and returns a :class:`~oyProjectManager.core.models.Version`
-        instance from the given fullpath value.
+        instance from the given full_path value.
         
         Returns None if it can't find any matching.
         
-        :param fullpath: The fullpath of the desired
+        :param full_path: The full_path of the desired
             :class:`~oyProjectManager.core.models.Version` instance.
         
         :return: :class:`~oyProjectManager.core.models.Version`
         """
 
-        path, filename = os.path.split(fullpath)
+        path, filename = os.path.split(full_path)
         path = self.trim_server_path(path)
         
         # try to get a version with that info

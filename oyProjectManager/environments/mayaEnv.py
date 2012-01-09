@@ -79,7 +79,7 @@ class Maya(EnvironmentBase):
     def save_as(self, version):
         """The save_as action for maya environment.
         
-        It saves the given Version instance to the Version.fullpath.
+        It saves the given Version instance to the Version.full_path.
         
         """
         
@@ -135,7 +135,7 @@ class Maya(EnvironmentBase):
         
         # save the file
         pm.saveAs(
-            version.fullpath,
+            version.full_path,
             type='mayaAscii'
         )
         
@@ -150,7 +150,7 @@ class Maya(EnvironmentBase):
         
         # append it to the recent file list
         self.append_to_recent_files(
-            version.fullpath
+            version.full_path
         )
         
         return True
@@ -170,7 +170,7 @@ class Maya(EnvironmentBase):
         utils.createFolder(version.path)
         
         # export the file
-        pm.exportSelected(version.fullpath, type='mayaAscii')
+        pm.exportSelected(version.full_path, type='mayaAscii')
         
         return True
     
@@ -195,10 +195,10 @@ class Maya(EnvironmentBase):
         pm.workspace.open(new_workspace)
         
         # check for unsaved changes
-        logger.info("opening file: %s" % version.fullpath)
+        logger.info("opening file: %s" % version.full_path)
         
         try:
-            pm.openFile(version.fullpath, f=force, loadReferenceDepth='none')
+            pm.openFile(version.full_path, f=force, loadReferenceDepth='none')
         except RuntimeError as e:
             # restore the previous workspace
             pm.workspace.open(previous_workspace_path)
@@ -210,7 +210,7 @@ class Maya(EnvironmentBase):
         # set the playblast folder
         self.set_playblast_file_name(version)
         
-        self.append_to_recent_files(version.fullpath)
+        self.append_to_recent_files(version.full_path)
         
         # replace_external_paths
         self.replace_external_paths()
@@ -240,7 +240,7 @@ class Maya(EnvironmentBase):
         :param version: The desired
           :class:`~oyProjectManager.core.models.Version` to be imported
         """
-        pm.importFile(version.fullpath)
+        pm.importFile(version.full_path)
         
         return True
     
@@ -259,18 +259,18 @@ class Maya(EnvironmentBase):
         
         workspace_path = pm.workspace.path
         
-        new_version_fullpath = version.fullpath
-        if version.fullpath.startswith(workspace_path):  
-            new_version_fullpath = utils.relpath(
+        new_version_full_path = version.full_path
+        if version.full_path.startswith(workspace_path):  
+            new_version_full_path = utils.relpath(
                 workspace_path,
-                version.fullpath.replace("\\", "/"), "/", ".."
+                version.full_path.replace("\\", "/"), "/", ".."
             )
         
         # replace the path with environment variable
-        new_version_fullpath = repo.relative_path(new_version_fullpath)
+        new_version_full_path = repo.relative_path(new_version_full_path)
         
         pm.createReference(
-            new_version_fullpath,
+            new_version_full_path,
             gl=True,
             loadReferenceDepth='all',
             namespace=namespace,
@@ -314,13 +314,13 @@ class Maya(EnvironmentBase):
         version = None
         
         # pm.env.sceneName() always uses "/"
-        fullpath = pm.env.sceneName()
+        full_path = pm.env.sceneName()
         
         # try to get it from the current open scene
-        if fullpath != '':
+        if full_path != '':
             logger.debug("trying to get the version from current file")
             
-            version = self.get_version_from_fullpath(fullpath)
+            version = self.get_version_from_full_path(full_path)
             
             logger.debug("version from current file: %s" % version)
 
@@ -352,7 +352,7 @@ class Maya(EnvironmentBase):
             
             for i in range(len(recent_files)-1, -1, -1):
                 
-                version = self.get_version_from_fullpath(recent_files[i])
+                version = self.get_version_from_full_path(recent_files[i])
                 
                 if version is not None:
                     break
@@ -508,6 +508,9 @@ class Maya(EnvironmentBase):
         dRes.width.set(width)
         dRes.height.set(height)
         dRes.pixelAspect.set(pixel_aspect)
+        # also set the device aspect
+        dRes.deviceAspectRatio.set(float(width) / float(height))
+        
     
     def set_project(self, version):
         """Sets the project to the given version.
@@ -565,7 +568,7 @@ class Maya(EnvironmentBase):
                 # add version to the update list
                 to_be_updated_list.append(version_tuple)
             
-        # sort the list according to fullpath
+        # sort the list according to full_path
         return sorted(to_be_updated_list, None, lambda x: x[2])
     
     def get_referenced_versions(self):
@@ -576,7 +579,7 @@ class Maya(EnvironmentBase):
         Replaces all the relative paths to absolute paths.
         
         The returned tuple format is as follows:
-        (Version, Reference, fullpath)
+        (Version, Reference, full_path)
         """
         
         valid_versions = []
@@ -588,18 +591,18 @@ class Maya(EnvironmentBase):
         # iterate over them to find valid assets
         for reference in references:
             # it is a dictionary
-            temp_version_fullpath = reference.path
+            temp_version_full_path = reference.path
             
-            temp_version_fullpath = \
+            temp_version_full_path = \
                 os.path.expandvars(
                     os.path.expanduser(
                         os.path.normpath(
-                            temp_version_fullpath
+                            temp_version_full_path
                         )
                     )
                 )
             
-            refs_and_paths.append((reference, temp_version_fullpath))
+            refs_and_paths.append((reference, temp_version_full_path))
         
         # sort them according to path
         # to make same paths together
@@ -607,26 +610,26 @@ class Maya(EnvironmentBase):
         refs_and_paths = sorted(refs_and_paths, None, lambda x: x[1])
         
         prev_version = None
-        prev_fullpath = ''
+        prev_full_path = ''
         
-        for reference, fullpath in refs_and_paths:
+        for reference, full_path in refs_and_paths:
             
-            if fullpath == prev_fullpath:
+            if full_path == prev_full_path:
                 # directly append the version to the list
                 valid_versions.append(
-                    (prev_version, reference, prev_fullpath)
+                    (prev_version, reference, prev_full_path)
                 )
             else:
                 # try to get a version with the given path
 #                temp_version =\
-#                db.query(Version).filter(Version.fullpath==fullpath).first()
-                temp_version = self.get_version_from_fullpath(fullpath)
+#                db.query(Version).filter(Version.full_path==full_path).first()
+                temp_version = self.get_version_from_full_path(full_path)
                 
                 if temp_version:
-                    valid_versions.append((temp_version, reference, fullpath))
+                    valid_versions.append((temp_version, reference, full_path))
                     
                     prev_version = temp_version
-                    prev_fullpath = fullpath
+                    prev_full_path = full_path
                     
         # return a sorted list
         return sorted(valid_versions, None, lambda x: x[2])
@@ -651,18 +654,18 @@ class Maya(EnvironmentBase):
         """update versions to the latest version
         """
         
-        previous_version_fullpath = ''
+        previous_version_full_path = ''
         
         for version_tuple in version_tuple_list:
             version = version_tuple[0]
             reference = version_tuple[1]
-            version_fullpath =  version_tuple[2]
+            version_full_path =  version_tuple[2]
             
-            if version_fullpath != previous_version_fullpath:
+            if version_full_path != previous_version_full_path:
                 latest_version = version.latest_version()
-                previous_version_fullpath = version_fullpath
+                previous_version_full_path = version_full_path
             
-            reference.replaceWith(latest_version.fullpath)
+            reference.replaceWith(latest_version.full_path)
     
     def get_frame_range(self):
         """returns the current playback frame range
@@ -866,7 +869,7 @@ class Maya(EnvironmentBase):
         replaces:
           references: to a path with $REPO env variable
           file and mentalrayTextures: to a relative path to the project path
-                                      (the self._asset.sequenceFullPath)
+                                      (the self._asset.sequencefull_path)
         
         :param mode: Defines the process mode:
           if mode == 0 : replaces with relative paths
