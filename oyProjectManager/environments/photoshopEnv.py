@@ -1,37 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-photoshopEnv by Erkan Ozgur Yilmaz (c) 2009-2010
+# Copyright (c) 2009-2012, Erkan Ozgur Yilmaz
+# 
+# This module is part of oyProjectManager and is released under the BSD 2
+# License: http://www.opensource.org/licenses/BSD-2-Clause
 
-
-Description:
-------------
-The environment script that should handle assetManager and photoshop
-interaction
-
-It should only work in 32bit Windows systems or under linux with wine (not
-tested)
-
-it also needs the comtypes to be installed to the current python environment
-
-http://sourceforge.net/projects/comtypes/
-"""
-
-
-
-from comtypes import client
 from oyProjectManager.core.models import EnvironmentBase
 
-
-
-
-
-
-########################################################################
 class Photoshop(EnvironmentBase):
     """the photoshop environment class
     """
-    
-    
-    
     pass
     

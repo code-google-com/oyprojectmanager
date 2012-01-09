@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-
-
+# Copyright (c) 2009-2012, Erkan Ozgur Yilmaz
+# 
+# This module is part of oyProjectManager and is released under the BSD 2
+# License: http://www.opensource.org/licenses/BSD-2-Clause
 
 import sys
 from PyQt4 import QtGui, QtCore
 from oyProjectManager.ui import singletonQApplication, projectSetter_UI
 from oyProjectManager.core.models import Project, Sequence, Repository
 from oyProjectManager.environments import environmentFactory
-
-
-
-
 
 
 #----------------------------------------------------------------------

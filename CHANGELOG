@@ -1,6 +1,12 @@
 Version History
 ===============
 
+0.2.0
+-----
+* Updated the license to BSD 2.
+
+* Updated the license text on module headers.
+
 0.2.0.b1
 --------
 * The ``fullpath`` and the ``path`` attributes of the
