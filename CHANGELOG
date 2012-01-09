@@ -1,0 +1,322 @@
+Version History
+===============
+
+0.2.0
+-----
+* Updated the license to BSD 2.
+
+* Updated the license text on module headers.
+
+0.2.0.b1
+--------
+* The ``fullpath`` and the ``path`` attributes of the
+  :class:`~oyProjectManager.core.models.Project` will not be stored in the
+  database anymore. But instead they will be generated from the
+  :attr:`~oyProjectManager.core.models.Project.path` and
+  :attr:`~oyProjectManager.core.models.Project.code` attributes.
+
+* The concept of paths are enhanced. Now all the paths stored in the database
+  is relative to the repository root. So the
+  :attr:`~oyProjectManager.core.models.Version.path` attribute of
+  :class:`~oyProjectManager.core.models.Version` class is an relative path to
+  the :attr:`~oyProjectManager.core.models.Repository.server_path` attribute of
+  :class:`~oyProjectManager.core.models.Repository` class. And the templates in
+  the :class:`~oyProjectManager.core.models.VersionType` should be designed in
+  that way.
+
+* Fixed a bug where all the
+  :class:`~oyProjectManager.core.models.Version`\ s for the same
+  :class:`~oyProjectManager.core.models.Shot` or
+  :class:`~oyProjectManager.core.models.Asset` with the same
+  ``take_name`` considered in the same version queue. Thus
+  :class:`~oyProjectManager.core.models.Version`\ .\
+  :meth:`~oyProjectManager.core.models.Version.is_latest_version` and
+  :class:`~oyProjectManager.core.models.Version`\ .\
+  :attr:`~oyProjectManager.core.models.Version.max_version` were not working
+  properly.
+
+* Removed the ``description`` field from the ``version_creator`` UI to make the
+  interface more compact and also this kind of information will be available in
+  the web ui.
+
+* Added
+  :class:`~oyProjectManager.core.models.EnvironmentBase.get_version_from_fullpath`,
+  :class:`~oyProjectManager.core.models.EnvironmentBase.get_versions_from_path`,
+  and  :class:`~oyProjectManager.core.models.EnvironmentBase.trim_server_path`,
+  methods to :class:`~oyProjectManager.core.models.EnvironmentBase` class.
+
+* Added :meth:`~oyProjectManager.core.models.Version.dependency_update_list`
+  property to the :class:`~oyProjectManager.core.models.Version` class. Which
+  returns a list of :class:`~oyProjectManager.core.models.Version` instances
+  which are referenced by this :class:`~oyProjectManager.core.models.Version`
+  or are referenced by the references of this
+  :class:`~oyProjectManager.core.models.Version` and those have newer versions
+  in the database, resulting a deeper update information.
+
+* Fixed a little bug, it is now possible to create
+  :class:`~oyProjectManager.core.models.VersionableBase` instances (
+  :class:`~oyProjectManager.core.models.Asset` and
+  :class:`~oyProjectManager.core.models.Shot` instances particularly) with the
+  same ``code`` value if their ``project_id`` is not the same.
+
+* To be able to make the :attr:`~oyProjectManager.core.models.Asset.name`
+  attribute in the :class:`~oyProjectManager.core.models.Asset` unique, the
+  column moved to the ``VersionableBases`` table which also has the
+  ``project_id`` column.
+
+* Moved the ``description`` attribute to the
+ :class:`~oyProjectManager.core.models.VersionableBase` class, which
+  was a common attribute for the
+  :class:`~oyProjectManager.core.models.Asset`` and
+  :class:`~oyProjectManager.core.models.Shot` classes.
+
+* The :attr:`~oyProjectManager.core.models.Version.version_number` attribute is
+  now depending on to the
+  :attr:`~oyProjectManager.core.models.Version.version_of` attribute instead of
+  the :attr:`~oyProjectManager.core.models.Version.base_name` attribute, to
+  prevent the ``version_number`` from being started over from 1 again in case
+  of renames in :class:`~oyProjectManager.core.models.VersionableBase`
+  instances attached to a particular
+  :class:`~oyProjectManager.core.models.Version` instance.
+
+* Updated the ``project_manager`` ui.
+
+* :class:`~oyProjectManager.core.models.Sequence` will not accept strings for
+  the ``project`` argument anymore.
+
+* The :attr:`~oyProjectManager.core.models.Sequence.name` and
+  :attr:`~oyProjectManager.core.models.Sequence.code` attributes of
+  :class:`~oyProjectManager.core.models.Sequence` class is now working as
+  expected.
+
+0.2.0a2
+-------
+
+* Because every project had its own SQLite3 database it was hard to manage the
+  same User in different projects, for that reason the system now uses a
+  central database whose placement (if SQLite3) is defined by the config.py.
+  Also, the system is able to use different databases than SQLite3. This latest
+  improvement added another level of flexibility to the system.
+
+* The ``assetManager.py`` is renamed to ``version_creator.py`` to reflect its
+  functionality more clearly. And the interface is redesigned from scratch and
+  programmed with TDD practices.
+
+* Because there is a bug in the ``Beaker`` package, reintroduced the
+  :mod:`oyProjectManager.utils.cache` module.
+
+* Added :attr:`~oyProjectManager.core.models.Version.extension` attribute to
+  the :class:`~oyProjectManager.core.models.Version` class.
+
+* :class:`~oyProjectManager.core.models.Version` class now has
+  :attr:`~oyProjectManager.core.models.Version.extension` and
+  :attr:`~oyProjectManager.core.models.Version.output_path` attributes.
+
+* Renamed the environments back to mayaEnv.py, houdiniEnv.py, nukeEnv.py and
+  photoshopEnv.py
+
+* Added an attribute called
+  :attr:`~oyProjectManager.core.models.Version.project` to the
+  :class:`~oyProjectManager.core.models.Version` class which is a shortcut to
+  the ``Version.version_of.project``
+
+* Added :attr:`~oyProjectManager.core.models.Version.absolute_path` attribute
+  to the :class:`~oyProjectManager.core.models.Version` class which returns the
+  absolute path of the version to the
+  :class:`~oyProjectManager.core.models.Project` root
+  
+* The :attr:`~oyProjectManager.core.models.Version.fullpath` attribute in 
+  :class:`~oyProjectManager.core.models.Version` now returns an absolute path.
+
+* The duty of the :attr:`~oyProjectManager.core.models.Project.name` attribute
+  of the :class:`~oyProjectManager.core.models.Project` class is now shifted to
+  the :attr:`~oyProjectManager.core.models.Project.code` attribute, thus, the
+  :attr:`~oyProjectManager.core.models.Project.name` of the
+  :class:`~oyProjectManager.core.models.Project` can now be freely changed,
+  without effecting the file management.
+
+* Updated the :meth:`~oyProjectManager.core.models.Sequence.add_shots`\ ,
+  :meth:`~oyProjectManager.core.models.Sequence.add_alternative_shot` and
+  :meth:`~oyProjectManager.core.models.Sequence.get_next_alternate_shot_number`
+  methods in :class:`~oyProjectManager.core.models.Sequence` class.
+
+* Added resolution presets to the config file.
+
+* Added :attr:`~oyProjectManager.core.models.Project.active` attribute to the
+  :class:`~oyProjectManager.core.models.Project` class to track the status of
+  the :class:`~oyProjectManager.core.models.Project`.
+
+0.2.0a1
+-------
+
+* The system now uses SQLAlchemy Declarative in its data models. And a new
+  settings file located in the Project root with the name ``.metadata.db`` is
+  governed to hold the related data for that Project. The system doesn't scan
+  the file system anymore but instead uses this ``.metadata.db`` SQLite3 file.
+  There are a lot of interface changes in the classes: 
+
+  * The Project.sequenceNames and Project.updateSequenceList methods are no
+    longer needed and they don't exist anymore.
+  
+  * There is no ``readSettings`` method in any of the classes anymore. All the
+    settings are read from the database (by retrieving an instance from the db)
+    as the instance is created.
+  
+  * All the XML parsing code is removed. So there is no backward compatibility.
+  
+  * It was very hard keep the compatibility with the previous versions. So,
+    the version 0.2.0 is not backward compatible. The system will look with
+    blinking eyes if you try to use it with an old Project.
+  
+  * The methods:
+    
+    * ``_parseSequenceDataNode``
+    * ``_parseStructureNode``
+    * ``_parseAssetTypesNode``
+    * ``_parseShotListNode``
+    * ``_parseShotDataNode``
+    * ``create``
+    * ``createShots``
+    * ``_sortShots``
+    * ``getShot``
+    * ``shotList``
+    * ``structure``
+    * ``createStructure``
+    * ``convertToShotString``
+    * ``convertToRevString``
+    * ``convertToVerString``
+    * ``convertToShotNumber``
+    * ``convertToRevNumber``
+    * ``convertToVerNumber``
+    * ``shotPadding``
+    * ``shotPrefix``
+    * ``getAssetTypes``
+    * ``getAssetTypeWithName``
+    * ``getAssetFolders``
+    * ``projectName``
+    * ``getAllAssets``
+    * ``getAllAssetsForType``
+    * ``getAllAssetFileNamesForType``
+    * ``getAssetBaseNamesForType``
+    * ``getAllAssetsForTypeAndBaseName``
+    * ``filterAssets``
+    * ``filterAssetNames``
+    * ``generateFakeInfoVariables``
+    * ``aFilter``
+    * ``undoChange``
+    * ``path``
+    * ``fullpath``
+    * ``projectName``
+    * ``timeUnit``
+    * ``isValid``
+    * ``addNewAssetType``
+    * ``exists``
+    * ``noSubNameField``
+    
+
+    of the :class:`~oyProjectManager.core.models.Sequence` are removed. They
+    were preliminarily used for fake database query like behaviour which is
+    greatly handled by SQLAlchemy right now.
+
+* All the models are now placed under one module called
+  :mod:`oyProjectManager.core.models`. Thus deleted the old
+  ``oyProjectManager.models.project``, ``oyProjectManager.models.asset``,
+  ``oyProjectManager.models.user`` modules and the ``oyProjectManager.models``
+  module itself.
+
+* ``utils.convertRangeToList`` is renamed to
+  :func:`~oyProjectManager.utils.uncompress_range`\ .
+
+* Introduced the new :class:`~oyProjectManager.core.models.Version` class
+  which from now on will hold the references to the individual files for every
+  version created for an :class:`~oyProjectManager.core.models.Asset` or
+  :class:`~oyProjectManager.core.models.Shot` in the repository. So contrary to
+  the previous implementation an :class:`~oyProjectManager.core.models.Asset`
+  is not the reference of the individual version files of itself any more.
+
+* Introduced the :class:`~oyProjectManager.core.models.VersionableBase` class
+  in which the :class:`~oyProjectManager.core.models.Shot` and
+  :class:`~oyProjectManager.core.models.Asset` is derived from. Thus allow them
+  to hold references to :class:`~oyProjectManager.core.models.Version`\ s.
+
+* The :class:`~oyProjectManager.core.models.Repository` now uses the ``REPO``
+  environment variable instead of ``STALKER_REPOSITORY_PATH``.
+
+* All the project settings are now stored in the
+  :class:`~oyProjectManager.core.models.Project` class.
+
+* The ``timeUnit`` concept is replaced with ``fps``. To define the timeUnit
+  (which is very much a specific naming convention for Maya only) set the
+  :attr:`~oyProjectManager.core.models.Project.fps` of the
+  :class:`~oyProjectManager.core.models.Project` class.
+
+* It is now possible to set a project image format by setting the
+  :attr:`~oyProjectManager.core.models.width`,
+  :attr:`~oyProjectManager.core.models.height`,
+  :attr:`~oyProjectManager.core.models.pixel_aspect` attributes of the
+  :class:`~oyProjectManager.core.models.Project` class.
+
+* The :class:`~oyProjectManager.core.models.Shot` class now initializes with
+  the :attr:`~oyProjectManager.core.models.Shot.number` attribute and the
+  :attr:`~oyProjectManager.core.models.Shot.code` attribute of the
+  :class:`~oyProjectManager.core.models.Shot` composed from the
+  :attr:`~oyProjectManager.core.models.Shot.number` and the
+  :attr:`~oyProjectManager.core.models.Project.shot_prefix` and
+  :attr:`~oyProjectManager.core.models.Project.shot_padding` attribute of the
+  :class:`~oyProjectManager.core.models.Project` class.
+
+* There is no ``Structure`` class anymore. The function is accomplished by the
+  :class:`~oyProjectManager.core.models.Project` class itself.
+
+* The system now uses the ``OYPROJECTMANAGER_PATH`` to search a file called
+  ``conf.py`` and uses this file to configure the system. See
+  :mod:`~oyProjectManager.config` documentation for more details.
+
+* Renamed the environment modules:
+  
+  * ``houdiniEnv.py`` --> ``houdini.py``
+  * ``mayaEnv.py`` --> ``maya.py``
+  * ``nukeEnv.py`` --> ``nuke.py``
+  * ``photoshopEnv.py`` --> ``photoshop.py``
+  
+  To ease the move of separate environment class concept, which will be
+  introduced in version 0.3.0
+
+* Updated the :class:`~oyProjectManager.core.models.Repository`, now it is only
+  doing repository related things. The following methods are removed:
+  
+  * ``_init_repository_path_environment_variable`` (no environment variables to
+    init anymore)
+  * ``_parse_repository_settings`` (nothing to parse anymore)
+  * ``projects`` (use ``Repository.project_names`` instead)
+  * ``valid_projects`` (use ``Repository.project_names`` all the names are for
+    valid projects -projects with .metadata.db- only)
+  * ``users`` (it is :class:`~oyProjectManager.core.models.Project`\ s duty to
+    return a list of users in the project, and a full list of user names and
+    corresponding user name initials can be retrieved from
+    ``oyProjectManager.config.Config.users``)
+  * ``user_names`` (can be retrieved from
+    ``oyProjectManager.config.Config.users``)
+  * ``user_initials`` (can be retrieved from
+    ``oyProjectManager.config.Config.users``)
+  * ``_parse_users`` (nothing to parse anymore)
+  * ``createProject`` (use::
+      
+      from oyProjectManager.core.models import Project
+      new_proj = Project("NEW_PROJECT")
+      new_proj.create()
+    
+    no need to introduce a new method)
+    
+  * ``defaultFiles`` (is handled by the environments, not by the repository)
+  * ``default_settings_file_full_path`` (no default settings file anymore)
+  * ``home_path`` (it is os.path.expanduser("~") no need to create new method)
+  * ``last_user`` (use
+    :attr:`oyProjectManager.config.Config.last_user_initial` instead)
+  * ``get_project_and_sequence_name_from_file_path`` (use
+    :meth:`oyProjectManager.core.models.Repository.get_project_name` instead,
+    it is not possible to get the
+    :class:`~oyProjectManager.core.models.Sequence` name for now)
+  * ``settings_dir_path`` (no settings dir)
+  * ``time_units`` (no time unit concept, use
+    :attr:`~oyProjectManager.core.models.Project.fps` instead)
