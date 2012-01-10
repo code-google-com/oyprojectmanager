@@ -500,8 +500,8 @@ class Config(object):
         return name in self.config_values
     
     @property
-    def last_user_initial(self):
-        """returns the last user initial
+    def last_user_id(self):
+        """returns the last user id
         
         It is not very much related with the config.py and user settings, but
         it seems the most appropriate place is this one to get information from
@@ -512,39 +512,47 @@ class Config(object):
         """
         # TODO: This should be replaced with beaker.session
         
-        file_name = '.last_user'
-        file_path = "~/.oypmrc/"
-        file_full_path = os.path.join(
-            file_path, file_name
-        )
+        file_name = 'last_user_id'
+        file_path = os.path.expanduser("~/.oypmrc/")
+        file_full_path = os.path.join(file_path, file_name)
         
-        last_user_initials = None
+        last_user_id = None
         
         try:
             last_user_file = open(file_full_path)
         except IOError:
             pass
         else:
-            last_user_initials = last_user_file.readline().strip()
+            last_user_id = int(last_user_file.readline().strip())
             last_user_file.close()
         
-        return last_user_initials
+        return last_user_id
         
-    @last_user_initial.setter
-    def last_user_initial(self, user_initials):
-        """sets the user initials for the last user
+    @last_user_id.setter
+    def last_user_id(self, user_id):
+        """sets the user id for the last user
         """
+        if not isinstance(user_id, int):
+            raise RuntimeWarning("user_id for last_user_id should be an int")
+            return
         
-        file_name = 'last_user'
-        file_path = "~/.oypmrc/"
-        file_full_path = os.path.join(
-            file_path, file_name
-        )
+        file_name = 'last_user_id'
+        file_path = os.path.expanduser("~/.oypmrc/")
+        file_full_path = os.path.join(file_path, file_name)
+        
+        logger.debug("saving user id to %s" % file_full_path)
+        
+        # create the folder first
+        try:
+            os.makedirs(file_path)
+        except OSError:
+            # already created
+            pass
         
         try:
             last_user_file = open(file_full_path, 'w')
-        except IOError:
+        except IOError as e:
             pass
         else:
-            last_user_file.write(user_initials)
+            last_user_file.write(str(user_id))
             last_user_file.close()

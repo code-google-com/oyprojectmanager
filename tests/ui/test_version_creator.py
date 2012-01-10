@@ -1917,6 +1917,54 @@ class VersionCreatorTester(unittest.TestCase):
             dialog.takes_comboBox.currentText(),
             vers28.take_name
         )
+    
+    def test_users_comboBox_shows_the_last_user_from_conf(self):
+        """testing if the users_comboBox shows the last user from the previous
+        session
+        """
+        
+        project = Project("Test Project")
+        project.save()
+        
+        asset = Asset(project, "Test Asset")
+        asset.save()
+        
+        asset_v_types = db.query(VersionType).\
+            filter(VersionType.type_for=="Asset").all()
+        
+        user1 = User("User1")
+        user2 = User("User2")
+        user3 = User("User3")
+        
+        db.session.add_all([user1, user2, user3])
+        db.session.commit()
+        
+        dialog = version_creator.MainDialog_New()
+        
+        # select asset1
+        dialog.tabWidget.setCurrentIndex(0)
+        
+        # set type to asset_v_types[0]
+        dialog.version_types_comboBox.addItem(asset_v_types[0].name)
+        
+        # set the user to user1
+        index = dialog.users_comboBox.findText(user2.name)
+        dialog.users_comboBox.setCurrentIndex(index)
+        
+        # hit save
+        QTest.mouseClick(dialog.save_as_pushButton, Qt.LeftButton)
+        
+        # close the dialog
+        dialog.close()
+        
+        # re-open the dialog
+        dialog = version_creator.MainDialog_New()
+        
+        # check if the users_comboBox is set to user2
+        self.assertEqual(
+            dialog.users_comboBox.currentText(),
+            user2.name
+        )
 
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     """tests the interaction of the UI with the given environment
@@ -1935,10 +1983,14 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
         
-        if QtGui.qApp is None:
-            self.app = QtGui.QApplication(sys.argv)
-        else:
-            self.app = QtGui.qApp
+        # for PySide
+#        if QtGui.qApp is None:
+#            self.app = QtGui.QApplication(sys.argv)
+#        else:
+#            self.app = QtGui.qApp
+        
+        # for PyQt4
+        self.app = QtGui.QApplication(sys.argv)
         
         # create the necessary data
         
@@ -2043,7 +2095,8 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         db.session.commit()
         
-        self.test_environment = TestEnvironment(name="TESTENV")
+        self.test_environment = TestEnvironment()
+        self.test_environment.name = "TESTENV"
         
         # the dialog
         self.test_dialog = \

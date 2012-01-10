@@ -1662,7 +1662,6 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     """
     
     # TODO: add only active users to the interface
-    # TODO: add auto last user add support
     
     def __init__(self, environment=None, parent=None):
         logger.debug("initializing the interface")
@@ -1931,6 +1930,18 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         users = db.query(User).all()
         self.users_comboBox.users = users
         self.users_comboBox.addItems(map(lambda x:x.name, users))
+        
+        # set the default user
+        last_user_id = conf.last_user_id
+        last_user = None
+        if last_user_id is not None:
+            last_user = db.query(User).filter(User.id==last_user_id).first()
+        
+        if last_user is not None:
+            # select the user from the users_comboBox
+            index = self.users_comboBox.findText(last_user.name)
+            if index != -1:
+                self.users_comboBox.setCurrentIndex(index)
         
         # add "Main" by default to the takes_comboBox
         self.takes_comboBox.addItem(conf.default_take_name)
@@ -2849,6 +2860,9 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # save the new version to the database
         db.session.add(new_version)
         db.session.commit()
+
+        # save the last user
+        conf.last_user_id = new_version.created_by_id
         
         # close the UI
         self.close()

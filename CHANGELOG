@@ -1,12 +1,6 @@
 Version History
 ===============
 
-0.2.0
------
-* Updated the license to BSD 2.
-
-* Updated the license text on module headers.
-
 0.2.1
 -----
 
@@ -20,6 +14,18 @@ Version History
   definitely be used in the future, when all the main programs (Maya, Houdini
   and Nuke) are supporting it (for now it is just Nuke which is delivered with
   PySide).
+
+* Fixed :class:`~oyProjectManager.config.Conf` it now saves the last_user_id
+  properly
+
+* Version_creator interface, it now saves and retrieves the last user
+  choice properly.
+
+0.2.0
+-----
+* Updated the license to BSD 2.
+
+* Updated the license text on module headers.
 
 0.2.0.b1
 --------
