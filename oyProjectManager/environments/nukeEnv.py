@@ -47,7 +47,7 @@ class Nuke(EnvironmentBase):
         self.project_directory = os.path.dirname(version.path)
         
         # create the main write node
-        self.create_main_write_node()
+        self.create_main_write_node(version)
         
         # replace read and write node paths
         self.replace_file_path()
@@ -212,7 +212,7 @@ class Nuke(EnvironmentBase):
             version.take_name + "_" + \
             "OUTPUT_" + \
             "v%03d" % version.version_number + "_" + \
-            version.created_by.userInitials + ".###.jpg"
+            version.created_by.initials + ".###.jpg"
         
         # check if it is a stereo comp
         # if it is enable separate view rendering
