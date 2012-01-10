@@ -2627,7 +2627,7 @@ class EnvironmentBase(object):
     .. note::
       For now the :class:`~oyProjectManager.core.models.EnvironmentBase`
       inherits from the Python object class. There were no benefit to inherit
-      it from the ``DeclerativeBase``.
+      it from the ``DeclarativeBase``.
     
     To create a new environment for you own program, just instantiate this
     class and override the methods as necessary. And call the UI with by
@@ -2679,14 +2679,10 @@ class EnvironmentBase(object):
     
     name = "EnvironmentBase"
     
-    def __init__(self, name=""):
-        
-        self._name = name
-        self._extensions = []
-        
-        self._version = None
-        self._project = None
-        self._sequence = None
+#    def __init__(self, name=""):
+#        self._name = name
+#        self._extensions = []
+#        self._version = None
 
     def __str__(self):
         """the string representation of the environment
@@ -2754,11 +2750,11 @@ class EnvironmentBase(object):
         :return: str
         """
         repo = Repository()
-
+        
         server_path = repo.server_path
         if path_in.startswith(server_path):
             path_in = path_in[len(os.path.normpath(server_path))+1:]
-
+        
         return path_in
     
     def get_versions_from_path(self, path):
@@ -2823,6 +2819,7 @@ class EnvironmentBase(object):
         :returns: :class:`~oyProjectManager.core.models.Version` instance or
             None
         """
+        raise NotImplemented
 
     def get_last_version(self):
         """Returns the last opened Version instance from the environment.

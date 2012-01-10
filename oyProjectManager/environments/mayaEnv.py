@@ -7,12 +7,10 @@
 import logging
 
 import os
-#from pymel import versions
 from pymel import core as pm
-#import maya.cmds as mc
 
-from oyProjectManager import conf, db
-from oyProjectManager.core.models import Repository, EnvironmentBase, Version
+from oyProjectManager import conf
+from oyProjectManager.core.models import Repository, EnvironmentBase
 from oyProjectManager import utils
 
 logger = logging.getLogger(__name__)
@@ -20,22 +18,12 @@ logger.setLevel(logging.WARNING)
 
 class Maya(EnvironmentBase):
     """the maya environment class
-    
-    There should be some environment variables letting us to know the current
-    open version. After setting up the environment variable, opening a new file
-    or creating a new scene should reset the environment variable.
     """
     
     # TODO: check for texture file paths and warn the user if there are
     # textures with absolute paths which are not starting with the
     # repo.server_path
-
-    # TODO: fix this bug, where for a new scene with a project A, if
-    # something is referenced from project A, and the current scene saved
-    # under project B, the paths of the referenced version will stay
-    # relative to the project A, and on reload of the scene the references
-    # will not be found.
-
+    
     name = "Maya"
     
     time_to_fps = {
@@ -85,7 +73,6 @@ class Maya(EnvironmentBase):
         """The save_as action for maya environment.
         
         It saves the given Version instance to the Version.full_path.
-        
         """
         
         # set version extension to ma
@@ -293,6 +280,8 @@ class Maya(EnvironmentBase):
         return True
     
     def get_version_from_workspace(self):
+        """Tries to find a version from the current workspace path
+        """
         logger.debug("trying to get the version from workspace")
         
         # get the workspace path
