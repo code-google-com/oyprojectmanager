@@ -46,7 +46,7 @@ def UI(environment):
 
     self_quit = False
     if QtGui.QApplication.instance() is None:
-        app = QtGui.QApplication(*sys.argv)
+        app = QtGui.QApplication(sys.argv)
         self_quit = True
     else:
         app = QtGui.QApplication.instance()
