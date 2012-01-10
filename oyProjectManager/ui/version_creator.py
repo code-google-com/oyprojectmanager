@@ -344,7 +344,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         screen = QtGui.QDesktopWidget().screenGeometry()
         size =  self.geometry()
-        self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2)
+        self.move(
+            (screen.width()-size.width()) * 0.5,
+            (screen.height()-size.height()) * 0.5
+        )
     
     def _setDefaults(self):
         """sets the default values
@@ -1707,6 +1710,9 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # setup defaults
         self._set_defaults()
         
+        # center window
+        self._center_window()
+        
         logger.debug("finished initializing the interface")
     
     def _setup_signals(self):
@@ -1911,6 +1917,16 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         :param new_name: The desired new name for the asset.
         """
         pass
+    
+    def _center_window(self):
+        """centers the window to the screen
+        """
+        screen = QtGui.QDesktopWidget().screenGeometry()
+        size =  self.geometry()
+        self.move(
+            (screen.width()-size.width()) * 0.5,
+            (screen.height()-size.height()) * 0.5
+        )
     
     def _set_defaults(self):
         """sets up the defaults for the interface
