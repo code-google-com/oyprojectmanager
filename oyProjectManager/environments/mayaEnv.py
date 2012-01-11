@@ -195,9 +195,9 @@ class Maya(EnvironmentBase):
             # restore the previous workspace
             pm.workspace.open(previous_workspace_path)
             
-            # raise another RuntimeError
+            # raise the RuntimeError again
             # for the interface
-            raise RuntimeError(e.message)
+            raise e
         
         # set the playblast folder
         self.set_playblast_file_name(version)
@@ -206,7 +206,7 @@ class Maya(EnvironmentBase):
         
         # replace_external_paths
         self.replace_external_paths()
-
+        
         # check the referenced assets for newer version
         to_update_list = self.check_referenced_versions()
         
@@ -220,9 +220,7 @@ class Maya(EnvironmentBase):
     def post_open(self, version):
         """Runs after opening a file
         """
-        
         self.load_referenced_versions()
-        
         self.update_references_list()
 
     def import_(self, version):
@@ -399,10 +397,15 @@ class Maya(EnvironmentBase):
             image_folder_from_ws
         ).replace("\\", "/")
         
-        render_file_full_path = \
-            render_output_folder + "/<Layer>/" + \
-            version.base_name + "_" + version.take_name + \
-            "_<Layer>_<RenderPass>_<Version>"
+        render_file_full_path = render_output_folder + "/<Layer>/" + \
+                                version.project.code + "_"
+        
+        if version.type.type_for == "Shot":
+            render_file_full_path += version.version_of.sequence.code + "_"
+        
+        render_file_full_path += version.base_name + "_" +\
+                                 version.take_name + \
+                                 "_<Layer>_<RenderPass>_<Version>"
         
         # convert the render_file_full_path to a relative path to the
         # imageFolderFromWS_full_path

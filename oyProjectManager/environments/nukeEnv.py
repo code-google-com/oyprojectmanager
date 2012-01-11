@@ -207,10 +207,15 @@ class Nuke(EnvironmentBase):
             main_write_node.setName(self._main_output_node_name)
         
         # set the output path
-        output_file_name = \
+        output_file_name = version.project.code
+        
+        if version.type.type_for == "Shot":
+            output_file_name += "_" + version.version_of.sequence.code + "_"
+        
+        output_file_name += \
             version.base_name + "_" + \
             version.take_name + "_" + \
-            "OUTPUT_" + \
+            "Output_" + \
             "v%03d" % version.version_number + "_" + \
             version.created_by.initials + ".###.jpg"
         

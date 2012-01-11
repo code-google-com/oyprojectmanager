@@ -2175,13 +2175,26 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # update the version data
         # Types
         # get all the types for this asset
-        types = map(
-            lambda x: x[0],
-            db.query(distinct(VersionType.name)).
-            join(Version).
-            filter(Version.version_of==asset).
-            all()
-        )
+        # available in this environment
+        
+        if self.environment is None:
+            types = map(
+                lambda x: x[0],
+                db.query(distinct(VersionType.name))
+                .join(Version)
+                .filter(Version.version_of==asset)
+                .all()
+            )
+        else:
+            types = map(
+                lambda x: x[0],
+                db.query(distinct(VersionType.name))
+                .join(VersionTypeEnvironments)
+                .join(Version)
+                .filter(VersionTypeEnvironments.environment_name==self.environment.name)
+                .filter(Version.version_of==asset)
+                .all()
+            )
         
         # add the types to the version types list
         self.version_types_comboBox.clear()
@@ -2240,10 +2253,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 asset_name = None
             
             versionable = \
-                db.query(Asset).\
-                filter(Asset.project==proj).\
-                filter_by(name=asset_name).\
-                first()
+                db.query(Asset)\
+                .filter(Asset.project==proj)\
+                .filter_by(name=asset_name)\
+                .first()
             
             if asset_name is not None:
                 logger.debug("updating take list for asset: %s" % versionable.name)
@@ -2264,11 +2277,11 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # get all the takes of the current asset
         takes = map(
             lambda x: x[0],
-            db.query(distinct(Version.take_name)).
-            join(VersionType).
-            filter(VersionType.name==version_type_name).
-            filter(Version.version_of==versionable).
-            all()
+            db.query(distinct(Version.take_name))
+            .join(VersionType)
+            .filter(VersionType.name==version_type_name)
+            .filter(Version.version_of==versionable)
+            .all()
         )
         
         self.takes_comboBox.clear()
@@ -2296,10 +2309,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 # just return
                 asset_name = None
             
-            versionable = db.query(Asset).\
-                filter(Asset.project==proj).\
-                filter(Asset.name==asset_name).\
-                first()
+            versionable = db.query(Asset)\
+                .filter(Asset.project==proj)\
+                .filter(Asset.name==asset_name)\
+                .first()
             
             if versionable is not None:
                 logger.debug("updating take list for asset: %s" % versionable.name)
@@ -2322,11 +2335,12 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         logger.debug("take_name: %s" % take_name)
         
         # query the Versions of this type and take
-        versions = db.query(Version).join(VersionType).\
-            filter(VersionType.name==version_type_name).\
-            filter(Version.version_of==versionable).\
-            filter(Version.take_name==take_name).\
-            order_by(Version.version_number).all()
+        versions = db.query(Version).join(VersionType)\
+            .filter(VersionType.name==version_type_name)\
+            .filter(Version.version_of==versionable)\
+            .filter(Version.take_name==take_name)\
+            .order_by(Version.version_number)\
+            .all()
         
         #        print versions
         self.previous_versions_tableWidget.clear()
@@ -2462,10 +2476,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             proj = self.get_current_project()
             asset = \
-                db.query(Asset).\
-                filter(Asset.project==proj).\
-                filter_by(name=asset_name).\
-                first()
+                db.query(Asset)\
+                .filter(Asset.project==proj)\
+                .filter_by(name=asset_name)\
+                .first()
             
             # update the asset description
             logger.debug("asset description of %s changed to %s" % (
@@ -2606,20 +2620,16 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         try:
             new_asset = Asset(proj, asset_name)
             new_asset.save()
-        except (TypeError, ValueError, IntegrityError) as error:
+        except (TypeError, ValueError, IntegrityError) as e:
             
             
-            if isinstance(error, IntegrityError):
+            if isinstance(e, IntegrityError):
                 # the transaction needs to be rollback
                 db.session.rollback()
-                error.message = "Asset.name or Asset.code is not unique"
+                error_message = "Asset.name or Asset.code is not unique"
             
             # pop up an Message Dialog to give the error message
-            QtGui.QMessageBox.critical(
-                self,
-                "Error",
-                error.message
-            )
+            QtGui.QMessageBox.critical(self, "Error", error_message)
             
             return
         
@@ -2636,10 +2646,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         if self.tabWidget.currentIndex() == 0:
             asset_name = self.assets_listWidget.currentItem().text()
             versionable = \
-                db.query(Asset).\
-                filter(Asset.project==proj).\
-                filter_by(name=asset_name).\
-                first()
+                db.query(Asset)\
+                .filter(Asset.project==proj)\
+                .filter_by(name=asset_name)\
+                .first()
 
             logger.debug("updating take list for asset: %s" % versionable.name)
         
@@ -2672,10 +2682,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         version_type_name = self.version_types_comboBox.currentText()
         
         # get the version type instance
-        return db.query(VersionType).\
-            filter(VersionType.type_for==type_for).\
-            filter(VersionType.name==version_type_name).\
-            first()
+        return db.query(VersionType)\
+            .filter(VersionType.type_for==type_for)\
+            .filter(VersionType.name==version_type_name)\
+            .first()
     
     def get_current_project(self):
         """Returns the currently selected project instance in the
@@ -2732,15 +2742,29 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             current_types.append(self.version_types_comboBox.itemText(index))
         
         # available types for Versionable in this environment
-        available_types = map(
-            lambda x: x[0],
-            db.query(distinct(VersionType.name)).
-            join(VersionTypeEnvironments).
-            filter(VersionType.type_for==versionable.__class__.__name__).
-            filter(VersionTypeEnvironments.environment_name==self.environment.name).
-            filter(~ VersionType.name.in_(current_types)).
-            all()
-        )
+        # if there is an environment given
+        if self.environment:
+            available_types = map(
+                lambda x: x[0],
+                db.query(distinct(VersionType.name))
+                .join(VersionTypeEnvironments)
+                .filter(VersionType.type_for==versionable.__class__.__name__)
+                .filter(VersionTypeEnvironments.environment_name==self.environment.name)
+                .filter(~ VersionType.name.in_(current_types))
+                .all()
+            )
+        else:
+            # there is no environment
+            # just return all VersionType names
+            # TODO: create test for that case
+            available_types = map(
+                lambda x: x[0],
+                db.query(distinct(VersionType.name))
+                .filter(VersionType.type_for==versionable.__class__.__name__)
+                .filter(~ VersionType.name.in_(current_types))
+                .all()
+            )
+
         
         # create a QInputDialog with comboBox
         self.input_dialog = QtGui.QInputDialog(self)
@@ -2858,14 +2882,10 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # get the new version
         try:
             new_version = self.get_new_version()
-        except (TypeError, ValueError) as error:
+        except (TypeError, ValueError) as e:
             
             # pop up an Message Dialog to give the error message
-            QtGui.QMessageBox.critical(
-                self,
-                "Error",
-                error.message
-            )
+            QtGui.QMessageBox.critical(self, "Error", e)
             
             return None
         

@@ -143,7 +143,7 @@ class Config(object):
     
     default_config_values = dict(
         
-        database_url = "sqlite:///$REPO/.metadata.db",
+        database_url = "sqlite:///$REPO/project_manager.db",
         
         shot_number_prefix = "SH",
         shot_number_padding = 3,

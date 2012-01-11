@@ -38,6 +38,8 @@ class TestEnvironment(EnvironmentBase):
     method has been called
     """
     
+    name = "TestEnv"
+    
     test_data = {
         "export_as": {"call count": 0, "data": None},
         "save_as": {"call count": 0, "data": None},
@@ -54,7 +56,7 @@ class TestEnvironment(EnvironmentBase):
         self.test_data["save_as"]["call count"] += 1
         self.test_data["save_as"]["data"] = version
     
-    def open_(self, version):
+    def open_(self, version, force=False):
         self.test_data["open_"]["call count"] += 1
         self.test_data["open_"]["data"] = version
     
@@ -690,13 +692,13 @@ class VersionCreatorTester(unittest.TestCase):
         """testing if the version_types_comboBox lists all the types of
         the current asset
         """
-
+        
         proj1 = Project("TEST_PROJECT1j")
         proj1.create()
 
         asset1 = Asset(proj1, "TEST_ASSET1")
         asset1.save()
-
+        
         asset2 = Asset(proj1, "TEST_ASSET2")
         asset2.save()
 
@@ -754,6 +756,83 @@ class VersionCreatorTester(unittest.TestCase):
         # converting from assertItemsEqual
         self.assertTrue(len(ui_type_names)==3)
         for item in [asset_vtypes[0].name, asset_vtypes[1].name, asset_vtypes[2].name]:
+            self.assertTrue(item in ui_type_names)
+
+    def test_version_types_comboBox_lists_all_the_types_of_the_current_asset_versions_compatible_with_the_environment(self):
+        """testing if the version_types_comboBox lists all the types of
+        the current asset
+        """
+
+        proj1 = Project("TEST_PROJECT1j")
+        proj1.create()
+
+        asset1 = Asset(proj1, "TEST_ASSET1")
+        asset1.save()
+
+        asset2 = Asset(proj1, "TEST_ASSET2")
+        asset2.save()
+
+        # new user
+        user1 = User(name="User1", initials="u1",
+            email="user1@test.com")
+
+        # create a couple of versions
+        asset_vtypes =\
+        db.query(VersionType).filter_by(type_for="Asset").all()
+
+        asset_vtypes[0].environments = ["TestEnv"]
+        asset_vtypes[1].environments = ["TestEnv"]
+        asset_vtypes[4].environments = ["TestEnv"]
+        db.session.commit()
+
+        vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
+            take_name="Main")
+        vers1.save()
+
+        vers2 = Version(asset1, asset1.name, asset_vtypes[0], user1,
+            take_name="Main")
+        vers2.save()
+
+        vers3 = Version(asset1, asset1.name, asset_vtypes[1], user1,
+            take_name="Test")
+        vers3.save()
+
+        vers4 = Version(asset1, asset1.name, asset_vtypes[2], user1,
+            take_name="Test")
+        vers4.save()
+
+        # a couple of versions for asset2 to see if they are going to be mixed
+        vers5 = Version(asset2, asset2.name, asset_vtypes[3], user1,
+            take_name="Test2")
+        vers5.save()
+
+        vers6 = Version(asset2, asset2.name, asset_vtypes[4], user1,
+            take_name="Test3")
+        vers6.save()
+        
+        tEnv = TestEnvironment()
+
+        dialog = version_creator.MainDialog_New(tEnv)
+        #        dialog.show()
+        #        self.app.exec_()
+        #        self.app.connect(
+        #            self.app,
+        #            QtCore.SIGNAL("lastWindowClosed()"),
+        #            self.app,
+        #            QtCore.SLOT("quit()")
+        #        )
+
+        # check if Main and Test are in the takes_comboBox
+        ui_type_names = []
+        for i in range(dialog.version_types_comboBox.count()):
+            dialog.version_types_comboBox.setCurrentIndex(i)
+            ui_type_names.append(
+                dialog.version_types_comboBox.currentText()
+            )
+
+        # converting from assertItemsEqual
+        self.assertTrue(len(ui_type_names)==2)
+        for item in [asset_vtypes[0].name, asset_vtypes[1].name]:
             self.assertTrue(item in ui_type_names)
 
     def test_previous_versions_tableWidget_is_updated_properly(self):
@@ -2057,6 +2136,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
             filter(VersionType.type_for=="Asset").\
             all()
         
+        # add the asset version to TestEnv
+        self.test_asset_versionTypes_for_project1.environments = ["TestEnv"]
+        db.session.commit()
+        
         # version for asset1
         self.test_version1 = Version(
             self.test_asset1,
@@ -2120,11 +2203,6 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
-    
-    def test_setup(self):
-        """testing the test setup
-        """
-        pass
     
     def test_get_version_type_returns_VersionType_instance_from_the_UI(self):
         """testing if the get_version_type method returns the correct
@@ -2507,3 +2585,4 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
                          self.test_dialog.version_types_comboBox.currentText())
         self.assertEqual(version_instance.take_name,
                          self.test_dialog.takes_comboBox.currentText())
+    
