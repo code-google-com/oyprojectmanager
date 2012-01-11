@@ -5,8 +5,10 @@
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
 import os
+import platform
+
 import nuke
-from oyProjectManager.core.models import Asset, Sequence, Repository, EnvironmentBase
+from oyProjectManager.core.models import EnvironmentBase
 from oyProjectManager import utils
 
 
@@ -14,84 +16,70 @@ class Nuke(EnvironmentBase):
     """the nuke environment class
     """
     
-    def __init__(self, asset=None, name='', extensions=None ):
+    name = "Nuke"
+    
+    def __init__(self, version=None, name='', extensions=None):
         """nuke specific init
         """
-        # call the supers __init__
-        super(Nuke, self).__init__(asset, name, extensions)
+#        # call the supers __init__
+#        super(Nuke, self).__init__(asset, name, extensions)
         
         # and add you own modifications to __init__
         # get the root node
-        self._root = self.getRootNode()
+        self._root = self.get_root_node()
         
         self._main_output_node_name = "MAIN_OUTPUT"
     
     
-    def getRootNode(self):
+    def get_root_node(self):
         """returns the root node of the current nuke session
         """
         return nuke.toNode("root")
     
-    def save(self):
+    def save_as(self, version):
         """"the save action for nuke environment
         
         uses Nukes own python binding
         """
         
-        # set the extension to 'nk'
-        self._asset.extension = 'nk'
-        
-        fullPath = self._asset.fullPath
-        fullPath = fullPath.replace('\\','/')
+        # set the extension to '.nk'
+        version.extension = '.nk'
         
         # set project_directory
-        self.project_directory = self._asset.sequenceFullPath
+        self.project_directory = os.path.dirname(version.path)
         
         # create the main write node
-        self.create_main_write_node()
+        self.create_main_write_node(version)
         
         # replace read and write node paths
         self.replace_file_path()
         
         # create the path before saving
         try:
-            os.makedirs(os.path.dirname(fullPath))
+            os.makedirs(version.path)
         except OSError:
             # path already exists OSError
             pass
         
-        nuke.scriptSaveAs(fullPath)
+        nuke.scriptSaveAs(version.full_path)
         
         return True
     
-    def export(self, asset):
+    def export_as(self, version):
         """the export action for nuke environment
         """
-        # set the extension to 'nk'
-        asset.extension = 'nk'
-        
-        fullPath = asset.fullPath
-        
-        # replace \\ with /
-        fullPath = fullPath.replace('\\','/')
-        
-        nuke.nodeCopy(fullPath)
-        
+        # set the extension to '.nk'
+        version.extension = '.nk'
+        nuke.nodeCopy(version.fullPath)
         return True
     
-    def open_(self, force=False):
+    def open_(self, version, force=False):
         """the open action for nuke environment
         """
-        
-        fullPath = self._asset.fullPath
-        
-        # replace \\ with /
-        fullPath = fullPath.replace('\\','/')
-        
-        nuke.scriptOpen(fullPath)
+        nuke.scriptOpen(version.full_path)
         
         # set the project_directory
-        self.project_directory = self._asset.sequenceFullPath
+        self.project_directory = os.path.dirname(version.path)
         
         # TODO: file paths in different OS'es should be replaced with the current one
         # Check if the file paths are starting with a string matching one of the
@@ -103,93 +91,97 @@ class Nuke(EnvironmentBase):
         
         return True
     
-    def import_(self, asset):
+    def import_(self, version):
         """the import action for nuke environment
         """
-        fullPath = asset.fullPath
-        
-        # replace \\ with /
-        fullPath = fullPath.replace('\\','/')
-        
-        nuke.nodePaste( fullPath )
-        
+        nuke.nodePaste(version.full_path)
         return True
+
+    def get_current_version(self):
+        """Finds the Version instance from the current open file.
+        
+        If it can't find any then returns None.
+        
+        :return: :class:`~oyProjectManager.core.models.Version`
+        """
+        full_path = self._root.knob('name').value()
+        return self.get_version_from_full_path(full_path)
+    
+    def get_version_from_recent_files(self):
+        """It will try to create a
+        :class:`~oyProjectManager.core.models.Version` instance by looking at
+        the recent files list.
+        
+        It will return None if it can not find one.
+        
+        :return: :class:`~oyProjectManager.core.models.Version`
+        """
+        # use the last file from the recent file list
+        i = 1
+        while True:
+            try:
+                full_path = nuke.recentFile(i)
+            except RuntimeError:
+                # no recent file anymore just return None
+                return None
+            i += 1
+            
+            version = self.get_version_from_full_path(full_path)
+            if version is not None:
+                return version
+    
+    def get_version_from_project_dir(self):
+        """Tries to find a Version from the current project directory
+        
+        :return: :class:`~oyProjectManager.core.models.Version`
+        """
+        versions = self.get_versions_from_path(self.project_directory)
+        version = None
+        
+        if len(versions):
+            version = versions[0]
+        
+        return version
     
     def get_last_version(self):
         """gets the file name from nuke
         """
+        version = self.get_current_version()
         
-        fullPath = path = fileName = None
-        fullPath = self._root.knob('name').value()
-        
-        
-        if fullPath is not None and fullPath != '':
-            # for windows replace the path separator
-            if os.name == 'nt':
-                fullPath = fullPath.replace('/','\\')
-            
-            fileName = os.path.basename( fullPath )
-            path = os.path.dirname( fullPath )
-        else:
-            
-            # use the last file from the recent file list
-            fullPath = nuke.recentFile(1)
-            
-            # for windows replace the path separator
-            if os.name == 'nt':
-                fullPath = fullPath.replace('/','\\')
-            
-            fileName = os.path.basename( fullPath )
-            path = os.path.dirname( fullPath )
-        
-        return fileName, path
+        # read the recent file list
+        if version is None:
+            version = self.get_version_from_recent_files()
+
+        # get the latest possible Version instance by using the workspace path
+        if version is None:
+            version = self.get_version_from_project_dir()
+
+        return version
     
-    def getFrameRange(self):
+    def get_frame_range(self):
         """returns the current frame range
         """
-        #self._root = self.getRootNode()
+        #self._root = self.get_root_node()
         startFrame = int(self._root.knob('first_frame').value())
         endFrame = int(self._root.knob('last_frame').value())
         return startFrame, endFrame
     
-    def setFrameRange(self, startFrame=1, endFrame=100):
+    def set_frame_range(self, start_frame=1, end_frame=100,
+                        adjust_frame_range=False):
         """sets the start and end frame range
         """
-        #self._root = self.getRootNode()
-        self._root.knob('first_frame').setValue(startFrame)
-        self._root.knob('last_frame').setValue(endFrame)
+        self._root.knob('first_frame').setValue(start_frame)
+        self._root.knob('last_frame').setValue(end_frame)
     
-    def setTimeUnit(self, timeUnit='pal'):
-        """sets the current time unit
+    def set_fps(self, fps=25):
+        """sets the current fps
         """
-        # get the fps value of the given time unit
-        repo = Repository()
-        
-        try:
-            fps = repo.time_units[timeUnit]
-        except KeyError:
-            # set it to pal by default
-            fps = repo.time_units['pal']
-        
         self._root.knob('fps').setValue(fps)
     
-    def getTimeUnit(self):
-        """returns the current time unit
+    def get_fps(self):
+        """returns the current fps
         """
-        currentFps = int(self._root.knob('fps').getValue())
-        
-        repo = Repository()
-        time_units = repo.time_units
-        
-        # by default set it to pal
-        timeUnit = 'pal'
-        
-        for timeUnitName, timeUnitFps in time_units.iteritems():
-            if currentFps == timeUnitFps:
-                timeUnit = timeUnitName
-                break
-        
-        return timeUnit
+        return int(self._root.knob('fps').getValue())
     
     def get_main_write_node(self):
         """Returns the main write node in the scene or None.
@@ -204,7 +196,7 @@ class Nuke(EnvironmentBase):
         
         return None
     
-    def create_main_write_node(self):
+    def create_main_write_node(self, version):
         """creates the default write node if there is no one created before.
         """
         
@@ -217,31 +209,25 @@ class Nuke(EnvironmentBase):
             main_write_node.setName(self._main_output_node_name)
         
         # set the output path
+        output_file_name = version.project.code
         
-        assert(isinstance(self._asset, Asset))
+        if version.type.type_for == "Shot":
+            output_file_name += "_" + version.version_of.sequence.code + "_"
         
-        seq = self._asset.sequence
-        assert(isinstance(seq, Sequence))
-        
-        output_file_name = self._asset.baseName + "_" + \
-                           self._asset.subName + "_" + \
-                           "OUTPUT_" + \
-                           self._asset.revisionString + "_" + \
-                           self._asset.versionString + "_" + \
-                           self._asset.userInitials + ".###.jpg"
+        output_file_name += \
+            version.base_name + "_" + \
+            version.take_name + "_" + \
+            "Output_" + \
+            "v%03d" % version.version_number + "_" + \
+            version.created_by.initials + ".###.jpg"
         
         # check if it is a stereo comp
-        # if it is enable seperate view rendering
-        
+        # if it is enable separate view rendering
         
         output_file_full_path = os.path.join(
-            seq.fullPath,
-            self._asset.output_path,
+            version.output_path,
             output_file_name
-        )
-        
-        output_file_full_path = \
-            output_file_full_path.replace("\\", "/")
+        ).replace("\\", "/")
         
         main_write_node["file"].setValue(output_file_full_path)
         
@@ -316,19 +302,19 @@ class Nuke(EnvironmentBase):
         directory.
         """
         
-        root = self.getRootNode()
+        root = self.get_root_node()
         
         # TODO: root node gets lost, fix it
         # there is a bug in Nuke, the root node get lost time to time find 
         # the source and fix it.
-        if root is None:
-            # there is a bug about Nuke,
-            # sometimes it losses the root node, while it shouldn't
-            # I can't find the source
-            # so instead of using the root node,
-            # just return the sequence.fullpath
-            
-            return self.asset.sequence.fullPath
+#        if root is None:
+#            # there is a bug about Nuke,
+#            # sometimes it losses the root node, while it shouldn't
+#            # I can't find the source
+#            # so instead of using the root node,
+#            # just return the os.path.dirname(version.path)
+#            
+#            return os.path.dirname(self.version.path)
         
         return root["project_directory"].getValue()
     
@@ -337,5 +323,5 @@ class Nuke(EnvironmentBase):
         
         project_directory_in = project_directory_in.replace("\\", "/")
         
-        root = self.getRootNode()
+        root = self.get_root_node()
         root["project_directory"].setValue(project_directory_in)

@@ -572,13 +572,19 @@ class Project(Base):
         
         # check if the folder already exists
         utils.mkdir(self.full_path)
-        
+
         # create the structure if it is not present
         rendered_structure = jinja2.Template(self.structure).\
                              render(project=self)
         
-        for folder in rendered_structure.split("\n"):
-            utils.createFolder(os.path.join(self.full_path, folder.strip()))
+        folders = rendered_structure.split("\n")
+        
+        if len(folders):
+            for folder in rendered_structure.split("\n"):
+                try:
+                    utils.createFolder(folder.strip())
+                except OSError:
+                    pass
         
         self._exists = True
         
@@ -2621,7 +2627,7 @@ class EnvironmentBase(object):
     .. note::
       For now the :class:`~oyProjectManager.core.models.EnvironmentBase`
       inherits from the Python object class. There were no benefit to inherit
-      it from the ``DeclerativeBase``.
+      it from the ``DeclarativeBase``.
     
     To create a new environment for you own program, just instantiate this
     class and override the methods as necessary. And call the UI with by
@@ -2673,14 +2679,10 @@ class EnvironmentBase(object):
     
     name = "EnvironmentBase"
     
-    def __init__(self, name=""):
-        
-        self._name = name
-        self._extensions = []
-        
-        self._version = None
-        self._project = None
-        self._sequence = None
+#    def __init__(self, name=""):
+#        self._name = name
+#        self._extensions = []
+#        self._version = None
 
     def __str__(self):
         """the string representation of the environment
@@ -2748,11 +2750,11 @@ class EnvironmentBase(object):
         :return: str
         """
         repo = Repository()
-
+        
         server_path = repo.server_path
         if path_in.startswith(server_path):
             path_in = path_in[len(os.path.normpath(server_path))+1:]
-
+        
         return path_in
     
     def get_versions_from_path(self, path):
@@ -2817,6 +2819,7 @@ class EnvironmentBase(object):
         :returns: :class:`~oyProjectManager.core.models.Version` instance or
             None
         """
+        raise NotImplemented
 
     def get_last_version(self):
         """Returns the last opened Version instance from the environment.

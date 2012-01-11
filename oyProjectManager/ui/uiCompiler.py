@@ -9,7 +9,7 @@ import os
 # fix running other python versions than the system python
 os.environ["PATH"] = "/usr/bin:" + os.environ["PATH"] 
 
-#from PyQt4 import uic
+from PyQt4 import uic
 import subprocess
 import oyProjectManager
 
@@ -35,8 +35,8 @@ uicFilePaths.append(os.path.join(ui_path, "project_properties.ui"))
 pyFilePaths.append(os.path.join(ui_path, "project_properties_UI.py"))
 
 # assetUpdater
-#uicFilePaths.append(os.path.join(ui_path, "version_updater.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "version_updater_UI.py"))
+uicFilePaths.append(os.path.join(ui_path, "version_updater.ui"))
+pyFilePaths.append(os.path.join(ui_path, "version_updater_UI.py"))
 #
 ## shotEditor
 #uicFilePaths.append(os.path.join(ui_path, "shotEditor.ui"))
@@ -55,17 +55,22 @@ pyFilePaths.append(os.path.join(ui_path, "project_properties_UI.py"))
 #pyFilePaths.append(os.path.join(ui_path, "saveFields_UI.py"))
 
 for i,uicFilePath in enumerate(uicFilePaths):
+    
     pyFilePath = pyFilePaths[i]
-#    uicFile = file(uicFilePath)
-#    pyFile  = file(pyFilePath,'w')
     
-    # call the external pyside-uic tool
+#    # with PySide
+#    # call the external pyside-uic tool
+#    print "compiling %s to %s" % (uicFilePath, pyFilePath)
+#    subprocess.call(["pyside-uic", "-o", pyFilePath, uicFilePath])
     
-    print "compiling %s to %s" % (uicFilePath, pyFilePath)
-#    uic.compileUi( uicFile, pyFile )
-#    uicFile.close()
-#    pyFile.close()
+    # with PyQt4
+    uicFile = file(uicFilePath)
+    pyFile  = file(pyFilePath,'w')
     
-    subprocess.call(["pyside-uic", "-o", pyFilePath, uicFilePath])
+    print "compiling %s to %s" % (uicFilePath, pyFilePaths[i])
+    
+    uic.compileUi( uicFile, pyFile )
+    uicFile.close()
+    pyFile.close()    
 
 print "finished compiling"

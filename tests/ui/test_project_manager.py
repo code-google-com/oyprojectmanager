@@ -10,9 +10,15 @@ import shutil
 import tempfile
 import unittest
 
-from PySide import QtCore, QtGui
-from PySide.QtCore import Qt
-from PySide.QtTest import QTest
+#from PySide import QtCore, QtGui
+#from PySide.QtCore import Qt
+#from PySide.QtTest import QTest
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import Qt
+from PyQt4.QtTest import QTest
 
 from oyProjectManager import config, db
 from oyProjectManager.core.models import (Project, Sequence, Shot)
@@ -36,20 +42,27 @@ class ProjectManager_Tester(unittest.TestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         #        os.environ["OYPROJECTMANAGER_PATH"] = ""
         os.environ[conf.repository_env_key] = self.temp_projects_folder
-
+        
         # re-parse the settings
         #        conf._parse_settings()
-
-        if QtGui.qApp is None:
-            self.app = QtGui.QApplication(sys.argv)
-        else:
-            self.app = QtGui.qApp
-
+        
+        # for PySide
+#        if QtGui.qApp is None:
+#            print "qApp is None"
+#            self.app = QtGui.QApplication(sys.argv)
+#        else:
+#            print "qApp is OK"
+#            self.app = QtGui.qApp
+        
+        # for PyQt4
+        self.app = QtGui.QApplication(sys.argv)
+    
     def tearDown(self):
         """clean up the test
         """
-        self.app.quit()
-        del self.app
+        # for PySide
+#        self.app.quit()
+#        del self.app
         
         # set the db.session to None
         db.session = None

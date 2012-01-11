@@ -1,6 +1,37 @@
 Version History
 ===============
 
+0.2.1
+-----
+
+* Fixed a bug when a :class:`~oyProjectManager.core.models.Project` doesn't
+  have any Sequence, :meth:`~oyProjectManager.core.models.create` will raise
+  ``OSErrors`` about not being able to create the resultant directory which is
+  an empty string.
+
+* Because at time of this release it was hard to reach PySide on every
+  platform, the system has been moved back to PyQt4 for now. PySide will
+  definitely be used in the future, when all the main programs (Maya, Houdini
+  and Nuke) are supporting it (for now it is just Nuke which is delivered with
+  PySide).
+
+* Fixed :class:`~oyProjectManager.config.Conf` it now saves the last_user_id
+  properly
+
+* Fixed ``version_creator`` UI, it now saves and retrieves the last user choice
+  properly.
+
+* Fixed ``version_creator`` UI, it now only displays Versions with type
+  available to the current environment if there is any environment passed to
+  it.
+
+* Now in MayaEnv and NukeEnv the output file also includes the
+  :class:`~oyProjectManager.core.models.Project` ``code`` and if it is a
+  :class:`~oyProjectManager.core.models.Shot`
+  :class:`~oyProjectManager.core.models.Version` then it also includes the
+  :class:`~oyProjectManager.core.models.Sequence` ``code`` in the output file
+  names (ex. rendered images).
+
 0.2.0
 -----
 * Updated the license to BSD 2.

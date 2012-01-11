@@ -15,7 +15,7 @@ import logging
 from pymel import core as pm
 from oyProjectManager import conf, db, utils
 from oyProjectManager.core.models import (Project, Asset, Version, VersionType,
-                                          User)
+                                          User, Shot, Sequence)
 from oyProjectManager.environments import mayaEnv
 
 # set level to debug
@@ -145,17 +145,60 @@ class MayaTester(unittest.TestCase):
         self.assertEqual(dRG.getAttr("imfkey"), "exr")
         self.assertEqual(mrG.getAttr("imageCompression"), 4)
     
-    def test_save_as_sets_the_render_file_name(self):
+    def test_save_as_sets_the_render_file_name_for_Assets(self):
         """testing if the save_as sets the render file name correctly
         """
         
         self.mEnv.save_as(self.version1)
         
         # check if the path equals to
-        expected_path = self.version1.output_path + \
-                        "/<Layer>/"+ self.version1.base_name +"_" + \
-                        self.version1.take_name + \
+        expected_path = self.version1.output_path +\
+                        "/<Layer>/"+ self.version1.project.code + "_" +\
+                        self.version1.base_name +"_" +\
+                        self.version1.take_name +\
                         "_<Layer>_<RenderPass>_<Version>"
+
+        image_path = os.path.join(
+            pm.workspace.path,
+            pm.workspace.fileRules['image']
+        ).replace("\\", "/")
+
+        expected_path = utils.relpath(
+            image_path,
+            expected_path,
+        )
+
+        dRG = pm.PyNode("defaultRenderGlobals")
+
+        self.assertEqual(
+            expected_path,
+            dRG.getAttr("imageFilePrefix")
+        )
+    
+    def test_save_as_sets_the_render_file_name_for_Shots(self):
+        """testing if the save_as sets the render file name correctly
+        """
+        
+        test_seq = Sequence(self.project, "Test Sequence 1")
+        test_seq.save()
+        
+        test_shot = Shot(test_seq, 1)
+        test_shot.save()
+        
+        self.kwargs["type"] = self.shot_vtypes[0]
+        self.kwargs["version_of"] = test_shot
+        
+        self.version1 = Version(**self.kwargs)
+        
+        self.mEnv.save_as(self.version1)
+        
+        # check if the path equals to
+        expected_path = self.version1.output_path + \
+                        "/<Layer>/"+ self.version1.project.code + "_" + \
+                        self.version1.version_of.sequence.code + "_" + \
+                        self.version1.base_name +"_" + \
+                        self.version1.take_name + \
+                            "_<Layer>_<RenderPass>_<Version>"
         
         image_path = os.path.join(
             pm.workspace.path,
@@ -387,6 +430,61 @@ class MayaTester(unittest.TestCase):
         # and check the references is updated
         self.assertEqual(len(versionBase.references), 0)
         self.assertEqual(versionBase.references, [])
+
+    def test_open_loads_the_references(self):
+        """testing if the open method loads the references
+        """
+
+        # create a couple of versions and reference them to each other
+        # and reference them to the the scene and check if maya updates the
+        # Version.references list
+
+        versionBase = Version(**self.kwargs)
+        versionBase.save()
+
+        # change the take naem
+        self.kwargs["take_name"] = "Take1"
+        version1 = Version(**self.kwargs)
+        version1.save()
+
+        self.kwargs["take_name"] = "Take2"
+        version2 = Version(**self.kwargs)
+        version2.save()
+
+        self.kwargs["take_name"] = "Take3"
+        version3 = Version(**self.kwargs)
+        version3.save()
+
+        # now create scenes with these files
+        self.mEnv.save_as(version1)
+        self.mEnv.save_as(version2)
+        self.mEnv.save_as(version3) # this is the dummy version
+
+        # create a new scene
+        pm.newFile(force=True)
+
+        # check if the versionBase.references is an empty list
+        self.assertTrue(versionBase.references==[])
+
+        # reference the given versions
+        self.mEnv.reference(version1)
+        self.mEnv.reference(version2)
+        
+        # save it as versionBase
+        self.mEnv.save_as(versionBase)
+
+        # clean scene
+        pm.newFile(force=True)
+        
+        # re-open the file
+        self.mEnv.open_(versionBase, force=True)
+        self.mEnv.post_open(versionBase)
+        
+        # check if the references are loaded
+        ref_data = self.mEnv.get_referenced_versions()
+        for data in ref_data:
+            ref_node = data[1]
+            self.assertTrue(ref_node.isLoaded())
     
     def test_save_as_in_another_project_updates_paths_correctly(self):
         """testing if the external paths are updated correctly if the document

@@ -5,13 +5,16 @@
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
 import os, sys
-from PySide import QtGui, QtCore
+
+#from PySide import QtGui, QtCore
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+from PyQt4 import QtGui, QtCore
+
 import version_updater_UI
 
 from oyProjectManager.environments import environmentFactory
-from oyProjectManager.ui import singletonQApplication
-
-
 
 
 def UI(environment):
@@ -24,7 +27,7 @@ def UI(environment):
 
     self_quit = False
     if QtGui.QApplication.instance() is None:
-        app = QtGui.QApplication(*sys.argv)
+        app = QtGui.QApplication(sys.argv)
         self_quit = True
     else:
         app = QtGui.QApplication.instance()
