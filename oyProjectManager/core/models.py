@@ -950,8 +950,15 @@ class VersionableBase(Base):
     id = Column(Integer, primary_key=True)
     
     _versions = relationship("Version")
-    project_id = Column(Integer, ForeignKey("Projects.id"), nullable=False)
-    _project = relationship("Project")
+    
+    project_id = Column(
+        Integer, ForeignKey("Projects.id"),
+        nullable=False
+    )
+    _project = relationship(
+        "Project",
+        cascade="all"
+    )
     
     _code = Column(
         String(128),
@@ -1600,6 +1607,8 @@ class Version(Base):
         backref="referenced_by"
     )
     
+    is_published = Column(Boolean, default=False)
+    
     def __init__(self,
                  version_of,
                  base_name,
@@ -1608,7 +1617,10 @@ class Version(Base):
                  take_name="MAIN",
                  version_number=1,
                  note="",
-                 extension=""):
+                 extension="",
+                 is_published=False):
+        self.is_published = is_published
+        
         self._version_of = version_of
         self._type = type
         self.base_name = base_name
@@ -2613,6 +2625,16 @@ class User(Base):
         """the equality operator
         """
         return isinstance(other, User) and self.name == other.name
+    
+    def save(self):
+        """saves this User instance to the database
+        """
+        
+        if db.session is not None:
+            if self not in db.session:
+                db.session.add(self)
+            
+            db.session.commit()
 
 class EnvironmentBase(object):
     """Connects the environment (the host program) to the oyProjectManager.

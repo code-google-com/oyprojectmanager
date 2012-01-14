@@ -765,7 +765,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         proj1 = Project("TEST_PROJECT1j")
         proj1.create()
-
+        
         asset1 = Asset(proj1, "TEST_ASSET1")
         asset1.save()
 
@@ -2044,6 +2044,109 @@ class VersionCreatorTester(unittest.TestCase):
             dialog.users_comboBox.currentText(),
             user2.name
         )
+    
+    def test_get_new_version_with_publish_checkBox_is_checked_creates_published_Version(self):
+        """testing if checking the publish_checkbox will create a published
+        Version instance
+        """
+
+        proj1 = Project("Test Project")
+        proj1.save()
+
+        asset1 = Asset(proj1, "Test Asset")
+        asset1.save()
+
+        asset_vtypes = db.query(VersionType).filter_by(type_for="Asset").all()
+
+        user = User("Test User")
+        db.session.add(user)
+        db.session.commit()
+
+        # create a new version
+        vers1 = Version(asset1, asset1.code, asset_vtypes[0], user)
+        vers1.save()
+        
+        dialog = version_creator.MainDialog_New()
+        
+        # set the tab to assets
+        dialog.tabWidget.setCurrentIndex(0)
+
+        # check the publish checkbox
+        dialog.publish_checkBox.setChecked(True)
+        
+        vers_new = dialog.get_new_version()
+        
+        # is_published should be True
+        self.assertTrue(vers_new.is_published==True)
+    
+    def test_previous_version_tableWidget_shows_published_Versions_in_bold(self):
+        """testing if the previous_version_tableWidget is showing published
+        Versions in bold
+        """
+        
+        proj1 = Project("Test Project")
+        proj1.save()
+        
+        asset = Asset(proj1, "Test Asset 1")
+        asset.save()
+        
+        asset_types = db.query(VersionType).filter_by(type_for="Asset").all()
+        
+        user = User("Test User")
+        user.save()
+
+        vers1 = Version(asset, asset.code, asset_types[0], user)
+        vers1.save()
+        
+        vers2 = Version(asset, asset.code, asset_types[0], user)
+        vers2.save()
+        
+        vers3 = Version(asset, asset.code, asset_types[0], user, is_published=True)
+        vers3.save()
+        
+        vers4 = Version(asset, asset.code, asset_types[0], user)
+        vers4.save()
+        
+        vers5 = Version(asset, asset.code, asset_types[0], user, is_published=True)
+        vers5.save()
+        
+        dialog = version_creator.MainDialog_New()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+        
+        # check if ver3 and vers5 is written with bold font
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.item(0, 0).font().bold(),
+            False
+        )
+
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.item(1, 0).font().bold(),
+            False
+        )
+        
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.item(2, 0).font().bold(),
+            True
+        )
+
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.item(3, 0).font().bold(),
+            False
+        )
+        
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.item(4, 0).font().bold(),
+            True
+        )
+        
+        
 
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     """tests the interaction of the UI with the given environment
@@ -2585,4 +2688,5 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
                          self.test_dialog.version_types_comboBox.currentText())
         self.assertEqual(version_instance.take_name,
                          self.test_dialog.takes_comboBox.currentText())
-    
+
+        

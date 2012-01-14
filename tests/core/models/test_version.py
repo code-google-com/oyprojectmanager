@@ -67,7 +67,8 @@ class VersionTester(unittest.TestCase):
             "version_number": 1,
             "note": "this is the note for this version",
             "created_by": self.test_user,
-            "extension": ".ma"
+            "extension": ".ma",
+            "is_published": False
         }
         
         self.test_version = Version(**self.kwargs)
@@ -1306,4 +1307,26 @@ class VersionTester(unittest.TestCase):
         self.assertTrue(versionRef_A1 in versionMain.dependency_update_list)
         self.assertTrue(versionRef_B1 in versionMain.dependency_update_list)
         self.assertTrue(versionRef_C1 in versionMain.dependency_update_list)
-
+    
+    def test_is_published_argument_is_skipped(self):
+        """testing if the ipublished attribute will be false when the
+        is_published argument is skipped
+        """
+        
+        self.kwargs.pop("is_published")
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.is_published, False)
+    
+    def test_is_published_argument_is_working_properly(self):
+        """testing if the is_published argument is properly set the
+        is_published attribute
+        """
+        self.kwargs["is_published"] = True
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.is_published, True)
+    
+    def test_is_published_attribute_is_working_properly(self):
+        """testing if the is_published attribute is working properly
+        """
+        self.test_version.is_published = True
+        self.assertEqual(self.test_version.is_published, True)

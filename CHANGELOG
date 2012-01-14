@@ -1,6 +1,19 @@
 Version History
 ===============
 
+0.2.2
+-----
+
+* Added :attr:`~oyProjectManager.core.models.Version.is_published` to
+  :class:`~oyProjectManager.core.models.Version` class to track if a particular
+  Version is published.
+
+* ``version_creator`` UI now shows the published
+  :class:`~oyProjectManager.core.models.Version`\ s in bold.
+
+* :class:`~oyProjectManager.core.models.User` instances now have a
+  :meth:`~oyProjectManager.core.models.User.save` method.
+
 0.2.1
 -----
 

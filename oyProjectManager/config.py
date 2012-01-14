@@ -8,8 +8,7 @@ logger = logging.getLogger(__name__)
 class Config(object):
     """config abstraction
     
-    Idea comes from Sphinx config
-    
+    Idea is coming from Sphinx config
     
     **config.py File**
     
@@ -19,8 +18,8 @@ class Config(object):
     The ``config.py`` file is searched in a couple of places through the
     system:
         
-        * under "~/.oypmrc/" directory
-        * under "$OYPROJECTMANAGER_PATH"
+      * under "~/.oypmrc/" directory (not yet)
+      * under "$OYPROJECTMANAGER_PATH"
     
     The first path is a folder in the users home dir. The second one is a path
     defined by the ``OYPROJECTMANAGER_PATH`` environment variable.
@@ -53,16 +52,17 @@ class Config(object):
     
     Sample usage is::
     
-        from oyProjectManager import config
-        conf = config.Config()
-        
-        print conf.database_file_name # will return .metadata.db
-        
-        # print all the user names defined in the config.py
-        for user in conf.users:
-            print user.name
+      from oyProjectManager import config
+      conf = config.Config()
+      
+      print conf.database_url # will return sqlite:///$REPO/project_manager.db
+      
+      # print all the user names defined in the config.py
+      for user in conf.users:
+          print user.name
     
     **About the Users**
+    
     The users in the oyProjectManager is held in the config file as a python
     dictionary. You can add or remove users::
       
@@ -71,74 +71,104 @@ class Config(object):
                      "email": "eoyilmaz@company.com"}]
     
     As seen in the above example the ``users_data`` variable is a python list
-    holding python dictionary, and the dictionary has keys like name, initials
-    and email.
+    holding python dictionary, and the dictionary has keys like ``name``,
+    ``initials`` and ``email``.
     
-    The users are created from the ``config.py`` file for UI, but the user data
-    will be hold in the project based database (.metadata.db) if the user
-    created a data for that project. So one project can have more users then
-    others. ``config.users`` will return a list of
-    :class:`~oyProjectManager.core.models.User` instances.
+    The users are created from the ``config.py`` file to be able to add them
+    easly (the UI will be written in next versions).
     
     **Config Variables**
     
     TODO: Add explanation of each variable
     
-    database_url = "sqlite:///$REPO/.metadata.db"
-    shot_number_prefix = "SH"
-    shot_number_padding = 3
+    Variables which can be set in ``config.py`` as follows::
     
-    rev_number_prefix = "r"
-    rev_number_padding = 2
+      database_url = "sqlite:///$REPO/project_manager.db"
     
-    ver_number_prefix = "v"
-    ver_number_padding = 3
+      shot_number_prefix = "SH"
+      shot_number_padding = 3
+      
+      rev_number_prefix = "r"
+      rev_number_padding = 2
+      
+      ver_number_prefix = "v"
+      ver_number_padding = 3
+      
+      default_fps = 25
+      
+      default_take_name = "MAIN"
+      
+      users_data = [{"name": "Administrator", "initials": "adm"}]
+      
+      repository_env_key = "REPO"
+      
+      repository = [
+          {
+              "name": "Default",
+              "windows_path": "~/Projects",
+              "linux_path": "~/Projects",
+              "osx_path": "~/Projects"
+          }
+      ]
+      
+      environments = [
+          {
+              "name":"Maya",
+              "extensions":["ma", "mb"]
+          },
+          {
+              "name":"Houdini",
+              "extensions":["hip"]
+          },
+          {
+              "name":"Nuke",
+              "extensions": ["nk"]
+          },
+          {
+              "name":"Photoshop",
+              "extensions": ["psd", "pdd"],
+              "export_extensions": ["tif", "tga", "bmp", "jpg", "iff"]
+          },
+          {
+              "name":"3DEqualizer",
+              "extensions": ["3te"]
+          }
+      ]
+      
+      resolution_presets = {
+          "PC Video": [640, 480, 1.0],
+          "NTSC": [720, 486, 0.91],
+          "NTSC 16:9": [720, 486, 1.21],
+          "PAL": [720, 576, 1.067],
+          "PAL 16:9": [720, 576, 1.46],
+          "HD 720": [1280, 720, 1.0],
+          "HD 1080": [1920, 1080, 1.0],
+          "1K Super 35": [1024, 778, 1.0],
+          "2K Super 35": [2048, 1556, 1.0],
+          "4K Super 35": [4096, 3112, 1.0],
+          "A4 Portrait": [2480, 3508, 1.0],
+          "A4 Landscape": [3508, 2480, 1.0],
+          "A3 Portrait": [3508, 4960, 1.0],
+          "A3 Landscape": [4960, 3508, 1.0],
+          "A2 Portrait": [4960, 7016, 1.0],
+          "A2 Landscape": [7016, 4960, 1.0],
+          "50x70cm Poster Portrait": [5905, 8268, 1.0],
+          "50x70cm Poster Landscape": [8268, 5905, 1.0],
+          "70x100cm Poster Portrait": [8268, 11810, 1.0],
+          "70x100cm Poster Landscape": [11810, 8268, 1.0],
+          "1k Square": [1024, 1024, 1.0],
+          "2k Square": [2048, 2048, 1.0],
+          "3k Square": [3072, 3072, 1.0],
+          "4k Square": [4096, 4096, 1.0],
+      }
+      
+      default_resolution_preset = "HD 1080"
+      
+      project_structure = "" # TODO: fix this
+      
+      version_types = ""  # TODO: fix this
     
-    fps = 25
-    resolution_width = 1920
-    resolution_height = 1080
-    resolution_pixel_aspect = 1.0
     
-    take_name = "MAIN"
-    
-    users_data = [{"name": "Administrator", "initials": "adm"}]
-    
-    repository = [
-            {
-                "name": "Default Projects Repository"
-                "windows_path": "~/Projects",
-                "linux_path": "~/Projects",
-                "osx_path": "~/Projects"
-            }
-    ]
-    
-    environments = [
-            {
-                "name":"Maya",
-                "extensions":["ma", "mb"]
-            },
-            {
-                "name":"Houdini",
-                "extensions":["hip"]
-            },
-            {
-                "name":"Nuke",
-                "extensions": ["nk"],
-            },
-            {
-                "name":"Photoshop",
-                "extensions": ["psd", "pdd"],
-                "export_extensions": ["tif", "tga", "bmp", "jpg", "iff"],
-            },
-            {
-                "name":"3DEqualizer",
-                "extensions": ["3te"]
-            }
-        ]
-        
-    project_structure = 
-    
-    version_types =  
     """
     
     default_config_values = dict(
@@ -155,9 +185,6 @@ class Config(object):
         ver_number_padding = 3,
         
         default_fps = 25,
-#        resolution_width = 1920,
-#        resolution_height = 1080,
-#        resolution_pixel_aspect = 1.0,
         
         default_take_name = "MAIN",
         

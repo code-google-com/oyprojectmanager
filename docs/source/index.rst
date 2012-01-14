@@ -24,6 +24,7 @@ Summary
    
    oyProjectManager
    oyProjectManager.config
+   oyProjectManager.config.Config
    oyProjectManager.core.abstractClasses
    oyProjectManager.core.abstractClasses.Singleton
    oyProjectManager.core.errors.CircularDependencyError

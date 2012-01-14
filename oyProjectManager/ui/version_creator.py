@@ -1692,7 +1692,7 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.input_dialog = None
         self.previous_versions_tableWidget.versions = []
         
-        # set previous_version_tableWidget.labels
+        # set previous_versions_tableWidget.labels
         self.previous_versions_tableWidget.labels = [
 #            "Name",
 #            "Type",
@@ -2378,12 +2378,21 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         #            item.setTextAlignment(0x0001 | 0x0080)
         #            self.previous_versions_tableWidget.setItem(i, 2, item)            
         #            # ------------------------------------
-        
+            
+            is_published = vers.is_published
+            
             # ------------------------------------
             # version_number
             item = QtGui.QTableWidgetItem(str(vers.version_number))
             # align to center and vertical center
             item.setTextAlignment(0x0004 | 0x0080)
+            
+            if is_published:
+                my_font = item.font()
+                my_font.setBold(True)
+                item.setFont(my_font)
+            
+#            item.setFont(font_weight)
             self.previous_versions_tableWidget.setItem(i, 0, item)
             # ------------------------------------
         
@@ -2392,15 +2401,13 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             item = QtGui.QTableWidgetItem(vers.created_by.name)
             # align to left and vertical center
             item.setTextAlignment(0x0001 | 0x0080)
+
+            if is_published:
+                my_font = item.font()
+                my_font.setBold(True)
+                item.setFont(my_font)
+            
             self.previous_versions_tableWidget.setItem(i, 1, item)
-            # ------------------------------------
-        
-            # ------------------------------------
-            # note
-            item = QtGui.QTableWidgetItem(vers.note)
-            # align to left and vertical center
-            item.setTextAlignment(0x0001 | 0x0080)
-            self.previous_versions_tableWidget.setItem(i, 2, item)
             # ------------------------------------
         
             # ------------------------------------
@@ -2408,14 +2415,40 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             item = QtGui.QTableWidgetItem("")
             # align to left and vertical center
             item.setTextAlignment(0x0001 | 0x0080)
+
+            if is_published:
+                my_font = item.font()
+                my_font.setBold(True)
+                item.setFont(my_font)
+            
+            self.previous_versions_tableWidget.setItem(i, 2, item)
+            # ------------------------------------
+
+            # ------------------------------------
+            # note
+            item = QtGui.QTableWidgetItem(vers.note)
+            # align to left and vertical center
+            item.setTextAlignment(0x0001 | 0x0080)
+
+            if is_published:
+                my_font = item.font()
+                my_font.setBold(True)
+                item.setFont(my_font)
+
             self.previous_versions_tableWidget.setItem(i, 3, item)
             # ------------------------------------
-        
+
             # ------------------------------------
             # full_path
             item = QtGui.QTableWidgetItem(vers.full_path)
             # align to center and vertical center
             item.setTextAlignment(0x0001 | 0x0080)
+
+            if is_published:
+                my_font = item.font()
+                my_font.setBold(True)
+                item.setFont(my_font)
+            
             self.previous_versions_tableWidget.setItem(i, 4, item)
             # ------------------------------------
         
@@ -2833,9 +2866,11 @@ class MainDialog_New(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         note = self.note_textEdit.toPlainText()
         
+        published = self.publish_checkBox.isChecked()
+        
         version = Version(
             versionable, versionable.code, version_type, user,
-            take_name=take_name, note=note
+            take_name=take_name, note=note, is_published=published
         )
         
         return version
