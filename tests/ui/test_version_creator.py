@@ -917,7 +917,7 @@ class VersionCreatorTester(unittest.TestCase):
         )
 
         self.assertEqual(
-            dialog.previous_versions_tableWidget.item(0, 2).text(),
+            dialog.previous_versions_tableWidget.item(0, 3).text(),
             vers1.note
         )
 
@@ -1053,24 +1053,24 @@ class VersionCreatorTester(unittest.TestCase):
         for i in range(2):
 
             self.assertEqual(
-                int(dialog.previous_versions_tableWidget.item(i,0).text()),
+                int(dialog.previous_versions_tableWidget.item(i, 0).text()),
                 versions[i].version_number
             )
 
             self.assertEqual(
-                dialog.previous_versions_tableWidget.item(i,1).text(),
+                dialog.previous_versions_tableWidget.item(i, 1).text(),
                 versions[i].created_by.name
-            )
-
-            self.assertEqual(
-                dialog.previous_versions_tableWidget.item(i,2).text(),
-                versions[i].note
             )
 
             # TODO: add test for file size column
 
             self.assertEqual(
-                dialog.previous_versions_tableWidget.item(i,4).text(),
+                dialog.previous_versions_tableWidget.item(i, 3).text(),
+                versions[i].note
+            )
+
+            self.assertEqual(
+                dialog.previous_versions_tableWidget.item(i, 4).text(),
                 versions[i].full_path
             )
 
@@ -2240,7 +2240,9 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
             all()
         
         # add the asset version to TestEnv
-        self.test_asset_versionTypes_for_project1.environments = ["TestEnv"]
+        for vtype in self.test_asset_versionTypes_for_project1:
+            vtype.environments = ["TestEnv"]
+        
         db.session.commit()
         
         # version for asset1
@@ -2282,7 +2284,6 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         db.session.commit()
         
         self.test_environment = TestEnvironment()
-        self.test_environment.name = "TESTENV"
         
         # the dialog
         self.test_dialog = \
@@ -2600,8 +2601,8 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.assertFalse(self.test_dialog.isVisible())
     
     def test_reference_pushButton_calls_environments_reference_method(self):
-        """testing if the reference_pushButton calls the environments open method
-        with the correct version given to it
+        """testing if the reference_pushButton calls the environments reference
+        method with the correct version given to it
         """
         
         # set to the first project
@@ -2644,9 +2645,9 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.assertEqual(version_instance.take_name,
                          self.test_dialog.takes_comboBox.currentText())
     
-    def test_import_pushButton_calls_environments_reference_method(self):
-        """testing if the import_pushButton calls the environments open method
-        with the correct version given to it
+    def test_import_pushButton_calls_environments_import_method(self):
+        """testing if the import_pushButton calls the environments import
+        method with the correct version given to it
         """
         
         # set to the first project
