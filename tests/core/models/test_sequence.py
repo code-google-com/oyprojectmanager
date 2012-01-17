@@ -8,6 +8,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from sqlalchemy.exc import IntegrityError
 from oyProjectManager import db, config
 from oyProjectManager.core.models import Project, Sequence, Repository, Shot
 
@@ -280,7 +281,7 @@ class SequenceTester(unittest.TestCase):
             self.test_sequence.name = test_value[0]
             expected_name = test_value[1]
             self.assertEqual(self.test_sequence.name, expected_name)
-
+    
 class Sequence_DB_Tester(unittest.TestCase):
     """Tests the new type Sequence class with a database
     """
@@ -468,3 +469,63 @@ class Sequence_DB_Tester(unittest.TestCase):
         
         # and the third shots number is 1B
         self.assertEqual(new_seq.shots[2].number, "1B")
+
+    def test_name_argument_is_not_unique_for_same_project(self):
+        """testing if the name argument is not unique raises IntegrityError
+        """
+
+        test_project = Project("Test Project for Name Uniqueness")
+        test_project.save()
+        
+        test_seq1 = Sequence(test_project, "Seq1")
+        test_seq1.save()
+        
+        test_seq2 = Sequence(test_project, "Seq1")
+        self.assertRaises(IntegrityError, test_seq2.save)
+    
+    def test_name_argument_is_not_unique_for_different_projects(self):
+        """testing if no name argument is unique for different projects will
+        not raise IntegrityError
+        """
+
+        test_project1 = Project("Test Project for Name Uniqueness 1")
+        test_project1.save()
+        
+        test_project2 = Project("Test Project for Name Uniqueness 2")
+        test_project2.save()
+        
+        test_seq1 = Sequence(test_project1, "Seq1")
+        test_seq1.save()
+
+        test_seq2 = Sequence(test_project2, "Seq1")
+        test_seq2.save() # no Integrity Error
+
+    def test_code_argument_is_not_unique_for_same_project(self):
+        """testing if the code argument is not unique raises IntegrityError
+        """
+
+        test_project = Project("Test Project for Name Uniqueness")
+        test_project.save()
+
+        test_seq1 = Sequence(test_project, "Seq1A", "SEQ1")
+        test_seq1.save()
+
+        test_seq2 = Sequence(test_project, "Seq1B", "SEQ1")
+        self.assertRaises(IntegrityError, test_seq2.save)
+
+    def test_code_argument_is_not_unique_for_different_projects(self):
+        """testing if no code argument is unique for different projects will
+        not raise IntegrityError
+        """
+
+        test_project1 = Project("Test Project for Name Uniqueness 1")
+        test_project1.save()
+
+        test_project2 = Project("Test Project for Name Uniqueness 2")
+        test_project2.save()
+
+        test_seq1 = Sequence(test_project1, "Seq1A", "SEQ1")
+        test_seq1.save()
+
+        test_seq2 = Sequence(test_project2, "Seq1B", "SEQ1")
+        test_seq2.save() # no Integrity Error

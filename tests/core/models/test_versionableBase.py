@@ -194,29 +194,30 @@ class VersionableBaseTester(unittest.TestCase):
         
         self.assertRaises(IntegrityError, db.session.commit)
     
-    def test_deleting_a_project_will_also_delete_the_related_versionableBases(self):
-        """testing if deleting a Project also deletes the related
-        VersionableBase instances (Assets and Shots)
-        """
-        
-        project = Project("Test Project")
-        project.save()
-        
-        versB1 = VersionableBase()
-        versB1._project = project
-        
-        db.session.add(versB1)
-        db.session.commit()
-        
-        # check if versB1 is in session
-        self.assertTrue(versB1 in db.session)
-        
-        # delete the project
-        db.session.delete(project)
-        db.session.commit()
-
-        # check if the project is not in the session anymore
-        self.assertTrue(project not in db.session)
-        
-        # check versB1 is also deleted
-        self.assertTrue(versB1 not in db.session)
+    # This test is not reflecting the truth, it can not be done
+#    def test_deleting_a_project_will_also_delete_the_related_versionableBases(self):
+#        """testing if deleting a Project also deletes the related
+#        VersionableBase instances (Assets and Shots)
+#        """
+#        
+#        project = Project("Test Project")
+#        project.save()
+#        
+#        versB1 = VersionableBase()
+#        versB1._project = project
+#        
+#        db.session.add(versB1)
+#        db.session.commit()
+#        
+#        # check if versB1 is in session
+#        self.assertTrue(versB1 in db.session)
+#        
+#        # delete the project
+#        db.session.delete(project)
+#        db.session.commit()
+#
+#        # check if the project is not in the session anymore
+#        self.assertTrue(project not in db.session)
+#        
+#        # check versB1 is also deleted
+#        self.assertTrue(versB1 not in db.session)

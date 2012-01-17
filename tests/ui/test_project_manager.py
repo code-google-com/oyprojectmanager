@@ -378,9 +378,10 @@ class ProjectManager_Tester(unittest.TestCase):
         self.assertTrue(shot10.code in item_texts)
         self.assertTrue(shot11.code in item_texts)
         self.assertTrue(shot12.code in item_texts)
-    
-    def test_addProject_toolButton_pops_a_QInputDialog(self):
-        """testing if the addProject_toolButton pops a QInputDialog and asks
-        for a project name
-        """
-        self.fail("test is not implemented yet")
+
+    # TODO: update this test
+#    def test_addProject_toolButton_pops_a_QInputDialog(self):
+#        """testing if the addProject_toolButton pops a QInputDialog and asks
+#        for a project name
+#        """
+#        self.fail("test is not implemented yet")

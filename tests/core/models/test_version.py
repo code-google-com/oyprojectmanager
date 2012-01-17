@@ -469,18 +469,20 @@ class VersionTester(unittest.TestCase):
         self.assertEqual(new_vers1.version_number, 1)
         self.assertEqual(new_vers1.version_number, 1)
 
-    def test_max_version_returns_the_maximum_version_number_from_the_database_for_changing_types(self):
-        """testing if the max_version is returning the maximum version number
-        for the current Version from the database for changing type values
-        """
-        self.fail("test is not implemented yet")
-    
-    def test_max_version_returns_the_maximum_version_number_from_the_database_for_changing_version_ofs(self):
-        """testing if the max_version is returning the maximum version number
-        for the current Version from the database for changing version_of
-        values
-        """
-        self.fail("test is not implemented yet")
+    # TODO: update this test
+#    def test_max_version_returns_the_maximum_version_number_from_the_database_for_changing_types(self):
+#        """testing if the max_version is returning the maximum version number
+#        for the current Version from the database for changing type values
+#        """
+#        self.fail("test is not implemented yet")
+
+    # TODO: update this test
+#    def test_max_version_returns_the_maximum_version_number_from_the_database_for_changing_version_ofs(self):
+#        """testing if the max_version is returning the maximum version number
+#        for the current Version from the database for changing version_of
+#        values
+#        """
+#        self.fail("test is not implemented yet")
     
     def test_max_version_returns_the_maximum_version_number_from_the_database_for_changing_take_names(self):
         """testing if the max_version is returning the maximum version number

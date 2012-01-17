@@ -652,12 +652,14 @@ class Sequence(Base):
     
     __tablename__ = "Sequences"
     __table_args__  = (
+        UniqueConstraint("code", "project_id"),
+        UniqueConstraint("name", "project_id"),
         {"extend_existing":True}
     )
     
     id = Column(Integer, primary_key=True)
-    name = Column(String(256), unique=True)
-    code = Column(String(256), unique=True)
+    name = Column(String(256))
+    code = Column(String(256))
     description = Column(String)
     
     project_id = Column(Integer, ForeignKey("Projects.id"))

@@ -23,6 +23,10 @@ Version History
   ``REPO``. It is much better to store ``config.py`` and ``project_manager.db``
   side by side.
 
+* Fixed a bug in :class:`~oyProjectManager.core.models.Sequence` where it was
+  not able to create two Sequences with the same name but for different
+  :class:`~oyProjectManager.core.models.Project`\ s.
+
 0.2.1
 -----
 
