@@ -506,7 +506,7 @@ p, li { white-space: pre-wrap; }
              <item>
               <widget class="QSpinBox" name="version_count_spinBox">
                <property name="value">
-                <number>10</number>
+                <number>5</number>
                </property>
               </widget>
              </item>

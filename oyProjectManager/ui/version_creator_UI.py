@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Tue Jan 17 13:28:15 2012
+# Created: Tue Jan 17 15:24:54 2012
 #      by: PyQt4 UI code generator 4.8.5
 #
 # WARNING! All changes made in this file will be lost!
@@ -282,7 +282,7 @@ class Ui_Dialog(object):
         self.show_only_label.setObjectName(_fromUtf8("show_only_label"))
         self.horizontalLayout_10.addWidget(self.show_only_label)
         self.version_count_spinBox = QtGui.QSpinBox(self.previous_versions_groupBox)
-        self.version_count_spinBox.setProperty("value", 10)
+        self.version_count_spinBox.setProperty("value", 5)
         self.version_count_spinBox.setObjectName(_fromUtf8("version_count_spinBox"))
         self.horizontalLayout_10.addWidget(self.version_count_spinBox)
         self.verticalLayout_7.addLayout(self.horizontalLayout_10)
