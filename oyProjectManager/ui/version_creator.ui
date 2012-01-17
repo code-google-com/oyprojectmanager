@@ -475,6 +475,44 @@ p, li { white-space: pre-wrap; }
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
            <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <item>
+              <widget class="QCheckBox" name="show_published_only_checkBox">
+               <property name="text">
+                <string>Show Published Only</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="show_only_label">
+               <property name="text">
+                <string>Show Only</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="version_count_spinBox">
+               <property name="value">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
             <widget class="QTableWidget" name="previous_versions_tableWidget">
              <property name="editTriggers">
               <set>QAbstractItemView::NoEditTriggers</set>
@@ -506,12 +544,12 @@ p, li { white-space: pre-wrap; }
              </column>
              <column>
               <property name="text">
-               <string>Note</string>
+               <string>File Size</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>File Size</string>
+               <string>Note</string>
               </property>
              </column>
              <column>

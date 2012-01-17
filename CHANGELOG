@@ -14,6 +14,15 @@ Version History
 * :class:`~oyProjectManager.core.models.User` instances now have a
   :meth:`~oyProjectManager.core.models.User.save` method.
 
+* Added ``Show Only Published Versions`` option to the ``version_creator`` UI.
+
+* ``version_creator`` UI now only shows a definite amount of previous Versions,
+  and it can be adjustable by the ``version_count_spinBox``.
+
+* Default database placement now uses the ``$OYPROJECTMANAGER_PATH`` instead of
+  ``REPO``. It is much better to store ``config.py`` and ``project_manager.db``
+  side by side.
+
 0.2.1
 -----
 

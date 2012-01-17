@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Sat Jan 14 14:29:31 2012
+# Created: Tue Jan 17 13:28:15 2012
 #      by: PyQt4 UI code generator 4.8.5
 #
 # WARNING! All changes made in this file will be lost!
@@ -269,6 +269,23 @@ class Ui_Dialog(object):
         self.previous_versions_groupBox.setObjectName(_fromUtf8("previous_versions_groupBox"))
         self.verticalLayout_7 = QtGui.QVBoxLayout(self.previous_versions_groupBox)
         self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))
+        self.horizontalLayout_10 = QtGui.QHBoxLayout()
+        self.horizontalLayout_10.setObjectName(_fromUtf8("horizontalLayout_10"))
+        self.show_published_only_checkBox = QtGui.QCheckBox(self.previous_versions_groupBox)
+        self.show_published_only_checkBox.setText(QtGui.QApplication.translate("Dialog", "Show Published Only", None, QtGui.QApplication.UnicodeUTF8))
+        self.show_published_only_checkBox.setObjectName(_fromUtf8("show_published_only_checkBox"))
+        self.horizontalLayout_10.addWidget(self.show_published_only_checkBox)
+        spacerItem6 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_10.addItem(spacerItem6)
+        self.show_only_label = QtGui.QLabel(self.previous_versions_groupBox)
+        self.show_only_label.setText(QtGui.QApplication.translate("Dialog", "Show Only", None, QtGui.QApplication.UnicodeUTF8))
+        self.show_only_label.setObjectName(_fromUtf8("show_only_label"))
+        self.horizontalLayout_10.addWidget(self.show_only_label)
+        self.version_count_spinBox = QtGui.QSpinBox(self.previous_versions_groupBox)
+        self.version_count_spinBox.setProperty("value", 10)
+        self.version_count_spinBox.setObjectName(_fromUtf8("version_count_spinBox"))
+        self.horizontalLayout_10.addWidget(self.version_count_spinBox)
+        self.verticalLayout_7.addLayout(self.horizontalLayout_10)
         self.previous_versions_tableWidget = QtGui.QTableWidget(self.previous_versions_groupBox)
         self.previous_versions_tableWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.previous_versions_tableWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
@@ -284,10 +301,10 @@ class Ui_Dialog(object):
         item.setText(QtGui.QApplication.translate("Dialog", "User", None, QtGui.QApplication.UnicodeUTF8))
         self.previous_versions_tableWidget.setHorizontalHeaderItem(1, item)
         item = QtGui.QTableWidgetItem()
-        item.setText(QtGui.QApplication.translate("Dialog", "Note", None, QtGui.QApplication.UnicodeUTF8))
+        item.setText(QtGui.QApplication.translate("Dialog", "File Size", None, QtGui.QApplication.UnicodeUTF8))
         self.previous_versions_tableWidget.setHorizontalHeaderItem(2, item)
         item = QtGui.QTableWidgetItem()
-        item.setText(QtGui.QApplication.translate("Dialog", "File Size", None, QtGui.QApplication.UnicodeUTF8))
+        item.setText(QtGui.QApplication.translate("Dialog", "Note", None, QtGui.QApplication.UnicodeUTF8))
         self.previous_versions_tableWidget.setHorizontalHeaderItem(3, item)
         item = QtGui.QTableWidgetItem()
         item.setText(QtGui.QApplication.translate("Dialog", "Path", None, QtGui.QApplication.UnicodeUTF8))
@@ -297,8 +314,8 @@ class Ui_Dialog(object):
         self.verticalLayout_7.addWidget(self.previous_versions_tableWidget)
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
         self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
-        spacerItem6 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_5.addItem(spacerItem6)
+        spacerItem7 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem7)
         self.open_pushButton = QtGui.QPushButton(self.previous_versions_groupBox)
         self.open_pushButton.setText(QtGui.QApplication.translate("Dialog", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.open_pushButton.setObjectName(_fromUtf8("open_pushButton"))
@@ -317,8 +334,8 @@ class Ui_Dialog(object):
         self.verticalLayout.addLayout(self.horizontalLayout_14)
         self.horizontalLayout_8 = QtGui.QHBoxLayout()
         self.horizontalLayout_8.setObjectName(_fromUtf8("horizontalLayout_8"))
-        spacerItem7 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_8.addItem(spacerItem7)
+        spacerItem8 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_8.addItem(spacerItem8)
         self.close_pushButton = QtGui.QPushButton(self.verticalWidget)
         self.close_pushButton.setStyleSheet(_fromUtf8(""))
         self.close_pushButton.setText(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))

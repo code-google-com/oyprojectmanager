@@ -122,7 +122,7 @@ class VersionCreatorTester(unittest.TestCase):
     def test_close_button_closes_ui(self):
         """testing if the close button is closing the ui
         """
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         dialog.show()
 
         self.assertEqual(dialog.isVisible(), True)
@@ -135,7 +135,7 @@ class VersionCreatorTester(unittest.TestCase):
         """testing if there will be no problem when there is no project created
         yet
         """
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
     
     def test_projects_comboBox_is_filled_with_projects(self):
         """testing if the projects_combobox is filled with projects
@@ -147,7 +147,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
         proj2.create()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # see if the projects filled with projects
         self.assertEqual(dialog.projects_comboBox.count(), 2)
@@ -166,7 +166,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
         proj2.create()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         # see if the projects filled with projects
         self.assertEqual(dialog.projects_comboBox.currentIndex(), 0)
     
@@ -183,7 +183,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj2.create()
         proj3.create()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # check if the projects_comboBox has an attribute called project
         self.assertTrue(hasattr(dialog.projects_comboBox, "projects"))
@@ -201,7 +201,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj2.create()
         proj3.create()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # check if the project is a Project instance
         self.assertTrue(isinstance(dialog.projects_comboBox.projects, list))
@@ -227,7 +227,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj2 = Project("TEST_PROJ2")
         proj2.create()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -258,7 +258,7 @@ class VersionCreatorTester(unittest.TestCase):
         seq3.save()
         
         # create the dialog
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # the default tab should be asset
         self.assertEqual(dialog.tabWidget.currentIndex(), 0)
@@ -280,7 +280,7 @@ class VersionCreatorTester(unittest.TestCase):
         # get the users from the config
         users = db.query(User).all()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # check if all the names in the users are in the comboBox
         content = [dialog.users_comboBox.itemText(i)
@@ -292,14 +292,14 @@ class VersionCreatorTester(unittest.TestCase):
     def test_users_comboBox_has_users_attribute(self):
         """testing if the users_comboBox has an attribute called users
         """
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         self.assertTrue(hasattr(dialog.users_comboBox, "users"))
     
     def test_users_comboBox_users_attribute_is_properly_filled(self):
         """testing if the users_comboBox users attribute is properly filled
         with User instances from the db
         """
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         users_from_UI = dialog.users_comboBox.users
         users_from_DB = db.query(User).all()
         
@@ -328,7 +328,7 @@ class VersionCreatorTester(unittest.TestCase):
         asset3.save()
         asset4.save()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -407,7 +407,7 @@ class VersionCreatorTester(unittest.TestCase):
                         take_name="Test3")
         vers6.save()
 
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         #        dialog.show()
         #        self.app.exec_()
         #        self.app.connect(
@@ -511,7 +511,7 @@ class VersionCreatorTester(unittest.TestCase):
                          take_name="TestForShot3")
         vers11.save()
 
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         #        dialog.show()
         #        self.app.exec_()
         #        self.app.connect(
@@ -559,7 +559,7 @@ class VersionCreatorTester(unittest.TestCase):
         """testing if the takes_comboBox lists "Main" by default
         """
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         self.assertEqual(
             conf.default_take_name,
             dialog.takes_comboBox.currentText()
@@ -576,7 +576,7 @@ class VersionCreatorTester(unittest.TestCase):
         asset1 = Asset(proj, "TEST_ASSET")
         asset1.save()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -638,7 +638,7 @@ class VersionCreatorTester(unittest.TestCase):
         seq2 = Sequence(proj3, "TEST_SEQ2")
         seq2.save()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -668,7 +668,7 @@ class VersionCreatorTester(unittest.TestCase):
         asset1.save()
         
         # create the dialog
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # get all the asset version types for project
         asset_vtypes = db.query(VersionType).\
@@ -735,7 +735,7 @@ class VersionCreatorTester(unittest.TestCase):
                         take_name="Test3")
         vers6.save()
 
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         #        dialog.show()
         #        self.app.exec_()
         #        self.app.connect(
@@ -812,7 +812,7 @@ class VersionCreatorTester(unittest.TestCase):
         
         tEnv = TestEnvironment()
 
-        dialog = version_creator.MainDialog_New(tEnv)
+        dialog = version_creator.MainDialog(tEnv)
         #        dialog.show()
         #        self.app.exec_()
         #        self.app.connect(
@@ -877,7 +877,7 @@ class VersionCreatorTester(unittest.TestCase):
         )
         vers2.save()
 
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         #        dialog.show()
         #        self.app.exec_()
         #        self.app.connect(
@@ -1015,20 +1015,21 @@ class VersionCreatorTester(unittest.TestCase):
             asset_vtypes[4],
             user1,
             take_name="Test3",
-            note="test note 6"
+            note="test note 6",
+            is_published=True
         )
         vers6.save()
 
-        dialog = version_creator.MainDialog_New()
-        #        dialog.show()
-        #        self.app.exec_()
-        #        self.app.connect(
-        #            self.app,
-        #            QtCore.SIGNAL("lastWindowClosed()"),
-        #            self.app,
-        #            QtCore.SLOT("quit()")
-        #        )
-
+        dialog = version_creator.MainDialog()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+        
         # select the first asset
         list_item = dialog.assets_listWidget.item(0)
         dialog.assets_listWidget.setCurrentItem(list_item)
@@ -1120,7 +1121,7 @@ class VersionCreatorTester(unittest.TestCase):
 ##            proj.session.add_all(data)
 #            proj.session.commit()
 #        
-#        dialog = version_creator.MainDialog_New()
+#        dialog = version_creator.MainDialog()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -1183,7 +1184,7 @@ class VersionCreatorTester(unittest.TestCase):
         vers4 = Version(shot2, shot2.code, shot_vtypes[1], user1)
         vers4.save()
 
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         #        dialog.show()
         #        self.app.exec_()
         #        self.app.connect(
@@ -1255,7 +1256,7 @@ class VersionCreatorTester(unittest.TestCase):
         shot2_5.save()
 
         # create the dialog
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         #        dialog.show()
         #        self.app.exec_()
         #        self.app.connect(
@@ -1296,7 +1297,7 @@ class VersionCreatorTester(unittest.TestCase):
     def test_shots_listWidget_has_shots_attribute(self):
         """testing if the shot_listWidget has an attribute called shots
         """
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         self.assertTrue(hasattr(dialog.shots_listWidget, "shots"))
     
     def test_shots_listWidget_shots_attribute_is_filled_with_shots_instances(self):
@@ -1338,7 +1339,7 @@ class VersionCreatorTester(unittest.TestCase):
         shot9.save()
         shot10.save()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # switch to the shots tab
         dialog.tabWidget.setCurrentIndex(1)
@@ -1368,7 +1369,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj = Project("TEST_PROJ1")
         proj.create()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -1474,7 +1475,7 @@ class VersionCreatorTester(unittest.TestCase):
         )
         vers1.save()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -1504,7 +1505,7 @@ class VersionCreatorTester(unittest.TestCase):
             db.query(VersionType).filter_by(type_for="Shot").all()
         
         # create the dialog
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # set the tabWidget to asset
         dialog.tabWidget.setCurrentIndex(0)
@@ -1545,7 +1546,7 @@ class VersionCreatorTester(unittest.TestCase):
             db.query(VersionType).filter_by(type_for="Shot").all()
         
         # create the dialog
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # set the tabWidget to asset
         dialog.tabWidget.setCurrentIndex(0)
@@ -1575,7 +1576,7 @@ class VersionCreatorTester(unittest.TestCase):
             db.query(VersionType).filter_by(type_for="Shot").all()
         
         # create the dialog
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # set the tabWidget to asset
         dialog.tabWidget.setCurrentIndex(0)
@@ -1599,7 +1600,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj = Project("TEST_PROJECT")
         proj.create()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         self.assertRaises(
             TypeError, dialog.add_type, 13212
@@ -1641,7 +1642,7 @@ class VersionCreatorTester(unittest.TestCase):
         shot3.save()
         shot4.save()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # set the tabWidget to 0
         dialog.tabWidget.setCurrentIndex(0)
@@ -1695,7 +1696,7 @@ class VersionCreatorTester(unittest.TestCase):
         """
         
         self.assertTrue(db.session is None)
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         self.assertTrue(db.session is not None)
     
     def test_restore_ui_works_properly(self):
@@ -1934,7 +1935,7 @@ class VersionCreatorTester(unittest.TestCase):
         )
         vers28.save()
 
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # try to restore the ui with version10
         dialog.restore_ui(vers10)
@@ -2018,7 +2019,7 @@ class VersionCreatorTester(unittest.TestCase):
         db.session.add_all([user1, user2, user3])
         db.session.commit()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # select asset1
         dialog.tabWidget.setCurrentIndex(0)
@@ -2037,7 +2038,7 @@ class VersionCreatorTester(unittest.TestCase):
         dialog.close()
         
         # re-open the dialog
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # check if the users_comboBox is set to user2
         self.assertEqual(
@@ -2066,7 +2067,7 @@ class VersionCreatorTester(unittest.TestCase):
         vers1 = Version(asset1, asset1.code, asset_vtypes[0], user)
         vers1.save()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
         
         # set the tab to assets
         dialog.tabWidget.setCurrentIndex(0)
@@ -2110,7 +2111,7 @@ class VersionCreatorTester(unittest.TestCase):
         vers5 = Version(asset, asset.code, asset_types[0], user, is_published=True)
         vers5.save()
         
-        dialog = version_creator.MainDialog_New()
+        dialog = version_creator.MainDialog()
 #        dialog.show()
 #        self.app.exec_()
 #        self.app.connect(
@@ -2145,8 +2146,192 @@ class VersionCreatorTester(unittest.TestCase):
             dialog.previous_versions_tableWidget.item(4, 0).font().bold(),
             True
         )
+    
+    def test_previous_versions_tableWidget_shows_only_published_versions_if_show_published_only_checkBox(self):
+        """testing if previous_versions_tableWidget shows only published
+        versions if show_published_only_checkBox is checked
+        """
         
+        project = Project("Test Project")
+        project.save()
         
+        asset1 = Asset(project, "Test Asset 1")
+        asset1.save()
+        
+        asset2 = Asset(project, "Test Asset 2")
+        asset2.save()
+        
+        aTypes = db.query(VersionType).filter_by(type_for="Asset").all()
+        
+        user = User("Test User")
+        
+        vers1 = Version(
+            asset1,
+            asset1.code,
+            aTypes[0],
+            user,
+            is_published=False
+        )
+        vers1.save()
+
+        vers2 = Version(
+            asset1,
+            asset1.code,
+            aTypes[0],
+            user,
+            is_published=False
+        )
+        vers2.save()
+
+        vers3 = Version(
+            asset1,
+            asset1.code,
+            aTypes[0],
+            user,
+            is_published=True
+        )
+        vers3.save()
+
+        vers4 = Version(
+            asset1,
+            asset1.code,
+            aTypes[0],
+            user,
+            is_published=True
+        )
+        vers4.save()
+
+        dialog = version_creator.MainDialog()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+        
+        # set to assets
+        dialog.tabWidget.setCurrentIndex(0)
+        
+        # select Asset
+        
+        dialog.assets_listWidget.setCurrentItem(
+            dialog.assets_listWidget.item(0)
+        )
+        
+        # test there is 4 versions in the list
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.rowCount(),
+            4
+        )
+        
+        # now check the shot_published_only_checkBox
+        dialog.show_published_only_checkBox.setChecked(True)
+        
+        # check if only 2 items are shown
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.rowCount(),
+            2
+        )
+        
+        # and the versions are vers3 and vers4
+        all_vers = dialog.previous_versions_tableWidget.versions
+        self.assertTrue(vers1 not in all_vers)
+        self.assertTrue(vers2 not in all_vers)
+        self.assertTrue(vers3 in all_vers)
+        self.assertTrue(vers4 in all_vers)
+    
+    def test_previous_versions_tableWidget_shows_only_defined_amount_of_item_with_version_count_spinBox(self):
+        """testing if the previous_versions_tableWidget is only showing the
+        number of items defined in the version_count_spinBox
+        """
+        
+        project = Project("Test Project")
+        project.save()
+
+        asset1 = Asset(project, "Test Asset 1")
+        asset1.save()
+
+        asset2 = Asset(project, "Test Asset 2")
+        asset2.save()
+
+        aTypes = db.query(VersionType).filter_by(type_for="Asset").all()
+
+        user = User("Test User")
+        
+        versions = []
+        
+        for i in range(20):
+            vers = Version(
+                asset1,
+                asset1.code,
+                aTypes[0],
+                user,
+                is_published=False
+            )
+            vers.save()
+            versions.append(vers)
+
+        versions[0].is_published = True
+        versions[0].save()
+
+        versions[1].is_published = True
+        versions[1].save()
+        
+        versions[-1].is_published = True
+        versions[-1].save()
+        
+        dialog = version_creator.MainDialog()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+
+        # set to assets
+        dialog.tabWidget.setCurrentIndex(0)
+
+        # select Asset
+        dialog.assets_listWidget.setCurrentItem(
+            dialog.assets_listWidget.item(0)
+        )
+        
+        # set the version_count_spinBox to 10
+        dialog.version_count_spinBox.setValue(10)
+        
+        # now check if all the versions are visible
+        
+        # test there is 8 versions in the list
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.rowCount(),
+            10
+        )
+        
+        # set the version_count_spinBox to 3
+        dialog.version_count_spinBox.setValue(3)
+        
+        # check if only the last 5 are visible
+        self.assertEqual(
+            dialog.previous_versions_tableWidget.rowCount(),
+            3
+        )
+
+        self.assertTrue(
+            versions[-1] in dialog.previous_versions_tableWidget.versions
+        )
+
+        self.assertTrue(
+            versions[-2] in dialog.previous_versions_tableWidget.versions
+        )
+        
+        self.assertTrue(
+            versions[-3] in dialog.previous_versions_tableWidget.versions
+        )
+
 
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     """tests the interaction of the UI with the given environment
@@ -2287,7 +2472,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         # the dialog
         self.test_dialog = \
-            version_creator.MainDialog_New(self.test_environment)
+            version_creator.MainDialog(self.test_environment)
         
         #        self.test_dialog.show()
         #        self.app.exec_()

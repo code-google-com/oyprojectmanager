@@ -1504,6 +1504,12 @@ class Version(Base):
     loosing the connection between a Version and a file on the repository for
     previously created Versions.
     
+    .. versionadded:: 0.2.2
+      Published Versions:
+      
+      After v0.2.2 Versions can be set published. It is a bool attribute
+      holding information about if this Version is published or not.
+    
     :param version_of: A :class:`~oyProjectManager.core.models.VersionableBase`
       instance (:class:`~oyProjectManager.core.models.Asset` or
       :class:`~oyProjectManager.core.models.Shot`) which is the owner of this
@@ -1561,6 +1567,9 @@ class Version(Base):
     
     :param str extension: A string holding the file extension of this version.
       It may or may not include a dot (".") sign as the first character.
+    
+    :param bool is_published: A bool value defining this Version as a published
+      one.
     """
 
     # TODO: add audit info like date_created, date_updated, created_at and updated_by

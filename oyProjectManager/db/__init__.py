@@ -10,18 +10,18 @@ Database Module
 This is where all the magic happens.
 
 .. versionadded:: 0.2.0
-    SQLite3 Database:
-    
-    To hold the information about all the data created
-    :class:`~oyProjectManager.core.models.Project`\ s,
-    :class:`~oyProjectManager.core.models.Sequence`\ s,
-    :class:`~oyProjectManager.core.models.Shot`\ s,
-    :class:`~oyProjectManager.core.models.Asset`\ s and
-    :class:`~oyProjectManager.core.models.VersionType`\ s
-    , there is a ".metadata.db" file in the repository root. This SQLite3
-    database has all the information about everything.
-    
-    With this new extension it is much faster to query any data needed.
+  SQLite3 Database:
+  
+  To hold the information about all the data created
+  :class:`~oyProjectManager.core.models.Project`\ s,
+  :class:`~oyProjectManager.core.models.Sequence`\ s,
+  :class:`~oyProjectManager.core.models.Shot`\ s,
+  :class:`~oyProjectManager.core.models.Asset`\ s and
+  :class:`~oyProjectManager.core.models.VersionType`\ s
+  , there is a ".metadata.db" file in the repository root. This SQLite3
+  database has all the information about everything.
+  
+  With this new extension it is much faster to query any data needed.
 
 Querying data is very simple and fun. To get any kind of data from the
 database, just call the ``db.setup()`` and then use ``db.query`` to get the
@@ -30,15 +30,15 @@ data.
 For a simple example, lets get all the shots for a Sequence called
 "TEST_SEQ" in the "TEST_PROJECT"::
 
-    from oyProjectManager import db
-    from oyProjectManager.core.models import Project, Sequence, Shot
-    
-    # setup the database session
-    db.setup()
-    
-    all_shots = db.query(Shot).join(Sequence).\
-        filter(Sequence.project.name="TEST_PROJECT").\
-        filter(Shot.sequence.name=="TEST_SEQ").all()
+  from oyProjectManager import db
+  from oyProjectManager.core.models import Project, Sequence, Shot
+  
+  # setup the database session
+  db.setup()
+  
+  all_shots = db.query(Shot).join(Sequence).\
+      filter(Sequence.project.name="TEST_PROJECT").\
+      filter(Shot.sequence.name=="TEST_SEQ").all()
 
 that's it.
 
@@ -64,7 +64,8 @@ database_url = None
 
 # create a logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+#logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 def setup(database_url_in=None):
     """Utility function that helps to connect the system to the given database.
@@ -100,6 +101,11 @@ def setup(database_url_in=None):
         database_url_in = conf.database_url
     
     # expand user and env variables if any
+    # TODO: because the dialect part and the address part are now coming from
+    # from one source, it is not possible to expand any variables in the path,
+    # try to use SQLAlchemy to separate the dialect and the address part and
+    # expand any data and then merge it again
+    
     database_url_in = os.path.expanduser(
         os.path.expandvars(
             os.path.expandvars(
