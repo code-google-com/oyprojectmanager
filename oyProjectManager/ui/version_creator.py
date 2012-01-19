@@ -11,21 +11,30 @@ from sqlalchemy.exc import IntegrityError
 
 from sqlalchemy.sql.expression import distinct
 
-#from PySide import QtGui, QtCore
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-from PyQt4 import QtGui, QtCore
+
+qt_module_key = "PREFERRED_QT_MODULE"
+if os.environ.has_key(qt_module_key):
+    qt_module = os.environ[qt_module_key]
+    
+    if qt_module == "PySide":
+        from PySide import QtGui, QtCore
+    elif qt_module == "PyQt4":
+        import sip
+        sip.setapi('QString', 2)
+        sip.setapi('QVariant', 2)
+        from PyQt4 import QtGui, QtCore
+else:
+    import sip
+    sip.setapi('QString', 2)
+    sip.setapi('QVariant', 2)
+    from PyQt4 import QtGui, QtCore
 
 import version_creator_UI
 
-import oyProjectManager
 from oyProjectManager import utils, config, db
 from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
                                           Version, VersionType, Shot, User,
                                           VersionTypeEnvironments)
-from oyProjectManager.environments import environmentFactory
-from oyProjectManager.ui import version_updater, singletonQApplication
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)

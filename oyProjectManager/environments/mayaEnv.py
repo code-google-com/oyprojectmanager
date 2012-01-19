@@ -106,8 +106,10 @@ class Maya(EnvironmentBase):
         self.set_fps(project.fps)
         
         # set render resolution
-        self.set_resolution(project.width, project.height,
-            project.pixel_aspect)
+        # only if the file is a new version
+        if version.version_number == 1:
+            self.set_resolution(project.width, project.height,
+                project.pixel_aspect)
         
         # set the render file name and version
         self.set_render_fileName(version)

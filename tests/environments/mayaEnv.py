@@ -289,13 +289,38 @@ class MayaTester(unittest.TestCase):
             mentalrayTexture_node.getAttr("fileTextureName"),
             expected_path
         )
-    
+
     def test_save_as_sets_the_resolution(self):
         """testing if save_as sets the render resolution for the current scene
         """
-        
+
         project = self.version1.project
 
+        width = 1920
+        height = 1080
+        pixel_aspect = 1.0
+
+        project.width = width
+        project.height = height
+        project.pixel_aspect = pixel_aspect
+        project.save()
+
+        # save the scene
+        self.mEnv.save_as(self.version1)
+
+        # check the resolutions
+        dRes = pm.PyNode("defaultResolution")
+        self.assertEqual(dRes.width.get(), width)
+        self.assertEqual(dRes.height.get(), height)
+        self.assertEqual(dRes.pixelAspect.get(), pixel_aspect)
+
+    def test_save_as_sets_the_resolution_only_for_first_version(self):
+        """testing if save_as sets the render resolution for the current scene
+        but only for the first version of the asset
+        """
+        
+        project = self.version1.project
+        
         width = 1920
         height = 1080
         pixel_aspect = 1.0
@@ -313,7 +338,26 @@ class MayaTester(unittest.TestCase):
         self.assertEqual(dRes.width.get(), width)
         self.assertEqual(dRes.height.get(), height)
         self.assertEqual(dRes.pixelAspect.get(), pixel_aspect)
-    
+        
+        # now change the resolution of the maya file
+        new_width = 1280
+        new_height = 720
+        new_pixel_aspect = 1.0
+        dRes.width.set(new_width)
+        dRes.height.set(new_height)
+        dRes.pixelAspect.set(new_pixel_aspect)
+        
+        # save the version again
+        new_version = Version(**self.kwargs)
+        new_version.save()
+        
+        self.mEnv.save_as(new_version)
+        
+        # test if the resolution is not changed
+        self.assertEqual(dRes.width.get(), new_width)
+        self.assertEqual(dRes.height.get(), new_height)
+        self.assertEqual(dRes.pixelAspect.get(), new_pixel_aspect)
+
     def test_save_as_fills_the_referenced_versions_list(self):
         """testing if the save_as method updates the Version.references list
         with the current references list from the Maya
