@@ -4,20 +4,30 @@
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
-
-#from PySide import QtGui, QtCore
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-from PyQt4 import QtGui, QtCore
-
+import os
 import logging
 from oyProjectManager import conf
 from oyProjectManager.core.models import Project
-from oyProjectManager.ui import project_properties_UI
-
 
 logger = logging.getLogger(__name__)
+
+
+qt_module_key = "PREFERRED_QT_MODULE"
+qt_module = "PyQt4"
+
+if os.environ.has_key(qt_module_key):
+    qt_module = os.environ[qt_module_key]
+
+if qt_module == "PySide":
+    from PySide import QtGui, QtCore
+    from oyProjectManager.ui import project_properties_UI_pyside as project_properties_UI
+elif qt_module == "PyQt4":
+    import sip
+    sip.setapi('QString', 2)
+    sip.setapi('QVariant', 2)
+    from PyQt4 import QtGui, QtCore
+    from oyProjectManager.ui import project_properties_UI_pyqt4 as project_properties_UI
+
 
 class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
     """Dialog to edit project properties

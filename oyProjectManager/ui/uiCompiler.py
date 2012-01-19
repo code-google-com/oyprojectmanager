@@ -29,14 +29,14 @@ pyFilePaths_PyQt4.append(os.path.join(ui_path, "version_creator_UI_pyqt4.py"))
 pyFilePaths_PySide.append(os.path.join(ui_path, "version_creator_UI_pyside.py"))
 
 # project_manager
-#uicFilePaths.append(os.path.join(ui_path, "project_manager.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "project_manager_UI_pyqt4.py"))
-#pyFilePaths.append(os.path.join(ui_path, "project_manager_UI_pyside.py"))
+uicFilePaths.append(os.path.join(ui_path, "project_manager.ui"))
+pyFilePaths_PyQt4.append(os.path.join(ui_path, "project_manager_UI_pyqt4.py"))
+pyFilePaths_PySide.append(os.path.join(ui_path, "project_manager_UI_pyside.py"))
 
 # project_properties
-#uicFilePaths.append(os.path.join(ui_path, "project_properties.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "project_properties_UI_pyqt4.py"))
-#pyFilePaths.append(os.path.join(ui_path, "project_properties_UI_pyside.py"))
+uicFilePaths.append(os.path.join(ui_path, "project_properties.ui"))
+pyFilePaths_PyQt4.append(os.path.join(ui_path, "project_properties_UI_pyqt4.py"))
+pyFilePaths_PySide.append(os.path.join(ui_path, "project_properties_UI_pyside.py"))
 
 # assetUpdater
 #uicFilePaths.append(os.path.join(ui_path, "version_updater.ui"))
@@ -57,11 +57,7 @@ pyFilePaths_PySide.append(os.path.join(ui_path, "version_creator_UI_pyside.py"))
 #uicFilePaths.append(os.path.join(ui_path, "assetReplacer.ui"))
 #pyFilePaths.append(os.path.join(ui_path, "assetReplacer_UI_pyqt4.py"))
 #pyFilePaths.append(os.path.join(ui_path, "assetReplacer_UI_pyside.py"))
-#
-## saveFields
-#uicFilePaths.append(os.path.join(ui_path, "saveFields.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "saveFields_UI_pyqt4.py"))
-#pyFilePaths.append(os.path.join(ui_path, "saveFields_UI_pyside.py"))
+
 
 for i,uicFilePath in enumerate(uicFilePaths):
     

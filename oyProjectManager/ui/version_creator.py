@@ -4,8 +4,8 @@
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
-import sys
 import os
+import sys
 import logging
 from sqlalchemy.exc import IntegrityError
 
@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 conf = config.Config()
-
 
 qt_module_key = "PREFERRED_QT_MODULE"
 qt_module = "PyQt4"
