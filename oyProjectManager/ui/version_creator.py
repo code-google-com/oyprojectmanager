@@ -12,26 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import distinct
 
 
-qt_module_key = "PREFERRED_QT_MODULE"
-if os.environ.has_key(qt_module_key):
-    qt_module = os.environ[qt_module_key]
-    
-    if qt_module == "PySide":
-        from PySide import QtGui, QtCore
-    elif qt_module == "PyQt4":
-        import sip
-        sip.setapi('QString', 2)
-        sip.setapi('QVariant', 2)
-        from PyQt4 import QtGui, QtCore
-else:
-    import sip
-    sip.setapi('QString', 2)
-    sip.setapi('QVariant', 2)
-    from PyQt4 import QtGui, QtCore
-
-import version_creator_UI
-
-from oyProjectManager import utils, config, db
+from oyProjectManager import config, db
 from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
                                           Version, VersionType, Shot, User,
                                           VersionTypeEnvironments)
@@ -44,6 +25,23 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 conf = config.Config()
+
+
+qt_module_key = "PREFERRED_QT_MODULE"
+qt_module = "PyQt4"
+
+if os.environ.has_key(qt_module_key):
+    qt_module = os.environ[qt_module_key]
+
+if qt_module == "PySide":
+    from PySide import QtGui, QtCore
+    from oyProjectManager.ui import version_creator_UI_pyside as version_creator_UI
+elif qt_module == "PyQt4":
+    import sip
+    sip.setapi('QString', 2)
+    sip.setapi('QVariant', 2)
+    from PyQt4 import QtGui, QtCore
+    from oyProjectManager.ui import version_creator_UI_pyqt4 as version_creator_UI
 
 def UI(environment):
     """the UI to call the dialog by itself

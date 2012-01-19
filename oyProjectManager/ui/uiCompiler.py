@@ -17,57 +17,67 @@ global uicFile
 global pyFile
 
 uicFilePaths = []
-pyFilePaths = []
+pyFilePaths_PyQt4 = []
+pyFilePaths_PySide = []
 
 path = os.path.dirname(oyProjectManager.__file__)
 ui_path = os.path.join(path, "ui")
 
 # version_creator
 uicFilePaths.append(os.path.join(ui_path, "version_creator.ui"))
-pyFilePaths.append(os.path.join(ui_path, "version_creator_UI.py"))
+pyFilePaths_PyQt4.append(os.path.join(ui_path, "version_creator_UI_pyqt4.py"))
+pyFilePaths_PySide.append(os.path.join(ui_path, "version_creator_UI_pyside.py"))
 
 # project_manager
 #uicFilePaths.append(os.path.join(ui_path, "project_manager.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "project_manager_UI.py"))
+#pyFilePaths.append(os.path.join(ui_path, "project_manager_UI_pyqt4.py"))
+#pyFilePaths.append(os.path.join(ui_path, "project_manager_UI_pyside.py"))
 
 # project_properties
 #uicFilePaths.append(os.path.join(ui_path, "project_properties.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "project_properties_UI.py"))
+#pyFilePaths.append(os.path.join(ui_path, "project_properties_UI_pyqt4.py"))
+#pyFilePaths.append(os.path.join(ui_path, "project_properties_UI_pyside.py"))
 
 # assetUpdater
 #uicFilePaths.append(os.path.join(ui_path, "version_updater.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "version_updater_UI.py"))
+#pyFilePaths.append(os.path.join(ui_path, "version_updater_UI_pyqt4.py"))
+#pyFilePaths.append(os.path.join(ui_path, "version_updater_UI_pyside.py"))
 #
 ## shotEditor
 #uicFilePaths.append(os.path.join(ui_path, "shotEditor.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "shotEditor_UI.py"))
+#pyFilePaths.append(os.path.join(ui_path, "shotEditor_UI_pyqt4.py"))
+#pyFilePaths.append(os.path.join(ui_path, "shotEditor_UI_pyside.py"))
 #
 ## projectSetter
 #uicFilePaths.append(os.path.join(ui_path, "projectSetter.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "projectSetter_UI.py"))
+#pyFilePaths.append(os.path.join(ui_path, "projectSetter_UI_pyqt4.py"))
+#pyFilePaths.append(os.path.join(ui_path, "projectSetter_UI_pyside.py"))
 #
 ## assetReplacer
 #uicFilePaths.append(os.path.join(ui_path, "assetReplacer.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "assetReplacer_UI.py"))
+#pyFilePaths.append(os.path.join(ui_path, "assetReplacer_UI_pyqt4.py"))
+#pyFilePaths.append(os.path.join(ui_path, "assetReplacer_UI_pyside.py"))
 #
 ## saveFields
 #uicFilePaths.append(os.path.join(ui_path, "saveFields.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "saveFields_UI.py"))
+#pyFilePaths.append(os.path.join(ui_path, "saveFields_UI_pyqt4.py"))
+#pyFilePaths.append(os.path.join(ui_path, "saveFields_UI_pyside.py"))
 
 for i,uicFilePath in enumerate(uicFilePaths):
     
-    pyFilePath = pyFilePaths[i]
+    pyFilePath_PyQt4 = pyFilePaths_PyQt4[i]
+    pyFilePath_PySide = pyFilePaths_PySide[i]
     
-#    # with PySide
-#    # call the external pyside-uic tool
-#    print "compiling %s to %s" % (uicFilePath, pyFilePath)
-#    subprocess.call(["pyside-uic", "-o", pyFilePath, uicFilePath])
+    # with PySide
+    # call the external pyside-uic tool
+    print "compiling %s to %s for PySide" % (uicFilePath, pyFilePath_PySide)
+    subprocess.call(["pyside-uic", "-o", pyFilePath_PySide, uicFilePath])
     
     # with PyQt4
     uicFile = file(uicFilePath)
-    pyFile  = file(pyFilePath,'w')
+    pyFile  = file(pyFilePath_PyQt4,'w')
     
-    print "compiling %s to %s" % (uicFilePath, pyFilePaths[i])
+    print "compiling %s to %s for PyQt4" % (uicFilePath, pyFilePath_PyQt4)
     
     uic.compileUi( uicFile, pyFile )
     uicFile.close()
