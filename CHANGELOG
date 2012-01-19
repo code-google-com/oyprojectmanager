@@ -27,6 +27,12 @@ Version History
   not able to create two Sequences with the same name but for different
   :class:`~oyProjectManager.core.models.Project`\ s.
 
+* Added the ability work both with PySide and PyQt4 by setting the environment
+  variable ``PREFERRED_QT_MODULE`` to ``PySide`` or ``PyQt4`` respectively.
+
+* In Maya the resolution will only be set if the given Version instances
+  version number is 1. Preventing unwanted resolution changes.
+
 0.2.1
 -----
 

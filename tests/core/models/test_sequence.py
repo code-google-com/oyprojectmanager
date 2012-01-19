@@ -524,8 +524,28 @@ class Sequence_DB_Tester(unittest.TestCase):
         test_project2 = Project("Test Project for Name Uniqueness 2")
         test_project2.save()
 
-        test_seq1 = Sequence(test_project1, "Seq1A", "SEQ1")
+        test_seq1 = Sequence(test_project1, "SEQ1A", "SEQ1A")
         test_seq1.save()
-
-        test_seq2 = Sequence(test_project2, "Seq1B", "SEQ1")
+        
+        test_seq2 = Sequence(test_project2, "SEQ1B", "SEQ1A")
         test_seq2.save() # no Integrity Error
+    
+    def test_code_argumnet_is_not_unique_for_different_projects_2(self):
+        """testing if no code argument is unique for different projects will
+        not raise IntegrityError
+        """
+        
+        p1 = Project("Migros Kanguru", "MIGROS_KANGURU")
+        p1.save()
+        
+        p2 = Project("Migros M-Label", "MIGROS_M_LABEL")
+        p2.save()
+        
+        s1 = Sequence(p2, "TVC", "TVC")
+        s1.save()
+        
+        p3 = Project("Fairy Obelix Booster", "FAIRY_OBELIX_BOOSTER")
+        p3.save()
+        
+        s2 = Sequence(p3, "TVC", "TVC")
+        s2.save()
