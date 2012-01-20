@@ -125,7 +125,7 @@ class Maya(EnvironmentBase):
         pm.delete(unknownNodes)
         
         # set the file paths for external resources
-        self.replace_external_paths()
+        self.replace_external_paths(mode=1)
         
         # save the file
         pm.saveAs(
@@ -207,7 +207,7 @@ class Maya(EnvironmentBase):
         self.append_to_recent_files(version.full_path)
         
         # replace_external_paths
-        self.replace_external_paths()
+        self.replace_external_paths(mode=1)
         
         # check the referenced assets for newer version
         to_update_list = self.check_referenced_versions()
@@ -891,14 +891,16 @@ class Maya(EnvironmentBase):
                 new_ref_path = ""
                 
                 if mode:
-                    new_ref_path = utils.relpath(
-                        workspace_path,
-                        ref.path
-                    )
-                else:
+                    # convert to absolute path
                     new_ref_path = ref.path.replace(
                         repo.server_path,
                         repo_env_key
+                    )
+                else:
+                    # convert to relative path
+                    new_ref_path = utils.relpath(
+                        workspace_path,
+                        ref.path
                     )
                 
                 logger.info("replacing reference:", ref.path)
@@ -907,12 +909,14 @@ class Maya(EnvironmentBase):
                 ref.replaceWith(new_ref_path)
         
         # texture files
-        # replace with workspace relative paths
+        # replace with $REPO
         for image_file in pm.ls(type="file"):
             file_texture_path = image_file.getAttr("fileTextureName")
             file_texture_path = file_texture_path.replace("\\", "/")
             
             logger.info("replacing file texture: %s" % file_texture_path)
+            
+            file_texture_path = os.path.expandvars(file_texture_path)
             
             # convert to absolute
             if not os.path.isabs(file_texture_path):
@@ -923,13 +927,22 @@ class Maya(EnvironmentBase):
             new_path = ""
             
             if mode:
-                new_path = file_texture_path
+                # convert to absolute
+                new_path = file_texture_path.replace(
+                    os.environ[conf.repository_env_key],
+                    "$" + conf.repository_env_key
+                )
             else:
+                # convert to relative
                 new_path = utils.relpath(
                     workspace_path,
                     file_texture_path,
                     "/", ".."
                 )
+#                new_path = new_path.replace(
+#                    os.environ[conf.repository_env_key],
+#                    "$" + conf.repository_env_key
+#                )
             
             logger.info("with: %s" % new_path)
             
@@ -943,7 +956,9 @@ class Maya(EnvironmentBase):
             logger.info("replacing mr texture: %s" % mr_texture_path)
             
             if mr_texture_path is not None:
-            
+                
+                mr_texture_path = os.path.expandvars(mr_texture_path)
+                
                 # convert to absolute
                 if not os.path.isabs(mr_texture_path):
                     mr_texture_path = os.path.join(
@@ -953,7 +968,10 @@ class Maya(EnvironmentBase):
                 new_path = ""
                 if mode:
                     # convert to absolute
-                    new_path = mr_texture_path
+                    new_path = mr_texture_path.replace(
+                        os.environ[conf.repository_env_key],
+                        "%" + conf.repository_env_key + "%"
+                    )
                 else:
                     # convert to relative
                     new_path = utils.relpath(

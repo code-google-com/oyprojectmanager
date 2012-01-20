@@ -33,6 +33,9 @@ Version History
 * In Maya the resolution will only be set if the given Version instances
   version number is 1. Preventing unwanted resolution changes.
 
+* Maya now replaces external paths (images and references) with absolute paths
+  starting with ``$REPO`` (can change according to the studio config) variable.
+
 0.2.1
 -----
 
