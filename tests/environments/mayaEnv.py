@@ -231,7 +231,6 @@ class MayaTester(unittest.TestCase):
         texture_path = os.path.join(
             pm.workspace.path, ".maya_files/textures/test.jpg"
         )
-#        file_node.setAttr("fileTextureName", texture_path)
         file_node.fileTextureName.set(texture_path)
         
         # save a newer version
@@ -243,12 +242,6 @@ class MayaTester(unittest.TestCase):
         # now check if the file nodes fileTextureName is converted to a
         # relative path to the current workspace
         
-#        expected_path = utils.relpath(
-#            pm.workspace.path,
-#            texture_path,
-#            "/", ".."
-#        )
-        
         expected_path = texture_path.replace(os.environ["REPO"], "$REPO")
         
         self.assertEqual(
@@ -256,43 +249,38 @@ class MayaTester(unittest.TestCase):
             expected_path
         )
 
-    def test_save_as_replaces_mentalrayTexture_paths(self):
-        """testing if save_as method replaces mentalrayImage paths with
-        workspace relative path
-        """
-        
-        self.mEnv.save_as(self.version1)
-        
-        # create mentalrayTexture node
-        mentalrayTexture_node = pm.createNode("mentalrayTexture")
-        
-        # set it to a path in the workspace
-        texture_path = os.path.join(
-            pm.workspace.path, ".maya_files/textures/test.jpg"
-        )
-        mentalrayTexture_node.setAttr("fileTextureName", texture_path)
-        
-        # save a newer version
-        version2 = Version(**self.kwargs)
-        version2.save()
-
-        self.mEnv.save_as(version2)
-
-        # now check if the file nodes fileTextureName is converted to a
-        # relative path to the current workspace
-
-#        expected_path = utils.relpath(
-#            pm.workspace.path,
-#            texture_path,
-#            "/", ".."
+#    def test_save_as_replaces_mentalrayTexture_paths(self):
+#        """testing if save_as method replaces mentalrayImage paths with
+#        workspace relative path
+#        """
+#        
+#        self.mEnv.save_as(self.version1)
+#        
+#        # create mentalrayTexture node
+#        mentalrayTexture_node = pm.createNode("mentalrayTexture")
+#        
+#        # set it to a path in the workspace
+#        texture_path = os.path.join(
+#            pm.workspace.path, ".maya_files/textures/test.jpg"
 #        )
-        expected_path = "%REPO%/TEST_PROJECT/Assets/Test_Asset_1/."+\
-                        "maya_files/textures/test.jpg" 
-        
-        self.assertEqual(
-            mentalrayTexture_node.getAttr("fileTextureName"),
-            expected_path
-        )
+#        mentalrayTexture_node.setAttr("fileTextureName", texture_path)
+#        
+#        # save a newer version
+#        version2 = Version(**self.kwargs)
+#        version2.save()
+#
+#        self.mEnv.save_as(version2)
+#
+#        # now check if the file nodes fileTextureName is converted to a
+#        # relative path to the current workspace
+#
+#        expected_path = "%REPO%/TEST_PROJECT/Assets/Test_Asset_1/."+\
+#                        "maya_files/textures/test.jpg" 
+#        
+#        self.assertEqual(
+#            mentalrayTexture_node.getAttr("fileTextureName"),
+#            expected_path
+#        )
 
     def test_save_as_sets_the_resolution(self):
         """testing if save_as sets the render resolution for the current scene

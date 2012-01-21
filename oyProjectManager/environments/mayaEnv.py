@@ -863,12 +863,23 @@ class Maya(EnvironmentBase):
             return False
     
     def replace_external_paths(self, mode=0):
-        """replaces all the external paths
+        """Replaces all the external paths
         
         replaces:
-          references: to a path with $REPO env variable
-          file and mentalrayTextures: to a relative path to the project path
-                                      (the self._asset.sequencefull_path)
+          references: to a path which starts with $REPO env variable in
+                      absolute mode and a workspace relative path in relative
+                      mode
+          file      : to a path which starts with $REPO env variable in
+                      absolute mode and a workspace relative path in relative
+                      mode
+        
+        Absolute mode works best for now.
+        
+        .. note::
+          After v0.2.2 the system doesn't care about the mentalrayTexture
+          nodes because the lack of a good environment variable support from
+          that node. Use regular maya file nodes with mib_texture_filter_lookup
+          nodes to have the same sharp results.
         
         :param mode: Defines the process mode:
           if mode == 0 : replaces with relative paths
@@ -947,45 +958,6 @@ class Maya(EnvironmentBase):
             logger.info("with: %s" % new_path)
             
             image_file.setAttr("fileTextureName", new_path)
-        
-        # replace mentalray textures
-        for mr_texture in pm.ls(type="mentalrayTexture"):
-            mr_texture_path =  mr_texture.getAttr("fileTextureName")
-            mr_texture_path = mr_texture_path.replace("\\", "/")
-            
-            logger.info("replacing mr texture: %s" % mr_texture_path)
-            
-            if mr_texture_path is not None:
-                
-                mr_texture_path = os.path.expandvars(mr_texture_path)
-                
-                # convert to absolute
-                if not os.path.isabs(mr_texture_path):
-                    mr_texture_path = os.path.join(
-                        workspace_path, mr_texture_path
-                    ).replace("\\", "/")
-
-                new_path = ""
-                if mode:
-                    # convert to absolute
-                    new_path = mr_texture_path.replace(
-                        os.environ[conf.repository_env_key],
-                        "%" + conf.repository_env_key + "%"
-                    )
-                else:
-                    # convert to relative
-                    new_path = utils.relpath(
-                        workspace_path,
-                        mr_texture_path,
-                        "/", ".."
-                    )
-                
-                logger.info("with: %s" % new_path)
-                
-                mr_texture.setAttr(
-                    "fileTextureName",
-                    new_path
-                )
     
     def create_workspace_file(self, path):
         """creates the workspace.mel at the given path

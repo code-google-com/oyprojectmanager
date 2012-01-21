@@ -9,10 +9,11 @@ Version History
   Version is published.
 
 * ``version_creator`` UI now shows the published
-  :class:`~oyProjectManager.core.models.Version`\ s in bold.
+  :class:`~oyProjectManager.core.models.Version`\ s in green and bold font.
 
 * :class:`~oyProjectManager.core.models.User` instances now have a
-  :meth:`~oyProjectManager.core.models.User.save` method.
+  :meth:`~oyProjectManager.core.models.User.save` method to easily save the
+  data to the database.
 
 * Added ``Show Only Published Versions`` option to the ``version_creator`` UI.
 
@@ -28,13 +29,23 @@ Version History
   :class:`~oyProjectManager.core.models.Project`\ s.
 
 * Added the ability work both with PySide and PyQt4 by setting the environment
-  variable ``PREFERRED_QT_MODULE`` to ``PySide`` or ``PyQt4`` respectively.
+  variable ``PREFERRED_QT_MODULE`` to ``PySide`` or ``PyQt4`` respectively
+  before launching the application (added especially for Nuke 6.3v5 and later
+  for their inclusion of PySide to their default install). If no environment
+  variable is found then the system will continue to work with PyQt4.
 
-* In Maya the resolution will only be set if the given Version instances
-  version number is 1. Preventing unwanted resolution changes.
+* In Maya the resolution will only be set if the given
+  :class:`~oyProjectManager.core.models.Version` instances version number is 1
+  to prevent unwanted resolution changes.
 
-* Maya now replaces external paths (images and references) with absolute paths
-  starting with ``$REPO`` (can change according to the studio config) variable.
+* :class:`~oyProjectManager.environments.mayaEnv.Maya` now replaces external
+  paths (images and references) with absolute paths starting with ``$REPO``
+  (the env variable name can change according to the studio config).
+
+* For Maya environment the support for ``mentalrayTexture``s has ended due to
+  the lack of a good environment variable support. Use regular maya ``file``
+  nodes for textures with ``mib_texture_filter_lookup`` nodes for the same
+  sharp result.
 
 0.2.1
 -----
