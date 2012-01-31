@@ -51,6 +51,19 @@ Version History
   :meth:`~oyProjectManager.core.models.Version.is_latest_published_version` and
   :meth:`~oyProjectManager.core.models.Version.
 
+* Fixed a bug in the ``version_creator`` UI where the ``shots_listWidget`` was
+  not correctly cleared after switching the current project from a project with
+  sequences to a project without any sequences.
+
+* Fixed a bug in ``mayaEnv`` where it was not able to retrieve the
+  list of references correctly under Windows OS which is caused again by the
+  backslash issue.
+
+* Updated the ``version_updater`` UI, it now works properly with new
+  :class:`~oyProjectManager.core.models.Version` instances. But it is again not
+  informing the user about `deep updates` which will be added in near future
+  releases.
+
 0.2.1
 -----
 

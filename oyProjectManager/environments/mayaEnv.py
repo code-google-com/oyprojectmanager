@@ -598,7 +598,7 @@ class Maya(EnvironmentBase):
                             temp_version_full_path
                         )
                     )
-                )
+                ).replace("\\", "/")
             
             refs_and_paths.append((reference, temp_version_full_path))
         
@@ -611,7 +611,6 @@ class Maya(EnvironmentBase):
         prev_full_path = ''
         
         for reference, full_path in refs_and_paths:
-            
             if full_path == prev_full_path:
                 # directly append the version to the list
                 valid_versions.append(

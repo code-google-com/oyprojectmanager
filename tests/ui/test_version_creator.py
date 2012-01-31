@@ -2333,6 +2333,61 @@ class VersionCreatorTester(unittest.TestCase):
         self.assertTrue(
             versions[-3] in dialog.previous_versions_tableWidget.versions
         )
+    
+    def test_shots_listWidgets_gets_empty_for_a_new_project_without_sequence(self):
+        """testing if shots_listWidget becomes empty when switched from a
+        project with sequences to a project without sequences
+        """
+        
+        proj1 = Project("Test Project 1")
+        proj1.save()
+        
+        proj2 = Project("Test Project 2")
+        proj2.save()
+        
+        seq1 = Sequence(proj1, "Test Seq 1")
+        seq1.save()
+        
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+        
+        shot2 = Shot(seq1, 2)
+        shot2.save()
+        
+        shot3 = Shot(seq1, 3)
+        shot3.save()
+        
+        shot4 = Shot(seq1, 4)
+        shot4.save()
+        
+        dialog = version_creator.MainDialog()
+#        dialog.show()
+#        self.app.exec_()
+#        self.app.connect(
+#            self.app,
+#            QtCore.SIGNAL("lastWindowClosed()"),
+#            self.app,
+#            QtCore.SLOT("quit()")
+#        )
+        
+        # set the tab to shots
+        dialog.tabWidget.setCurrentIndex(1)
+        
+        # select seq1
+        index = dialog.sequences_comboBox.findText(seq1.name)
+        dialog.sequences_comboBox.setCurrentIndex(index)
+        
+        # check if the shots_listWidget has only 4 elements
+        self.assertTrue(dialog.shots_listWidget.count()==4)
+        
+        # now switch to proj2
+        index = dialog.projects_comboBox.findText(proj2.name)
+        dialog.projects_comboBox.setCurrentIndex(index)
+        
+        # check if the shots_listWidget has no elemens
+        self.assertTrue(dialog.shots_listWidget.count()==0)
+        
+        
 
 
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):

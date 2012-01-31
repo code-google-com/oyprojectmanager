@@ -547,6 +547,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 self.sequences_comboBox_changed(0)
             else:
                 # there is no sequence
+                # clear the shots_listWidget
+                self.shots_listWidget.clear()
+                
                 # clear the version comboBox
                 self.version_types_comboBox.clear()
                 
@@ -1366,6 +1369,15 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # call the environments export_as method
         if self.environment is not None:
             self.environment.export_as(new_version)
+            
+            # inform the user about what happened
+            QtGui.QMessageBox.information(
+                self,
+                "Export",
+                new_version.filename + "\n\n has been exported correctly!",
+                QtGui.QMessageBox.Ok
+            )
+
     
     def save_as_pushButton_clicked(self):
         """runs when the save_as_pushButton clicked
@@ -1409,10 +1421,11 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # call the environments open_ method
         if self.environment is not None:
             
+            to_update_list = []
             # environment can throw RuntimeError for unsaved changes
-            
             try:
-                self.environment.open_(old_version)
+                envStatus, to_update_list = \
+                    self.environment.open_(old_version)
             except RuntimeError as e:
                 # pop a dialog and ask if the user really wants to open the
                 # file
@@ -1434,16 +1447,16 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 else:
                     # no, just return
                     return
+            
+            # check the to_update_list to update old versions
+            if len(to_update_list):
+                # invoke the assetUpdater for this scene
+                version_updater_mainDialog = \
+                    version_updater.MainDialog(self.environment, self)
                 
-                # check the to_update_list to update old versions
-                if len(to_update_list):
-                    # invoke the assetUpdater for this scene
-                    version_updater_mainDialog = \
-                        version_updater.MainDialog(self.environment.name, self)
-                    
-                    version_updater_mainDialog.exec_()
-                    
-                self.environment.post_open(old_version)
+                version_updater_mainDialog.exec_()
+            
+            self.environment.post_open(old_version)
         
         # close the dialog
         self.close()
@@ -1455,11 +1468,31 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # get the new version
         previous_version = self.get_previous_version()
         
+        # allow only published versions to be referenced
+        if not previous_version.is_published:
+            QtGui.QMessageBox.critical(
+                self,
+                "Critical Error",
+                "Referencing <b>un-published versions</b> are not allowed!\n"
+                "Please reference a published version of the same Asset/Shot",
+                QtGui.QMessageBox.Ok
+            )
+            return
+        
         logger.debug("referencing version %s" % previous_version)
         
         # call the environments reference method
         if self.environment is not None:
             self.environment.reference(previous_version)
+            
+            # inform the user about what happened
+            QtGui.QMessageBox.information(
+                self,
+                "Reference",
+                previous_version.filename + \
+                    "\n\n has been referenced correctly!",
+                QtGui.QMessageBox.Ok
+            )
     
     def import_pushButton_clicked(self):
         """runs when the import_pushButton clicked
@@ -1473,4 +1506,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # call the environments import_ method
         if self.environment is not None:
             self.environment.import_(previous_version)
-    
+
+            # inform the user about what happened
+            QtGui.QMessageBox.information(
+                self,
+                "Import",
+                previous_version.filename + \
+                    "\n\n has been imported correctly!",
+                QtGui.QMessageBox.Ok
+            )
