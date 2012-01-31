@@ -1927,8 +1927,8 @@ class Version(Base):
         return db.session\
             .query(Version)\
             .filter(Version.type==self.type)\
-            .filter(Version.version_of == self.version_of)\
-            .filter(Version.take_name == self.take_name)\
+            .filter(Version.version_of==self.version_of)\
+            .filter(Version.take_name==self.take_name)\
             .order_by(Version.version_number.desc())\
             .first()
     
@@ -2044,8 +2044,31 @@ class Version(Base):
         """
         return self.max_version == self.version_number
     
+    def is_latest_published_version(self):
+        """returns True if this is the latest published Version False otherwise
+        """
+        if not self.is_published:
+            return False
+        
+        return self == self.latest_published_version()
+    
+    def latest_published_version(self):
+        """Returns the last published version.
+        
+        :return: :class:`~oyProjectManager.core.models.Version`
+        """
+        
+        return db.session\
+            .query(Version)\
+            .filter(Version.type==self.type)\
+            .filter(Version.version_of==self.version_of)\
+            .filter(Version.take_name==self.take_name)\
+            .filter(Version.is_published==True)\
+            .order_by(Version.version_number.desc())\
+            .first()
+    
     @property
-    def dependency_update_list(self):
+    def dependency_update_list(self, published_only=True):
         """Calculates a list of :class:`~oyProjectManager.core.models.Version`
         instances, which are referenced by this Version and has a newer
         version.
@@ -2063,11 +2086,21 @@ class Version(Base):
         
         update_list = []
         
+#        for ref in self.references:
+#            if not ref.is_latest_version():
+#                update_list.append(ref)
+#            # also loop in their references
+#            update_list.extend(ref.dependency_update_list)
+        
+        # for now just search for published versions for the first references
+        # do not search the children of it
         for ref in self.references:
-            if not ref.is_latest_version():
+            # get the last published versions of the references
+            published_version = ref.latest_published_version()
+            # if the version number is bigger add it to the update list
+            if published_version.version_number > ref.version_number:
                 update_list.append(ref)
-            # also loop in their references
-            update_list.extend(ref.dependency_update_list)
+        
         
         return update_list
 
@@ -2914,7 +2947,7 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
 
-#    def update_versions(self, assetTupleList):
+#    def update_versions(self, version_tuple_list):
 #        """updates the assets to the latest versions
 #        """
 #        raise NotImplemented

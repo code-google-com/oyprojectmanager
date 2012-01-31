@@ -551,7 +551,7 @@ class Maya(EnvironmentBase):
         """checks the referenced assets versions
         
         returns a list of Version instances and maya Reference objects in a
-        tupple
+        tuple
         """
         
         # get all the valid version references
@@ -560,15 +560,14 @@ class Maya(EnvironmentBase):
         to_be_updated_list = []
         
         for version_tuple in version_tuple_list:
-            
             version = version_tuple[0]
             
-            if not version.is_latest_version():
+            if not version.is_latest_published_version():
                 # add version to the update list
                 to_be_updated_list.append(version_tuple)
-            
+        
         # sort the list according to full_path
-        return sorted(to_be_updated_list, None, lambda x: x[2])
+        return sorted(to_be_updated_list, key=lambda x: x[2])
     
     def get_referenced_versions(self):
         """Returns the versions those been referenced to the current scene

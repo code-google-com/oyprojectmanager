@@ -14,18 +14,18 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Asset Updater</string>
+   <string>Version Updater</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Please check the Assets that needs to be updated</string>
+      <string>Please check the Versions that needs to be updated</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QTableWidget" name="assetList_tableWidget">
+    <widget class="QTableWidget" name="versions_tableWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>1</horstretch>
@@ -48,12 +48,6 @@
       <bool>true</bool>
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
-      <bool>true</bool>
-     </attribute>
-     <attribute name="horizontalHeaderStretchLastSection">
-      <bool>true</bool>
-     </attribute>
-     <attribute name="horizontalHeaderVisible">
       <bool>true</bool>
      </attribute>
      <column/>

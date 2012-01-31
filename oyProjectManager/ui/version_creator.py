@@ -16,6 +16,7 @@ from oyProjectManager import config, db
 from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
                                           Version, VersionType, Shot, User,
                                           VersionTypeEnvironments)
+from oyProjectManager.ui import version_updater
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
@@ -1434,11 +1435,13 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                     # no, just return
                     return
                 
-#                # check the to_update_list to update old versions
-#                if len(to_update_list):
-#                    # invoke the assetUpdater for this scene
-#                    assetUpdaterMainDialog = version_updater.MainDialog(self.environment.name, self )
-#                    assetUpdaterMainDialog.exec_()
+                # check the to_update_list to update old versions
+                if len(to_update_list):
+                    # invoke the assetUpdater for this scene
+                    version_updater_mainDialog = \
+                        version_updater.MainDialog(self.environment.name, self)
+                    
+                    version_updater_mainDialog.exec_()
                     
                 self.environment.post_open(old_version)
         

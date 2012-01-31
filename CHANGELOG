@@ -47,6 +47,10 @@ Version History
   nodes for textures with ``mib_texture_filter_lookup`` nodes for the same
   sharp result.
 
+* :class:`~oyProjectManager.core.models.Version` now has
+  :meth:`~oyProjectManager.core.models.Version.is_latest_published_version` and
+  :meth:`~oyProjectManager.core.models.Version.
+
 0.2.1
 -----
 

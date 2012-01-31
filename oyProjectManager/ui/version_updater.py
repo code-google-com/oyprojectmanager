@@ -6,15 +6,22 @@
 
 import os, sys
 
-#from PySide import QtGui, QtCore
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-from PyQt4 import QtGui, QtCore
+qt_module_key = "PREFERRED_QT_MODULE"
+qt_module = "PyQt4"
 
-import version_updater_UI
+if os.environ.has_key(qt_module_key):
+    qt_module = os.environ[qt_module_key]
 
-from oyProjectManager.environments import environmentFactory
+if qt_module == "PySide":
+    from PySide import QtGui, QtCore
+    from oyProjectManager.ui import version_updater_UI_pyside as version_updater_UI
+elif qt_module == "PyQt4":
+    import sip
+    sip.setapi('QString', 2)
+    sip.setapi('QVariant', 2)
+    from PyQt4 import QtGui, QtCore
+    from oyProjectManager.ui import version_updater_UI_pyqt4 as version_updater_UI
+
 
 
 def UI(environment):
@@ -58,7 +65,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
     for other environments reference object type will be as native as it can be
     """
     
-    def __init__(self, environmentName=None, parent=None):
+    def __init__(self, environment=None, parent=None):
         super(MainDialog, self).__init__(parent)
         self.setupUi(self)
         
@@ -68,8 +75,8 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
         # center to the window
         self._centerWindow()
         
-        self._horizontalLabels = [ 'Asset Name', 'Current', 'Last', 'Do Update?' ]
-        self.assetList_tableWidget.setHorizontalHeaderLabels( self._horizontalLabels )
+        self._horizontalLabels = [ 'Version Name', 'Current', 'Last', 'Do Update?' ]
+        self.versions_tableWidget.setHorizontalHeaderLabels( self._horizontalLabels )
         
         # ------------------------------------------------------------
         # SIGNALS
@@ -79,18 +86,18 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
         QtCore.QObject.connect( self.cancel_pushButton, QtCore.SIGNAL("clicked()"), self.close )
         
         # select all button
-        QtCore.QObject.connect( self.selectAll_pushButton, QtCore.SIGNAL("clicked()"), self._selectAllAssets )
+        QtCore.QObject.connect( self.selectAll_pushButton, QtCore.SIGNAL("clicked()"), self._select_all_versions )
         
         # select none button
-        QtCore.QObject.connect( self.selectNone_pushButton, QtCore.SIGNAL("clicked()"), self._selectNoAsset )
+        QtCore.QObject.connect( self.selectNone_pushButton, QtCore.SIGNAL("clicked()"), self._select_no_version )
         
         # update button
-        QtCore.QObject.connect( self.update_pushButton, QtCore.SIGNAL("clicked()"), self.updateAssets )
+        QtCore.QObject.connect( self.update_pushButton, QtCore.SIGNAL("clicked()"), self.update_versions )
         
         # ------------------------------------------------------------
         
-        self._assetTupleList = []
-        self._numOfAssets = 0
+        self._version_tuple_list = []
+        self._num_of_versions = 0
         
         self._tableItems = []
         
@@ -98,237 +105,147 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
         # ------------------------------------------------------------
         # setup the environment
         # ------------------------------------------------------------
-        self._environmentName = environmentName
-        self._environment = None
-        
-        self.setEnvironmentName( self._environmentName )
+        self.environment = environment
         
         ## ---------------
         ## debug
         ## show the assets in the interface
         #self._testDataFill()
         ## ---------------
-        self._doEnvRead()
-        self._fillUI()
-    
-    
-    
+        self._do_env_read()
+        self._fill_UI()
     
     def _centerWindow(self):
         """centers the window to the screen
         """
         screen = QtGui.QDesktopWidget().screenGeometry()
         size =  self.geometry()
-        self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2)
+        self.move(
+            (screen.width()-size.width()) * 0.5,
+            (screen.height()-size.height()) * 0.5
+        )
     
-    
-    
-    
-    def getAssetTupleListFromEnvironment(self):
+    def get_version_tuple_from_environment(self):
         """gets the references from environment
         
         returns a tuple consist of an asset and the environments representation
         of the asset
         """
-        return self._environment.checkReferenceVersions()
+        return self.environment.check_referenced_versions()
     
-    
-    
-    def getAssetTupleList(self):
+    def get_version_tuple_list(self):
         """returns the asset tuple list
         """
-        return self._assetTupleList
+        return self._version_tuple_list
     
-    
-    
-    
-    def setAssetTupleList(self, assetTupleList):
+    def set_version_tuple_list(self, assetTupleList):
         """sets the asset tuple list
         """
-        self._assetTupleList = assetTupleList
-        self._numOfAssets = len( self._assetTupleList )
+        self._version_tuple_list = assetTupleList
+        self._num_of_versions = len(self._version_tuple_list)
     
-    assetTupleList = property( getAssetTupleList, setAssetTupleList )
+    version_tuple_list = property(get_version_tuple_list, set_version_tuple_list)
     
-    
-    
-    
-    def getEnvironmentName(self):
-        """returns the environment name
-        """
-        return self._environmentName
-    
-    
-    
-    
-    def setEnvironmentName(self, environmentName):
-        """sets the environment name
-        """
-        self._environmentName = environmentName
-        
-        envFactory = environmentFactory.EnvironmentFactory()
-        self._environment = envFactory.create( None, self._environmentName )
-        
-    
-    environmentName = property( getEnvironmentName, setEnvironmentName )
-    
-    
-    
-    
-    def getEnvironment(self):
-        """returns the environment object
-        """
-        return self._environment
-    
-    
-    
-    
-    def setEnvironment(self, environment):
-        """sets the environment
-        """
-        self._environmentName = environment
-    
-    environment = property( getEnvironment, setEnvironment )
-    
-    
-    
-    #
-    #def _testDataFill(self):
-        #"""creates some test data to test the interface
-        #"""
-        
-        ## create a project a sequence and get some assets
-        #assetCount = 10
-        
-        #repo = repository.Repository()
-        #proj = project.Project( 'ETI_TOPKEK' )
-        #seq = project.Sequence( proj, '_CHARACTER_SETUP_' )
-        
-        #assetFileNames = seq.getAllAssetFileNamesForType('RIG')
-        
-        ## fill the data
-        #self._assetTupleList = []
-        #for i in range(assetCount):
-            #self._assetTupleList.append( (asset.Asset( proj, seq, assetFileNames[i] ), None) )
-    
-    
-    
-    
-    def _fillUI(self):
+    def _fill_UI(self):
         """fills the UI with the asset data
         """
         
         # set the row count
-        self.assetList_tableWidget.setRowCount( self._numOfAssets )
+        self.versions_tableWidget.setRowCount(self._num_of_versions)
         
-        for i,assetTuple in enumerate(self._assetTupleList):
-            #assert(isinstance(assetObj, asset.Asset) )
-            
-            assetObj = assetTuple[0]
+        for i,version_info in enumerate(self._version_tuple_list):
+            version = version_info[0]
             
             # ------------------------------------
             # the critique name
-            assetName_tableWI = QtGui.QTableWidgetItem( assetObj._getCritiqueName() )
+            base_name_tableWI = QtGui.QTableWidgetItem(version.base_name)
             # align to left and vertical center
-            assetName_tableWI.setTextAlignment( 0x0001 | 0x0080  )
-            self.assetList_tableWidget.setItem( i, 0, assetName_tableWI )
+            base_name_tableWI.setTextAlignment(0x0001 | 0x0080)
+            self.versions_tableWidget.setItem(i, 0, base_name_tableWI)
             # ------------------------------------
-            
             
             # ------------------------------------
             # current version
-            currentVersionNumber = str( assetObj.versionNumber )
-            currentVersion_tableWI = QtGui.QTableWidgetItem( currentVersionNumber )
+            current_version_number = str(version.version_number)
+            current_version_number_tableWI = QtGui.QTableWidgetItem(current_version_number)
             # align to horizontal and vertical center
-            currentVersion_tableWI.setTextAlignment( 0x0004 | 0x0080  )
-            self.assetList_tableWidget.setItem( i, 1, currentVersion_tableWI )
+            current_version_number_tableWI.setTextAlignment(0x0004 | 0x0080)
+            self.versions_tableWidget.setItem(i, 1, current_version_number_tableWI)
             # ------------------------------------
-            
             
             # ------------------------------------
             # last version
-            lastVersionNumber = str( assetObj.latestVersion2[1] )
-            lastVersion_tableWI = QtGui.QTableWidgetItem( lastVersionNumber )
+            latest_published_version_number = \
+                str(version.latest_published_version().version_number)
+            lastest_version_tableWI = \
+                QtGui.QTableWidgetItem(latest_published_version_number)
             # align to horizontal and vertical center
-            lastVersion_tableWI.setTextAlignment( 0x0004 | 0x0080 )
-            self.assetList_tableWidget.setItem( i, 2, lastVersion_tableWI )
+            lastest_version_tableWI.setTextAlignment( 0x0004 | 0x0080 )
+            self.versions_tableWidget.setItem(i, 2, lastest_version_tableWI)
             # ------------------------------------
-            
             
             # ------------------------------------
             # do update ?
             checkBox_tableWI = QtGui.QTableWidgetItem('')
             #checkBox_tableWI.setCheckState( 16 )
             checkBox_tableWI.setCheckState( 0 )
-            self.assetList_tableWidget.setItem( i, 3, checkBox_tableWI )
+            self.versions_tableWidget.setItem( i, 3, checkBox_tableWI )
             # ------------------------------------
             
-            self._tableItems.append( [assetName_tableWI, currentVersion_tableWI, lastVersion_tableWI, checkBox_tableWI] )
+            self._tableItems.append(
+                [base_name_tableWI,
+                 current_version_number_tableWI,
+                 lastest_version_tableWI,
+                 checkBox_tableWI]
+            )
     
-    
-    
-    
-    def _doEnvRead(self):
+    def _do_env_read(self):
         """gets the asset tuple from env
         """
-        self._assetTupleList = self.getAssetTupleListFromEnvironment()
-        self._numOfAssets = len( self._assetTupleList )
+        self._version_tuple_list = self.get_version_tuple_from_environment()
+        self._num_of_versions = len(self._version_tuple_list)
     
-    
-    
-    
-    def _selectAllAssets(self):
-        """selects all the assets in the tableWidget
+    def _select_all_versions(self):
+        """selects all the versions in the tableWidget
         """
-        
         for currentItems in self._tableItems:
             currentItem = currentItems[3]
             currentItem.setCheckState( 2 )
     
-    
-    
-    def _selectNoAsset(self):
-        """deselects all assets in the tableWidget
+    def _select_no_version(self):
+        """deselects all versions in the tableWidget
         """
-        
         for currentItems in self._tableItems:
             currentItem = currentItems[3]
             currentItem.setCheckState( 0 )
-        
     
-    
-    
-    
-    def updateAssets(self):
-        """updates the assets if it is checked in the
+    def update_versions(self):
+        """updates the versions if it is checked in the UI
         """
         
-        # get the marked assets from UI first
-        markedAssets = self.getMarkedAssets()
+        # get the marked versions from UI first
+        marked_versions = self.get_marked_versions()
         
         # send them back to environment
-        self._environment.update_versions( markedAssets )
+        self.environment.update_versions(marked_versions)
         
         # close the interface
         self.close()
     
-    
-    
-    
-    def getMarkedAssets(self):
+    def get_marked_versions(self):
         """returns the assets as tuple again, if it is checked in the interface
         """
         
-        markedAssetList = []
+        marked_version_list = []
         
-        # find the marked assets
-        for i in range(self._numOfAssets):
+        # find the marked versions
+        for i in range(self._num_of_versions):
             checkBox_tableItem = self._tableItems[i][3]
-            assert(isinstance(checkBox_tableItem, QtGui.QTableWidgetItem))
+#            assert(isinstance(checkBox_tableItem, QtGui.QTableWidgetItem))
             
             if checkBox_tableItem.checkState() == 2:
                 # get the ith number of the asset
-                markedAssetList.append( self._assetTupleList[i] )
+                marked_version_list.append( self._version_tuple_list[i] )
         
-        return markedAssetList
+        return marked_version_list
         

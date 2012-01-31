@@ -1332,3 +1332,80 @@ class VersionTester(unittest.TestCase):
         """
         self.test_version.is_published = True
         self.assertEqual(self.test_version.is_published, True)
+    
+    def test_latest_published_version_is_working_properly(self):
+        """testing if the latest_published_version is returning the latest
+        published version properlyy
+        """
+        
+        vers1 = self.test_version
+        
+        self.kwargs["is_published"] = True
+        vers2 = Version(**self.kwargs)
+        vers2.save()
+
+        self.kwargs["is_published"] = False
+        vers3 = Version(**self.kwargs)
+        vers3.save()
+
+        self.kwargs["is_published"] = False
+        vers4 = Version(**self.kwargs)
+        vers4.save()
+
+        self.kwargs["is_published"] = True
+        vers5 = Version(**self.kwargs)
+        vers5.save()
+
+        self.kwargs["is_published"] = False
+        vers6 = Version(**self.kwargs)
+        vers6.save()
+
+        self.kwargs["is_published"] = False
+        vers7 = Version(**self.kwargs)
+        vers7.save()
+        
+        self.assertEqual(vers1.latest_published_version(), vers5)
+        self.assertEqual(vers2.latest_published_version(), vers5)
+        self.assertEqual(vers3.latest_published_version(), vers5)
+        self.assertEqual(vers4.latest_published_version(), vers5)
+        self.assertEqual(vers5.latest_published_version(), vers5)
+        self.assertEqual(vers6.latest_published_version(), vers5)
+        self.assertEqual(vers7.latest_published_version(), vers5)
+
+    def test_is_latest_published_version_works_properly(self):
+        """testing if the is_latest_published_version is working properly
+        """
+
+        vers1 = self.test_version
+
+        self.kwargs["is_published"] = True
+        vers2 = Version(**self.kwargs)
+        vers2.save()
+    
+        self.kwargs["is_published"] = False
+        vers3 = Version(**self.kwargs)
+        vers3.save()
+    
+        self.kwargs["is_published"] = False
+        vers4 = Version(**self.kwargs)
+        vers4.save()
+    
+        self.kwargs["is_published"] = True
+        vers5 = Version(**self.kwargs)
+        vers5.save()
+    
+        self.kwargs["is_published"] = False
+        vers6 = Version(**self.kwargs)
+        vers6.save()
+    
+        self.kwargs["is_published"] = False
+        vers7 = Version(**self.kwargs)
+        vers7.save()
+        
+        self.assertEqual(vers1.is_latest_published_version(), False)
+        self.assertEqual(vers2.is_latest_published_version(), False)
+        self.assertEqual(vers3.is_latest_published_version(), False)
+        self.assertEqual(vers4.is_latest_published_version(), False)
+        self.assertEqual(vers5.is_latest_published_version(), True)
+        self.assertEqual(vers6.is_latest_published_version(), False)
+        self.assertEqual(vers7.is_latest_published_version(), False)
