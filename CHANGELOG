@@ -67,6 +67,10 @@ Version History
 * Fixed the ``version_creator`` UI, for Shots, it was listing all the types
   instead of types which are compatible with the current environment.
 
+* Fixed a bug in ``mayaEnv`` where it was not able to save the scene if
+  mentalray is set as the renderer but the mentalrayGlobals node is not
+  created yet.
+
 0.2.1
 -----
 

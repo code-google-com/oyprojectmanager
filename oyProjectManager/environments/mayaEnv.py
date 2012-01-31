@@ -166,6 +166,9 @@ class Maya(EnvironmentBase):
         # export the file
         pm.exportSelected(version.full_path, type='mayaAscii')
         
+        # save the version
+        version.save()
+        
         return True
     
     def open_(self, version, force=False):
@@ -456,7 +459,19 @@ class Maya(EnvironmentBase):
             import pymel
             try:
                 if pymel.versions.current() >= pymel.versions.v2012:
-                    mrG = pm.PyNode("mentalrayGlobals")
+                    try:
+                        mrG = pm.PyNode("mentalrayGlobals")
+                    except pm.general.MayaNodeError:
+                        # the renderer is set to mentalray but it is not loaded
+                        # so there is no mentalrayGlobals
+                        # create them
+                        
+                        # dirty little maya tricks
+                        pm.mel.miCreateDefaultNodes()
+                        
+                        # get it again
+                        mrG = pm.PyNode("mentalrayGlobals")
+                    
                     mrG.setAttr("imageCompression", 4)
             except AttributeError, pm.general.MayaNodeError:
                 pass
