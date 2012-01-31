@@ -663,14 +663,25 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # update the version data
         # Types
-        # get all the types for this asset
-        types = map(
-            lambda x: x[0],
-            db.query(distinct(VersionType.name)).
-            join(Version).
-            filter(Version.version_of==shot).
-            all()
-        )
+        # get all the types for this shot
+        if self.environment is None:
+            types = map(
+                lambda x: x[0],
+                db.query(distinct(VersionType.name)).
+                join(Version).
+                filter(Version.version_of==shot).
+                all()
+            )
+        else:
+            types = map(
+                lambda x: x[0],
+                db.query(distinct(VersionType.name))
+                .join(VersionTypeEnvironments)
+                .join(Version)
+                .filter(VersionTypeEnvironments.environment_name==self.environment.name)
+                .filter(Version.version_of==shot)
+                .all()
+            )
         
         # add the types to the version types list
         self.version_types_comboBox.clear()

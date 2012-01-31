@@ -64,6 +64,9 @@ Version History
   informing the user about `deep updates` which will be added in near future
   releases.
 
+* Fixed the ``version_creator`` UI, for Shots, it was listing all the types
+  instead of types which are compatible with the current environment.
+
 0.2.1
 -----
 

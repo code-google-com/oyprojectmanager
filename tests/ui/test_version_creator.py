@@ -765,7 +765,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         proj1 = Project("TEST_PROJECT1j")
         proj1.create()
-        
+
         asset1 = Asset(proj1, "TEST_ASSET1")
         asset1.save()
 
@@ -809,7 +809,7 @@ class VersionCreatorTester(unittest.TestCase):
         vers6 = Version(asset2, asset2.name, asset_vtypes[4], user1,
             take_name="Test3")
         vers6.save()
-        
+
         tEnv = TestEnvironment()
 
         dialog = version_creator.MainDialog(tEnv)
@@ -833,6 +833,89 @@ class VersionCreatorTester(unittest.TestCase):
         # converting from assertItemsEqual
         self.assertTrue(len(ui_type_names)==2)
         for item in [asset_vtypes[0].name, asset_vtypes[1].name]:
+            self.assertTrue(item in ui_type_names)
+
+    def test_version_types_comboBox_lists_all_the_types_of_the_current_shot_versions_compatible_with_the_environment(self):
+        """testing if the version_types_comboBox lists all the types of the
+        current shot which is compatible with the current environment
+        """
+
+        proj1 = Project("TEST_PROJECT1j")
+        proj1.create()
+        
+        seq1 = Sequence(proj1, "Test Sequence 1")
+        seq1.save()
+        
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+
+        shot2 = Shot(seq1, 2)
+        shot2.save()
+
+        # new user
+        user1 = User(name="User1", initials="u1",
+            email="user1@test.com")
+
+        # create a couple of versions
+        shot_vtypes =\
+            db.query(VersionType).filter_by(type_for="Shot").all()
+        
+        shot_vtypes[0].environments = ["TestEnv"]
+        shot_vtypes[1].environments = ["TestEnv"]
+        shot_vtypes[4].environments = ["TestEnv"]
+        db.session.commit()
+        
+        vers1 = Version(shot1, shot1.code, shot_vtypes[0], user1,
+            take_name="Main")
+        vers1.save()
+
+        vers2 = Version(shot1, shot1.code, shot_vtypes[0], user1,
+            take_name="Main")
+        vers2.save()
+
+        vers3 = Version(shot1, shot1.code, shot_vtypes[1], user1,
+            take_name="Test")
+        vers3.save()
+
+        vers4 = Version(shot1, shot1.code, shot_vtypes[2], user1,
+            take_name="Test")
+        vers4.save()
+
+        # a couple of versions for shot2 to see if they are going to be mixed
+        vers5 = Version(shot2, shot2.code, shot_vtypes[3], user1,
+            take_name="Test2")
+        vers5.save()
+
+        vers6 = Version(shot2, shot2.code, shot_vtypes[4], user1,
+            take_name="Test3")
+        vers6.save()
+
+        tEnv = TestEnvironment()
+
+        dialog = version_creator.MainDialog(tEnv)
+        #        dialog.show()
+        #        self.app.exec_()
+        #        self.app.connect(
+        #            self.app,
+        #            QtCore.SIGNAL("lastWindowClosed()"),
+        #            self.app,
+        #            QtCore.SLOT("quit()")
+        #        )
+        
+        # set tabs to shots
+        dialog.tabWidget.setCurrentIndex(1)
+        
+        # check if Main and Test are in the takes_comboBox
+        ui_type_names = []
+        for i in range(dialog.version_types_comboBox.count()):
+            dialog.version_types_comboBox.setCurrentIndex(i)
+            ui_type_names.append(
+                dialog.version_types_comboBox.currentText()
+            )
+        
+        # converting from assertItemsEqual
+        self.assertTrue(len(ui_type_names)==2)
+        for item in [shot_vtypes[0].name, shot_vtypes[1].name]:
             self.assertTrue(item in ui_type_names)
 
     def test_previous_versions_tableWidget_is_updated_properly(self):
