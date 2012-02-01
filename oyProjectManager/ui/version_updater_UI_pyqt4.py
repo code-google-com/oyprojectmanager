@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_updater.ui'
+# Form implementation generated from reading ui file '/mnt/M/DEV/generic/oyProjectManager/oyProjectManager/ui/version_updater.ui'
 #
-# Created: Tue Jan 31 13:50:42 2012
-#      by: PyQt4 UI code generator 4.8.5
+# Created: Wed Feb  1 02:47:54 2012
+#      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
 

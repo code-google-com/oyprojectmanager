@@ -7,7 +7,7 @@
 import os
 
 # fix running other python versions than the system python
-os.environ["PATH"] = "/usr/bin:" + os.environ["PATH"] 
+os.environ["PATH"] = "/usr/bin:/usr/local/bin/:/usr/local/lib/python2.6/site-packages" + os.environ["PATH"] 
 
 from PyQt4 import uic
 import subprocess
@@ -24,9 +24,9 @@ path = os.path.dirname(oyProjectManager.__file__)
 ui_path = os.path.join(path, "ui")
 
 # version_creator
-#uicFilePaths.append(os.path.join(ui_path, "version_creator.ui"))
-#pyFilePaths_PyQt4.append(os.path.join(ui_path, "version_creator_UI_pyqt4.py"))
-#pyFilePaths_PySide.append(os.path.join(ui_path, "version_creator_UI_pyside.py"))
+uicFilePaths.append(os.path.join(ui_path, "version_creator.ui"))
+pyFilePaths_PyQt4.append(os.path.join(ui_path, "version_creator_UI_pyqt4.py"))
+pyFilePaths_PySide.append(os.path.join(ui_path, "version_creator_UI_pyside.py"))
 
 # project_manager
 #uicFilePaths.append(os.path.join(ui_path, "project_manager.ui"))
@@ -39,9 +39,9 @@ ui_path = os.path.join(path, "ui")
 #pyFilePaths_PySide.append(os.path.join(ui_path, "project_properties_UI_pyside.py"))
 
 # assetUpdater
-uicFilePaths.append(os.path.join(ui_path, "version_updater.ui"))
-pyFilePaths_PyQt4.append(os.path.join(ui_path, "version_updater_UI_pyqt4.py"))
-pyFilePaths_PySide.append(os.path.join(ui_path, "version_updater_UI_pyside.py"))
+#uicFilePaths.append(os.path.join(ui_path, "version_updater.ui"))
+#pyFilePaths_PyQt4.append(os.path.join(ui_path, "version_updater_UI_pyqt4.py"))
+#pyFilePaths_PySide.append(os.path.join(ui_path, "version_updater_UI_pyside.py"))
 
 ## shotEditor
 #uicFilePaths.append(os.path.join(ui_path, "shotEditor.ui"))

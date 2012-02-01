@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
+# Form implementation generated from reading ui file '/mnt/M/DEV/generic/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Thu Jan 19 17:58:22 2012
-#      by: PyQt4 UI code generator 4.8.5
+# Created: Wed Feb  1 03:40:59 2012
+#      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -162,6 +162,25 @@ class Ui_Dialog(object):
         self.shots_listWidget = QtGui.QListWidget(self.asset_info_groupBox_2)
         self.shots_listWidget.setObjectName(_fromUtf8("shots_listWidget"))
         self.verticalLayout_9.addWidget(self.shots_listWidget)
+        self.horizontalLayout_16 = QtGui.QHBoxLayout()
+        self.horizontalLayout_16.setObjectName(_fromUtf8("horizontalLayout_16"))
+        self.label = QtGui.QLabel(self.asset_info_groupBox_2)
+        self.label.setText(QtGui.QApplication.translate("Dialog", "Start", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setObjectName(_fromUtf8("label"))
+        self.horizontalLayout_16.addWidget(self.label)
+        self.spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
+        self.spinBox.setObjectName(_fromUtf8("spinBox"))
+        self.horizontalLayout_16.addWidget(self.spinBox)
+        self.label_2 = QtGui.QLabel(self.asset_info_groupBox_2)
+        self.label_2.setText(QtGui.QApplication.translate("Dialog", "End", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.horizontalLayout_16.addWidget(self.label_2)
+        self.spinBox_2 = QtGui.QSpinBox(self.asset_info_groupBox_2)
+        self.spinBox_2.setObjectName(_fromUtf8("spinBox_2"))
+        self.horizontalLayout_16.addWidget(self.spinBox_2)
+        spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_16.addItem(spacerItem4)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_16)
         self.horizontalLayout_12.addLayout(self.verticalLayout_9)
         self.verticalLayout_8.addLayout(self.horizontalLayout_12)
         self.verticalLayout_11.addWidget(self.asset_info_groupBox_2)
@@ -199,7 +218,7 @@ class Ui_Dialog(object):
         self.note_textEdit.setHtml(QtGui.QApplication.translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Ubuntu\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Sans Serif\'; font-size:9pt;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.note_textEdit.setObjectName(_fromUtf8("note_textEdit"))
         self.gridLayout_3.addWidget(self.note_textEdit, 2, 1, 1, 1)
@@ -214,10 +233,9 @@ class Ui_Dialog(object):
         self.gridLayout_3.addWidget(self.version_types_label, 0, 0, 1, 1)
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
         self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
-        self.version_types_comboBox = QtGui.QComboBox(self.new_version_groupBox)
-        self.version_types_comboBox.setEditable(False)
-        self.version_types_comboBox.setObjectName(_fromUtf8("version_types_comboBox"))
-        self.horizontalLayout_4.addWidget(self.version_types_comboBox)
+        self.version_types_listWidget = QtGui.QListWidget(self.new_version_groupBox)
+        self.version_types_listWidget.setObjectName(_fromUtf8("version_types_listWidget"))
+        self.horizontalLayout_4.addWidget(self.version_types_listWidget)
         self.add_type_toolButton = QtGui.QToolButton(self.new_version_groupBox)
         self.add_type_toolButton.setText(QtGui.QApplication.translate("Dialog", "+", None, QtGui.QApplication.UnicodeUTF8))
         self.add_type_toolButton.setObjectName(_fromUtf8("add_type_toolButton"))
@@ -225,10 +243,9 @@ class Ui_Dialog(object):
         self.gridLayout_3.addLayout(self.horizontalLayout_4, 0, 1, 1, 1)
         self.horizontalLayout_6 = QtGui.QHBoxLayout()
         self.horizontalLayout_6.setObjectName(_fromUtf8("horizontalLayout_6"))
-        self.takes_comboBox = QtGui.QComboBox(self.new_version_groupBox)
-        self.takes_comboBox.setEditable(False)
-        self.takes_comboBox.setObjectName(_fromUtf8("takes_comboBox"))
-        self.horizontalLayout_6.addWidget(self.takes_comboBox)
+        self.takes_listWidget = QtGui.QListWidget(self.new_version_groupBox)
+        self.takes_listWidget.setObjectName(_fromUtf8("takes_listWidget"))
+        self.horizontalLayout_6.addWidget(self.takes_listWidget)
         self.add_take_toolButton = QtGui.QToolButton(self.new_version_groupBox)
         self.add_take_toolButton.setText(QtGui.QApplication.translate("Dialog", "+", None, QtGui.QApplication.UnicodeUTF8))
         self.add_take_toolButton.setObjectName(_fromUtf8("add_take_toolButton"))
@@ -237,8 +254,8 @@ class Ui_Dialog(object):
         self.verticalLayout_6.addLayout(self.gridLayout_3)
         self.horizontalLayout_7 = QtGui.QHBoxLayout()
         self.horizontalLayout_7.setObjectName(_fromUtf8("horizontalLayout_7"))
-        spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_7.addItem(spacerItem4)
+        spacerItem5 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_7.addItem(spacerItem5)
         self.publish_checkBox = QtGui.QCheckBox(self.new_version_groupBox)
         self.publish_checkBox.setText(QtGui.QApplication.translate("Dialog", "Publish", None, QtGui.QApplication.UnicodeUTF8))
         self.publish_checkBox.setObjectName(_fromUtf8("publish_checkBox"))
@@ -246,8 +263,8 @@ class Ui_Dialog(object):
         self.verticalLayout_6.addLayout(self.horizontalLayout_7)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
-        spacerItem5 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem5)
+        spacerItem6 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem6)
         self.export_as_pushButton = QtGui.QPushButton(self.new_version_groupBox)
         self.export_as_pushButton.setText(QtGui.QApplication.translate("Dialog", "Export Selection As", None, QtGui.QApplication.UnicodeUTF8))
         self.export_as_pushButton.setObjectName(_fromUtf8("export_as_pushButton"))
@@ -275,8 +292,8 @@ class Ui_Dialog(object):
         self.show_published_only_checkBox.setText(QtGui.QApplication.translate("Dialog", "Show Published Only", None, QtGui.QApplication.UnicodeUTF8))
         self.show_published_only_checkBox.setObjectName(_fromUtf8("show_published_only_checkBox"))
         self.horizontalLayout_10.addWidget(self.show_published_only_checkBox)
-        spacerItem6 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_10.addItem(spacerItem6)
+        spacerItem7 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_10.addItem(spacerItem7)
         self.show_only_label = QtGui.QLabel(self.previous_versions_groupBox)
         self.show_only_label.setText(QtGui.QApplication.translate("Dialog", "Show Only", None, QtGui.QApplication.UnicodeUTF8))
         self.show_only_label.setObjectName(_fromUtf8("show_only_label"))
@@ -314,8 +331,8 @@ class Ui_Dialog(object):
         self.verticalLayout_7.addWidget(self.previous_versions_tableWidget)
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
         self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
-        spacerItem7 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_5.addItem(spacerItem7)
+        spacerItem8 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem8)
         self.open_pushButton = QtGui.QPushButton(self.previous_versions_groupBox)
         self.open_pushButton.setText(QtGui.QApplication.translate("Dialog", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.open_pushButton.setObjectName(_fromUtf8("open_pushButton"))
@@ -334,8 +351,8 @@ class Ui_Dialog(object):
         self.verticalLayout.addLayout(self.horizontalLayout_14)
         self.horizontalLayout_8 = QtGui.QHBoxLayout()
         self.horizontalLayout_8.setObjectName(_fromUtf8("horizontalLayout_8"))
-        spacerItem8 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_8.addItem(spacerItem8)
+        spacerItem9 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_8.addItem(spacerItem9)
         self.close_pushButton = QtGui.QPushButton(self.verticalWidget)
         self.close_pushButton.setStyleSheet(_fromUtf8(""))
         self.close_pushButton.setText(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
@@ -355,10 +372,8 @@ class Ui_Dialog(object):
         Dialog.setTabOrder(self.assets_listWidget, self.sequences_comboBox)
         Dialog.setTabOrder(self.sequences_comboBox, self.create_shot_pushButton)
         Dialog.setTabOrder(self.create_shot_pushButton, self.shots_listWidget)
-        Dialog.setTabOrder(self.shots_listWidget, self.version_types_comboBox)
-        Dialog.setTabOrder(self.version_types_comboBox, self.add_type_toolButton)
-        Dialog.setTabOrder(self.add_type_toolButton, self.takes_comboBox)
-        Dialog.setTabOrder(self.takes_comboBox, self.add_take_toolButton)
+        Dialog.setTabOrder(self.shots_listWidget, self.add_type_toolButton)
+        Dialog.setTabOrder(self.add_type_toolButton, self.add_take_toolButton)
         Dialog.setTabOrder(self.add_take_toolButton, self.note_textEdit)
         Dialog.setTabOrder(self.note_textEdit, self.export_as_pushButton)
         Dialog.setTabOrder(self.export_as_pushButton, self.save_as_pushButton)

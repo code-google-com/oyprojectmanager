@@ -208,16 +208,16 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # types_comboBox
         QtCore.QObject.connect(
-            self.version_types_comboBox,
-            QtCore.SIGNAL("currentIndexChanged(int)"),
-            self.version_types_comboBox_changed
+            self.version_types_listWidget,
+            QtCore.SIGNAL("currentTextChanged(QString)"),
+            self.version_types_listWidget_changed
         )
         
         # take_comboBox
         QtCore.QObject.connect(
-            self.takes_comboBox,
-            QtCore.SIGNAL("currentIndexChanged(int)"),
-            self.takes_comboBox_changed
+            self.takes_listWidget,
+            QtCore.SIGNAL("currentTextChanged(QString)"),
+            self.takes_listWidget_changed
         )
         
         # add_type_toolButton
@@ -402,8 +402,11 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             if index != -1:
                 self.users_comboBox.setCurrentIndex(index)
         
-        # add "Main" by default to the takes_comboBox
-        self.takes_comboBox.addItem(conf.default_take_name)
+        # add "Main" by default to the takes_listWidget
+        self.takes_listWidget.addItem(conf.default_take_name)
+        # select it
+        item = self.takes_listWidget.item(0)
+        self.takes_listWidget.setCurrentItem(item)
         
         # run the project changed item for the first time
         self.project_changed()
@@ -467,13 +470,19 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # version_type name
         type_name = version.type.name
-        index = self.version_types_comboBox.findText(type_name)
-        self.version_types_comboBox.setCurrentIndex(index)
+        items = self.version_types_listWidget.findItems(
+            type_name,
+            QtCore.Qt.MatchExactly
+        )
+        self.version_types_listWidget.setCurrentItem(items[0])
         
         # take_name
         take_name = version.take_name
-        index = self.takes_comboBox.findText(take_name)
-        self.takes_comboBox.setCurrentIndex(index)
+        items = self.takes_listWidget.findItems(
+            take_name,
+            QtCore.Qt.MatchExactly
+        )
+        self.takes_listWidget.setCurrentItem(items[0])
     
     def project_changed(self):
         """updates the assets list_widget and sequences_comboBox for the 
@@ -522,11 +531,14 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
 #                self.asset_description_edit_pushButton.setEnabled(False)
                 
                 # clear the versions comboBox
-                self.version_types_comboBox.clear()
+                self.version_types_listWidget.clear()
                 
                 # set the take to default
-                self.takes_comboBox.clear()
-                self.takes_comboBox.addItem(conf.default_take_name)
+                self.takes_listWidget.clear()
+                self.takes_listWidget.addItem(conf.default_take_name)
+                item = self.takes_listWidget.item(0)
+                self.takes_listWidget.setCurrentItem(item)
+                
         
         elif self.tabWidget.currentIndex() == 1:
             # TODO: don't update if the project is not changed from the last one
@@ -551,11 +563,13 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 self.shots_listWidget.clear()
                 
                 # clear the version comboBox
-                self.version_types_comboBox.clear()
+                self.version_types_listWidget.clear()
                 
                 # set the take to default
-                self.takes_comboBox.clear()
-                self.takes_comboBox.addItem(conf.default_take_name)
+                self.takes_listWidget.clear()
+                self.takes_listWidget.addItem(conf.default_take_name)
+                item = self.takes_listWidget.item(0)
+                self.takes_listWidget.setCurrentItem(item)
     
     def sequences_comboBox_changed(self, index):
         """called when the sequences_comboBox index has changed
@@ -639,11 +653,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             )
         
         # add the types to the version types list
-        self.version_types_comboBox.clear()
-        self.version_types_comboBox.addItems(types)
+        self.version_types_listWidget.clear()
+        self.version_types_listWidget.addItems(types)
         
         # select the first one
-        self.version_types_comboBox.setCurrentIndex(0)
+        item = self.version_types_listWidget.item(0)
+        self.version_types_listWidget.setCurrentItem(item)
     
     def shot_changed(self, shot_name):
         """updates the shot related fields with the current shot information
@@ -684,13 +699,15 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             )
         
         # add the types to the version types list
-        self.version_types_comboBox.clear()
-        self.version_types_comboBox.addItems(types)
+        self.version_types_listWidget.clear()
+        self.version_types_listWidget.addItems(types)
 
         # select the first one
-        self.version_types_comboBox.setCurrentIndex(0)
+        item = self.version_types_listWidget.item(0)
+        self.version_types_listWidget.setCurrentItem(item)
+#        setCurrentRow(0)
     
-    def version_types_comboBox_changed(self, index):
+    def version_types_listWidget_changed(self, index):
         """runs when the asset version types comboBox has changed
         """
         
@@ -722,7 +739,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             logger.debug("updating take list for shot: %s" % versionable.code)
         
         # version type name
-        version_type_name = self.version_types_comboBox.currentText()
+        version_type_name = ""
+        item = self.version_types_listWidget.currentItem()
+        if item:
+            version_type_name = item.text()
         
         logger.debug("version_type_name: %s" % version_type_name)
         
@@ -737,17 +757,24 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             .all()
         )
         
-        self.takes_comboBox.clear()
+        self.takes_listWidget.clear()
+        
+        logger.debug("len(takes) from db: %s" % len(takes))
         
         if len(takes) == 0:
             # append the default take
-            takes.append(conf.default_take_name)
+            logger.debug("appending the default take name")
+            self.takes_listWidget.addItem(conf.default_take_name)
+        else:
+            logger.debug("adding the takes from db")
+            self.takes_listWidget.addItems(takes)
         
-        self.takes_comboBox.addItems(takes)
-        self.takes_comboBox.setCurrentIndex(0)
+        logger.debug("setting the first element selected")
+        item = self.takes_listWidget.item(0)
+        self.takes_listWidget.setCurrentItem(item)
     
-    def takes_comboBox_changed(self, index):
-        """runs when the takes_comboBox has changed
+    def takes_listWidget_changed(self, index):
+        """runs when the takes_listWidget has changed
         """
         
         # just update the previous_versions_tableWidget
@@ -785,12 +812,18 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             logger.debug("updating take list for shot: %s" % versionable.code)
         
         # version type name
-        version_type_name = self.version_types_comboBox.currentText()
+        version_type_name = ""
+        item = self.version_types_listWidget.currentItem()
+        if item:
+            version_type_name = item.text()
         
         logger.debug("version_type_name: %s" % version_type_name)
         
         # take name
-        take_name = self.takes_comboBox.currentText()
+        take_name = ""
+        item = self.takes_listWidget.currentItem()
+        if item:
+            take_name = item.text()
         
         logger.debug("take_name: %s" % take_name)
         
@@ -1185,7 +1218,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         type_for = versionable.__class__.__name__
         
         # get the version type name
-        version_type_name = self.version_types_comboBox.currentText()
+        version_type_name = ""
+        item = self.version_types_listWidget.currentItem()
+        if item:
+            version_type_name = item.text()
         
         # get the version type instance
         return db.query(VersionType)\
@@ -1207,13 +1243,13 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             return None
     
     def add_type(self, version_type):
-        """adds new types to the version_types_comboBox
+        """adds new types to the version_types_listWidget
         """
         
         if not isinstance(version_type, VersionType):
             raise TypeError("please supply a "
                             "oyProjectManager.core.models.VersionType for the"
-                            "type to be added to the version_type_comboBox")
+                            "type to be added to the version_types_listWidget")
         
         # check if the given type is suitable for the current versionable
         versionable = self.get_versionable()
@@ -1224,13 +1260,18 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 self.tabWidget.currentIndex()
             ))
         
-        index = self.version_types_comboBox.findText(version_type.name)
+        items = self.version_types_listWidget.findItems(
+            version_type.name,
+            QtCore.Qt.MatchExactly
+        )
         
-        if index == -1:
-            self.version_types_comboBox.addItem(version_type.name)
-            self.version_types_comboBox.setCurrentIndex(
-                self.version_types_comboBox.count() - 1
-            )
+        if not len(items):
+            self.version_types_listWidget.addItem(version_type.name)
+            
+            # select the last added type
+            index = self.version_types_listWidget.count() - 1
+            item = self.version_types_listWidget.item(index)
+            self.version_types_listWidget.setCurrentItem(item)
     
     def add_type_toolButton_clicked(self):
         """adds a new type for the currently selected Asset or Shot
@@ -1244,8 +1285,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # get all the current types from the interface
         current_types = []
-        for index in range(self.version_types_comboBox.count()):
-            current_types.append(self.version_types_comboBox.itemText(index))
+        for index in range(self.version_types_listWidget.count()):
+            current_types.append(
+                self.version_types_listWidget.item(index).text()
+            )
         
         # available types for Versionable in this environment
         # if there is an environment given
@@ -1315,14 +1358,16 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         )
         
         if ok:
-            # add the given text to the takes_comboBox
+            # add the given text to the takes_listWidget
             # if it is not empty
             if take_name != "":
-                self.takes_comboBox.addItem(take_name)
+                item = self.takes_listWidget.addItem(take_name)
                 # set the take to the new one
-                self.takes_comboBox.setCurrentIndex(
-                    self.takes_comboBox.count() - 1
-                )
+                self.takes_listWidget.setCurrentItem(item)
+#                setCurrentRow(
+#                    self.takes_listWidget.count() - 1,
+#                    QtGui.QItemSelectionModel.Rows
+#                )
     
     def get_new_version(self):
         """returns a :class:`~oyProjectManager.core.models.Version` instance
@@ -1334,7 +1379,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # create a new version
         versionable = self.get_versionable()
         version_type = self.get_version_type()
-        take_name = self.takes_comboBox.currentText()
+        take_name = self.takes_listWidget.currentItem().text()
         user = self.get_user()
         
         note = self.note_textEdit.toPlainText()

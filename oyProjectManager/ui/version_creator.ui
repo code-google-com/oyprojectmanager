@@ -268,6 +268,43 @@
                    <item>
                     <widget class="QListWidget" name="shots_listWidget"/>
                    </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_16">
+                     <item>
+                      <widget class="QLabel" name="label">
+                       <property name="text">
+                        <string>Start</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spinBox"/>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_2">
+                       <property name="text">
+                        <string>End</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSpinBox" name="spinBox_2"/>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_10">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
                   </layout>
                  </item>
                 </layout>
@@ -338,7 +375,7 @@
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Lucida Grande'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Sans Serif'; font-size:9pt;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
@@ -365,11 +402,7 @@ p, li { white-space: pre-wrap; }
              <item row="0" column="1">
               <layout class="QHBoxLayout" name="horizontalLayout_4">
                <item>
-                <widget class="QComboBox" name="version_types_comboBox">
-                 <property name="editable">
-                  <bool>false</bool>
-                 </property>
-                </widget>
+                <widget class="QListWidget" name="version_types_listWidget"/>
                </item>
                <item>
                 <widget class="QToolButton" name="add_type_toolButton">
@@ -383,11 +416,7 @@ p, li { white-space: pre-wrap; }
              <item row="1" column="1">
               <layout class="QHBoxLayout" name="horizontalLayout_6">
                <item>
-                <widget class="QComboBox" name="takes_comboBox">
-                 <property name="editable">
-                  <bool>false</bool>
-                 </property>
-                </widget>
+                <widget class="QListWidget" name="takes_listWidget"/>
                </item>
                <item>
                 <widget class="QToolButton" name="add_take_toolButton">
@@ -648,9 +677,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>sequences_comboBox</tabstop>
   <tabstop>create_shot_pushButton</tabstop>
   <tabstop>shots_listWidget</tabstop>
-  <tabstop>version_types_comboBox</tabstop>
   <tabstop>add_type_toolButton</tabstop>
-  <tabstop>takes_comboBox</tabstop>
   <tabstop>add_take_toolButton</tabstop>
   <tabstop>note_textEdit</tabstop>
   <tabstop>export_as_pushButton</tabstop>

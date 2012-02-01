@@ -71,6 +71,10 @@ Version History
   mentalray is set as the renderer but the mentalrayGlobals node is not
   created yet.
 
+* Converted the ``version_type_comboBox`` and ``takes_comboBox`` to a
+  listWidget, which will be much suitable for viewing all the types and takes
+  at the first sight.
+
 0.2.1
 -----
 

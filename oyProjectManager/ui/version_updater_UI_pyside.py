@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_updater.ui'
+# Form implementation generated from reading ui file '/mnt/M/DEV/generic/oyProjectManager/oyProjectManager/ui/version_updater.ui'
 #
-# Created: Tue Jan 31 13:50:42 2012
-#      by: pyside-uic 0.2.11 running on PySide 1.0.6
+# Created: Wed Feb  1 02:47:54 2012
+#      by: pyside-uic 0.2.13 running on PySide 1.0.9
 #
 # WARNING! All changes made in this file will be lost!
 

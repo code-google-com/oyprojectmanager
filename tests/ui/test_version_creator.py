@@ -14,6 +14,8 @@ import unittest
 #from PySide.QtCore import Qt
 #from PySide.QtTest import QTest
 import sip
+import logging
+
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 from PyQt4 import QtCore, QtGui
@@ -28,6 +30,8 @@ from oyProjectManager.ui import version_creator
 
 conf = config.Config()
 
+logger = logging.getLogger("oyProjectManager.ui.version_creator")
+logger.setLevel(logging.WARNING)
 
 # exceptions for test purposes
 class ExportAs(Exception):
@@ -359,8 +363,8 @@ class VersionCreatorTester(unittest.TestCase):
         self.assertTrue(asset3.name in item_texts)
         self.assertTrue(asset4.name in item_texts)
     
-    def test_takes_comboBox_lists_all_the_takes_of_current_asset_versions(self):
-        """testing if the takes_comboBox lists all the takes of the current
+    def test_takes_listWidget_lists_all_the_takes_of_current_asset_versions(self):
+        """testing if the takes_listWidget lists all the takes of the current
         asset and current version_type
         """
         # TODO: test this when there is no asset in the project
@@ -417,19 +421,19 @@ class VersionCreatorTester(unittest.TestCase):
         #            QtCore.SLOT("quit()")
         #        )
 
-        # check if Main and Test are in the takes_comboBox
+        # check if Main and Test are in the takes_listWidget
         ui_take_names = []
-        for i in range(dialog.takes_comboBox.count()):
-            dialog.takes_comboBox.setCurrentIndex(i)
+        for i in range(dialog.takes_listWidget.count()):
+            dialog.takes_listWidget.setCurrentRow(i)
             ui_take_names.append(
-                dialog.takes_comboBox.currentText()
+                dialog.takes_listWidget.currentItem().text()
             )
 
         for take in ["Main", "Test"]:
             self.assertTrue(take in ui_take_names)
 
-    def test_takes_comboBox_lists_all_the_takes_of_current_shot_versions(self):
-        """testing if the takes_comboBox lists all the takes of the current
+    def test_takes_listWidget_lists_all_the_takes_of_current_shot_versions(self):
+        """testing if the takes_listWidget lists all the takes of the current
         shot and current version_type
         """
         # TODO: test this when there is no shot in the project
@@ -528,12 +532,12 @@ class VersionCreatorTester(unittest.TestCase):
         item = dialog.shots_listWidget.item(0)
         dialog.shots_listWidget.setCurrentItem(item)
 
-        # check if Main and TestForShot are in the takes_comboBox
+        # check if Main and TestForShot are in the takes_listWidget
         ui_take_names = []
-        for i in range(dialog.takes_comboBox.count()):
-            dialog.takes_comboBox.setCurrentIndex(i)
+        for i in range(dialog.takes_listWidget.count()):
+            dialog.takes_listWidget.setCurrentRow(i)
             ui_take_names.append(
-                dialog.takes_comboBox.currentText()
+                dialog.takes_listWidget.currentItem().text()
             )
 
         for take in ["Main", "TestForShot"]:
@@ -543,30 +547,30 @@ class VersionCreatorTester(unittest.TestCase):
         item = dialog.shots_listWidget.item(1)
         dialog.shots_listWidget.setCurrentItem(item)
 
-        # check if Main and TestForShot are in the takes_comboBox
+        # check if Main and TestForShot are in the takes_listWidget
         ui_take_names = []
-        for i in range(dialog.takes_comboBox.count()):
-            dialog.takes_comboBox.setCurrentIndex(i)
+        for i in range(dialog.takes_listWidget.count()):
+            dialog.takes_listWidget.setCurrentRow(i)
             ui_take_names.append(
-                dialog.takes_comboBox.currentText()
+                dialog.takes_listWidget.currentItem().text()
             )
     
         # converting from assertItemsEqual
         self.assertTrue(len(ui_take_names)==1)
         self.assertTrue("TestForShot2" in ui_take_names)
     
-    def test_takes_comboBox_lists_Main_by_default(self):
-        """testing if the takes_comboBox lists "Main" by default
+    def test_takes_listWidget_lists_Main_by_default(self):
+        """testing if the takes_listWidget lists "Main" by default
         """
         
         dialog = version_creator.MainDialog()
         self.assertEqual(
             conf.default_take_name,
-            dialog.takes_comboBox.currentText()
+            dialog.takes_listWidget.currentItem().text()
         )
     
-    def test_takes_comboBox_lists_Main_by_default_for_asset_with_no_versions(self):
-        """testing if the takes_comboBox lists "Main" by default for an asset
+    def test_takes_listWidget_lists_Main_by_default_for_asset_with_no_versions(self):
+        """testing if the takes_listWidget lists "Main" by default for an asset
         with no version
         """
         
@@ -588,11 +592,11 @@ class VersionCreatorTester(unittest.TestCase):
         
         self.assertEqual(
             conf.default_take_name,
-            dialog.takes_comboBox.currentText()
+            dialog.takes_listWidget.currentItem().text()
         )
     
-    def test_takes_comboBox_lists_Main_by_default_for_projects_with_no_assets(self):
-        """testing if the takes_comboBox lists "Main" by default for an project
+    def test_takes_listWidget_lists_Main_by_default_for_projects_with_no_assets(self):
+        """testing if the takes_listWidget lists "Main" by default for an project
         with no assets
         """
         
@@ -653,11 +657,11 @@ class VersionCreatorTester(unittest.TestCase):
         
         self.assertEqual(
             conf.default_take_name,
-            dialog.takes_comboBox.currentText()
+            dialog.takes_listWidget.currentItem().text()
         )
     
-    def test_takes_comboBox_lists_Main_by_default_for_new_asset_version_types(self):
-        """testing if the takes_comboBox lists "Main" by default for an asset
+    def test_takes_listWidget_lists_Main_by_default_for_new_asset_version_types(self):
+        """testing if the takes_listWidget lists "Main" by default for an asset
         with a new version added to the version_types comboBox
         """
         
@@ -677,19 +681,23 @@ class VersionCreatorTester(unittest.TestCase):
         type_name = asset_vtypes[0].name
         
         # add new version type by hand
-        dialog.version_types_comboBox.addItem(type_name)
-        dialog.version_types_comboBox.setCurrentIndex(
-            dialog.version_types_comboBox.count() - 1
+        dialog.version_types_listWidget.addItem(type_name)
+        dialog.version_types_listWidget.setCurrentRow(
+            dialog.version_types_listWidget.count() - 1
         )
         
-        # now check if the takes_comboBox lists Main by default
+        for i in range(dialog.takes_listWidget.count()):
+            item = dialog.takes_listWidget.item(i)
+            print item.text()
+        
+        # now check if the takes_listWidget lists Main by default
         self.assertEqual(
-            dialog.takes_comboBox.currentText(),
+            dialog.takes_listWidget.currentItem().text(),
             conf.default_take_name
         )
     
-    def test_version_types_comboBox_lists_all_the_types_of_the_current_asset_versions(self):
-        """testing if the version_types_comboBox lists all the types of
+    def test_version_types_listWidget_lists_all_the_types_of_the_current_asset_versions(self):
+        """testing if the version_types_listWidget lists all the types of
         the current asset
         """
         
@@ -745,12 +753,12 @@ class VersionCreatorTester(unittest.TestCase):
         #            QtCore.SLOT("quit()")
         #        )
 
-        # check if Main and Test are in the takes_comboBox
+        # check if Main and Test are in the takes_listWidget
         ui_type_names = []
-        for i in range(dialog.version_types_comboBox.count()):
-            dialog.version_types_comboBox.setCurrentIndex(i)
+        for i in range(dialog.version_types_listWidget.count()):
+            dialog.version_types_listWidget.setCurrentRow(i)
             ui_type_names.append(
-                dialog.version_types_comboBox.currentText()
+                dialog.version_types_listWidget.currentItem().text()
             )
         
         # converting from assertItemsEqual
@@ -758,8 +766,8 @@ class VersionCreatorTester(unittest.TestCase):
         for item in [asset_vtypes[0].name, asset_vtypes[1].name, asset_vtypes[2].name]:
             self.assertTrue(item in ui_type_names)
 
-    def test_version_types_comboBox_lists_all_the_types_of_the_current_asset_versions_compatible_with_the_environment(self):
-        """testing if the version_types_comboBox lists all the types of
+    def test_version_types_listWidget_lists_all_the_types_of_the_current_asset_versions_compatible_with_the_environment(self):
+        """testing if the version_types_listWidget lists all the types of
         the current asset
         """
 
@@ -822,12 +830,12 @@ class VersionCreatorTester(unittest.TestCase):
         #            QtCore.SLOT("quit()")
         #        )
 
-        # check if Main and Test are in the takes_comboBox
+        # check if Main and Test are in the takes_listWidget
         ui_type_names = []
-        for i in range(dialog.version_types_comboBox.count()):
-            dialog.version_types_comboBox.setCurrentIndex(i)
+        for i in range(dialog.version_types_listWidget.count()):
+            dialog.version_types_listWidget.setCurrentRow(i)
             ui_type_names.append(
-                dialog.version_types_comboBox.currentText()
+                dialog.version_types_listWidget.currentItem().text()
             )
 
         # converting from assertItemsEqual
@@ -835,8 +843,8 @@ class VersionCreatorTester(unittest.TestCase):
         for item in [asset_vtypes[0].name, asset_vtypes[1].name]:
             self.assertTrue(item in ui_type_names)
 
-    def test_version_types_comboBox_lists_all_the_types_of_the_current_shot_versions_compatible_with_the_environment(self):
-        """testing if the version_types_comboBox lists all the types of the
+    def test_version_types_listWidget_lists_all_the_types_of_the_current_shot_versions_compatible_with_the_environment(self):
+        """testing if the version_types_listWidget lists all the types of the
         current shot which is compatible with the current environment
         """
 
@@ -905,12 +913,12 @@ class VersionCreatorTester(unittest.TestCase):
         # set tabs to shots
         dialog.tabWidget.setCurrentIndex(1)
         
-        # check if Main and Test are in the takes_comboBox
+        # check if Main and Test are in the takes_listWidget
         ui_type_names = []
-        for i in range(dialog.version_types_comboBox.count()):
-            dialog.version_types_comboBox.setCurrentIndex(i)
+        for i in range(dialog.version_types_listWidget.count()):
+            dialog.version_types_listWidget.setCurrentRow(i)
             ui_type_names.append(
-                dialog.version_types_comboBox.currentText()
+                dialog.version_types_listWidget.currentItem().text()
             )
         
         # converting from assertItemsEqual
@@ -975,10 +983,10 @@ class VersionCreatorTester(unittest.TestCase):
         dialog.assets_listWidget.setCurrentItem(list_item)
 
         # select the first type
-        dialog.version_types_comboBox.setCurrentIndex(0)
+        dialog.version_types_listWidget.setCurrentRow(0)
 
         # select the first take
-        dialog.takes_comboBox.setCurrentIndex(0)
+        dialog.takes_listWidget.setCurrentRow(0)
 
         # which should list vers1
 
@@ -1118,10 +1126,10 @@ class VersionCreatorTester(unittest.TestCase):
         dialog.assets_listWidget.setCurrentItem(list_item)
 
         # select the first type
-        dialog.version_types_comboBox.setCurrentIndex(0)
+        dialog.version_types_listWidget.setCurrentRow(0)
 
         # select the first take
-        dialog.takes_comboBox.setCurrentIndex(0)
+        dialog.takes_listWidget.setCurrentRow(0)
 
         # which should list vers1 and vers2
 
@@ -1282,7 +1290,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # check if the type comboBox lists the asset type of the first asset
         self.assertEqual(
-            dialog.version_types_comboBox.currentText(),
+            dialog.version_types_listWidget.currentItem().text(),
             asset_vtypes[0].name
         )
 
@@ -1291,7 +1299,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # check if the type comboBox lists the asset type of the first shot
         self.assertEqual(
-            dialog.version_types_comboBox.currentText(),
+            dialog.version_types_listWidget.currentItem().text(),
             shot_vtypes[0].name
         )
 
@@ -1595,19 +1603,19 @@ class VersionCreatorTester(unittest.TestCase):
         dialog.tabWidget.setCurrentIndex(0)
         
         # check if the version_type_comboBox has no item
-        self.assertEqual(dialog.version_types_comboBox.count(), 0)
+        self.assertEqual(dialog.version_types_listWidget.count(), 0)
         
         # try to add a asset type for the asset
         dialog.add_type(asset_vtypes[0])
         
         # check if the version_type_comboBox has one item
-        self.assertEqual(dialog.version_types_comboBox.count(), 1)
+        self.assertEqual(dialog.version_types_listWidget.count(), 1)
         
         # try to add the same thing for a second time
         dialog.add_type(asset_vtypes[0])
         
         # check if the version_type_comboBox has one item
-        self.assertEqual(dialog.version_types_comboBox.count(), 1)
+        self.assertEqual(dialog.version_types_listWidget.count(), 1)
     
     def test_add_type_will_not_add_inappropriate_type_for_the_current_versionable(self):
         """testing if add_type will not add will not add the given type to the
@@ -1639,7 +1647,7 @@ class VersionCreatorTester(unittest.TestCase):
         self.assertRaises(TypeError, dialog.add_type, shot_vtypes[0])
         
         # check if the version_type_comboBox still has no items
-        self.assertEqual(dialog.version_types_comboBox.count(), 0)
+        self.assertEqual(dialog.version_types_listWidget.count(), 0)
     
     def test_add_type_will_add_the_name_of_the_version_type(self):
         """testing if using the add_type will add the name of the given
@@ -1666,14 +1674,14 @@ class VersionCreatorTester(unittest.TestCase):
         dialog.tabWidget.setCurrentIndex(0)
         
         # check if the version_type_comboBox has no item
-        self.assertEqual(dialog.version_types_comboBox.count(), 0)
+        self.assertEqual(dialog.version_types_listWidget.count(), 0)
         
         # try to add a asset type for the asset
         dialog.add_type(asset_vtypes[0])
         
         # check if the version_type_comboBox has one item
         self.assertEqual(
-            dialog.version_types_comboBox.currentText(),
+            dialog.version_types_listWidget.currentItem().text(),
             asset_vtypes[0].name
         )
     
@@ -2042,12 +2050,12 @@ class VersionCreatorTester(unittest.TestCase):
         )
         
         self.assertEqual(
-            dialog.version_types_comboBox.currentText(),
+            dialog.version_types_listWidget.currentItem().text(),
             vers10.type.name
         )
         
         self.assertEqual(
-            dialog.takes_comboBox.currentText(),
+            dialog.takes_listWidget.currentItem().text(),
             vers10.take_name
         )
         
@@ -2074,12 +2082,12 @@ class VersionCreatorTester(unittest.TestCase):
         )
 
         self.assertEqual(
-            dialog.version_types_comboBox.currentText(),
+            dialog.version_types_listWidget.currentItem().text(),
             vers28.type.name
         )
 
         self.assertEqual(
-            dialog.takes_comboBox.currentText(),
+            dialog.takes_listWidget.currentItem().text(),
             vers28.take_name
         )
     
@@ -2110,7 +2118,7 @@ class VersionCreatorTester(unittest.TestCase):
         dialog.tabWidget.setCurrentIndex(0)
         
         # set type to asset_v_types[0]
-        dialog.version_types_comboBox.addItem(asset_v_types[0].name)
+        dialog.version_types_listWidget.addItem(asset_v_types[0].name)
         
         # set the user to user1
         index = dialog.users_comboBox.findText(user2.name)
@@ -2645,7 +2653,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.assets_listWidget.setCurrentRow(0)
         
         # the versionType to the first one
-        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        self.test_dialog.version_types_listWidget.setCurrentRow(0)
         
         # now try to get the version type
         version_type_from_UI = self.test_dialog.get_version_type()
@@ -2662,7 +2670,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     
     def test_get_version_type_returns_None_for_no_version_type_name(self):
         """testing if the get_version_type method returns None when there is
-        no entry in the version_types_comboBox
+        no entry in the version_types_listWidget
         """
         # set the project to project1
         self.test_dialog.projects_comboBox.setCurrentIndex(0)
@@ -2671,7 +2679,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.assets_listWidget.setCurrentRow(1)
         
         # be sure that there is no version type name in comboBox
-        self.assertEqual(self.test_dialog.version_types_comboBox.count(), 0)
+        self.assertEqual(self.test_dialog.version_types_listWidget.count(), 0)
         
         # now try to get the version type
         version_type_from_UI = self.test_dialog.get_version_type()
@@ -2694,10 +2702,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.assets_listWidget.setCurrentRow(0)
         
         # the versionType to the first one
-        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        self.test_dialog.version_types_listWidget.setCurrentRow(0)
         
         # take to the first one
-        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        self.test_dialog.takes_listWidget.setCurrentRow(0)
         
         # expect the version to be
         expected_version = Version(
@@ -2732,10 +2740,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.assets_listWidget.setCurrentRow(0)
         
         # set to the first version type
-        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        self.test_dialog.version_types_listWidget.setCurrentRow(0)
         
         # set to the first take name
-        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        self.test_dialog.takes_listWidget.setCurrentRow(0)
         
         # get the first version from the previous_versions_tableWidget
         version = self.test_dialog.previous_versions_tableWidget.versions[0]
@@ -2761,10 +2769,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.assets_listWidget.setCurrentRow(0)
         
         # set to the first version type
-        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        self.test_dialog.version_types_listWidget.setCurrentRow(0)
         
         # set to the first take name
-        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        self.test_dialog.takes_listWidget.setCurrentRow(0)
         
         # set the note to a known one
         test_note = "test note"
@@ -2790,10 +2798,14 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         self.assertTrue(isinstance(version_instance, Version))
         self.assertEqual(version_instance.version_of, self.test_asset1)
-        self.assertEqual(version_instance.type.name,
-                         self.test_dialog.version_types_comboBox.currentText())
-        self.assertEqual(version_instance.take_name,
-                         self.test_dialog.takes_comboBox.currentText())
+        self.assertEqual(
+            version_instance.type.name,
+            self.test_dialog.version_types_listWidget.currentItem().text()
+        )
+        self.assertEqual(
+            version_instance.take_name,
+            self.test_dialog.takes_listWidget.currentItem().text()
+        )
         self.assertEqual(version_instance.note, test_note)
     
     def test_save_as_pushButton_calls_environments_save_as_method(self):
@@ -2811,10 +2823,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.assets_listWidget.setCurrentRow(0)
         
         # set to the first version type
-        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        self.test_dialog.version_types_listWidget.setCurrentRow(0)
         
         # set to the first take name
-        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        self.test_dialog.takes_listWidget.setCurrentRow(0)
         
         # set the note to a known one
         test_note = "test note"
@@ -2840,10 +2852,14 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         self.assertTrue(isinstance(version_instance, Version))
         self.assertEqual(version_instance.version_of, self.test_asset1)
-        self.assertEqual(version_instance.type.name,
-                         self.test_dialog.version_types_comboBox.currentText())
-        self.assertEqual(version_instance.take_name,
-                         self.test_dialog.takes_comboBox.currentText())
+        self.assertEqual(
+            version_instance.type.name,
+            self.test_dialog.version_types_listWidget.currentItem().text()
+        )
+        self.assertEqual(
+            version_instance.take_name,
+            self.test_dialog.takes_listWidget.currentItem().text()
+        )
         self.assertEqual(version_instance.note, test_note)
     
     def test_open_pushButton_calls_environments_open_method(self):
@@ -2861,10 +2877,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.assets_listWidget.setCurrentRow(0)
         
         # set to the first version type
-        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        self.test_dialog.version_types_listWidget.setCurrentRow(0)
         
         # set to the first take name
-        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        self.test_dialog.takes_listWidget.setCurrentRow(0)
         
         # check if the run_count of open_ is 0
         self.assertEqual(
@@ -2886,10 +2902,14 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         self.assertTrue(isinstance(version_instance, Version))
         self.assertEqual(version_instance.version_of, self.test_asset1)
-        self.assertEqual(version_instance.type.name,
-                         self.test_dialog.version_types_comboBox.currentText())
-        self.assertEqual(version_instance.take_name,
-                         self.test_dialog.takes_comboBox.currentText())
+        self.assertEqual(
+            version_instance.type.name,
+            self.test_dialog.version_types_listWidget.currentItem().text()
+        )
+        self.assertEqual(
+            version_instance.take_name,
+            self.test_dialog.takes_listWidget.currentItem().text()
+        )
     
     def test_open_pushButton_closes_the_interface_after_successful_open(self):
         """testing if the interface will be closed after open_pushButton is
@@ -2906,10 +2926,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.assets_listWidget.setCurrentRow(0)
         
         # set to the first version type
-        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        self.test_dialog.version_types_listWidget.setCurrentRow(0)
         
         # set to the first take name
-        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        self.test_dialog.takes_listWidget.setCurrentRow(0)
         
         # check if the interface is still open
         # show the dialog on purpose
@@ -2940,10 +2960,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.assets_listWidget.setCurrentRow(0)
         
         # set to the first version type
-        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        self.test_dialog.version_types_listWidget.setCurrentRow(0)
         
         # set to the first take name
-        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        self.test_dialog.takes_listWidget.setCurrentRow(0)
         
         # check if the run_count of reference is 0
         self.assertEqual(
@@ -2965,10 +2985,14 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         self.assertTrue(isinstance(version_instance, Version))
         self.assertEqual(version_instance.version_of, self.test_asset1)
-        self.assertEqual(version_instance.type.name,
-                         self.test_dialog.version_types_comboBox.currentText())
-        self.assertEqual(version_instance.take_name,
-                         self.test_dialog.takes_comboBox.currentText())
+        self.assertEqual(
+            version_instance.type.name,
+            self.test_dialog.version_types_listWidget.currentItem().text()
+        )
+        self.assertEqual(
+            version_instance.take_name,
+            self.test_dialog.takes_listWidget.currentItem().text()
+        )
     
     def test_import_pushButton_calls_environments_import_method(self):
         """testing if the import_pushButton calls the environments import
@@ -2985,10 +3009,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.assets_listWidget.setCurrentRow(0)
         
         # set to the first version type
-        self.test_dialog.version_types_comboBox.setCurrentIndex(0)
+        self.test_dialog.version_types_listWidget.setCurrentRow(0)
         
         # set to the first take name
-        self.test_dialog.takes_comboBox.setCurrentIndex(0)
+        self.test_dialog.takes_listWidget.setCurrentRow(0)
         
         # check if the run_count of import_ is 0
         self.assertEqual(
@@ -3010,9 +3034,13 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         
         self.assertTrue(isinstance(version_instance, Version))
         self.assertEqual(version_instance.version_of, self.test_asset1)
-        self.assertEqual(version_instance.type.name,
-                         self.test_dialog.version_types_comboBox.currentText())
-        self.assertEqual(version_instance.take_name,
-                         self.test_dialog.takes_comboBox.currentText())
+        self.assertEqual(
+            version_instance.type.name,
+            self.test_dialog.version_types_listWidget.currentItem().text()
+        )
+        self.assertEqual(
+            version_instance.take_name,
+            self.test_dialog.takes_listWidget.currentItem().text()
+        )
 
         
