@@ -385,20 +385,27 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.projects_comboBox.projects = projects
         
         # fill the users
-#        self.users_comboBox.addItems([user.name for user in self.config.users])
         users = db.query(User).all()
         self.users_comboBox.users = users
         self.users_comboBox.addItems(map(lambda x:x.name, users))
         
         # set the default user
         last_user_id = conf.last_user_id
+        if last_user_id:
+            logger.debug("last_user_id: %i" % last_user_id)
+        else:
+            logger.debug("no last user is set before")
+        
         last_user = None
         if last_user_id is not None:
             last_user = db.query(User).filter(User.id==last_user_id).first()
         
+        logger.debug("last_user: %s" % last_user)
+        
         if last_user is not None:
             # select the user from the users_comboBox
             index = self.users_comboBox.findText(last_user.name)
+            logger.debug("last_user index in users_comboBox: %i" % index)
             if index != -1:
                 self.users_comboBox.setCurrentIndex(index)
         
@@ -1458,9 +1465,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # save the new version to the database
         db.session.add(new_version)
         db.session.commit()
-
+        
         # save the last user
-        conf.last_user_id = new_version.created_by_id
+        conf.last_user_id = new_version.created_by.id
         
         # close the UI
         self.close()

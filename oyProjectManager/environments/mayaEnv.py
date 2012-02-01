@@ -501,9 +501,15 @@ class Maya(EnvironmentBase):
             "Playblast"
         )
         
+        # use project name and sequence name if available
+        playblast_filename = version.version_of.project.code
+        if version.type.type_for=="Shot":
+            playblast_filename += "_" + version.version_of.sequence.code
+        playblast_filename += "_" + os.path.splitext(version.filename)[0]
+        
         playblast_full_path = os.path.join(
             playblast_path,
-            os.path.splitext(version.filename)[0]
+            playblast_filename
         ).replace('\\','/')
         
         # create the folder

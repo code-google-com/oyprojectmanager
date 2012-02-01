@@ -92,7 +92,6 @@ class VersionCreatorTester(unittest.TestCase):
         self.temp_projects_folder = tempfile.mkdtemp()
         
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
-#        os.environ["OYPROJECTMANAGER_PATH"] = ""
         os.environ[conf.repository_env_key] = self.temp_projects_folder
         
         # re-parse the settings
@@ -2120,7 +2119,7 @@ class VersionCreatorTester(unittest.TestCase):
         # set type to asset_v_types[0]
         dialog.version_types_listWidget.addItem(asset_v_types[0].name)
         
-        # set the user to user1
+        # set the user to user2
         index = dialog.users_comboBox.findText(user2.name)
         dialog.users_comboBox.setCurrentIndex(index)
         

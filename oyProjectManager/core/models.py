@@ -1044,16 +1044,16 @@ class Shot(VersionableBase):
     :param description: A string holding the short description of this shot.
       Can be skipped.
     """
-
+    
     __tablename__ = "Shots"
     __table_args__  = (
         UniqueConstraint("sequence_id", "number"),
         {"extend_existing":True}
     )
     __mapper_args__ = {"polymorphic_identity": "Shot"}
-
+    
     shot_id =  Column("id", Integer, ForeignKey("Versionables.id") ,primary_key=True)
-
+    
     number = Column(String)
     
     start_frame = Column(Integer, default=1)
@@ -1071,7 +1071,7 @@ class Shot(VersionableBase):
                  start_frame=1,
                  end_frame=1,
                  description=''):
-
+        
         self._sequence = self._validate_sequence(sequence)
         # update the project attribute
         self._project = self._sequence.project
@@ -2648,9 +2648,9 @@ class User(Base):
     __table_args__  = (
         {"extend_existing":True}
     )
-
+    
     id = Column(Integer, primary_key=True)
-
+    
     name = Column(String)
     initials = Column(String)
     email = Column(String)
@@ -2669,6 +2669,16 @@ class User(Base):
         """the equality operator
         """
         return isinstance(other, User) and self.name == other.name
+    
+    def __str__(self):
+        """The string representation of this User instance
+        """
+        return self.name
+    
+    def __repr__(self):
+        """The representation of this User
+        """
+        return "<User: %s>" % self.name
     
     def save(self):
         """saves this User instance to the database
