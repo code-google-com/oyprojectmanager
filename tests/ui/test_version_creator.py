@@ -170,7 +170,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj3.save()
         
         proj4 = Project("Test Project 4")
-        proj4.active = False
+        proj4.actite = False
         proj4.save()
         
         dialog = version_creator.MainDialog()

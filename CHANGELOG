@@ -78,6 +78,12 @@ Version History
 * ``version_creator``now only lists active
   :class:`~oyProjectManager.core.models.Project`\ s.
 
+* Fixed ``maya_env`` references to Versions in the same workspace now updating
+  the reference paths correctly by replacing the server path with $REPO.
+
+* Fixed ``maya_env`` referencing a Version now properly initializes the
+  reference path with $REPO env variable.
+
 0.2.1
 -----
 

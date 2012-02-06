@@ -264,13 +264,20 @@ class Maya(EnvironmentBase):
         # replace the path with environment variable
         new_version_full_path = repo.relative_path(new_version_full_path)
         
-        pm.createReference(
+        ref = pm.createReference(
             new_version_full_path,
             gl=True,
-            loadReferenceDepth='all',
+            loadReferenceDepth='none',
             namespace=namespace,
             options='v=0'
         )
+        
+        # replace external paths
+        self.replace_external_paths(1)
+        
+        # set the reference state to loaded
+        if not ref.isLoaded():
+            ref.load()
         
         # append the referenced version to the current versions references
         # attribute
@@ -915,28 +922,38 @@ class Maya(EnvironmentBase):
         
         # replace reference paths with $REPO
         for ref in pm.listReferences():
-            if ref.unresolvedPath().replace("\\", "/").\
-                startswith(repo.server_path):
-
-                new_ref_path = ""
+            unresolved_path = ref.unresolvedPath().replace("\\", "/")
+            
+            if not unresolved_path.startswith("$" + conf.repository_env_key):
                 
-                if mode:
-                    # convert to absolute path
-                    new_ref_path = ref.path.replace(
-                        repo.server_path,
-                        repo_env_key
-                    )
-                else:
-                    # convert to relative path
-                    new_ref_path = utils.relpath(
+                # make it absolute
+                if not os.path.isabs(unresolved_path):
+                    unresolved_path = os.path.join(
                         workspace_path,
-                        ref.path
+                        unresolved_path
                     )
                 
-                logger.info("replacing reference:", ref.path)
-                logger.info("replacing with:", new_ref_path)
-                
-                ref.replaceWith(new_ref_path)
+                if unresolved_path.startswith(repo.server_path):
+    
+                    new_ref_path = ""
+                    
+                    if mode:
+                        # convert to absolute path
+                        new_ref_path = ref.path.replace(
+                            repo.server_path,
+                            repo_env_key
+                        )
+                    else:
+                        # convert to relative path
+                        new_ref_path = utils.relpath(
+                            workspace_path,
+                            ref.path
+                        )
+                    
+                    logger.info("replacing reference:", ref.path)
+                    logger.info("replacing with:", new_ref_path)
+                    
+                    ref.replaceWith(new_ref_path)
         
         # texture files
         # replace with $REPO

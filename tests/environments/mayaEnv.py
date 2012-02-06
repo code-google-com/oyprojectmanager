@@ -408,7 +408,9 @@ class MayaTester(unittest.TestCase):
         self.assertTrue(len(refs)==1)
         
         # and the path should start with conf.repository_env_key
-        self.assertTrue(refs[0].path.startswith("$" + conf.repository_env_key))
+        self.assertTrue(
+            refs[0].unresolvedPath().startswith("$" + conf.repository_env_key)
+        )
     
     def test_open_updates_the_referenced_versions_list(self):
         """testing if the open method updates the Version.references list with
@@ -663,3 +665,87 @@ class MayaTester(unittest.TestCase):
             self.mEnv.get_fps(),
             30
         )
+    
+    def test_reference_creates_references_with_paths_starting_with_repository_env_key(self):
+        """testing if reference method creates references with unresolved paths
+        starting with conf.repository_env_key
+        """
+
+        proj1 = Project("Test Project 1")
+        proj1.create()
+        proj1.save()
+
+        asset1 = Asset(proj1, "Test Asset 1")
+        asset1.save()
+
+        vers1 = Version(asset1, asset1.code, self.asset_vtypes[0], self.user1)
+        vers1.save()
+
+        vers2 = Version(asset1, asset1.code, self.asset_vtypes[0], self.user1)
+        vers2.save()
+
+        self.mEnv.save_as(vers1)
+
+        pm.newFile(force=True)
+
+        self.mEnv.save_as(vers2)
+
+        # refence vers1 to vers2
+        self.mEnv.reference(vers1)
+
+        # now check if the referenced files unresolved path is already starting
+        # with conf.repository_env_key
+
+        refs = pm.listReferences()
+
+        # there should be only one reference
+        self.assertEqual(len(refs), 1)
+
+        # the unresolved path should start with $REPO
+        self.assertTrue(
+            refs[0].unresolvedPath().startswith("$" + conf.repository_env_key)
+        )
+
+        self.assertTrue(refs[0].isLoaded())
+
+    def test_reference_creates_references_to_Versions_in_other_workspaces_loaded(self):
+        """testing if reference method creates references to Versions with
+        different VersionType and the reference state will be loaded
+        """
+        
+        proj1 = Project("Test Project 1")
+        proj1.create()
+        proj1.save()
+    
+        asset1 = Asset(proj1, "Test Asset 1")
+        asset1.save()
+    
+        vers1 = Version(asset1, asset1.code, self.asset_vtypes[0], self.user1)
+        vers1.save()
+    
+        vers2 = Version(asset1, asset1.code, self.asset_vtypes[1], self.user1)
+        vers2.save()
+    
+        self.mEnv.save_as(vers1)
+    
+        pm.newFile(force=True)
+    
+        self.mEnv.save_as(vers2)
+    
+        # refence vers1 to vers2
+        self.mEnv.reference(vers1)
+    
+        # now check if the referenced files unresolved path is already starting
+        # with conf.repository_env_key
+        
+        refs = pm.listReferences()
+    
+        # there should be only one reference
+        self.assertEqual(len(refs), 1)
+    
+        # the unresolved path should start with $REPO
+        self.assertTrue(
+            refs[0].unresolvedPath().startswith("$" + conf.repository_env_key)
+        )
+        
+        self.assertTrue(refs[0].isLoaded())
