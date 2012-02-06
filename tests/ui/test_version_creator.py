@@ -156,9 +156,38 @@ class VersionCreatorTester(unittest.TestCase):
         self.assertEqual(dialog.projects_comboBox.count(), 2)
     
     def test_projects_comboBox_is_filled_with_active_projects_only(self):
+        """testing if the projects_comboBox is filled with active projects only
         """
-        """
-    
+
+        proj1 = Project("Test Project 1")
+        proj1.save()
+        
+        proj2 = Project("Test Project 2")
+        proj2.active = False
+        proj2.save()
+        
+        proj3 = Project("Test Project 3")
+        proj3.save()
+        
+        proj4 = Project("Test Project 4")
+        proj4.active = False
+        proj4.save()
+        
+        dialog = version_creator.MainDialog()
+        
+        # check if the projects listed are only the ones active
+        item_count = dialog.projects_comboBox.count()
+        self.assertEqual(item_count, 2)
+        
+        item_texts = []
+        for i in range(item_count):
+            item_texts.append(dialog.projects_comboBox.itemText(i))
+        
+        self.assertTrue(proj1.name in item_texts)
+        self.assertFalse(proj2.name in item_texts)
+        self.assertTrue(proj3.name in item_texts)
+        self.assertFalse(proj4.name in item_texts)
+
     def test_projects_comboBox_first_project_is_selected(self):
         """testing if the first project is selected in the project combo box
         """

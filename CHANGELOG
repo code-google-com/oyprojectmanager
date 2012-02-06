@@ -75,6 +75,9 @@ Version History
   listWidget, which will be much suitable for viewing all the types and takes
   at the first sight.
 
+* ``version_creator``now only lists active
+  :class:`~oyProjectManager.core.models.Project`\ s.
+
 0.2.1
 -----
 

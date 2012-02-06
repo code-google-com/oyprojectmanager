@@ -10,7 +10,6 @@ import sys
 import oyProjectManager
 from oyProjectManager import db
 from oyProjectManager.ui import project_properties
-import project_manager_UI
 from oyProjectManager.core.models import Project, Sequence, Shot
 
 
