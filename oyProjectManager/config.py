@@ -262,18 +262,6 @@ class Config(object):
             {{seq_path}}/References/Photos_Images
             {{seq_path}}/References/Videos
             {{seq_path}}/References/Others
-            {{seq_path}}/Others
-            {{seq_path}}/Others/assets
-            {{seq_path}}/Others/clips
-            {{seq_path}}/Others/data
-            {{seq_path}}/Others/fur
-            {{seq_path}}/Others/fur/furAttrMap
-            {{seq_path}}/Others/fur/furEqualMap
-            {{seq_path}}/Others/fur/furFiles
-            {{seq_path}}/Others/fur/furImages
-            {{seq_path}}/Others/fur/furShadowMap
-            {{seq_path}}/Others/mel
-            {{seq_path}}/Others/particles
         {% endfor %}
         """,
         
