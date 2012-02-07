@@ -439,7 +439,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         logger.debug("restoring ui with the given version: %s", version)
         
         # quit if version is None
-        if version is None:
+        if version is None or not version.project.active:
             return
         
         # set the project
@@ -473,7 +473,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 QtCore.Qt.MatchExactly
             )
             self.shots_listWidget.setCurrentItem(items[0])
-            
+        
         
         # version_type name
         type_name = version.type.name

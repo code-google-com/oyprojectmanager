@@ -84,6 +84,9 @@ Version History
 * Fixed ``maya_env`` referencing a Version now properly initializes the
   reference path with $REPO env variable.
 
+* Fixed a bug in ``version_creator`` UI where it was raising an IndexError
+  while restoring the ui with a Version whose Project is not active anymore.
+
 0.2.1
 -----
 

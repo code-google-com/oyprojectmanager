@@ -2505,8 +2505,41 @@ class VersionCreatorTester(unittest.TestCase):
         
         # check if the shots_listWidget has no elemens
         self.assertTrue(dialog.shots_listWidget.count()==0)
+    
+    def test_restore_ui_will_work_correctly_for_versions_belonging_to_non_active_projects(self):
+        """testing if the restore_ui will work properly for Version instances
+        retrieved from the environment where the Project of the Version is not
+        active thus not listed in the projects_comboBox
+        """
         
+        proj1 = Project("Test Project 1")
+        proj1.active = False
+        proj1.save()
         
+        proj2 = Project("Test Project 2")
+        proj2.save()
+        
+        asset_vtypes = db.query(VersionType)\
+            .filter(VersionType.type_for=="Asset").all()
+        
+        asset1 = Asset(proj1, "Test Asset 1")
+        asset1.save()
+        
+        asset2 = Asset(proj2, "Test Asset 2")
+        asset2.save()
+        
+        user = User("Test User")
+        user.save()
+        
+        vers1 = Version(asset1, asset1.code, asset_vtypes[0], user)
+        vers1.save()
+        
+        # now initialize the ui and call restore with vers1
+        dialog = version_creator.MainDialog()
+        dialog.restore_ui(vers1)
+        
+        # there should be no errors raised
+        # and the project_comboBox should be set to proj2
 
 
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
