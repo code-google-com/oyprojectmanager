@@ -155,6 +155,45 @@ class VersionCreatorTester(unittest.TestCase):
         # see if the projects filled with projects
         self.assertEqual(dialog.projects_comboBox.count(), 2)
     
+    def test_projects_comboBox_lists_projects_alphabetically(self):
+        """testing if the projects_comboBox is filled with projects and they
+        are sorted alphabetically
+        """
+        # create a couple of test projects
+        proj1 = Project("Test Project3")
+        proj2 = Project("Test Project2")
+        proj3 = Project("Test Project1")
+        proj4 = Project("Test Project4")
+
+        proj1.create()
+        proj2.create()
+        proj3.create()
+        proj4.create()
+
+        dialog = version_creator.MainDialog()
+
+        # see if the projects filled with projects
+        self.assertEqual(dialog.projects_comboBox.count(), 4)
+        
+        # check if the first element is proj3 and the second proj2 and the
+        # third proj1 and forth proj4
+        self.assertEqual(
+            dialog.projects_comboBox.itemText(0),
+            proj3.name
+        )
+        self.assertEqual(
+            dialog.projects_comboBox.itemText(1),
+            proj2.name
+        )
+        self.assertEqual(
+            dialog.projects_comboBox.itemText(2),
+            proj1.name
+        )
+        self.assertEqual(
+            dialog.projects_comboBox.itemText(3),
+            proj4.name
+        )
+    
     def test_projects_comboBox_is_filled_with_active_projects_only(self):
         """testing if the projects_comboBox is filled with active projects only
         """
