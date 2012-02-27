@@ -62,6 +62,7 @@ class ShotTester(unittest.TestCase):
             ("'^+'afsd2342'^+'asdFGH", "AFSD2342ASDFGH"),
             ("46B-3-B", "46B-3-B"),
             ("XB58P-4-C", "XB58P-4-C"),
+            ("A143AN-04-D", "A143AN-04-D"),
             ("xb58q-2-d", "XB58Q-2-D")
         ]
     
@@ -184,6 +185,15 @@ class ShotTester(unittest.TestCase):
         self.kwargs["number"] = "10A"
         new_shot1 = Shot(**self.kwargs)
         self.assertEqual(new_shot1.code, "SH010A")
+        
+        self.kwargs["number"] = "A143AN-04-D"
+        new_shot1 = Shot(**self.kwargs)
+        self.assertEqual(new_shot1.code, "SHA143AN-04-D")
+        
+        self.kwargs["number"] = "A143AN-04-D"
+        self.test_proj.shot_number_prefix = ""
+        new_shot1 = Shot(**self.kwargs)
+        self.assertEqual(new_shot1.code, "A143AN-04-D")
     
     def test_code_attribute_is_calculated_from_the_number_attribute(self):
         """testing if the code attribute is calculated from the number

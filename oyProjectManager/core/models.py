@@ -1257,10 +1257,16 @@ class Shot(VersionableBase):
           >> shot.code
             "SH012A"
         """
-        number = re.sub(r"[A-Z]+", "", self.number)
-        alter = re.sub(r"[0-9]+", "", self.number)
         
-        return self.project.shot_number_prefix +\
+        # TODO: there is a weird situation here need to fix it later by
+        # introducing a new variable to the Project
+        if "-" in self.number:
+            return self.project.shot_number_prefix + self.number
+        else:
+            number = re.sub(r"[A-Z]+", "", self.number)
+            alter = re.sub(r"[0-9]+", "", self.number)
+            
+            return self.project.shot_number_prefix +\
                number.zfill(self.project.shot_number_padding) + alter
 
 class Asset(VersionableBase):

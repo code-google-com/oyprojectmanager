@@ -91,7 +91,7 @@ Version History
 
 * Now the :attr:`~oyProjectManager.core.models.Shot.number` is now compatible
   with GradientFX's shot format, accepts any upper case letters and the dash
-  ("-") character.
+  ("-") character. Also the Shot.code is updated accordingly.
 
 0.2.1
 -----
