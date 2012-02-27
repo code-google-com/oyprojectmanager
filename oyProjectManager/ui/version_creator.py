@@ -378,7 +378,11 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         logger.debug("started setting up interface defaults")
         
         # fill the projects
-        projects = db.query(Project).filter(Project.active==True).all()
+        projects = db.query(Project)\
+            .filter(Project.active==True)\
+            .order_by(Project.name)\
+            .all()
+        
         self.projects_comboBox.addItems(
             map(lambda x: x.name, projects)
         )

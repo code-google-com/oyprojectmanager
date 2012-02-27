@@ -87,6 +87,8 @@ Version History
 * Fixed a bug in ``version_creator`` UI where it was raising an IndexError
   while restoring the ui with a Version whose Project is not active anymore.
 
+* ``version_creator`` now shows the Projects in sorted order.
+
 * Now the :attr:`~oyProjectManager.core.models.Shot.number` is now compatible
   with GradientFX's shot format, accepts any upper case letters and the dash
   ("-") character.
