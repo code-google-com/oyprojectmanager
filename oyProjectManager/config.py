@@ -157,9 +157,9 @@ class Config(object):
           "70x100cm Poster Portrait": [8268, 11810, 1.0],
           "70x100cm Poster Landscape": [11810, 8268, 1.0],
           "1k Square": [1024, 1024, 1.0],
-          "2k Square": [2048, 2048, 1.0],
-          "3k Square": [3072, 3072, 1.0],
-          "4k Square": [4096, 4096, 1.0],
+          "2K Square": [2048, 2048, 1.0],
+          "3K Square": [3072, 3072, 1.0],
+          "4K Square": [4096, 4096, 1.0],
       }
       
       default_resolution_preset = "HD 1080"

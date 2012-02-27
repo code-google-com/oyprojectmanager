@@ -209,7 +209,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj3.save()
         
         proj4 = Project("Test Project 4")
-        proj4.actite = False
+        proj4.active = False
         proj4.save()
         
         dialog = version_creator.MainDialog()
@@ -2685,6 +2685,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
             self.test_asset_versionTypes_for_project1[0],
             self.test_user
         )
+        self.test_version1.is_published = True
         self.test_version1.save()
         
         db.session.add_all([
@@ -3035,7 +3036,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         # show the dialog on purpose
         self.test_dialog.show()
         self.assertTrue(self.test_dialog.isVisible())
-
+        
         # hit to the open_pushButton
         QTest.mouseClick(
             self.test_dialog.open_pushButton,
