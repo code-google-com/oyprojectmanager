@@ -97,6 +97,14 @@ Version History
   number padding and prefix, revision number padding and prefix, version number
   padding and prefix and the structure of the Project.
 
+* Updated the default project structure to also include shot folders. So
+  calling :meth:`~oyProjectManager.core.models.Project.create` will create also
+  the Shot folders if there is any
+  :class:`~oyProjectManager.core.models.Sequence` and also
+  :class:`~oyProjectManager.core.models.Shots` defined.
+
+* Dash ("-") character is now allowed in the version base name
+
 0.2.1
 -----
 

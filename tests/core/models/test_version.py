@@ -78,7 +78,7 @@ class VersionTester(unittest.TestCase):
             ("123123 base_name", "Base_Name"),
             ("123432!+!'^+Base_NAme323^+'^%&+%&324", "Base_NAme323324"),
             ("    ---base 9s_name", "Base_9s_Name"),
-            ("    ---base 9s-name", "Base_9s_Name"),
+            ("    ---base 9s-name", "Base_9s-Name"),
             (" multiple     spaces are    converted to under     scores",
              "Multiple_Spaces_Are_Converted_To_Under_Scores"),
             ("camelCase", "CamelCase"),
@@ -95,6 +95,7 @@ class VersionTester(unittest.TestCase):
             (" 12 base name 13", "Base_Name_13"),
             (">£#>$#£½$ 12 base £#$£#$£½¾{½{ name 13", "Base_Name_13"),
             ("_base_name_", "Base_Name"),
+            ("Dash-Characters-Are-Preserved", "Dash-Characters-Are-Preserved")
         ]
     
     def tearDown(self):
@@ -271,7 +272,7 @@ class VersionTester(unittest.TestCase):
         """testing if the base_name attribute is formatted correctly when it is
         set to a value
         """
-        for test_value in self._name_test_values:
+        for i, test_value in enumerate(self._name_test_values):
             self.test_version.base_name = test_value[0]
             self.assertEqual(self.test_version.base_name, test_value[1])
     

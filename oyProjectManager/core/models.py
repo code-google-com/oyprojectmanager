@@ -1863,19 +1863,27 @@ class Version(Base):
 
         # strip the name
         name = name.strip()
-        # convert all the "-" signs to "_"
-        name = name.replace("-", "_")
+        # convert all the "-" signs to "_" at the beginning and the at the end
+        # of the string
+        #name = name.replace("-", "_")
+        #name = re.sub(r"^[\-]+", r"", name)
+        #name = re.sub(r"[\-]+$", r"", name)
         # remove unnecessary characters from the string
-        name = re.sub("([^a-zA-Z0-9\s_]+)", r"", name)
+        name = re.sub(r"([^a-zA-Z0-9\s_\-]+)", r"", name)
         # remove all the characters from the beginning which are not alphabetic
-        name = re.sub("(^[^a-zA-Z]+)", r"", name)
+        name = re.sub(r"(^[^a-zA-Z]+)", r"", name)
         # substitute all spaces with "_" characters
-        name = re.sub("([\s])+", "_", name)
+        name = re.sub(r"([\s])+", "_", name)
         # make each words first letter uppercase
         name = "_".join([ word[0].upper() + word[1:]
                           for word in name.split("_")
                           if len(word)
         ])
+        name = "-".join([ word[0].upper() + word[1:]
+                          for word in name.split("-")
+                          if len(word)
+        ])
+        
 
         return name
 
