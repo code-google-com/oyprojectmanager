@@ -94,6 +94,15 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         # attribute
         if self.project is not None:
             self.code_lineEdit.setEnabled(False)
+        
+        # advanced properties
+        self.shot_number_padding_spinBox.setValue(conf.shot_number_padding)
+        self.shot_number_prefix_lineEdit.setText(conf.shot_number_prefix)
+        self.revision_number_padding_spinBox.setValue(conf.rev_number_padding)
+        self.revision_number_prefix_lineEdit.setText(conf.rev_number_prefix)
+        self.version_number_padding_spinBox.setValue(conf.ver_number_padding)
+        self.version_number_prefix_lineEdit.setText(conf.ver_number_prefix)
+        self.structure_textEdit.setText(conf.project_structure)
     
     def update_UI_from_project(self, project):
         """Updates the UI with the info from the given project instance
@@ -110,6 +119,17 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         self.code_lineEdit.setText(project.code)
         self.fps_spinBox.setValue(project.fps)
         self.active_checkBox.setChecked(project.active)
+        
+        # advanced properties
+        self.shot_number_prefix_lineEdit.setText(project.shot_number_prefix)
+        self.shot_number_padding_spinBox.setValue(project.shot_number_padding)
+        self.revision_number_prefix_lineEdit.setText(project.rev_number_prefix)
+        self.revision_number_padding_spinBox.setValue(
+            project.rev_number_padding
+        )
+        self.version_number_prefix_lineEdit.setText(project.ver_number_prefix)
+        self.version_number_padding_spinBox.setValue(project.ver_number_padding)
+        self.structure_textEdit.setText(project.structure)
         
         # set the resolution
         preset_key = None
@@ -145,31 +165,45 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         fps = self.fps_spinBox.value()
         active = self.active_checkBox.isChecked()
         
+        # advanced properties
+        shot_number_padding = self.shot_number_padding_spinBox.value()
+        shot_number_prefix = self.shot_number_prefix_lineEdit.text()
+        rev_number_padding = self.revision_number_padding_spinBox.value()
+        rev_number_prefix = self.revision_number_prefix_lineEdit.text()
+        ver_number_padding = self.version_number_padding_spinBox.value()
+        ver_number_prefix = self.version_number_prefix_lineEdit.text()
+        structure_code = self.structure_textEdit.toPlainText()
+        
+        is_new_project = False
+        
         if self.project is None:
             logger.debug("no project is given creating new one")
             # create the project
             
-            new_project = Project(name=name, code=code)
-            new_project.fps = fps
-            new_project.width = resolution_data[0]
-            new_project.height = resolution_data[1]
-            new_project.pixel_aspect = resolution_data[2]
-            new_project.active = active
+            self.project  = Project(name=name, code=code)
+            is_new_project = True
             
-            new_project.create()
-            
-            self.project = new_project
-        
         else:
             logger.debug("updating the given project")
-            
-            # update the project
-            self.project.name = name
-            self.project.fps = fps
-            self.project.width = resolution_data[0]
-            self.project.height = resolution_data[1]
-            self.project.pixel_aspect = resolution_data[2]
-            self.project.active = active
+           
+        # update the project
+        self.project.name = name
+        self.project.fps = fps
+        self.project.width = resolution_data[0]
+        self.project.height = resolution_data[1]
+        self.project.pixel_aspect = resolution_data[2]
+        self.project.active = active
+        self.project.shot_number_padding = shot_number_padding
+        self.project.shot_number_prefix = shot_number_prefix
+        self.project.rev_number_padding = rev_number_padding
+        self.project.rev_number_prefix = rev_number_prefix
+        self.project.ver_number_padding = ver_number_padding
+        self.project.ver_number_prefix = ver_number_prefix
+        self.project.structure = structure_code
+        
+        if is_new_project:
+            self.project.create()
+        else:
             self.project.save()
         
         # and close the dialog

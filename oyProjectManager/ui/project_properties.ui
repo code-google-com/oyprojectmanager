@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>340</width>
-    <height>175</height>
+    <width>638</width>
+    <height>574</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,55 +15,170 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="name_label">
-       <property name="text">
-        <string>Name</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="resolution_label">
-       <property name="text">
-        <string>Resolution</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="resolution_comboBox"/>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="fps_label">
-       <property name="text">
-        <string>Fps</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QSpinBox" name="fps_spinBox"/>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="name_lineEdit"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="code_label">
-       <property name="text">
-        <string>Code</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="code_lineEdit"/>
-     </item>
-     <item row="4" column="1">
-      <widget class="QCheckBox" name="active_checkBox">
-       <property name="text">
-        <string>Active</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Basic</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="name_label">
+           <property name="text">
+            <string>Name</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="name_lineEdit"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="code_label">
+           <property name="text">
+            <string>Code</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="code_lineEdit"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="resolution_label">
+           <property name="text">
+            <string>Resolution</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="resolution_comboBox"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="fps_label">
+           <property name="text">
+            <string>Fps</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="fps_spinBox"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QCheckBox" name="active_checkBox">
+           <property name="text">
+            <string>Active</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Advanced</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="shot_number_prefix_label">
+           <property name="text">
+            <string>Shot Number Prefix</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="revision_number_prefix_label">
+           <property name="text">
+            <string>Revision Number Prefix</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="version_number_prefix_label">
+           <property name="text">
+            <string>Version Number Prefix</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="shot_number_padding_label">
+           <property name="text">
+            <string>Shot Number Padding</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="revision_number_padding_label">
+           <property name="text">
+            <string>Revision Number Padding</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="version_number_padding_label">
+           <property name="text">
+            <string>Version Number Padding</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="shot_number_prefix_lineEdit"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="revision_number_prefix_lineEdit"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="version_number_prefix_lineEdit"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="shot_number_padding_spinBox"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="revision_number_padding_spinBox"/>
+         </item>
+         <item row="5" column="1">
+          <widget class="QSpinBox" name="version_number_padding_spinBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="topMargin">
+          <number>10</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="structure_label">
+           <property name="text">
+            <string>Structure Code</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTextEdit" name="structure_textEdit"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

@@ -93,6 +93,10 @@ Version History
   with GradientFX's shot format, accepts any upper case letters and the dash
   ("-") character. Also the Shot.code is updated accordingly.
 
+* project_properties UI now shows and edits advanced properties like shot
+  number padding and prefix, revision number padding and prefix, version number
+  padding and prefix and the structure of the Project.
+
 0.2.1
 -----
 

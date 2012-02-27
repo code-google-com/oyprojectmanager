@@ -104,20 +104,20 @@ class ProjectPropertiesTester(unittest.TestCase):
         new_project.active = True
 
         dialog = project_properties.MainDialog(project=new_project)
-        #        dialog.show()
-        #        self.app.exec_()
-        #        self.app.connect(
-        #            self.app,
-        #            QtCore.SIGNAL("lastWindowClosed()"),
-        #            self.app,
-        #            QtCore.SLOT("quit()")
-        #        )
-
+        #dialog.show()
+        #self.app.exec_()
+        #self.app.connect(
+        #    self.app,
+        #    QtCore.SIGNAL("lastWindowClosed()"),
+        #    self.app,
+        #    QtCore.SLOT("quit()")
+        #)
+        
         # now check if the interface is filled properly
         self.assertEqual(
             dialog.name_lineEdit.text(), new_project.name
         )
-
+        
         self.assertEqual(
             dialog.code_lineEdit.text(), new_project.code
         )
@@ -147,6 +147,42 @@ class ProjectPropertiesTester(unittest.TestCase):
         self.assertEqual(
             dialog.active_checkBox.isChecked(), True
         )
+        
+        # Advanced settings
+        self.assertEqual(
+            dialog.shot_number_prefix_lineEdit.text(),
+            new_project.shot_number_prefix
+        )
+        
+        self.assertEqual(
+            dialog.shot_number_padding_spinBox.value(),
+            new_project.shot_number_padding
+        )
+        
+        self.assertEqual(
+            dialog.revision_number_prefix_lineEdit.text(),
+            new_project.rev_number_prefix
+        )
+        
+        self.assertEqual(
+            dialog.revision_number_padding_spinBox.value(),
+            new_project.rev_number_padding
+        )
+        
+        self.assertEqual(
+            dialog.version_number_prefix_lineEdit.text(),
+            new_project.ver_number_prefix
+        )
+        
+        self.assertEqual(
+            dialog.version_number_padding_spinBox.value(),
+            new_project.ver_number_padding
+        )
+        
+        self.assertEqual(
+            dialog.structure_textEdit.toPlainText(),
+            new_project.structure
+        )
 
     def test_UI_will_edit_the_given_Project_instance(self):
         """testing if a Project instance is passed the interface will allow the
@@ -167,6 +203,15 @@ class ProjectPropertiesTester(unittest.TestCase):
         preset_name = dialog.resolution_comboBox.currentText()
         resolution_data = conf.resolution_presets[preset_name]
         dialog.active_checkBox.setChecked(False)
+        dialog.shot_number_prefix_lineEdit.setText("PL")
+        dialog.shot_number_padding_spinBox.setValue(5)
+        dialog.revision_number_prefix_lineEdit.setText("rev")
+        dialog.revision_number_padding_spinBox.setValue(3)
+        dialog.version_number_prefix_lineEdit.setText("ver")
+        dialog.version_number_padding_spinBox.setValue(5)
+        new_structure = "This is the new structure\nwith three lines\n" + \
+                        "and this is the third line"
+        dialog.structure_textEdit.setText(new_structure)
 
         # hit ok
         QTest.mouseClick(dialog.buttonBox.buttons()[0], Qt.LeftButton)
@@ -178,6 +223,13 @@ class ProjectPropertiesTester(unittest.TestCase):
         self.assertEqual(new_project.height, resolution_data[1])
         self.assertEqual(new_project.pixel_aspect, resolution_data[2])
         self.assertEqual(new_project.active, False)
+        self.assertEqual(new_project.shot_number_padding, 5)
+        self.assertEqual(new_project.shot_number_prefix, "PL")
+        self.assertEqual(new_project.rev_number_padding, 3)
+        self.assertEqual(new_project.rev_number_prefix, "rev")
+        self.assertEqual(new_project.ver_number_padding, 5)
+        self.assertEqual(new_project.ver_number_prefix, "ver")
+        self.assertEqual(new_project.structure, new_structure)
 
     def test_UI_will_create_a_new_Project_instance_if_it_is_not_passed_any(self):
         """testing if no Project instance is passed the interface will create
@@ -227,6 +279,41 @@ class ProjectPropertiesTester(unittest.TestCase):
             conf.default_resolution_preset
         )
     
+    def test_advanced_settings_are_set_to_default_values_if_no_project_has_given(self):
+        """testing if the advanced settings are set to the default values if no
+        Project instance has been given to the interface
+        """
+        
+        dialog = project_properties.MainDialog()
+        self.assertEqual(
+            dialog.shot_number_padding_spinBox.value(),
+            conf.shot_number_padding
+        )
+        self.assertEqual(
+            dialog.shot_number_prefix_lineEdit.text(),
+            conf.shot_number_prefix
+        )
+        self.assertEqual(
+            dialog.revision_number_padding_spinBox.value(),
+            conf.rev_number_padding
+        )
+        self.assertEqual(
+            dialog.revision_number_prefix_lineEdit.text(),
+            conf.rev_number_prefix
+        )
+        self.assertEqual(
+            dialog.version_number_padding_spinBox.value(),
+            conf.ver_number_padding
+        )
+        self.assertEqual(
+            dialog.version_number_prefix_lineEdit.text(),
+            conf.ver_number_prefix
+        )
+        self.assertEqual(
+            dialog.structure_textEdit.toPlainText(),
+            conf.project_structure
+        )
+    
 #    def test_custom_resolution_will_be_set_if_resolution_can_not_be_found_(self):
 #        """testing if the given project has a non standard resolution will
 #        set the resolution to Custom
@@ -273,3 +360,10 @@ class ProjectPropertiesTester(unittest.TestCase):
         """
         dialog = project_properties.MainDialog()
         self.assertTrue(dialog.active_checkBox.isChecked())
+    
+    def test_tabWidget_default_tab_is_Basic(self):
+        """testing if the default tab is "Basic"
+        """
+        dialog = project_properties.MainDialog()
+        self.assertTrue(dialog.tabWidget.currentIndex()==0)
+    
