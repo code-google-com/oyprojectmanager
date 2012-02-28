@@ -147,8 +147,16 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
         # set the row count
         self.versions_tableWidget.setRowCount(self._num_of_versions)
         
+        unpublished_versions = []
+        
         for i,version_info in enumerate(self._version_tuple_list):
             version = version_info[0]
+            # TODO: there is a problem about unpublished versions
+            latest_published_version = version.latest_published_version()
+            if latest_published_version is None:
+                # just skip this one or at least warn the user
+                unpublished_versions.append(version)
+                continue
             
             # ------------------------------------
             # the critique name
@@ -192,6 +200,17 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
                  lastest_version_tableWI,
                  checkBox_tableWI]
             )
+        
+        if len(unpublished_versions):
+            QtGui.QMessageBox.warning(
+                self,
+                "Warning",
+                "The following references have no published versions:\n" +
+                "\n".join([vers.filename for vers in unpublished_versions]) +
+                "\nPlease publish them and re-open the current file.",
+                QtGui.QMessageBox.Ok
+            )
+ 
     
     def _do_env_read(self):
         """gets the asset tuple from env

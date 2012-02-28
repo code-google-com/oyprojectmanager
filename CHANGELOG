@@ -105,6 +105,9 @@ Version History
 
 * Dash ("-") character is now allowed in the version base name
 
+* Updated `version_updated` UI, now it warns the user for references with no
+  published versions.
+
 0.2.1
 -----
 
