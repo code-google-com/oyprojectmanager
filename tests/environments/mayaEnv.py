@@ -749,3 +749,17 @@ class MayaTester(unittest.TestCase):
         )
         
         self.assertTrue(refs[0].isLoaded())
+    
+    def test_save_as_replaces_imagePlane_filename_with_env_variable(self):
+        """testing if save_as replaces the imagePlane filename with repository
+        environment variable
+        """
+        
+        # create a camera
+        # create an image plane
+        # set it to something
+        # save the scene
+        # check if the path is replaced with repository environment variable
+        
+        self.fail("test is not implemented yet")
+    

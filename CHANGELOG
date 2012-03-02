@@ -108,6 +108,16 @@ Version History
 * Updated `version_updated` UI, now it warns the user for references with no
   published versions.
 
+* The :attr:`~oyProjectManager.core.models.Project.structure` in
+  :class:`~oyProjectManager.core.models.Project` was incorrectly configured as
+  ``PickleType`` whereas it should be ``String``, it is now fixed.
+
+* Renamed the ``replace_file_paths`` with
+  :meth:`~oyProjectManager.environments.nukeEnv.replace_external_paths` in
+  :class:`~oyProjectManager.environments.nukeEnv` and moved it to the
+  :class:`~oyProjectManager.core.models.EnvironmentBase` to make it common in
+  environments.
+
 0.2.1
 -----
 

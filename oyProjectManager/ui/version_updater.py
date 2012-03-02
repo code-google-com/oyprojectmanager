@@ -205,9 +205,9 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             QtGui.QMessageBox.warning(
                 self,
                 "Warning",
-                "The following references have no published versions:\n" +
+                "The following references have no published versions:\n\n" +
                 "\n".join([vers.filename for vers in unpublished_versions]) +
-                "\nPlease publish them and re-open the current file.",
+                "\n\nPlease publish them and re-open the current file.",
                 QtGui.QMessageBox.Ok
             )
  

@@ -52,7 +52,7 @@ class Nuke(EnvironmentBase):
         self.create_main_write_node(version)
         
         # replace read and write node paths
-        self.replace_file_path()
+        self.replace_external_paths()
         
         # create the path before saving
         try:
@@ -87,7 +87,7 @@ class Nuke(EnvironmentBase):
         # matching the current OS 
         
         # replace paths
-        self.replace_file_path()
+        self.replace_external_paths()
         
         return True
     
@@ -251,7 +251,7 @@ class Nuke(EnvironmentBase):
         main_write_node["file_type"].setValue(format_id)
         main_write_node["channels"].setValue("rgb")
     
-    def replace_file_path(self):
+    def replace_external_paths(self, mode=0):
         """replaces file paths with environment variable scripts
         """
         

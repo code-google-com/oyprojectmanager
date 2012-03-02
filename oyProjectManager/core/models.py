@@ -11,8 +11,8 @@ import logging
 import jinja2
 #from beaker import cache
 
-from sqlalchemy import (orm, Column, String, Integer, Float, Enum, PickleType,
-                        ForeignKey, UniqueConstraint, Boolean)
+from sqlalchemy import (orm, Column, String, Integer, Float, Enum, ForeignKey,
+                        UniqueConstraint, Boolean)
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import synonym_for
 from sqlalchemy.orm import relationship, synonym, backref
@@ -338,8 +338,9 @@ class Project(Base):
     width = Column(Integer)
     height = Column(Integer)
     pixel_aspect = Column(Float)
-        
-    structure = Column(PickleType)
+    
+    #structure = Column(PickleType)
+    structure = Column(String(1024))
     
     sequences = relationship(
         "Sequence",
@@ -3055,6 +3056,19 @@ class EnvironmentBase(object):
             instance holding the new version replacing the source one
         """
         raise NotImplemented
+    
+    def replace_external_paths(self, mode=0):
+        """Replaces the external paths (which are not starting with the
+        environment variable) with a proper path. The mode controls if the
+        resultant path should be absolute or relative to the project dir.
+        
+        :param mode: Controls the resultant path is absolute or relative.
+          
+          mode 0: absolute (a path which starts with $REPO)
+          mode 1: relative (to project path)
+        
+        :return:
+        """
 
 # secondary tables
 Version_References = Table(

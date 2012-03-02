@@ -912,6 +912,8 @@ class Maya(EnvironmentBase):
           if mode == 1 : replaces with absolute paths
         """
         
+        # TODO: Also check for image planes and replace the path
+        
         logger.debug("replacing paths with mode: %i" % mode)
         
         # create a repository
