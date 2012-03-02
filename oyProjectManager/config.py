@@ -263,7 +263,7 @@ class Config(object):
             {{seq_path}}/References/Videos
             {{seq_path}}/References/Others
             {% for shot in sequence.shots %}
-                {{shot.code}}
+                {{seq_path}}/Shots/{{shot.code}}
             {% endfor %}
         {% endfor %}
         """,
