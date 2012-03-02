@@ -340,12 +340,12 @@ class Nuke(EnvironmentBase):
         
         # create a jinja2 template
         template = jinja2.Template("""Show: {{shot.project.name}}
-        Shot: {{shot.number}}
-        Duration: {{shot.duration}}
-        Handles: +{{shot.handle_at_start}}, -{{shot.handle_at_end}}
-        Artist: {{version.created_by.name}}
-        Version: {{version.version_number}}
-        Status: WIP
+Shot: {{shot.number}}
+Frame Range: {{shot.start_frame}}-{{shot.end_frame}}
+Handles: +{{shot.handle_at_start}}, -{{shot.handle_at_end}}
+Artist: {{version.created_by.name}}
+Version: v{{'%03d'|format(version.version_number)}}
+Status: WIP
         """)
         
         template_vars = {
