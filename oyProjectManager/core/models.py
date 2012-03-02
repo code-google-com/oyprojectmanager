@@ -340,7 +340,7 @@ class Project(Base):
     pixel_aspect = Column(Float)
     
     #structure = Column(PickleType)
-    structure = Column(String(1024))
+    structure = Column(String)
     
     sequences = relationship(
         "Sequence",
