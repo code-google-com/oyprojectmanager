@@ -1,6 +1,14 @@
 Version History
 ===============
 
+0.2.3
+-----
+
+* Added two new fields to :class:`~oyProjectManager.core.models.Shot` to hold
+  the handle information.
+
+* Added a new method to ``NukeEnv`` to create slate information.
+
 0.2.2
 -----
 

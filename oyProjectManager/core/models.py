@@ -1060,6 +1060,10 @@ class Shot(VersionableBase):
     start_frame = Column(Integer, default=1)
     end_frame = Column(Integer, default=1)
     
+    # TODO: create tests for handles
+    handle_at_start = Column(Integer, default=0)
+    handle_at_end = Column(Integer, default=0)
+    
     sequence_id = Column(Integer, ForeignKey("Sequences.id"))
     _sequence = relationship(
         "Sequence",

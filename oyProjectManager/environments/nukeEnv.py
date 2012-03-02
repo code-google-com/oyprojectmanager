@@ -7,6 +7,8 @@
 import os
 import platform
 
+import jinja2
+
 import nuke
 from oyProjectManager.core.models import EnvironmentBase
 from oyProjectManager import utils
@@ -325,3 +327,30 @@ class Nuke(EnvironmentBase):
         
         root = self.get_root_node()
         root["project_directory"].setValue(project_directory_in)
+    
+    def create_slate_info(self):
+        """Returns info about the current shot which will contribute to the
+        shot slate
+        
+        :return: string
+        """
+        
+        version = self.get_current_version()
+        shot = version.version_of
+        
+        # create a jinja2 template
+        template = jinja2.Template("""Show: {{shot.project.name}}
+        Shot: {{shot.number}}
+        Duration: {{shot.duration}}
+        Handles: +{{shot.handle_at_start}}, -{{shot.handle_at_end}}
+        Artist: {{version.created_by.name}}
+        Version: {{version.version_number}}
+        Status: WIP
+        """)
+        
+        template_vars = {
+            "shot": shot,
+            "version": version
+        }
+        
+        return template.render(**template_vars)

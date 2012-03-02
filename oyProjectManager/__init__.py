@@ -4,7 +4,7 @@
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 
 import logging
 logging.basicConfig(
