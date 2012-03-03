@@ -12,8 +12,8 @@ Version History
 * Replacing references in ``MayaEnv`` now uses the repository environment
   variable and prevents reloading of the referenced versions upon saving.
 
-* Fixed :attr:`~oyProjectManager.core.models.Shot.duration` attribute in
-  :class:`~oyProjectManager.core.models.Shot`.
+* Fixed :attr:`~oyProjectManager.core.models.Shot.duration` attribute
+  initialization in :class:`~oyProjectManager.core.models.Shot`.
 
 * Now in ``version_creator`` the shot frame range and handle information can be
   updated.
