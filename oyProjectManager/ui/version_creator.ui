@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1280</width>
-    <height>512</height>
+    <height>689</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -269,67 +269,50 @@
                     <widget class="QListWidget" name="shots_listWidget"/>
                    </item>
                    <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_16">
-                     <item>
+                    <layout class="QGridLayout" name="gridLayout">
+                     <item row="0" column="0">
                       <widget class="QLabel" name="frame_range_label">
                        <property name="text">
                         <string>Range</string>
                        </property>
                       </widget>
                      </item>
-                     <item>
+                     <item row="0" column="1">
                       <widget class="QSpinBox" name="start_frame_spinBox">
                        <property name="maximum">
                         <number>9999</number>
                        </property>
                       </widget>
                      </item>
-                     <item>
+                     <item row="0" column="2">
                       <widget class="QSpinBox" name="end_frame_spinBox">
                        <property name="maximum">
                         <number>9999</number>
                        </property>
                       </widget>
                      </item>
-                     <item>
-                      <spacer name="horizontalSpacer_10">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>40</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_18">
-                     <item>
+                     <item row="1" column="0">
                       <widget class="QLabel" name="handles_label">
                        <property name="text">
                         <string>Handles</string>
                        </property>
                       </widget>
                      </item>
-                     <item>
+                     <item row="1" column="1">
                       <widget class="QSpinBox" name="handle_at_start_spinBox">
                        <property name="maximum">
                         <number>9999</number>
                        </property>
                       </widget>
                      </item>
-                     <item>
+                     <item row="1" column="2">
                       <widget class="QSpinBox" name="handle_at_end_spinBox">
                        <property name="maximum">
                         <number>9999</number>
                        </property>
                       </widget>
                      </item>
-                     <item>
+                     <item row="1" column="3">
                       <widget class="QPushButton" name="shot_info_update_pushButton">
                        <property name="text">
                         <string>Update</string>
