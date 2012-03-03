@@ -278,10 +278,18 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="start_frame_spinBox"/>
+                      <widget class="QSpinBox" name="start_frame_spinBox">
+                       <property name="maximum">
+                        <number>9999</number>
+                       </property>
+                      </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="end_frame_spinBox"/>
+                      <widget class="QSpinBox" name="end_frame_spinBox">
+                       <property name="maximum">
+                        <number>9999</number>
+                       </property>
+                      </widget>
                      </item>
                      <item>
                       <spacer name="horizontalSpacer_10">
@@ -308,10 +316,18 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="handle_at_start_spinBox"/>
+                      <widget class="QSpinBox" name="handle_at_start_spinBox">
+                       <property name="maximum">
+                        <number>9999</number>
+                       </property>
+                      </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="handle_at_end_spinBox"/>
+                      <widget class="QSpinBox" name="handle_at_end_spinBox">
+                       <property name="maximum">
+                        <number>9999</number>
+                       </property>
+                      </widget>
                      </item>
                      <item>
                       <widget class="QPushButton" name="shot_info_update_pushButton">

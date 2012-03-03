@@ -9,6 +9,15 @@ Version History
 
 * Added a new method to ``NukeEnv`` to create slate information.
 
+* Replacing references in ``MayaEnv`` now uses the repository environment
+  variable and prevents reloading of the referenced versions upon saving.
+
+* Fixed :attr:`~oyProjectManager.core.models.Shot.duration` attribute in
+  :class:`~oyProjectManager.core.models.Shot`.
+
+* Now in ``version_creator`` the shot frame range and handle information can be
+  updated.
+
 0.2.2
 -----
 

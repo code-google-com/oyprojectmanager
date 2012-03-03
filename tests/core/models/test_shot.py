@@ -379,6 +379,14 @@ class ShotTester(unittest.TestCase):
         self.assertEqual(self.test_shot.start_frame, 1)
         self.assertEqual(self.test_shot.duration, 200)
     
+    def test_duration_attribute_is_initialized_correctly(self):
+        """testing if the duration attribute is initialized correctly 
+        """
+        self.assertEqual(
+            self.test_shot.duration,
+            self.test_shot.end_frame - self.test_shot.start_frame + 1
+        ) 
+    
     def test_duration_attribute_is_updated_correctly(self):
         """testing if the duration attribute is updated correctly with the
         changing values of start_frame and end_frame values
@@ -470,3 +478,94 @@ class ShotTester(unittest.TestCase):
         self.assertFalse(shot1!=shot1a)
         self.assertTrue(shot1!=shot2)
         self.assertTrue(shot1a!=shot3)
+    
+    def test_handle_at_start_attribute_not_an_integer(self):
+        """testing if a TypeError will be raised when the handles_at_start
+        attribute is set anything other then an integer
+        """
+        
+        self.assertRaises(
+            TypeError, setattr, self.test_shot, "handle_at_start",
+            "test value"
+        )
+    
+    def test_handle_at_start_defaults_to_zero(self):
+        """testing if the default value of handle_at_start is 0
+        """
+        
+        self.assertEqual(self.test_shot.handle_at_start, 0)
+    
+    def test_handle_at_start_is_negative(self):
+        """testing if a ValueError will be raised when the handle_at_start is
+        a negative value
+        """
+        
+        self.assertRaises(
+            ValueError, setattr, self.test_shot, "handle_at_start", -10
+        )
+    
+    def test_handle_at_start_is_bigger_then_duration_minus_one(self):
+       """testing if a ValueError will be raised when the handle_at_start is
+       bigger then the duration-1
+       """
+       
+       self.assertRaises(
+           ValueError, setattr, self.test_shot, "handle_at_start",
+           self.test_shot.duration
+       )
+    
+    def test_handles_together_are_bigger_then_duration_minus_one_while_setting_handle_at_start(self):
+       """testing if a ValueError will be raised when the handle_at_start and
+       handle_at_end together are greater then duration-1
+       """
+       
+       self.test_shot.start_frame = 1
+       self.test_shot.end_frame = 100
+       self.test_shot.handle_at_end = 50
+       self.assertRaises(
+           ValueError, setattr, self.test_shot, "handle_at_start", 50
+       )
+    
+    def test_handle_at_end_attribute_not_an_integer(self):
+        """testing if a TypeError will be raised when the handles_at_start
+        attribute is set anything other then an integer
+        """
+        
+        self.assertRaises(
+            TypeError, setattr, self.test_shot, "handle_at_end",
+            "test value"
+        )
+    
+    def test_handle_at_end_defaults_to_zero(self):
+        """testing if the default value of handle_at_end is 0
+        """
+        self.assertEqual(self.test_shot.handle_at_end, 0)
+    
+    def test_handle_at_end_is_negative(self):
+        """testing if a ValueError will be raised when the handle_at_end is
+        a negative value
+        """
+        self.assertRaises(
+            ValueError, setattr, self.test_shot, "handle_at_end", -10
+        )
+    
+    def test_handle_at_end_is_bigger_then_duration_minus_one(self):
+       """testing if a ValueError will be raised when the handle_at_end is
+       bigger then the duration-1
+       """
+       self.assertRaises(
+           ValueError, setattr, self.test_shot, "handle_at_end",
+           self.test_shot.duration
+       )
+    
+    def test_handles_together_are_bigger_then_duration_minus_one_while_setting_handle_at_end(self):
+       """testing if a ValueError will be raised when the handle_at_start and
+       handle_at_end together are greater then duration-1
+       """
+       
+       self.test_shot.start_frame = 1
+       self.test_shot.end_frame = 100
+       self.test_shot.handle_at_start = 50
+       self.assertRaises(
+           ValueError, setattr, self.test_shot, "handle_at_end", 50
+       )

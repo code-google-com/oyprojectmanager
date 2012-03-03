@@ -2579,6 +2579,88 @@ class VersionCreatorTester(unittest.TestCase):
         
         # there should be no errors raised
         # and the project_comboBox should be set to proj2
+    
+    def test_frame_info_spinBoxes_are_correctly_filled(self):
+        """testing if the frame info spinBoxes are correctly filled
+        """
+        
+        proj = Project("Test Project")
+        proj.save()
+        
+        seq = Sequence(proj, "Test Sequence")
+        seq.save()
+        
+        shot1 = Shot(seq, 1)
+        start_frame = 23
+        end_frame = 100
+        handle_at_start = 10
+        handle_at_end = 7
+        
+        shot1.start_frame = start_frame
+        shot1.end_frame = end_frame
+        shot1.handle_at_start = handle_at_start
+        shot1.handle_at_end = handle_at_end
+        shot1.save()
+        
+        dialog = version_creator.MainDialog()
+        
+        # set the tab to shots
+        dialog.tabWidget.setCurrentIndex(1)
+        
+        # the first shot should have been selected
+        # check the frame info
+        self.assertEqual(dialog.start_frame_spinBox.value(), start_frame)
+        self.assertEqual(dialog.end_frame_spinBox.value(), end_frame)
+        self.assertEqual(dialog.handle_at_start_spinBox.value(),
+            handle_at_start)
+        self.assertEqual(dialog.handle_at_end_spinBox.value(), handle_at_end)
+    
+    def test_frame_info_updated_to_the_shot_when_hit_to_update(self):
+        """testing if the frame info of the shot is updated with the update
+        button
+        """
+        
+        proj = Project("Test Project")
+        proj.save()
+        
+        seq = Sequence(proj, "Test Sequence")
+        seq.save()
+        
+        shot1 = Shot(seq, 1)
+       
+        shot1.start_frame = 1
+        shot1.end_frame = 100
+        shot1.handle_at_start = 10
+        shot1.handle_at_end = 10
+        shot1.save()
+        
+        dialog = version_creator.MainDialog()
+        
+        # set the tab to shots
+        dialog.tabWidget.setCurrentIndex(1)
+        
+        # update the fields
+        start_frame = 23
+        end_frame = 100
+        handle_at_start = 10
+        handle_at_end = 7
+        
+        dialog.start_frame_spinBox.setValue(start_frame)
+        dialog.end_frame_spinBox.setValue(end_frame)
+        dialog.handle_at_start_spinBox.setValue(handle_at_start)
+        dialog.handle_at_end_spinBox.setValue(handle_at_end)
+        
+        # hit update
+        QTest.mouseClick(
+            dialog.shot_info_update_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # now check if the info is updated to the shot
+        self.assertEqual(shot1.start_frame, start_frame)
+        self.assertEqual(shot1.end_frame, end_frame)
+        self.assertEqual(shot1.handle_at_start, handle_at_start)
+        self.assertEqual(shot1.handle_at_end, handle_at_end)
 
 
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):

@@ -309,6 +309,13 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.update_previous_versions_tableWidget
         )
         
+        # shot_info_update_pushButton 
+        QtCore.QObject.connect(
+            self.shot_info_update_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.shot_info_update_pushButton_clicked
+        )
+        
         logger.debug("finished setting up interface signals")
     
     def _show_assets_listWidget_context_menu(self, position):
@@ -670,16 +677,21 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # select the first one
         item = self.version_types_listWidget.item(0)
         self.version_types_listWidget.setCurrentItem(item)
-    
+
+    def get_current_shot(self):
+        """returns the current selected shot in the interface
+        """
+        # get the shot from the index
+        index = self.shots_listWidget.currentIndex().row()
+        shot = self.shots_listWidget.shots[index]
+        return shot
+
     def shot_changed(self, shot_name):
         """updates the shot related fields with the current shot information
         """
         
         proj = self.get_current_project()
-        
-        # get the shot from the index
-        index = self.shots_listWidget.currentIndex().row()
-        shot = self.shots_listWidget.shots[index]
+        shot = self.get_current_shot()
         
 #        # set the description
 #        if shot.description is not None:
@@ -688,6 +700,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
 #            self.shot_description_textEdit.setText("")
         
         # update the version data
+        # frame info
+        self.start_frame_spinBox.setValue(shot.start_frame)
+        self.end_frame_spinBox.setValue(shot.end_frame)
+        self.handle_at_start_spinBox.setValue(shot.handle_at_start)
+        self.handle_at_end_spinBox.setValue(shot.handle_at_end)
+        
         # Types
         # get all the types for this shot
         if self.environment is None:
@@ -717,6 +735,24 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         item = self.version_types_listWidget.item(0)
         self.version_types_listWidget.setCurrentItem(item)
 #        setCurrentRow(0)
+    
+    def shot_info_update_pushButton_clicked(self):
+        """runs when the shot_info_update_pushButton is clicked
+        """
+        
+        shot = self.get_current_shot()
+        
+        # get the info
+        start_frame = self.start_frame_spinBox.value()
+        end_frame = self.end_frame_spinBox.value()
+        handle_at_start = self.handle_at_start_spinBox.value()
+        handle_at_end = self.handle_at_end_spinBox.value()
+        
+        # now update the shot
+        shot.start_frame = start_frame
+        shot.end_frame = end_frame
+        shot.handle_at_start = handle_at_start
+        shot.handle_at_end = handle_at_end
     
     def version_types_listWidget_changed(self, index):
         """runs when the asset version types comboBox has changed

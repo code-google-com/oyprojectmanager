@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/mnt/M/DEV/generic/oyProjectManager/oyProjectManager/ui/version_creator.ui'
+# Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Wed Feb  1 03:40:59 2012
-#      by: PyQt4 UI code generator 4.8.6
+# Created: Sat Mar  3 20:42:29 2012
+#      by: PyQt4 UI code generator 4.8.5
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -164,23 +164,40 @@ class Ui_Dialog(object):
         self.verticalLayout_9.addWidget(self.shots_listWidget)
         self.horizontalLayout_16 = QtGui.QHBoxLayout()
         self.horizontalLayout_16.setObjectName(_fromUtf8("horizontalLayout_16"))
-        self.label = QtGui.QLabel(self.asset_info_groupBox_2)
-        self.label.setText(QtGui.QApplication.translate("Dialog", "Start", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setObjectName(_fromUtf8("label"))
-        self.horizontalLayout_16.addWidget(self.label)
-        self.spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
-        self.spinBox.setObjectName(_fromUtf8("spinBox"))
-        self.horizontalLayout_16.addWidget(self.spinBox)
-        self.label_2 = QtGui.QLabel(self.asset_info_groupBox_2)
-        self.label_2.setText(QtGui.QApplication.translate("Dialog", "End", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setObjectName(_fromUtf8("label_2"))
-        self.horizontalLayout_16.addWidget(self.label_2)
-        self.spinBox_2 = QtGui.QSpinBox(self.asset_info_groupBox_2)
-        self.spinBox_2.setObjectName(_fromUtf8("spinBox_2"))
-        self.horizontalLayout_16.addWidget(self.spinBox_2)
+        self.frame_range_label = QtGui.QLabel(self.asset_info_groupBox_2)
+        self.frame_range_label.setText(QtGui.QApplication.translate("Dialog", "Range", None, QtGui.QApplication.UnicodeUTF8))
+        self.frame_range_label.setObjectName(_fromUtf8("frame_range_label"))
+        self.horizontalLayout_16.addWidget(self.frame_range_label)
+        self.start_frame_spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
+        self.start_frame_spinBox.setMaximum(9999)
+        self.start_frame_spinBox.setObjectName(_fromUtf8("start_frame_spinBox"))
+        self.horizontalLayout_16.addWidget(self.start_frame_spinBox)
+        self.end_frame_spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
+        self.end_frame_spinBox.setMaximum(9999)
+        self.end_frame_spinBox.setObjectName(_fromUtf8("end_frame_spinBox"))
+        self.horizontalLayout_16.addWidget(self.end_frame_spinBox)
         spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_16.addItem(spacerItem4)
         self.verticalLayout_9.addLayout(self.horizontalLayout_16)
+        self.horizontalLayout_18 = QtGui.QHBoxLayout()
+        self.horizontalLayout_18.setObjectName(_fromUtf8("horizontalLayout_18"))
+        self.handles_label = QtGui.QLabel(self.asset_info_groupBox_2)
+        self.handles_label.setText(QtGui.QApplication.translate("Dialog", "Handles", None, QtGui.QApplication.UnicodeUTF8))
+        self.handles_label.setObjectName(_fromUtf8("handles_label"))
+        self.horizontalLayout_18.addWidget(self.handles_label)
+        self.handle_at_start_spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
+        self.handle_at_start_spinBox.setMaximum(9999)
+        self.handle_at_start_spinBox.setObjectName(_fromUtf8("handle_at_start_spinBox"))
+        self.horizontalLayout_18.addWidget(self.handle_at_start_spinBox)
+        self.handle_at_end_spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
+        self.handle_at_end_spinBox.setMaximum(9999)
+        self.handle_at_end_spinBox.setObjectName(_fromUtf8("handle_at_end_spinBox"))
+        self.horizontalLayout_18.addWidget(self.handle_at_end_spinBox)
+        self.shot_info_update_pushButton = QtGui.QPushButton(self.asset_info_groupBox_2)
+        self.shot_info_update_pushButton.setText(QtGui.QApplication.translate("Dialog", "Update", None, QtGui.QApplication.UnicodeUTF8))
+        self.shot_info_update_pushButton.setObjectName(_fromUtf8("shot_info_update_pushButton"))
+        self.horizontalLayout_18.addWidget(self.shot_info_update_pushButton)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_18)
         self.horizontalLayout_12.addLayout(self.verticalLayout_9)
         self.verticalLayout_8.addLayout(self.horizontalLayout_12)
         self.verticalLayout_11.addWidget(self.asset_info_groupBox_2)
@@ -218,7 +235,7 @@ class Ui_Dialog(object):
         self.note_textEdit.setHtml(QtGui.QApplication.translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+"</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Sans Serif\'; font-size:9pt;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.note_textEdit.setObjectName(_fromUtf8("note_textEdit"))
         self.gridLayout_3.addWidget(self.note_textEdit, 2, 1, 1, 1)

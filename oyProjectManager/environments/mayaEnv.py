@@ -671,13 +671,16 @@ class Maya(EnvironmentBase):
             reference_info = self.get_referenced_versions()
             for data in reference_info:
                 reference_list.append(data[0])
-    
+            
             version.references = reference_list
             version.save()
     
     def update_versions(self, version_tuple_list):
         """update versions to the latest version
         """
+        
+        repo = Repository()
+        repo_env_key = "$" + conf.repository_env_key
         
         previous_version_full_path = ''
         
@@ -690,7 +693,12 @@ class Maya(EnvironmentBase):
                 latest_version = version.latest_version()
                 previous_version_full_path = version_full_path
             
-            reference.replaceWith(latest_version.full_path)
+            reference.replaceWith(
+                latest_version.full_path.replace(
+                    repo.server_path,
+                    repo_env_key
+                )
+            )
     
     def get_frame_range(self):
         """returns the current playback frame range

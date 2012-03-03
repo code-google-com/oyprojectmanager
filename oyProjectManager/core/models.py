@@ -1023,6 +1023,9 @@ class Shot(VersionableBase):
       
       I hope I'll fix it in a later version.
     
+    The total of the handle attributes should not be bigger then duration-1, in
+    which results no frame for the real shot.
+    
     :param sequence: The :class:`~oyProjectManager.core.models.Sequence`
       instance that this Shot should belong to. The Sequence may not be created
       yet. Skipping it or passing None will raise TypeError, and anything
@@ -1088,6 +1091,9 @@ class Shot(VersionableBase):
         self._duration = 1
         self.start_frame = start_frame
         self.end_frame = end_frame
+        
+        self.handle_at_start = 0
+        self.handle_at_end = 0
         
         #self._cutSummary = ''
     
@@ -1193,6 +1199,7 @@ class Shot(VersionableBase):
     def duration(self):
         """the duration
         """
+        self._update_duration(self.start_frame, self.end_frame)
         return self._duration
 
 
@@ -1273,6 +1280,48 @@ class Shot(VersionableBase):
             
             return self.project.shot_number_prefix +\
                number.zfill(self.project.shot_number_padding) + alter
+    
+    @validates("handle_at_start")
+    def _validate_handles_at_start(self, key, handle_at_start):
+        """validates the given handle_at_start value
+        """
+        
+        if not isinstance(handle_at_start, int):
+            raise TypeError("Shot.handle_at_start should be an instance of "
+            "integer not %s" % type(handle_at_start))
+        
+        if handle_at_start < 0:
+            raise ValueError("Shot.handle_at_start can not be a negative "
+                             "value")
+        
+        # the total count of the handles can not be bigger than duration-1
+        if self.handle_at_end is not None:
+            if handle_at_start + self.handle_at_end > self.duration - 1:
+                raise ValueError("Shot.handle_at_start + Shot.handle_at_end "
+                                 "can not be bigger than Shot.duration - 1")
+
+        return handle_at_start
+    
+    @validates("handle_at_end")
+    def _validate_handle_at_end(self, key, handle_at_end):
+        """validates the given handle_at_end value
+        """
+        
+        if not isinstance(handle_at_end, int):
+            raise TypeError("Shot.handle_at_end should be an instance of "
+            "integer not %s" % type(handle_at_end))
+        
+        if handle_at_end < 0:
+            raise ValueError("Shot.handle_at_end can not be a negative "
+                             "value")
+        
+        # the total count of the handles can not be bigger than duration-1
+        if self.handle_at_start is not None:
+            if self.handle_at_start + handle_at_end > self.duration - 1:
+                raise ValueError("Shot.handle_at_start + Shot.handle_at_end "
+                                 "can not be bigger than Shot.duration - 1")
+
+        return handle_at_end
 
 class Asset(VersionableBase):
     """Manages Assets in a given :class:`~oyProjectManager.core.models.Project`

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/mnt/M/DEV/generic/oyProjectManager/oyProjectManager/ui/version_creator.ui'
+# Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Wed Feb  1 03:40:58 2012
-#      by: pyside-uic 0.2.13 running on PySide 1.0.9
+# Created: Sat Mar  3 20:42:29 2012
+#      by: pyside-uic 0.2.11 running on PySide 1.0.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -149,21 +149,37 @@ class Ui_Dialog(object):
         self.verticalLayout_9.addWidget(self.shots_listWidget)
         self.horizontalLayout_16 = QtGui.QHBoxLayout()
         self.horizontalLayout_16.setObjectName("horizontalLayout_16")
-        self.label = QtGui.QLabel(self.asset_info_groupBox_2)
-        self.label.setObjectName("label")
-        self.horizontalLayout_16.addWidget(self.label)
-        self.spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
-        self.spinBox.setObjectName("spinBox")
-        self.horizontalLayout_16.addWidget(self.spinBox)
-        self.label_2 = QtGui.QLabel(self.asset_info_groupBox_2)
-        self.label_2.setObjectName("label_2")
-        self.horizontalLayout_16.addWidget(self.label_2)
-        self.spinBox_2 = QtGui.QSpinBox(self.asset_info_groupBox_2)
-        self.spinBox_2.setObjectName("spinBox_2")
-        self.horizontalLayout_16.addWidget(self.spinBox_2)
+        self.frame_range_label = QtGui.QLabel(self.asset_info_groupBox_2)
+        self.frame_range_label.setObjectName("frame_range_label")
+        self.horizontalLayout_16.addWidget(self.frame_range_label)
+        self.start_frame_spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
+        self.start_frame_spinBox.setMaximum(9999)
+        self.start_frame_spinBox.setObjectName("start_frame_spinBox")
+        self.horizontalLayout_16.addWidget(self.start_frame_spinBox)
+        self.end_frame_spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
+        self.end_frame_spinBox.setMaximum(9999)
+        self.end_frame_spinBox.setObjectName("end_frame_spinBox")
+        self.horizontalLayout_16.addWidget(self.end_frame_spinBox)
         spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_16.addItem(spacerItem4)
         self.verticalLayout_9.addLayout(self.horizontalLayout_16)
+        self.horizontalLayout_18 = QtGui.QHBoxLayout()
+        self.horizontalLayout_18.setObjectName("horizontalLayout_18")
+        self.handles_label = QtGui.QLabel(self.asset_info_groupBox_2)
+        self.handles_label.setObjectName("handles_label")
+        self.horizontalLayout_18.addWidget(self.handles_label)
+        self.handle_at_start_spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
+        self.handle_at_start_spinBox.setMaximum(9999)
+        self.handle_at_start_spinBox.setObjectName("handle_at_start_spinBox")
+        self.horizontalLayout_18.addWidget(self.handle_at_start_spinBox)
+        self.handle_at_end_spinBox = QtGui.QSpinBox(self.asset_info_groupBox_2)
+        self.handle_at_end_spinBox.setMaximum(9999)
+        self.handle_at_end_spinBox.setObjectName("handle_at_end_spinBox")
+        self.horizontalLayout_18.addWidget(self.handle_at_end_spinBox)
+        self.shot_info_update_pushButton = QtGui.QPushButton(self.asset_info_groupBox_2)
+        self.shot_info_update_pushButton.setObjectName("shot_info_update_pushButton")
+        self.horizontalLayout_18.addWidget(self.shot_info_update_pushButton)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_18)
         self.horizontalLayout_12.addLayout(self.verticalLayout_9)
         self.verticalLayout_8.addLayout(self.horizontalLayout_12)
         self.verticalLayout_11.addWidget(self.asset_info_groupBox_2)
@@ -352,8 +368,9 @@ class Ui_Dialog(object):
         self.asset_info_groupBox_2.setTitle(QtGui.QApplication.translate("Dialog", "Shot Information", None, QtGui.QApplication.UnicodeUTF8))
         self.shot_name_label.setText(QtGui.QApplication.translate("Dialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
         self.create_shot_pushButton.setText(QtGui.QApplication.translate("Dialog", "Create New Shot", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Dialog", "Start", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("Dialog", "End", None, QtGui.QApplication.UnicodeUTF8))
+        self.frame_range_label.setText(QtGui.QApplication.translate("Dialog", "Range", None, QtGui.QApplication.UnicodeUTF8))
+        self.handles_label.setText(QtGui.QApplication.translate("Dialog", "Handles", None, QtGui.QApplication.UnicodeUTF8))
+        self.shot_info_update_pushButton.setText(QtGui.QApplication.translate("Dialog", "Update", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.shots_tab), QtGui.QApplication.translate("Dialog", "Shots", None, QtGui.QApplication.UnicodeUTF8))
         self.new_version_groupBox.setTitle(QtGui.QApplication.translate("Dialog", "New Version", None, QtGui.QApplication.UnicodeUTF8))
         self.takes_label.setText(QtGui.QApplication.translate("Dialog", "Take", None, QtGui.QApplication.UnicodeUTF8))
@@ -361,7 +378,7 @@ class Ui_Dialog(object):
         self.note_textEdit.setHtml(QtGui.QApplication.translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+"</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Sans Serif\'; font-size:9pt;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.version_types_label.setText(QtGui.QApplication.translate("Dialog", "Type", None, QtGui.QApplication.UnicodeUTF8))
         self.add_type_toolButton.setText(QtGui.QApplication.translate("Dialog", "+", None, QtGui.QApplication.UnicodeUTF8))
