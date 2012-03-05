@@ -1708,6 +1708,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             "Image Files (*.png *.jpg *.bmp)"
         )
         
+        # if the tumbnail_full_path is empty do not do anything
+        if thumbnail_full_path == "":
+            return
+        
         # get the current versionable
         versionable = self.get_versionable()
         

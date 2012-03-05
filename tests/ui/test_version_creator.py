@@ -2639,14 +2639,14 @@ class VersionCreatorTester(unittest.TestCase):
         shot1.save()
         
         dialog = version_creator.MainDialog()
-        #dialog.show()
-        #self.app.exec_()
-        #self.app.connect(
-        #    self.app,
-        #    QtCore.SIGNAL("lastWindowClosed()"),
-        #    self.app,
-        #    QtCore.SLOT("quit()")
-        #)
+        dialog.show()
+        self.app.exec_()
+        self.app.connect(
+            self.app,
+            QtCore.SIGNAL("lastWindowClosed()"),
+            self.app,
+            QtCore.SLOT("quit()")
+        )
         
         # set the tab to shots
         dialog.tabWidget.setCurrentIndex(1)
