@@ -977,6 +977,8 @@ class VersionableBase(Base):
     
     description = Column(String)
     
+    thumbnail = Column(String)
+    
     @synonym_for("_versions")
     @property
     def versions(self):

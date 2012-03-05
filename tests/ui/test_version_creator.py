@@ -31,7 +31,7 @@ from oyProjectManager.ui import version_creator
 conf = config.Config()
 
 logger = logging.getLogger("oyProjectManager.ui.version_creator")
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 # exceptions for test purposes
 class ExportAs(Exception):
@@ -400,14 +400,14 @@ class VersionCreatorTester(unittest.TestCase):
         asset4.save()
         
         dialog = version_creator.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+        #dialog.show()
+        #self.app.exec_()
+        #self.app.connect(
+        #    self.app,
+        #    QtCore.SIGNAL("lastWindowClosed()"),
+        #    self.app,
+        #    QtCore.SLOT("quit()")
+        #)
         
         # now check if their names are in the asset names listWidget
         listWidget = dialog.assets_listWidget
@@ -1179,14 +1179,15 @@ class VersionCreatorTester(unittest.TestCase):
         vers6.save()
 
         dialog = version_creator.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+        #dialog.show()
+        #self.app.exec_()
+        #self.app.connect(
+        #    self.app,
+        #    QtCore.SIGNAL("lastWindowClosed()"),
+        #    
+        #    self.app,
+        #    QtCore.SLOT("quit()")
+        #)
         
         # select the first asset
         list_item = dialog.assets_listWidget.item(0)
@@ -2519,14 +2520,14 @@ class VersionCreatorTester(unittest.TestCase):
         shot4.save()
         
         dialog = version_creator.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+        #dialog.show()
+        #self.app.exec_()
+        #self.app.connect(
+        #    self.app,
+        #    QtCore.SIGNAL("lastWindowClosed()"),
+        #    self.app,
+        #    QtCore.SLOT("quit()")
+        #)
         
         # set the tab to shots
         dialog.tabWidget.setCurrentIndex(1)
@@ -2626,6 +2627,9 @@ class VersionCreatorTester(unittest.TestCase):
         seq = Sequence(proj, "Test Sequence")
         seq.save()
         
+        seq2 = Sequence(proj, "Test Sequence 2")
+        seq2.save()
+        
         shot1 = Shot(seq, 1)
        
         shot1.start_frame = 1
@@ -2635,9 +2639,18 @@ class VersionCreatorTester(unittest.TestCase):
         shot1.save()
         
         dialog = version_creator.MainDialog()
+        #dialog.show()
+        #self.app.exec_()
+        #self.app.connect(
+        #    self.app,
+        #    QtCore.SIGNAL("lastWindowClosed()"),
+        #    self.app,
+        #    QtCore.SLOT("quit()")
+        #)
         
         # set the tab to shots
         dialog.tabWidget.setCurrentIndex(1)
+        
         
         # update the fields
         start_frame = 23
@@ -2661,8 +2674,113 @@ class VersionCreatorTester(unittest.TestCase):
         self.assertEqual(shot1.end_frame, end_frame)
         self.assertEqual(shot1.handle_at_start, handle_at_start)
         self.assertEqual(shot1.handle_at_end, handle_at_end)
+    
+    def test_upload_thumbnail_updates_the_thumbnail_path_for_the_given_versionable(self):
+        """testing if the upload_thumbnail updates the thumbnail field of the
+        given Versionable instance
+        """
+        
+        proj = Project("Test Project")
+        proj.create()
+        
+        asset = Asset(proj, "Test Asset")
+        asset.save()
+        
+        self.assertEqual(asset.thumbnail, None)
+        
+        # save the image to the temp directory
+        pixmap_full_path = os.path.join(
+            self.temp_config_folder,
+            "test.jpg"
+        )
+        
+        logger.debug("pixmap_full_path: %s" % pixmap_full_path)
+        self.create_test_image(pixmap_full_path)
+        
+        thumbnail_full_path = os.path.join(
+            proj.code, "Assets", asset.code, "Thumbnail",
+            asset.code + "_thumbnail.jpg"
+        )
+        
+        # now upload a thumbnail
+        dialog = version_creator.MainDialog()
+        
+        dialog.upload_thumbnail(asset, pixmap_full_path)
+        
+        # now check if asset.thumbnail is correctly set
+        self.assertEqual(asset.thumbnail, thumbnail_full_path)
+        
+        # and the file is placed to the correct placement
+        self.assertTrue(
+            os.path.exists(
+                os.path.join(
+                    proj.path, thumbnail_full_path 
+                ) 
+            )
+        )
+    
+    def test_update_thumbnail_clears_the_graphic_view_for_no_thumbnail(self):
+        """testing if the update_thumbnail method clears the graphic view for
+        no thumbnail
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_upload_thumbnail_overwrites_to_old_thumbnail_without_any_problem(self):
+        """testing if upload_thumbnail method can overwrite to previous
+        thumbnails
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_update_thumbnail_works_correctly_switching_from_asset_to_shots(self):
+        """testing if update_thumbnail works correctly when switching from
+        asset to shots
+        """
+        self.fail("test is not implemented yet")
+    
+    def test_upload_thumbnail_can_upload_different_formats(self):
+        """testing if the upload_thumbnail method can upload different formats
+        """
+        self.fail("test is not implemented yet")
+    
+    def create_test_image(self, pixmap_full_path):
+        """Creates a test image at the given path
+        """
+        
+        # first create a thumbnail
+        pixmap = QtGui.QPixmap(
+            [
+                "16 16 2 1",
+                "  c None",
+                ". c white",
+                " . . . . . . . .",
+                ". . . . . . . . ",
+                " . . . . . . . .",
+                ". . . . . . . . ",
+                " . . . . . . . .",
+                ". . . . . . . . ",
+                " . . . . . . . .",
+                ". . . . . . . . ",
+                " . . . . . . . .",
+                ". . . . . . . . ",
+                " . . . . . . . .",
+                ". . . . . . . . ",
+                " . . . . . . . .",
+                ". . . . . . . . ",
+                " . . . . . . . .",
+                ". . . . . . . . "
+            ]
+        )
+        
+       
+        # write the image
+        pixmap.save(pixmap_full_path)
+        
+        # assert the image is saved to the path
+        self.assertTrue(os.path.exists(pixmap_full_path))
+        
+        return pixmap
 
-
+  
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     """tests the interaction of the UI with the given environment
     """

@@ -18,6 +18,13 @@ Version History
 * Now in ``version_creator`` the shot frame range and handle information can be
   updated.
 
+* Fixed tests of ``version_creator``, the popups were interrupting the test
+  while the environment to UI relation was tested. Now the dialog boxes only
+  appear if the system is not in debug mode.
+
+* Added thumbnail support and ``version_creator`` UI can load/upload the
+  defined thumbnails.
+
 0.2.2
 -----
 
