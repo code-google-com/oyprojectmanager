@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ozgur/Documents/development/oyProjectManager/oyProjectManager/ui/project_manager.ui'
+# Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/project_manager.ui'
 #
-# Created: Thu Jan 19 17:58:23 2012
+# Created: Thu Mar  8 18:39:48 2012
 #      by: PyQt4 UI code generator 4.8.5
 #
 # WARNING! All changes made in this file will be lost!
@@ -72,6 +72,10 @@ class Ui_dialog(object):
         self.verticalLayout.addLayout(self.gridLayout)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        self.create_project_structure_pushButton = QtGui.QPushButton(dialog)
+        self.create_project_structure_pushButton.setText(QtGui.QApplication.translate("dialog", "Create Project Structure", None, QtGui.QApplication.UnicodeUTF8))
+        self.create_project_structure_pushButton.setObjectName(_fromUtf8("create_project_structure_pushButton"))
+        self.horizontalLayout.addWidget(self.create_project_structure_pushButton)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.close_pushButton = QtGui.QPushButton(dialog)

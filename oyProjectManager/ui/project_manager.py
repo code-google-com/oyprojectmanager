@@ -150,6 +150,13 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
             QtCore.SIGNAL("clicked()"),
             self.new_shots_pushButton_clicked
         )
+        
+        # create_project_structure_pushButton
+        QtCore.QObject.connect(
+            self.create_project_structure_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.create_project_structure
+        )
 
     def _set_defaults(self):
         """sets the default values for the interface
@@ -334,3 +341,12 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
                 
                 # update the shots_comboBox
                 self.update_shots_comboBox()
+    
+    def create_project_structure(self):
+        """runs when the create_project_structure_pushButton has been clicked
+        """
+        
+        proj = self.get_current_project()
+        
+        if proj:
+            proj.create()

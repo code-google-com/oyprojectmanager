@@ -385,3 +385,48 @@ class ProjectManager_Tester(unittest.TestCase):
 #        for a project name
 #        """
 #        self.fail("test is not implemented yet")
+    
+    def test_create_project_structure_pushButton_creates_project_structure(self):
+        """testing if using the create_project_pushButton creates the project
+        structure
+        """
+        
+        # create a project
+        proj = Project("Test Project")
+        proj.save()
+        
+        # create a sequence
+        seq = Sequence(proj, "Sequence")
+        seq.save()
+        
+        # create a shot
+        shot = Shot(seq, 1)
+        shot.save()
+        
+        # check if there is no shot folder
+        project_path = os.path.join(
+            self.temp_projects_folder,
+            "TEST_PROJECT/Sequences/SEQUENCE/Shots/SH001"
+        )
+        
+        self.assertFalse(
+            os.path.exists(
+                project_path
+            )
+        )
+        
+        # hit create_stucture_pushButton
+        dialog = project_manager.MainDialog()
+        
+        QTest.mouseClick(
+            dialog.create_project_structure_pushButton,
+            Qt.LeftButton
+        )
+        
+        # check if the shot folder has been created
+        self.assertTrue(
+            os.path.exists(
+                project_path
+            )
+        )
+ 
