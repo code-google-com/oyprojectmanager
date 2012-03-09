@@ -134,10 +134,12 @@ class Maya(EnvironmentBase):
         )
         
         # update the reference list
+        # TODO: Why am I not using self.update_references_list here
         reference_list = []
         reference_info = self.get_referenced_versions()
         for data in reference_info:
-            reference_list.append(data[0])
+            if data[0] not in reference_list:
+                reference_list.append(data[0])
         
         version.references = reference_list
         version.save()
@@ -670,7 +672,8 @@ class Maya(EnvironmentBase):
             reference_list = []
             reference_info = self.get_referenced_versions()
             for data in reference_info:
-                reference_list.append(data[0])
+                if data[0] not in reference_list:
+                    reference_list.append(data[0])
             
             version.references = reference_list
             version.save()

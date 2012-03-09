@@ -412,6 +412,52 @@ class MayaTester(unittest.TestCase):
             refs[0].unresolvedPath().startswith("$" + conf.repository_env_key)
         )
     
+    def test_save_as_of_a_scene_with_two_references_to_the_same_version(self):
+        """testing if the case where the current maya scene has two references
+        to the same file is gracefully handled by assigning the version only
+        once
+        """
+        
+        # create project
+        proj1 = Project("Proj1")
+        proj1.save()
+        proj1.create()
+        
+        # create assets
+        asset1 = Asset(proj1, "Asset 1")
+        asset1.save()
+        
+        # create a version of asset vtype 
+        vers1 = Version(asset1, asset1.code, self.asset_vtypes[0], self.user1)
+        vers1.save()
+        
+        # save it
+        self.mEnv.save_as(vers1)
+        
+        # new scene
+        pm.newFile(force=True)
+        
+        # create another version with different type
+        vers2 = Version(asset1, asset1.code, self.asset_vtypes[1], self.user1)
+        vers2.save()
+        
+        # reference the other version twice
+        self.mEnv.reference(vers1)
+        self.mEnv.reference(vers1)
+        
+        # save it and expect no InvalidRequestError
+        self.mEnv.save_as(vers2)
+        
+        print vers2.references
+        
+        self.mEnv.reference(vers1)
+        vers3 = Version(asset1, asset1.code, self.asset_vtypes[1], self.user1)
+        vers3.save()
+ 
+        self.mEnv.save_as(vers3)
+        
+        
+    
     def test_open_updates_the_referenced_versions_list(self):
         """testing if the open method updates the Version.references list with
         the current references list from the Maya

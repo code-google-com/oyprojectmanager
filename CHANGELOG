@@ -35,6 +35,10 @@ Version History
   :class:`~oyProjectManager.core.models.Version`\ . It is now allowed to have
   numbers at the beginning of the string.
 
+* Fixed :class:`~oyProjectManager.environments.mayaEnv.Maya`\ , it was raising
+  IntegrityErrors when there are more than one references to the same
+  :class:`~oyProjectManage.core.models.Version`\ .
+
 0.2.2
 -----
 
