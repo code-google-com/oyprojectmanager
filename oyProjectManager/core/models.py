@@ -1420,7 +1420,7 @@ class Asset(VersionableBase):
         # remove unnecessary characters from the string
         code = re.sub("([^a-zA-Z0-9\s_]+)", r"", code)
         # remove all the characters from the beginning which are not alphabetic
-        code = re.sub("(^[^a-zA-Z]+)", r"", code)
+        code = re.sub("(^[^a-zA-Z0-9]+)", r"", code)
         # substitute all spaces with "_" characters
         code = re.sub("([\s])+", "_", code)
         
@@ -1470,7 +1470,7 @@ class Asset(VersionableBase):
         # remove unnecessary characters from the string
         name = re.sub("([^a-zA-Z0-9\s_-]+)", r"", name)
         # remove all the characters from the beginning which are not alphabetic
-        name = re.sub("(^[^a-zA-Z]+)", r"", name)
+        name = re.sub("(^[^a-zA-Z0-9]+)", r"", name)
 #        # substitute all spaces with "_" characters
 #        name = re.sub("([\s])+", "_", name)
         
@@ -1928,7 +1928,7 @@ class Version(Base):
         # remove unnecessary characters from the string
         name = re.sub(r"([^a-zA-Z0-9\s_\-]+)", r"", name)
         # remove all the characters from the beginning which are not alphabetic
-        name = re.sub(r"(^[^a-zA-Z]+)", r"", name)
+        name = re.sub(r"(^[^a-zA-Z0-9]+)", r"", name)
         # substitute all spaces with "_" characters
         name = re.sub(r"([\s])+", "_", name)
         # make each words first letter uppercase

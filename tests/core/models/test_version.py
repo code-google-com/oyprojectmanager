@@ -23,8 +23,7 @@ class VersionTester(unittest.TestCase):
     def setUp(self):
         """setup the test settings with environment variables
         """
-        
-        # -----------------------------------------------------------------
+       # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
@@ -75,8 +74,8 @@ class VersionTester(unittest.TestCase):
         
         self._name_test_values = [
             ("base name", "Base_Name"),
-            ("123123 base_name", "Base_Name"),
-            ("123432!+!'^+Base_NAme323^+'^%&+%&324", "Base_NAme323324"),
+            ("123123 base_name", "123123_Base_Name"),
+            ("123432!+!'^+Base_NAme323^+'^%&+%&324", "123432Base_NAme323324"),
             ("    ---base 9s_name", "Base_9s_Name"),
             ("    ---base 9s-name", "Base_9s-Name"),
             (" multiple     spaces are    converted to under     scores",
@@ -90,10 +89,10 @@ class VersionTester(unittest.TestCase):
             ("baseName", "BaseName"),
             (" baseName", "BaseName"),
             (" base name", "Base_Name"),
-            (" 12base name", "Base_Name"),
-            (" 12 base name", "Base_Name"),
-            (" 12 base name 13", "Base_Name_13"),
-            (">£#>$#£½$ 12 base £#$£#$£½¾{½{ name 13", "Base_Name_13"),
+            (" 12base name", "12base_Name"),
+            (" 12 base name", "12_Base_Name"),
+            (" 12 base name 13", "12_Base_Name_13"),
+            (">£#>$#£½$ 12 base £#$£#$£½¾{½{ name 13", "12_Base_Name_13"),
             ("_base_name_", "Base_Name"),
             ("Dash-Characters-Are-Preserved", "Dash-Characters-Are-Preserved")
         ]
@@ -280,7 +279,7 @@ class VersionTester(unittest.TestCase):
         """testing if a ValueError will be raised when the base_name argument
         is an empty string after it is formatted
         """
-        self.kwargs["base_name"] = "'^+'^23423"
+        self.kwargs["base_name"] = "'^+'^#@#$"
         self.assertRaises(ValueError, Version, **self.kwargs)
     
     def test_base_name_attribute_is_empty_string_after_formatting(self):
@@ -288,7 +287,7 @@ class VersionTester(unittest.TestCase):
         is an empty string after it is formatted
         """
         self.assertRaises(ValueError, setattr, self.test_version, "base_name",
-                          "'^+'^23423")
+                          "'^+'^#@$#")
 
     def test_take_name_argument_is_skipped(self):
         """testing if the default value MAIN is used when the take_name
@@ -361,7 +360,7 @@ class VersionTester(unittest.TestCase):
         """testing if a ValueError will be raised when the take_name argument
         is an empty string after it is formatted
         """
-        self.kwargs["take_name"] = "'^+'^23423"
+        self.kwargs["take_name"] = "'^+'^"
         self.assertRaises(ValueError, Version, **self.kwargs)
     
     def test_take_name_attribute_is_empty_string_after_formatting(self):
@@ -369,7 +368,7 @@ class VersionTester(unittest.TestCase):
         is an empty string after it is formatted
         """
         self.assertRaises(ValueError, setattr, self.test_version, "take_name",
-                          "'^+'^23423")
+                          "'^+'^")
     
     def test_version_number_argument_is_skipped_for_new_Version(self):
         """testing if the default value is used for the version attribute if

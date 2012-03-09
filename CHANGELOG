@@ -29,6 +29,12 @@ Version History
   :meth:`~oyProjectManager.core.models.Sequence.add_shots`\ . Compressing shots
   by using a "-" is not supported anymore. This will probably updated later on.
 
+* Changed the name formatting of
+  :class:`~oyProjectManager.core.models.Shot`,
+  :class:`~oyProjectManager.core.models.Asset` and
+  :class:`~oyProjectManager.core.models.Version`\ . It is now allowed to have
+  numbers at the beginning of the string.
+
 0.2.2
 -----
 

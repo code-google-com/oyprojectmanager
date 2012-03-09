@@ -45,29 +45,29 @@ class AssetTester(unittest.TestCase):
         
         self._name_test_values = [
             ("Test Asset", "Test Asset"),
-            ("23Test_Asset", "Test_Asset"),
+            ("23Test_Asset", "23Test_Asset"),
             ("TEST_ASSET", "TEST_ASSET"),
             ("£#$£#$AB", "AB"),
             ("'^+'^%^+%&&AB3£#$£½'^+'3'^+'4", "AB334"),
             ("afasfas fasf asdf67", "Afasfas fasf asdf67"),
-            ("45a", "A"),
-            ("45acafs","Acafs"),
-            ("45'^+'^+a 234", "A 234"),
-            ("45asf78wr", "Asf78wr"),
+            ("45a", "45a"),
+            ("45acafs","45acafs"),
+            ("45'^+'^+a 234", "45a 234"),
+            ("45asf78wr", "45asf78wr"),
             ("'^+'afsd2342'^+'asdFGH", "Afsd2342asdFGH"),
         ]
         
         self._code_test_values = [
             ("Test Asset", "Test_Asset"),
-            ("23Test_Asset", "Test_Asset"),
+            ("23Test_Asset", "23Test_Asset"),
             ("TEST_ASSET", "TEST_ASSET"),
             ("£#$£#$AB", "AB"),
             ("'^+'^%^+%&&AB3£#$£½'^+'3'^+'4", "AB334"),
             ("afasfas fasf asdf67", "Afasfas_fasf_asdf67"),
-            ("45a", "A"),
-            ("45acafs","Acafs"),
-            ("45'^+'^+a 234", "A_234"),
-            ("45asf78wr", "Asf78wr"),
+            ("45a", "45a"),
+            ("45acafs","45acafs"),
+            ("45'^+'^+a 234", "45a_234"),
+            ("45asf78wr", "45asf78wr"),
             ("'^+'afsd2342'^+'asdFGH", "Afsd2342asdFGH"),
         ]
     
@@ -149,10 +149,7 @@ class AssetTester(unittest.TestCase):
         """testing if a ValueError will be raised when the name argument is an
         empty string after formatting
         """
-        self.kwargs["name"] = "£#$£'^+'324"
-        self.assertRaises(ValueError, Asset, **self.kwargs)
-        
-        self.kwargs["name"] = u"546324"
+        self.kwargs["name"] = "£#$£'^+'"
         self.assertRaises(ValueError, Asset, **self.kwargs)
     
     def test_name_attribute_is_empty_string_after_formatting(self):
@@ -160,10 +157,7 @@ class AssetTester(unittest.TestCase):
         an empty string after formatting
         """
         self.assertRaises(ValueError, setattr, self.test_asset, "name",
-                          "£#$£'^+'324")
-
-        self.assertRaises(ValueError, setattr, self.test_asset, "name",
-                          "2324234")
+                          "£#$£'^+'")
     
     def test_name_argument_is_not_unique(self):
         """testing if a IntegrityError will be raised when the name is unique
@@ -247,7 +241,7 @@ class AssetTester(unittest.TestCase):
         """testing if a ValueError will be raised when the code argument is an
         empty string after formatting
         """
-        self.kwargs["code"] = "'^+'%+%1231"
+        self.kwargs["code"] = "'^+'%+%"
         self.assertRaises(ValueError, Asset, **self.kwargs)
     
     def test_code_attribute_is_empty_string_after_formatting(self):
@@ -255,7 +249,7 @@ class AssetTester(unittest.TestCase):
         an empty string after formatting
         """
         self.assertRaises(ValueError, setattr, self.test_asset, "code",
-                          "'^+'%+%1231")
+                          "'^+'%+%")
     
     def test_code_argument_is_not_unique(self):
         """testing if an IntegrityError will be raised when the code argument
