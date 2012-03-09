@@ -767,20 +767,22 @@ class Sequence(Base):
         shot_range_formula should be a range in on of the following format:
         #
         #,#
-        #-#
-        #,#-#
-        #,#-#,#
-        #-#,#
+        #-# (not supported anymore)
+        #,#-# (not supported anymore)
+        #,#-#,# (not supported anymore)
+        #-#,# (not supported anymore)
         etc.
         """
         
-        # for now consider the shot_range_formula as a string of range
-        # do the hard work later
+        ## for now consider the shot_range_formula as a string of range
+        ## do the hard work later
+        #
+        #new_shot_numbers = utils.uncompress_range(shot_range_formula)
+        #
+        ## convert the list to strings
+        #new_shot_numbers = map(str, new_shot_numbers)
         
-        new_shot_numbers = utils.uncompress_range(shot_range_formula)
-        
-        # convert the list to strings
-        new_shot_numbers = map(str, new_shot_numbers)
+        new_shot_numbers = shot_range_formula.split(",")
         
         new_shots = []
         for shot_number in new_shot_numbers:
@@ -996,7 +998,6 @@ class VersionableBase(Base):
         
         It is a read-only attribute
         """
-        
         return self._project
 
     @validates("description")

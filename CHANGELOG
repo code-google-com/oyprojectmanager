@@ -25,6 +25,10 @@ Version History
 * Added thumbnail support and ``version_creator`` UI can load/upload the
   defined thumbnails.
 
+* For a quick fix the template format has been changed in
+  :meth:`~oyProjectManager.core.models.Sequence.add_shots`\ . Compressing shots
+  by using a "-" is not supported anymore. This will probably updated later on.
+
 0.2.2
 -----
 

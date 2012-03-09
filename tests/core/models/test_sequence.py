@@ -417,14 +417,16 @@ class Sequence_DB_Tester(unittest.TestCase):
         self.assertTrue(new_seq1.shots[0].number in expected_shot_numbers)
         
         # add a couple of shots
-        new_seq1.add_shots("2-4")
+        new_seq1.add_shots("2,3,4")
         self.assertTrue(len(new_seq1.shots)==4)
         self.assertTrue(new_seq1.shots[1].number in expected_shot_numbers)
         self.assertTrue(new_seq1.shots[2].number in expected_shot_numbers)
         self.assertTrue(new_seq1.shots[3].number in expected_shot_numbers)
         
         # add a couple of more
-        new_seq1.add_shots("5-8,10,12-15")
+        #new_seq1.add_shots("5-8,10,12-15")
+        new_seq1.add_shots("5,6,7,8,10,12,13,14,15")
+        
         self.assertTrue(len(new_seq1.shots)==13)
         self.assertTrue(new_seq1.shots[4].number in expected_shot_numbers)
         self.assertTrue(new_seq1.shots[5].number in expected_shot_numbers)
