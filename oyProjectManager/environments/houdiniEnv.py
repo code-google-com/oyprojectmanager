@@ -393,7 +393,7 @@ class Houdini(EnvironmentBase):
 
 
 
-class FileHistory( abstractClasses.Singleton ):
+class FileHistory(object):
     """a houdini recent file history parser
     
     holds the data in a dictionary, where the keys are the file types and the
