@@ -505,6 +505,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             type_name,
             QtCore.Qt.MatchExactly
         )
+        if not items:
+            return
+        
         self.version_types_listWidget.setCurrentItem(items[0])
         
         # take_name
