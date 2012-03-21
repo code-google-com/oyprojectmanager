@@ -925,8 +925,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             my_font.setBold(True)
             
             item.setFont(my_font)
-            
-            item.setTextColor(QtGui.QColor(0, 192, 0))
+           
+            foreground = item.foreground()
+            foreground.setColor(QtGui.QColor(0, 192, 0))
+            item.setForeground(foreground)
         
         # update the previous versions list
         for i, vers in enumerate(versions):

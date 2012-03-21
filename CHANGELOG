@@ -39,6 +39,10 @@ Version History
   IntegrityErrors when there are more than one references to the same
   :class:`~oyProjectManage.core.models.Version`\ .
 
+* Fixed a bug in ``version_creator`` where setting the font color was not
+  working in PySide, it is now fixed by changing the code to a common way of
+  doing it.
+
 0.2.2
 -----
 
