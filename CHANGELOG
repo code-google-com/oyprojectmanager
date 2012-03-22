@@ -43,6 +43,9 @@ Version History
   working in PySide, it is now fixed by changing the code to a common way of
   doing it.
 
+* ``version_creator`` ui now displays the file size of the previous versions,
+  and will not display the full path of the them anymore.
+
 0.2.2
 -----
 

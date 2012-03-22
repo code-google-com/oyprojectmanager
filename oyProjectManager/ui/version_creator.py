@@ -133,7 +133,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             "User",
             "File Size",
             "Note",
-            "Path"
+            #"Path"
         ]
         
         # setup signals
@@ -988,7 +988,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
             # ------------------------------------
             # filesize
-            item = QtGui.QTableWidgetItem("")
+            
+            # get the file size
+            file_size_format = "%.2f MB"
+            file_size = float(os.path.getsize(vers.full_path))/1024/1024
+
+            item = QtGui.QTableWidgetItem(file_size_format % file_size)
             # align to left and vertical center
             item.setTextAlignment(0x0001 | 0x0080)
 
@@ -1010,17 +1015,17 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.previous_versions_tableWidget.setItem(i, 3, item)
             # ------------------------------------
 
-            # ------------------------------------
-            # full_path
-            item = QtGui.QTableWidgetItem(vers.full_path)
-            # align to center and vertical center
-            item.setTextAlignment(0x0001 | 0x0080)
+            ## ------------------------------------
+            ## full_path
+            #item = QtGui.QTableWidgetItem(vers.full_path)
+            ## align to center and vertical center
+            #item.setTextAlignment(0x0001 | 0x0080)
 
-            if is_published:
-                set_font(item)
-            
-            self.previous_versions_tableWidget.setItem(i, 4, item)
-            # ------------------------------------
+            #if is_published:
+            #    set_font(item)
+            #
+            #self.previous_versions_tableWidget.setItem(i, 4, item)
+            ## ------------------------------------
         
 #        # for test add an pixmap
 #        test_label = ImageWidget(
@@ -1712,6 +1717,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             os.path.expanduser("~"),
             "Image Files (*.png *.jpg *.bmp)"
         )
+
+        if isinstance(thumbnail_full_path, tuple):
+            thumbnail_full_path = thumbnail_full_path[0]
         
         # if the tumbnail_full_path is empty do not do anything
         if thumbnail_full_path == "":
