@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Mon Mar  5 00:20:59 2012
+# Created: Fri Mar 23 16:34:29 2012
 #      by: PyQt4 UI code generator 4.8.5
 #
 # WARNING! All changes made in this file will be lost!
@@ -345,7 +345,8 @@ class Ui_Dialog(object):
         self.show_only_label.setObjectName(_fromUtf8("show_only_label"))
         self.horizontalLayout_10.addWidget(self.show_only_label)
         self.version_count_spinBox = QtGui.QSpinBox(self.previous_versions_groupBox)
-        self.version_count_spinBox.setProperty("value", 5)
+        self.version_count_spinBox.setMaximum(999999)
+        self.version_count_spinBox.setProperty("value", 10)
         self.version_count_spinBox.setObjectName(_fromUtf8("version_count_spinBox"))
         self.horizontalLayout_10.addWidget(self.version_count_spinBox)
         self.verticalLayout_7.addLayout(self.horizontalLayout_10)
@@ -354,8 +355,8 @@ class Ui_Dialog(object):
         self.previous_versions_tableWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.previous_versions_tableWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.previous_versions_tableWidget.setShowGrid(False)
+        self.previous_versions_tableWidget.setColumnCount(4)
         self.previous_versions_tableWidget.setObjectName(_fromUtf8("previous_versions_tableWidget"))
-        self.previous_versions_tableWidget.setColumnCount(5)
         self.previous_versions_tableWidget.setRowCount(0)
         item = QtGui.QTableWidgetItem()
         item.setText(QtGui.QApplication.translate("Dialog", "Version", None, QtGui.QApplication.UnicodeUTF8))
@@ -369,9 +370,6 @@ class Ui_Dialog(object):
         item = QtGui.QTableWidgetItem()
         item.setText(QtGui.QApplication.translate("Dialog", "Note", None, QtGui.QApplication.UnicodeUTF8))
         self.previous_versions_tableWidget.setHorizontalHeaderItem(3, item)
-        item = QtGui.QTableWidgetItem()
-        item.setText(QtGui.QApplication.translate("Dialog", "Path", None, QtGui.QApplication.UnicodeUTF8))
-        self.previous_versions_tableWidget.setHorizontalHeaderItem(4, item)
         self.previous_versions_tableWidget.horizontalHeader().setStretchLastSection(True)
         self.previous_versions_tableWidget.verticalHeader().setStretchLastSection(False)
         self.verticalLayout_7.addWidget(self.previous_versions_tableWidget)
@@ -430,5 +428,4 @@ class Ui_Dialog(object):
         item = self.previous_versions_tableWidget.horizontalHeaderItem(1)
         item = self.previous_versions_tableWidget.horizontalHeaderItem(2)
         item = self.previous_versions_tableWidget.horizontalHeaderItem(3)
-        item = self.previous_versions_tableWidget.horizontalHeaderItem(4)
 
