@@ -190,7 +190,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             # do update ?
             checkBox_tableWI = QtGui.QTableWidgetItem('')
             #checkBox_tableWI.setCheckState(16)
-            checkBox_tableWI.setCheckState(0)
+            checkBox_tableWI.setCheckState(QtCore.Qt.CheckState.Checked)
             self.versions_tableWidget.setItem(i, 3, checkBox_tableWI)
             # ------------------------------------
             
