@@ -76,7 +76,13 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
         # center to the window
         self._centerWindow()
         
-        self._horizontalLabels = [ 'Version Name', 'Current', 'Last', 'Do Update?' ]
+        self._horizontalLabels = [
+            'Version Name',
+            'Current',
+            'Last',
+            'Do Update?'
+        ]
+
         self.versions_tableWidget.setHorizontalHeaderLabels( self._horizontalLabels )
 
         self.setup_signals()
@@ -190,7 +196,11 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             # do update ?
             checkBox_tableWI = QtGui.QTableWidgetItem('')
             #checkBox_tableWI.setCheckState(16)
-            checkBox_tableWI.setCheckState(QtCore.Qt.CheckState.Checked)
+            try:
+                checkBox_tableWI.setCheckState(QtCore.Qt.CheckState.Checked)
+            except AttributeError:
+                checkBox_tableWI.setCheckState(1)
+
             self.versions_tableWidget.setItem(i, 3, checkBox_tableWI)
             # ------------------------------------
             
