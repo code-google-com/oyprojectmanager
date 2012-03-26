@@ -1817,8 +1817,11 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 QtCore.Qt.SmoothTransformation
             )
             # now render it to the path
-            pixmap.save(thumbnail_full_path, quality=conf.thumbnail_quality)
- 
+            pixmap.save(
+                thumbnail_full_path,
+                conf.thumbnail_format,
+                conf.thumbnail_quality
+            ) 
 
         # update the database
         versionable.thumbnail = \

@@ -91,7 +91,14 @@ class Nuke(EnvironmentBase):
         # replace paths
         self.replace_external_paths()
         
-        return True
+        # return True to specify everything was ok and an empty list
+        # for the versions those needs to be updated
+        return True, []
+
+    def post_open(self, version):
+        """the post open action for the nuke environment
+        """
+        pass
     
     def import_(self, version):
         """the import action for nuke environment

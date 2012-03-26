@@ -46,6 +46,12 @@ Version History
 * ``version_creator`` ui now displays the file size of the previous versions,
   and will not display the full path of the them anymore.
 
+* added ``thumbnail_format`` to the config and ``version_creator`` now uses
+  the specified format.
+
+* fixed ``nukeEnv.py`` now it is properly opening
+  :class:`~oyProjectManager.core.models.Version`\ s.
+
 0.2.2
 -----
 
