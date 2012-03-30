@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Fri Mar 23 16:34:29 2012
+# Created: Fri Mar 30 10:34:20 2012
 #      by: pyside-uic 0.2.11 running on PySide 1.0.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,7 +13,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.setWindowModality(QtCore.Qt.ApplicationModal)
-        Dialog.resize(1280, 689)
+        Dialog.resize(1312, 689)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -316,12 +316,13 @@ class Ui_Dialog(object):
         self.verticalLayout_7.addLayout(self.horizontalLayout_10)
         self.previous_versions_tableWidget = QtGui.QTableWidget(self.previous_versions_groupBox)
         self.previous_versions_tableWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.previous_versions_tableWidget.setAlternatingRowColors(True)
         self.previous_versions_tableWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.previous_versions_tableWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.previous_versions_tableWidget.setShowGrid(False)
-        self.previous_versions_tableWidget.setColumnCount(4)
+        self.previous_versions_tableWidget.setColumnCount(5)
         self.previous_versions_tableWidget.setObjectName("previous_versions_tableWidget")
-        self.previous_versions_tableWidget.setColumnCount(4)
+        self.previous_versions_tableWidget.setColumnCount(5)
         self.previous_versions_tableWidget.setRowCount(0)
         item = QtGui.QTableWidgetItem()
         self.previous_versions_tableWidget.setHorizontalHeaderItem(0, item)
@@ -331,6 +332,8 @@ class Ui_Dialog(object):
         self.previous_versions_tableWidget.setHorizontalHeaderItem(2, item)
         item = QtGui.QTableWidgetItem()
         self.previous_versions_tableWidget.setHorizontalHeaderItem(3, item)
+        item = QtGui.QTableWidgetItem()
+        self.previous_versions_tableWidget.setHorizontalHeaderItem(4, item)
         self.previous_versions_tableWidget.horizontalHeader().setStretchLastSection(True)
         self.previous_versions_tableWidget.verticalHeader().setStretchLastSection(False)
         self.verticalLayout_7.addWidget(self.previous_versions_tableWidget)
@@ -415,7 +418,8 @@ class Ui_Dialog(object):
         self.previous_versions_tableWidget.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("Dialog", "Version", None, QtGui.QApplication.UnicodeUTF8))
         self.previous_versions_tableWidget.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog", "User", None, QtGui.QApplication.UnicodeUTF8))
         self.previous_versions_tableWidget.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("Dialog", "File Size", None, QtGui.QApplication.UnicodeUTF8))
-        self.previous_versions_tableWidget.horizontalHeaderItem(3).setText(QtGui.QApplication.translate("Dialog", "Note", None, QtGui.QApplication.UnicodeUTF8))
+        self.previous_versions_tableWidget.horizontalHeaderItem(3).setText(QtGui.QApplication.translate("Dialog", "Date", None, QtGui.QApplication.UnicodeUTF8))
+        self.previous_versions_tableWidget.horizontalHeaderItem(4).setText(QtGui.QApplication.translate("Dialog", "Note", None, QtGui.QApplication.UnicodeUTF8))
         self.open_pushButton.setText(QtGui.QApplication.translate("Dialog", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.reference_pushButton.setText(QtGui.QApplication.translate("Dialog", "Reference", None, QtGui.QApplication.UnicodeUTF8))
         self.import_pushButton.setText(QtGui.QApplication.translate("Dialog", "Import", None, QtGui.QApplication.UnicodeUTF8))

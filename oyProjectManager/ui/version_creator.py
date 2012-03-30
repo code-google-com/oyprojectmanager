@@ -8,6 +8,7 @@ import os
 import shutil
 import sys
 import logging
+import datetime
 import jinja2
 from sqlalchemy.exc import IntegrityError
 
@@ -132,6 +133,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             "Version",
             "User",
             "File Size",
+            "Date",
             "Note",
             #"Path"
         ]
@@ -857,13 +859,11 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
-            
             index = self.assets_listWidget.currentIndex().row()
             if index != -1: 
                 versionable = self.assets_listWidget.assets[index]
                 logger.debug("updating take list for asset: %s" % 
                              versionable.name)
-            
         else:
             index = self.shots_listWidget.currentIndex().row()
             versionable = self.shots_listWidget.shots[index]
@@ -990,10 +990,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # filesize
             
             # get the file size
-            file_size_format = "%.2f MB"
+            #file_size_format = "%.2f MB"
             file_size = float(os.path.getsize(vers.full_path))/1024/1024
 
-            item = QtGui.QTableWidgetItem(file_size_format % file_size)
+            item = QtGui.QTableWidgetItem(conf.file_size_format % file_size)
             # align to left and vertical center
             item.setTextAlignment(0x0001 | 0x0080)
 
@@ -1002,7 +1002,24 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             self.previous_versions_tableWidget.setItem(i, 2, item)
             # ------------------------------------
-
+            
+            # ------------------------------------
+            # date
+            
+            # get the file date
+            file_date =  datetime.datetime.fromtimestamp(
+                os.path.getmtime(vers.full_path)
+            )
+            item = QtGui.QTableWidgetItem(
+                file_date.strftime(conf.time_format)
+            )
+            
+            # align to left and vertical center
+            item.setTextAlignment(0x0001 | 0x0080)
+            
+            self.previous_versions_tableWidget.setItem(i, 3, item)
+            # ------------------------------------
+                        
             # ------------------------------------
             # note
             item = QtGui.QTableWidgetItem(vers.note)
@@ -1012,7 +1029,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             if is_published:
                 set_font(item)
             
-            self.previous_versions_tableWidget.setItem(i, 3, item)
+            self.previous_versions_tableWidget.setItem(i, 4, item)
             # ------------------------------------
 
             ## ------------------------------------

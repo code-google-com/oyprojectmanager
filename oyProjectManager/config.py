@@ -199,7 +199,11 @@ class Config(object):
             "linux_path": "~/Projects",
             "osx_path": "~/Projects"
         },
-        
+
+
+        file_size_format = "%.2f MB",
+        time_format = '%d.%m.%Y %H:%M',
+
         environments = [
             {
                 "name":"Maya",
