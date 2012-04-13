@@ -270,6 +270,7 @@ class Config(object):
                 {{seq_path}}/Shots/{{shot.code}}
                 {{seq_path}}/Shots/{{shot.code}}/Plate
                 {{seq_path}}/Shots/{{shot.code}}/Ref
+                {{seq_path}}/Shots/{{shot.code}}/Texture
             {% endfor %}
         {% endfor %}
         """,
