@@ -268,6 +268,8 @@ class Config(object):
             {{seq_path}}/References/Others
             {% for shot in sequence.shots %}
                 {{seq_path}}/Shots/{{shot.code}}
+                {{seq_path}}/Shots/{{shot.code}}/Plate
+                {{seq_path}}/Shots/{{shot.code}}/Ref
             {% endfor %}
         {% endfor %}
         """,
