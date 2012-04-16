@@ -2580,6 +2580,7 @@ class VersionCreatorTester(unittest.TestCase):
         
         # there should be no errors raised
         # and the project_comboBox should be set to proj2
+        self.assertEqual(dialog.projects_comboBox.currentText()==proj2.name)
     
     def test_frame_info_spinBoxes_are_correctly_filled(self):
         """testing if the frame info spinBoxes are correctly filled
