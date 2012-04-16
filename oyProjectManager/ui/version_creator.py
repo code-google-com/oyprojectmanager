@@ -991,7 +991,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             # get the file size
             #file_size_format = "%.2f MB"
-            file_size = float(os.path.getsize(vers.full_path))/1024/1024
+            file_size = -1
+            if os.path.exists(vers.full_path):
+                file_size = float(os.path.getsize(vers.full_path))/1024/1024
 
             item = QtGui.QTableWidgetItem(conf.file_size_format % file_size)
             # align to left and vertical center
@@ -1007,9 +1009,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # date
             
             # get the file date
-            file_date =  datetime.datetime.fromtimestamp(
-                os.path.getmtime(vers.full_path)
-            )
+
+            file_date = datetime.datetime.today()
+            if os.path.exists(vers.full_path):
+                file_date =  datetime.datetime.fromtimestamp(
+                    os.path.getmtime(vers.full_path)
+                )
             item = QtGui.QTableWidgetItem(
                 file_date.strftime(conf.time_format)
             )
