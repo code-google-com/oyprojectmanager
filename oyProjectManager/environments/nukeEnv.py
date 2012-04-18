@@ -218,17 +218,20 @@ class Nuke(EnvironmentBase):
             main_write_node.setName(self._main_output_node_name)
         
         # set the output path
-        output_file_name = version.project.code
+        output_file_name = ""
         
         if version.type.type_for == "Shot":
-            output_file_name += "_" + version.version_of.sequence.code + "_"
+            output_file_name = version.project.code + "_"
+            output_file_name += version.version_of.sequence.code + "_"
+
         
         output_file_name += \
             version.base_name + "_" + \
             version.take_name + "_" + \
+            version.type.code + "_" + \
             "Output_" + \
             "v%03d" % version.version_number + "_" + \
-            version.created_by.initials + ".###.jpg"
+            version.created_by.initials + ".###.png"
         
         # check if it is a stereo comp
         # if it is enable separate view rendering
@@ -250,12 +253,12 @@ class Nuke(EnvironmentBase):
         # set the default output file type to jpeg
         platform_system = platform.system()
         
-        format_id = 7
+        format_id = 10 
         if platform_system == "Darwin":
-            format_id = 6
+            format_id = 9
             # check the nuke version for nuke 6.2 and below
             if (nuke.NUKE_VERSION_MAJOR + nuke.NUKE_VERSION_MINOR/10.0) < 6.3:
-                format_id = 8
+                format_id = 11
         
         main_write_node["file_type"].setValue(format_id)
         main_write_node["channels"].setValue("rgb")
