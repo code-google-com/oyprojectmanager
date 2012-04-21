@@ -255,7 +255,7 @@ class Nuke(EnvironmentBase):
         
         format_id = 10 
         if platform_system == "Darwin":
-            format_id = 9
+            format_id = 10 
             # check the nuke version for nuke 6.2 and below
             if (nuke.NUKE_VERSION_MAJOR + nuke.NUKE_VERSION_MINOR/10.0) < 6.3:
                 format_id = 11
