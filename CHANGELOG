@@ -58,6 +58,14 @@ Version History
 * ``version_creator`` now displays the modification time of the previous
   versions.
 
+* Added "Texture Paint" also to the Nuke. So it is now possible to save Nuke
+  scenes as Texture files.
+
+* Fixed nukeEnv, the output path is now correctly generated for Assets and
+  Shots.
+
+* Changed the default Nuke output to "png"
+
 0.2.2
 -----
 

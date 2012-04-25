@@ -2454,7 +2454,7 @@ class VersionType(Base):
     )
     
     _type_for = Column(
-        Enum("Asset", "Shot"),
+        Enum("Asset", "Shot", name="ckEnumType"),
         doc="""A enum value showing if this version type is valid for Assets or
         Shots.
         """
