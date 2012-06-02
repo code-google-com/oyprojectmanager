@@ -5,7 +5,6 @@
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
 import os
-import shutil
 import sys
 import logging
 import datetime
@@ -39,12 +38,14 @@ if os.environ.has_key(qt_module_key):
 if qt_module == "PySide":
     from PySide import QtGui, QtCore
     from oyProjectManager.ui import version_creator_UI_pyside as version_creator_UI
+    from oyProjectManager.ui import create_asset_dialog_UI_pyside as create_asset_dialog_UI
 elif qt_module == "PyQt4":
     import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
     from PyQt4 import QtGui, QtCore
     from oyProjectManager.ui import version_creator_UI_pyqt4 as version_creator_UI
+    from oyProjectManager.ui import create_asset_dialog_UI_pyqt4 as create_asset_dialog_UI
 
 def UI(environment):
     """the UI to call the dialog by itself
@@ -77,6 +78,83 @@ def UI(environment):
     return mainDialog
 
 
+class create_asset_dialog(QtGui.QDialog, create_asset_dialog_UI.Ui_create_asset):
+    """Called upon asset creation
+    """
+    def __init__(self, parent=None):
+        logger.debug('initializing create_asset_dialog')
+        super(create_asset_dialog, self).__init__(parent)
+        self.setupUi(self)
+        self.ok = False
+        
+        self._setup_signals()
+        self._setup_defaults()
+    
+    def _setup_signals(self):
+        """setting up the signals
+        """
+        
+        # buttonBox
+        QtCore.QObject.connect(
+            self.buttonBox,
+            QtCore.SIGNAL('accepted()'),
+            self.buttonBox_accepted
+        )
+        
+        # add_new_type_toolButton
+        QtCore.QObject.connect(
+            self.add_new_type_toolButton,
+            QtCore.SIGNAL('clicked()'),
+            self.add_new_type_toolButton_clicked
+        )
+    
+    def _setup_defaults(self):
+        """setting up the defaults
+        """
+        # fill the asset_types_comboBox with all the asset types from the db
+        all_types = map(lambda x: x[0], db.query(distinct(Asset.type)).all())
+
+        if conf.default_asset_type_name not in all_types:
+            all_types.append(conf.default_asset_type_name)
+        
+        logger.debug('all_types: %s' % all_types)
+         
+        self.asset_types_comboBox.addItems(all_types)
+    
+    def buttonBox_accepted(self):
+        """runs when the buttonbox.OK is clicked
+        """
+        # just close the dialog
+        self.ok = True
+        self.close()
+    
+    def buttonBox_rejected(self):
+        """runs when the buttonbox.Cancel is clicked
+        """
+        self.ok = False
+        self.close()
+    
+    def add_new_type_toolButton_clicked(self):
+        """runs when add_new_type_toolButton is clicked
+        """
+        logger.debug('add_new_type_toolButton is clicked')
+        
+        type_name, ok = QtGui.QInputDialog(self).getText(
+            self,
+            'Enter new asset type name',
+            'Asset Type name:'
+        )
+        
+        if ok:
+            if type_name != '':
+                index = self.asset_types_comboBox.findText(type_name)
+                if index == -1:
+                    # add new type to the asset_type_ComboBox
+                    self.asset_types_comboBox.addItem(type_name)
+                    index = self.asset_types_comboBox.findText(type_name)
+                
+                self.asset_types_comboBox.setCurrentIndex(index)
+
 class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     """The main asset version creation dialog for the system.
     
@@ -104,7 +182,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def __init__(self, environment=None, parent=None):
         logger.debug("initializing the interface")
         
-#        super(QtGui.QDialog, self).__init__(parent)
         super(MainDialog, self).__init__(parent)
         self.setupUi(self)
         
@@ -123,15 +200,19 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.users_comboBox.users = []
         self.projects_comboBox.projects = []
         self.sequences_comboBox.sequences = []
-        self.assets_listWidget.assets = []
+        self.assets_tableWidget.assets = []
         self.shots_listWidget.shots = []
         self.input_dialog = None
         self.previous_versions_tableWidget.versions = []
+        
+        # set the asset_tableWidget.labels
+        self.assets_tableWidget.labels = ['Type', 'Name']
         
         # set previous_versions_tableWidget.labels
         self.previous_versions_tableWidget.labels = [
             "Version",
             "User",
+            "Status",
             "File Size",
             "Date",
             "Note",
@@ -183,12 +264,15 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.sequences_comboBox_changed
         )
         
-        # assets_listWidget
+        # assets_tableWidget
         QtCore.QObject.connect(
-            self.assets_listWidget,
-            QtCore.SIGNAL("currentTextChanged(QString)"),
+            self.assets_tableWidget,
+            QtCore.SIGNAL(
+                'currentItemChanged(QTableWidgetItem*,QTableWidgetItem*)'
+            ),
             self.asset_changed
         )
+        
         
         # shots_listWidget
         QtCore.QObject.connect(
@@ -232,15 +316,15 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.add_type_toolButton_clicked
         )
         
-        # custom context menu for the assets_listWidget
-        self.assets_listWidget.setContextMenuPolicy(
+        # custom context menu for the assets_tableWidget
+        self.assets_tableWidget.setContextMenuPolicy(
             QtCore.Qt.CustomContextMenu
         )
         
         QtCore.QObject.connect(
-            self.assets_listWidget,
+            self.assets_tableWidget,
             QtCore.SIGNAL("customContextMenuRequested(const QPoint&)"),
-            self._show_assets_listWidget_context_menu
+            self._show_assets_tableWidget_context_menu
         )
         
         # create_asset_pushButton
@@ -330,19 +414,18 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         logger.debug("finished setting up interface signals")
     
-    def _show_assets_listWidget_context_menu(self, position):
-        """the custom context menu for the assets_listWidget
+    def _show_assets_tableWidget_context_menu(self, position):
+        """the custom context menu for the assets_tableWidget
         """
-#        print "this has been run"
         # convert the position to global screen position
-        global_position = self.assets_listWidget.mapToGlobal(position)
+        global_position = self.assets_tableWidget.mapToGlobal(position)
         
         # create the menu
-        self.assets_listWidget_menu = QtGui.QMenu()
-        self.assets_listWidget_menu.addAction("Rename Asset")
+        self.assets_tableWidget_menu = QtGui.QMenu()
+        self.assets_tableWidget_menu.addAction("Rename Asset")
         #self.asset_description_menu.addAction("Delete Asset")
         
-        selected_item = self.assets_listWidget_menu.exec_(global_position)
+        selected_item = self.assets_tableWidget_menu.exec_(global_position)
         
         if selected_item:
             # something is chosen
@@ -366,7 +449,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                         asset.code = new_asset_name
                         asset.save()
                         
-                        # update assets_listWidget
+                        # update assets_tableWidget
                         self.tabWidget_changed(0)
                 
     
@@ -393,11 +476,14 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def _set_defaults(self):
         """sets up the defaults for the interface
         """
-        
         logger.debug("started setting up interface defaults")
         
         # clear the thumbnail area
         self.clear_thumbnail()
+        
+        # fill the statuses_comboBox
+        self.statuses_comboBox.clear()
+        self.statuses_comboBox.addItems(conf.status_list_long_names)
         
         # fill the projects
         projects = db.query(Project)\
@@ -480,11 +566,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.tabWidget.setCurrentIndex(0)
             
             # set the asset name
-            items = self.assets_listWidget.findItems(
+            item = self.assets_tableWidget.findItems(
                 versionable.name,
                 QtCore.Qt.MatchExactly
-            )
-            self.assets_listWidget.setCurrentItem(items[0])
+            )[0]
+            
+            self.assets_tableWidget.setCurrentItem(item)
             
         else:
             self.tabWidget.setCurrentIndex(1)
@@ -547,24 +634,47 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # TODO: don't update if the project is the same with the cached one
             
             # get all the assets of the project
-            assets = db.query(Asset).filter(Asset.project==proj).all()
+            assets = db.query(Asset)\
+                .filter(Asset.project==proj)\
+                .order_by(Asset.type)\
+                .order_by(Asset.name)\
+                .all()
             
             # add the assets to the assets list
-            self.assets_listWidget.assets = assets
+            self.assets_tableWidget.assets = assets
             
             # add their names to the list
-            self.assets_listWidget.clear()
-            self.assets_listWidget.addItems([asset.name for asset in assets])
+            self.assets_tableWidget.clear()
+            self.assets_tableWidget.setRowCount(len(assets))
+            self.assets_tableWidget.setHorizontalHeaderLabels(
+                self.assets_tableWidget.labels
+            )
+            
+            for i, asset in enumerate(assets):
+                # type
+                item = QtGui.QTableWidgetItem(asset.type)
+                # align to left and vertical center
+                item.setTextAlignment(0x0001 | 0x0080)
+                
+                self.assets_tableWidget.setItem(i, 0, item)
+                
+                # name
+                item = QtGui.QTableWidgetItem(asset.name)
+                item.setTextAlignment(0x0001 | 0x0080)
+                
+                self.assets_tableWidget.setItem(i, 1, item)
+            
+            self.assets_tableWidget.resizeColumnToContents(0)
+            self.assets_tableWidget.resizeColumnToContents(1)
             
             # set the list to the first asset
-            list_item = self.assets_listWidget.item(0)
+            table_item = self.assets_tableWidget.itemAt(0, 0)
             
-            if list_item is not None:
-            #            list_item.setSelected(True)
-                self.assets_listWidget.setCurrentItem(list_item)
-    
+            if table_item is not None:
+                self.assets_tableWidget.selectRow(0)
+                
                 # call asset update
-                self.asset_changed(list_item.text())
+                self.asset_changed()
                 
 #                # enable the asset_description_edit_pushButton
 #                self.asset_description_edit_pushButton.setEnabled(True)
@@ -652,7 +762,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
 #        else:
 #            self.shot_description_edit_pushButton.setEnabled(False)
     
-    def asset_changed(self, asset_name):
+    def asset_changed(self):
         """updates the asset related fields with the current asset information
         """
         
@@ -792,22 +902,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """runs when the asset version types comboBox has changed
         """
         
-        # get all the takes for this type
-        proj = self.get_current_project()
-        
-        versionable = None
-        if self.tabWidget.currentIndex() == 0:
-            
-            index = self.assets_listWidget.currentIndex().row()
-            versionable = self.assets_listWidget.assets[index]
-            
-            logger.debug("updating take list for asset: %s" % versionable.name)
-            
-        else:
-            index = self.shots_listWidget.currentIndex().row()
-            versionable = self.shots_listWidget.shots[index]
-            
-            logger.debug("updating take list for shot: %s" % versionable.code)
+        versionable = self.get_versionable()
         
         # version type name
         version_type_name = ""
@@ -854,21 +949,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def update_previous_versions_tableWidget(self):
         """updates the previous_versions_tableWidget
         """
-        
-        proj = self.get_current_project()
-        
-        versionable = None
-        if self.tabWidget.currentIndex() == 0:
-            index = self.assets_listWidget.currentIndex().row()
-            if index != -1: 
-                versionable = self.assets_listWidget.assets[index]
-                logger.debug("updating take list for asset: %s" % 
-                             versionable.name)
-        else:
-            index = self.shots_listWidget.currentIndex().row()
-            versionable = self.shots_listWidget.shots[index]
-            
-            logger.debug("updating take list for shot: %s" % versionable.code)
+        versionable = self.get_versionable()
         
         # version type name
         version_type_name = ""
@@ -902,7 +983,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         versions = query.order_by(Version.version_number.desc())\
             .limit(count).all()
         
-#        versions =
         versions.reverse()
         
         # set the versions cache by adding them to the widget
@@ -985,6 +1065,33 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             self.previous_versions_tableWidget.setItem(i, 1, item)
             # ------------------------------------
+            
+            # ------------------------------------
+            # status
+            item = QtGui.QTableWidgetItem(vers.status)
+            # align to left and vertical center
+            item.setTextAlignment(0x0004 | 0x0080)
+            
+            #if is_published:
+            #    set_font(item)
+            
+            # colorize the item
+            index = conf.status_list.index(vers.status)
+            bgcolor = conf.status_bg_colors[index]
+            fgcolor = conf.status_fg_colors[index]
+            
+            bg = item.background()
+            bg.setColor(QtGui.QColor(*bgcolor))
+            item.setBackground(bg)
+            
+            fg = item.foreground()
+            fg.setColor(QtGui.QColor(*fgcolor))
+            
+            item.setBackgroundColor(QtGui.QColor(*bgcolor))
+            
+            self.previous_versions_tableWidget.setItem(i, 2, item)
+            # ------------------------------------
+ 
         
             # ------------------------------------
             # filesize
@@ -1002,7 +1109,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             if is_published:
                 set_font(item)
             
-            self.previous_versions_tableWidget.setItem(i, 2, item)
+            self.previous_versions_tableWidget.setItem(i, 3, item)
             # ------------------------------------
             
             # ------------------------------------
@@ -1022,7 +1129,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # align to left and vertical center
             item.setTextAlignment(0x0001 | 0x0080)
             
-            self.previous_versions_tableWidget.setItem(i, 3, item)
+            self.previous_versions_tableWidget.setItem(i, 4, item)
             # ------------------------------------
                         
             # ------------------------------------
@@ -1034,7 +1141,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             if is_published:
                 set_font(item)
             
-            self.previous_versions_tableWidget.setItem(i, 4, item)
+            self.previous_versions_tableWidget.setItem(i, 5, item)
             # ------------------------------------
 
             ## ------------------------------------
@@ -1242,15 +1349,27 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """
         """
         
-        self.input_dialog = QtGui.QInputDialog(self)
+        #self.input_dialog = QtGui.QInputDialog(self)
         
 #        print "self.input_dialog: %s " % self.input_dialog
         
-        asset_name, ok = self.input_dialog.getText(
-            self,
-            "Enter new asset name",
-            "Asset name:"
-        )
+        #asset_name, ok = self.input_dialog.getText(
+        #    self,
+        #    "Enter new asset name",
+        #    "Asset name:"
+        #)
+        
+        logger.setLevel(logging.DEBUG)
+       
+        dialog = create_asset_dialog(parent=self)
+        dialog.exec_()
+        
+        ok = dialog.ok
+        asset_name = dialog.asset_name_lineEdit.text()
+        asset_type_name = dialog.asset_types_comboBox.currentText()
+        
+        logger.debug('new asset_name: %s' % asset_name)
+        logger.debug('new asset_type_name: %s' % asset_type_name)
         
         if not ok or asset_name == "":
             logger.debug("either canceled or the given asset_name is empty, "
@@ -1260,11 +1379,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         proj = self.get_current_project()
         
         try:
-            new_asset = Asset(proj, asset_name)
+            new_asset = Asset(proj, asset_name, type=asset_type_name)
             new_asset.save()
         except (TypeError, ValueError, IntegrityError) as e:
-            
-            
             if isinstance(e, IntegrityError):
                 # the transaction needs to be rollback
                 db.session.rollback()
@@ -1286,25 +1403,19 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         versionable = None
         if self.tabWidget.currentIndex() == 0:
-            #asset_name = self.assets_listWidget.currentItem().text()
-            #versionable = \
-            #    db.query(Asset)\
-            #    .filter(Asset.project==proj)\
-            #    .filter_by(name=asset_name)\
-            #    .first()
-            
-            index = self.assets_listWidget.currentIndex().row()
+            index = self.assets_tableWidget.currentRow()
+            logger.debug('assets_tableWidget.currentRow: %s' % index)
             
             if index != -1:
-                versionable = self.assets_listWidget.assets[index]
-                logger.debug("updating take list for asset: %s" % versionable.name)
-        
+                versionable = self.assets_tableWidget.assets[index]
+                logger.debug("asset: %s" % versionable.name)
+            
         else:
             index = self.shots_listWidget.currentIndex().row()
             
             if index != -1:
                 versionable = self.shots_listWidget.shots[index]
-                logger.debug("updating take list for shot: %s" % versionable.code)
+                logger.debug("shot: %s" % versionable.code)
         
         return versionable
     
@@ -1426,15 +1537,26 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # create a QInputDialog with comboBox
         self.input_dialog = QtGui.QInputDialog(self)
         
-        type_name, ok = self.input_dialog.getItem(
-            self,
-            "Choose a VersionType",
-            "Available Version Types for %ss in %s" % 
-                (versionable.__class__.__name__, self.environment.name),
-            available_types,
-            0,
-            False
-        )
+        if self.environment:
+            type_name, ok = self.input_dialog.getItem(
+                self,
+                "Choose a VersionType",
+                "Available Version Types for %ss in %s" % 
+                    (versionable.__class__.__name__, self.environment.name),
+                available_types,
+                0,
+                False
+            )
+        else:
+            type_name, ok = self.input_dialog.getItem(
+                self,
+                "Choose a VersionType",
+                "Available Version Types for %ss" % 
+                    versionable.__class__.__name__,
+                available_types,
+                0,
+                False
+            )    
         
         # if ok add the type name to the end of the types_comboBox and make
         # it the current selection
@@ -1494,9 +1616,18 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         published = self.publish_checkBox.isChecked()
         
+        status_index = self.statuses_comboBox.currentIndex()
+        status=conf.status_list[status_index]
+        
         version = Version(
-            versionable, versionable.code, version_type, user,
-            take_name=take_name, note=note, is_published=published
+            versionable,
+            versionable.code,
+            version_type,
+            user,
+            take_name=take_name,
+            note=note,
+            is_published=published,
+            status=status
         )
         
         return version

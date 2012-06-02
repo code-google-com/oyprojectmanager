@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Fri Mar 30 10:34:20 2012
-#      by: pyside-uic 0.2.11 running on PySide 1.0.6
+# Created: Wed May 23 22:38:04 2012
+#      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -99,9 +99,20 @@ class Ui_Dialog(object):
         self.create_asset_pushButton.setObjectName("create_asset_pushButton")
         self.horizontalLayout_9.addWidget(self.create_asset_pushButton)
         self.verticalLayout_2.addLayout(self.horizontalLayout_9)
-        self.assets_listWidget = QtGui.QListWidget(self.asset_info_groupBox)
-        self.assets_listWidget.setObjectName("assets_listWidget")
-        self.verticalLayout_2.addWidget(self.assets_listWidget)
+        self.assets_tableWidget = QtGui.QTableWidget(self.asset_info_groupBox)
+        self.assets_tableWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.assets_tableWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.assets_tableWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.assets_tableWidget.setColumnCount(2)
+        self.assets_tableWidget.setObjectName("assets_tableWidget")
+        self.assets_tableWidget.setColumnCount(2)
+        self.assets_tableWidget.setRowCount(0)
+        item = QtGui.QTableWidgetItem()
+        self.assets_tableWidget.setHorizontalHeaderItem(0, item)
+        item = QtGui.QTableWidgetItem()
+        self.assets_tableWidget.setHorizontalHeaderItem(1, item)
+        self.assets_tableWidget.horizontalHeader().setStretchLastSection(True)
+        self.verticalLayout_2.addWidget(self.assets_tableWidget)
         self.horizontalLayout_3.addLayout(self.verticalLayout_2)
         self.verticalLayout_3.addLayout(self.horizontalLayout_3)
         self.verticalLayout_4.addWidget(self.asset_info_groupBox)
@@ -270,6 +281,12 @@ class Ui_Dialog(object):
         self.verticalLayout_6.addLayout(self.gridLayout_3)
         self.horizontalLayout_7 = QtGui.QHBoxLayout()
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
+        self.status_label = QtGui.QLabel(self.new_version_groupBox)
+        self.status_label.setObjectName("status_label")
+        self.horizontalLayout_7.addWidget(self.status_label)
+        self.statuses_comboBox = QtGui.QComboBox(self.new_version_groupBox)
+        self.statuses_comboBox.setObjectName("statuses_comboBox")
+        self.horizontalLayout_7.addWidget(self.statuses_comboBox)
         spacerItem5 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_7.addItem(spacerItem5)
         self.publish_checkBox = QtGui.QCheckBox(self.new_version_groupBox)
@@ -367,8 +384,7 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
         Dialog.setTabOrder(self.projects_comboBox, self.users_comboBox)
         Dialog.setTabOrder(self.users_comboBox, self.create_asset_pushButton)
-        Dialog.setTabOrder(self.create_asset_pushButton, self.assets_listWidget)
-        Dialog.setTabOrder(self.assets_listWidget, self.sequences_comboBox)
+        Dialog.setTabOrder(self.create_asset_pushButton, self.sequences_comboBox)
         Dialog.setTabOrder(self.sequences_comboBox, self.create_shot_pushButton)
         Dialog.setTabOrder(self.create_shot_pushButton, self.shots_listWidget)
         Dialog.setTabOrder(self.shots_listWidget, self.add_type_toolButton)
@@ -388,6 +404,8 @@ class Ui_Dialog(object):
         self.asset_info_groupBox.setTitle(QtGui.QApplication.translate("Dialog", "Asset Information", None, QtGui.QApplication.UnicodeUTF8))
         self.asset_name_label.setText(QtGui.QApplication.translate("Dialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
         self.create_asset_pushButton.setText(QtGui.QApplication.translate("Dialog", "Create New Asset", None, QtGui.QApplication.UnicodeUTF8))
+        self.assets_tableWidget.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("Dialog", "Type", None, QtGui.QApplication.UnicodeUTF8))
+        self.assets_tableWidget.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.assets_tab), QtGui.QApplication.translate("Dialog", "Assets", None, QtGui.QApplication.UnicodeUTF8))
         self.sequences_label.setText(QtGui.QApplication.translate("Dialog", "Sequence", None, QtGui.QApplication.UnicodeUTF8))
         self.asset_info_groupBox_2.setTitle(QtGui.QApplication.translate("Dialog", "Shot Information", None, QtGui.QApplication.UnicodeUTF8))
@@ -408,7 +426,8 @@ class Ui_Dialog(object):
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Sans Serif\'; font-size:9pt;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Sans Serif\'; font-size:9pt;\"><br /></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.status_label.setText(QtGui.QApplication.translate("Dialog", "Status", None, QtGui.QApplication.UnicodeUTF8))
         self.publish_checkBox.setText(QtGui.QApplication.translate("Dialog", "Publish", None, QtGui.QApplication.UnicodeUTF8))
         self.export_as_pushButton.setText(QtGui.QApplication.translate("Dialog", "Export Selection As", None, QtGui.QApplication.UnicodeUTF8))
         self.save_as_pushButton.setText(QtGui.QApplication.translate("Dialog", "Save As", None, QtGui.QApplication.UnicodeUTF8))

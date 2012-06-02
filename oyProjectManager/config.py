@@ -132,6 +132,10 @@ class Config(object):
           {
               "name":"3DEqualizer",
               "extensions": ["3te"]
+          },
+          {
+              "name":"Fusion",
+              "extensions": ["comp"]
           }
       ]
       
@@ -175,6 +179,38 @@ class Config(object):
         
         database_url = "sqlite:///$OYPROJECTMANAGER_PATH/project_manager.db",
         
+        status_list = [
+            'WTS',
+            'WIP',
+            'REV',
+            'APP',
+            'CMP'
+        ],
+        
+        status_list_long_names = [
+            'Waiting To Start',
+            'Work In Progress',
+            'For Review',
+            'Approved',
+            'Completed'
+        ],
+        
+        status_bg_colors = [
+            [192,  80,  77], #WTS
+            [255, 192,   0], #WIP
+            [ 89, 141, 213], #REV
+            [155, 187,  89], #APP
+            [155, 187,  89], #CMP
+        ],
+        
+        status_fg_colors = [
+            [255, 255, 255], #WTS
+            [  0,   0,   0], #WIP
+            [  0,   0,   0], #REV
+            [  0,   0,   0], #APP
+            [  0,   0,   0], #CMP
+        ],
+        
         shot_number_prefix = "SH",
         shot_number_padding = 3,
         
@@ -186,6 +222,7 @@ class Config(object):
         
         default_fps = 25,
         
+        default_asset_type_name = "Default",
         default_take_name = "MAIN",
         
         users_data = [{"name": "Administrator", "initials": "adm"}],
@@ -225,6 +262,10 @@ class Config(object):
             {
                 "name":"3DEqualizer",
                 "extensions": ["3te"]
+            },
+            {
+                "name":"Fusion",
+                "extensions": ["comp"]
             }
         ],
         
@@ -312,7 +353,7 @@ class Config(object):
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
-                "environments": ["Nuke"],
+                "environments": ["Nuke", "Fusion"],
                 "type_for": "Shot"
             },
 #            {
@@ -322,7 +363,7 @@ class Config(object):
 #                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
 #                "output_path": "{{version._path}}/Output/{{version.take_name}}",
 #                "extra_folders": "",
-#                "environments": ["Nuke"],
+#                "environments": ["Nuke", "Fusion"],
 #                "type_for": "Shot"
 #            },
             {
@@ -360,7 +401,7 @@ class Config(object):
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
-                "environments": ["Maya", "Houdini", "Nuke"],
+                "environments": ["Maya", "Houdini", "Nuke", "Fusion", "Photoshop"],
                 "type_for": "Asset"
             },
             {
@@ -400,7 +441,7 @@ class Config(object):
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
-                "environments": ["Nuke"],
+                "environments": ["Nuke", "Fusion"],
                 "type_for": "Shot"
             },
             {
@@ -430,7 +471,7 @@ class Config(object):
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
-                "environments": ["Photoshop", "Nuke"],
+                "environments": ["Photoshop", "Nuke", "Fusion"],
                 "type_for": "Asset",
             },
             {

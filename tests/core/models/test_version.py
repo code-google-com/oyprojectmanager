@@ -9,12 +9,17 @@ import os
 import shutil
 import tempfile
 import unittest
+import logging
 from oyProjectManager import config, db
 from oyProjectManager.core.errors import CircularDependencyError
 from oyProjectManager.core.models import (Asset, Shot, Version, VersionType,
                                           User, Project, Sequence)
 
 conf = config.Config()
+
+
+logger = logging.getLogger('oyProjectManager.core.models')
+logger.setLevel(logging.DEBUG)
 
 class VersionTester(unittest.TestCase):
     """tests the Version class
@@ -67,7 +72,8 @@ class VersionTester(unittest.TestCase):
             "note": "this is the note for this version",
             "created_by": self.test_user,
             "extension": ".ma",
-            "is_published": False
+            "is_published": False,
+            'status': conf.status_list[4]
         }
         
         self.test_version = Version(**self.kwargs)
@@ -1493,3 +1499,76 @@ class VersionTester(unittest.TestCase):
         self.assertEqual(vers5.is_latest_published_version(), True)
         self.assertEqual(vers6.is_latest_published_version(), False)
         self.assertEqual(vers7.is_latest_published_version(), False)
+    
+    def test_status_argument_is_skipped_will_set_status_to_WTS_for_new_versions(self):
+        """testing if the status argument is skipped the status will be set to
+        WTS for new versions
+        """
+        self.kwargs.pop('status')
+        self.kwargs['take_name'] = 'TestStatus'
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.status, conf.status_list[0])
+    
+    def test_status_argument_is_skipped_will_set_status_to_the_same_for_old_version(self):
+        """testing if the status argument is skipped the status will be set to
+        what it is in the previous version
+        """
+        self.kwargs.pop('status')
+        self.test_version.status = conf.status_list[4]
+        self.test_version.save()
+        new_version = Version(**self.kwargs)
+        self.assertEqual(conf.status_list[4], new_version.status)
+    
+    def test_status_argument_is_None_will_set_status_to_WTS_for_new_versions(self):
+        """testing if the status argument is None the status will be set to
+        WTS for new versions
+        """
+        self.kwargs['status'] = None
+        self.kwargs['take_name'] = ' TestStatus'
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.status, conf.status_list[0])
+    
+    def test_status_argument_is_None_will_set_status_to_the_same_value_for_old_versions(self):
+        """testing if the status argument is skipped the status attribute will
+        be set to what it was in the previous version
+        """
+        self.kwargs['status'] = None
+        self.test_version.status = conf.status_list[3]
+        self.test_version.save()
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.status, conf.status_list[3])
+    
+    def test_status_argument_is_not_a_string(self):
+        """testing a TypeError will be raised if the status argument is not an
+        instance of string
+        """
+        self.kwargs['status'] = 234
+        self.assertRaises(TypeError, Version, **self.kwargs)
+    
+    def test_status_attribute_is_not_a_string(self):
+        """testing if a TypeError will be raised when the status attribute is
+        not an instance of string
+        """
+        self.assertRaises(TypeError, setattr, self.test_version, 2342)
+    
+    def test_status_argument_is_not_one_of_the_enum(self):
+        """testing if a ValueError will be raised when the status argument
+        doesn't have the correct value
+        """
+        self.kwargs['status'] = 'NotInTheList'
+        self.assertRaises(ValueError, Version, **self.kwargs)
+    
+    def test_status_attribute_is_not_one_of_the_enum(self):
+        """testing if a ValueError will be raised when the status attribute
+        doesn't have the correct value
+        """
+        self.assertRaises(ValueError, setattr, self.test_version, 'status',
+            'NotInTheList')
+    
+    def test_status_argument_is_in_long_form_will_be_converted_to_the_short_form(self):
+        """testing if the status argument is in long form will be converted to
+        the short form
+        """
+        self.kwargs['status'] = conf.status_list_long_names[1]
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.status, conf.status_list[1])

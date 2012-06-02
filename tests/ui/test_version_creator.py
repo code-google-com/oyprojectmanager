@@ -15,6 +15,7 @@ import unittest
 #from PySide.QtTest import QTest
 import sip
 import logging
+import datetime
 
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
@@ -121,6 +122,18 @@ class VersionCreatorTester(unittest.TestCase):
         # delete the temp folders
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
+    
+    def show_dialog(self, dialog):
+        """show the given dialog
+        """
+        dialog.show()
+        self.app.exec_()
+        self.app.connect(
+            self.app,
+            QtCore.SIGNAL("lastWindowClosed()"),
+            self.app,
+            QtCore.SLOT("quit()")
+        )
     
     def test_close_button_closes_ui(self):
         """testing if the close button is closing the ui
@@ -299,15 +312,6 @@ class VersionCreatorTester(unittest.TestCase):
         proj2.create()
         
         dialog = version_creator.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
-        pass
     
     def test_project_comboBox_updates_the_sequences_if_and_only_if_the_tab_is_in_shots(self):
         """testing if the project_comboBox updates the sequences_comboBox if
@@ -390,40 +394,50 @@ class VersionCreatorTester(unittest.TestCase):
         proj2.create()
         
         # create a couple of assets
-        asset1 = Asset(proj1, "Test Asset 1")
-        asset2 = Asset(proj1, "Test Asset 2")
-        asset3 = Asset(proj2, "Test Asset 3")
-        asset4 = Asset(proj2, "Test Asset 4")
+        asset1 = Asset(proj1, "Test Asset 1", type='T1')
+        asset2 = Asset(proj1, "Test Asset 2", type='T2')
+        asset3 = Asset(proj2, "Test Asset 3", type='T3')
+        asset4 = Asset(proj2, "Test Asset 4", type='T4')
         asset1.save()
         asset2.save()
         asset3.save()
         asset4.save()
         
         dialog = version_creator.MainDialog()
-        #dialog.show()
-        #self.app.exec_()
-        #self.app.connect(
-        #    self.app,
-        #    QtCore.SIGNAL("lastWindowClosed()"),
-        #    self.app,
-        #    QtCore.SLOT("quit()")
-        #)
+        #self.show_dialog(dialog)
         
-        # now check if their names are in the asset names listWidget
-        listWidget = dialog.assets_listWidget
-        item_texts = [listWidget.item(i).text() for i in range(listWidget.count())]
+        # now check if their names are in the asset names tableWidget
+        tableWidget = dialog.assets_tableWidget
+        item_texts = [
+            tableWidget.item(i, 1).text()
+                for i in range(tableWidget.rowCount())
+        ]
         
         self.assertTrue(asset1.name in item_texts)
         self.assertTrue(asset2.name in item_texts)
         self.assertTrue(asset3.name not in item_texts)
         self.assertTrue(asset4.name not in item_texts)
         
+        # check their types
+        item_texts = [
+            tableWidget.item(i, 0).text()
+                for i in range(tableWidget.rowCount())
+        ]
+        
+        self.assertTrue(asset1.type in item_texts)
+        self.assertTrue(asset2.type in item_texts)
+        self.assertTrue(asset3.type not in item_texts)
+        self.assertTrue(asset4.type not in item_texts)
+        
         # now update the project to the second one
         dialog.projects_comboBox.setCurrentIndex(1)
         
-        # now check if their names are in the asset names listWidget
-        listWidget = dialog.assets_listWidget
-        item_texts = [listWidget.item(i).text() for i in range(listWidget.count())]
+        # now check if their names are in the asset names tableWidget
+        tableWidget = dialog.assets_tableWidget
+        item_texts = [
+            tableWidget.item(i, 1).text()
+                for i in range(tableWidget.rowCount())
+        ]
         
         self.assertTrue(asset1.name not in item_texts)
         self.assertTrue(asset2.name not in item_texts)
@@ -479,15 +493,8 @@ class VersionCreatorTester(unittest.TestCase):
         vers6.save()
 
         dialog = version_creator.MainDialog()
-        #        dialog.show()
-        #        self.app.exec_()
-        #        self.app.connect(
-        #            self.app,
-        #            QtCore.SIGNAL("lastWindowClosed()"),
-        #            self.app,
-        #            QtCore.SLOT("quit()")
-        #        )
-
+        #self.show_dialog(dialog)
+        
         # check if Main and Test are in the takes_listWidget
         ui_take_names = []
         for i in range(dialog.takes_listWidget.count()):
@@ -583,14 +590,7 @@ class VersionCreatorTester(unittest.TestCase):
         vers11.save()
 
         dialog = version_creator.MainDialog()
-        #        dialog.show()
-        #        self.app.exec_()
-        #        self.app.connect(
-        #            self.app,
-        #            QtCore.SIGNAL("lastWindowClosed()"),
-        #            self.app,
-        #            QtCore.SLOT("quit()")
-        #        )
+        #self.show_dialog(dialog)
 
         # set to the shot tab
         dialog.tabWidget.setCurrentIndex(1)
@@ -648,14 +648,7 @@ class VersionCreatorTester(unittest.TestCase):
         asset1.save()
         
         dialog = version_creator.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+        #self.show_dialog(dialog)
         
         self.assertEqual(
             conf.default_take_name,
@@ -710,14 +703,7 @@ class VersionCreatorTester(unittest.TestCase):
         seq2.save()
         
         dialog = version_creator.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+        #self.show_dialog(dialog)
         
         # switch to project2
         dialog.projects_comboBox.setCurrentIndex(1)
@@ -811,14 +797,7 @@ class VersionCreatorTester(unittest.TestCase):
         vers6.save()
 
         dialog = version_creator.MainDialog()
-        #        dialog.show()
-        #        self.app.exec_()
-        #        self.app.connect(
-        #            self.app,
-        #            QtCore.SIGNAL("lastWindowClosed()"),
-        #            self.app,
-        #            QtCore.SLOT("quit()")
-        #        )
+        #self.show_dialog(dialog)
 
         # check if Main and Test are in the takes_listWidget
         ui_type_names = []
@@ -888,14 +867,7 @@ class VersionCreatorTester(unittest.TestCase):
         tEnv = TestEnvironment()
 
         dialog = version_creator.MainDialog(tEnv)
-        #        dialog.show()
-        #        self.app.exec_()
-        #        self.app.connect(
-        #            self.app,
-        #            QtCore.SIGNAL("lastWindowClosed()"),
-        #            self.app,
-        #            QtCore.SLOT("quit()")
-        #        )
+        #self.show_dialog(dialog)
 
         # check if Main and Test are in the takes_listWidget
         ui_type_names = []
@@ -968,14 +940,7 @@ class VersionCreatorTester(unittest.TestCase):
         tEnv = TestEnvironment()
 
         dialog = version_creator.MainDialog(tEnv)
-        #        dialog.show()
-        #        self.app.exec_()
-        #        self.app.connect(
-        #            self.app,
-        #            QtCore.SIGNAL("lastWindowClosed()"),
-        #            self.app,
-        #            QtCore.SLOT("quit()")
-        #        )
+        #self.show_dialog(dialog)
         
         # set tabs to shots
         dialog.tabWidget.setCurrentIndex(1)
@@ -1036,18 +1001,10 @@ class VersionCreatorTester(unittest.TestCase):
         vers2.save()
 
         dialog = version_creator.MainDialog()
-        #        dialog.show()
-        #        self.app.exec_()
-        #        self.app.connect(
-        #            self.app,
-        #            QtCore.SIGNAL("lastWindowClosed()"),
-        #            self.app,
-        #            QtCore.SLOT("quit()")
-        #        )
+        #self.show_dialog(dialog)
 
         # select the first asset
-        list_item = dialog.assets_listWidget.item(0)
-        dialog.assets_listWidget.setCurrentItem(list_item)
+        table_item = dialog.assets_tableWidget.selectRow(0)
 
         # select the first type
         dialog.version_types_listWidget.setCurrentRow(0)
@@ -1074,14 +1031,16 @@ class VersionCreatorTester(unittest.TestCase):
             vers1.created_by.name
         )
 
-        self.assertEqual(
-            dialog.previous_versions_tableWidget.item(0, 3).text(),
-            vers1.note
-        )
+        #self.assertEqual(
+        #    dialog.previous_versions_tableWidget.item(0, 3).text(),
+        #    datetime.datetime.fromtimestamp(
+        #            os.path.getmtime(vers1.full_path)
+        #    ).strftime(conf.time_format)
+        #)
 
         self.assertEqual(
             dialog.previous_versions_tableWidget.item(0, 4).text(),
-            vers1.full_path
+            vers1.note
         )
 
     def test_previous_versions_tableWidget_is_filled_with_proper_info(self):
@@ -1179,19 +1138,10 @@ class VersionCreatorTester(unittest.TestCase):
         vers6.save()
 
         dialog = version_creator.MainDialog()
-        #dialog.show()
-        #self.app.exec_()
-        #self.app.connect(
-        #    self.app,
-        #    QtCore.SIGNAL("lastWindowClosed()"),
-        #    
-        #    self.app,
-        #    QtCore.SLOT("quit()")
-        #)
+        #self.show_dialog(dialog)
         
         # select the first asset
-        list_item = dialog.assets_listWidget.item(0)
-        dialog.assets_listWidget.setCurrentItem(list_item)
+        table_item = dialog.assets_tableWidget.selectRow(0)
 
         # select the first type
         dialog.version_types_listWidget.setCurrentRow(0)
@@ -1224,14 +1174,16 @@ class VersionCreatorTester(unittest.TestCase):
 
             # TODO: add test for file size column
 
-            self.assertEqual(
-                dialog.previous_versions_tableWidget.item(i, 3).text(),
-                versions[i].note
-            )
+            #self.assertEqual(
+            #    dialog.previous_versions_tableWidget.item(i, 3).text(),
+            #    datetime.datetime.fromtimestamp(
+            #        os.path.getmtime(versions[i].full_path)
+            #    ).strftime(conf.time_format)
+            #)
 
             self.assertEqual(
                 dialog.previous_versions_tableWidget.item(i, 4).text(),
-                versions[i].full_path
+                versions[i].note
             )
 
 #    def test_speed_test(self):
@@ -1775,13 +1727,13 @@ class VersionCreatorTester(unittest.TestCase):
         proj1.create()
         
         # Assets
-        asset1 = Asset(proj1, "Test Asset1")
+        asset1 = Asset(proj1, "Test Asset1", type='Default')
         asset1.save()
         
-        asset2 = Asset(proj1, "Test Asset2")
+        asset2 = Asset(proj1, "Test Asset2", type='Default')
         asset2.save()
         
-        asset3 = Asset(proj1, "Test Asset3")
+        asset3 = Asset(proj1, "Test Asset3", type='Default')
         asset3.save()
         
         # sequences
@@ -1807,8 +1759,10 @@ class VersionCreatorTester(unittest.TestCase):
         # set the tabWidget to 0
         dialog.tabWidget.setCurrentIndex(0)
         
+        logger.debug(dialog.assets_tableWidget.assets)
+        
         # set to the first asset
-        dialog.assets_listWidget.setCurrentRow(0)
+        dialog.assets_tableWidget.selectRow(0)
         
         # get the current versionable and expect it to be the asset1
         versionable = dialog.get_versionable()
@@ -1816,7 +1770,16 @@ class VersionCreatorTester(unittest.TestCase):
         self.assertEqual(versionable, asset1)
         
         # set to the second asset
-        dialog.assets_listWidget.setCurrentRow(1)
+        dialog.assets_tableWidget.selectRow(1)
+        
+        #dialog.show()
+        #self.app.exec_()
+        #self.app.connect(
+        #    self.app,
+        #    QtCore.SIGNAL("lastWindowClosed()"),
+        #    self.app,
+        #    QtCore.SLOT("quit()")
+        #)
         
         # get the current versionable and expect it to be the asset2
         versionable = dialog.get_versionable()
@@ -2112,8 +2075,17 @@ class VersionCreatorTester(unittest.TestCase):
             dialog.tabWidget.currentIndex(), 0
         )
         
+        index = dialog.assets_tableWidget.currentRow()
+        item_text = dialog.assets_tableWidget.itemAt(index, 0).text()
         self.assertEqual(
-            dialog.assets_listWidget.currentItem().text(),
+            item_text,
+            vers10.version_of.type
+        )
+        
+        index = dialog.assets_tableWidget.currentRow()
+        item_text = dialog.assets_tableWidget.itemAt(index, 1).text()
+        self.assertEqual(
+            item_text,
             vers10.version_of.name
         )
         
@@ -2377,9 +2349,7 @@ class VersionCreatorTester(unittest.TestCase):
         
         # select Asset
         
-        dialog.assets_listWidget.setCurrentItem(
-            dialog.assets_listWidget.item(0)
-        )
+        dialog.assets_tableWidget.selectRow(0)
         
         # test there is 4 versions in the list
         self.assertEqual(
@@ -2457,9 +2427,7 @@ class VersionCreatorTester(unittest.TestCase):
         dialog.tabWidget.setCurrentIndex(0)
 
         # select Asset
-        dialog.assets_listWidget.setCurrentItem(
-            dialog.assets_listWidget.item(0)
-        )
+        dialog.assets_tableWidget.selectRow(0)
         
         # set the version_count_spinBox to 10
         dialog.version_count_spinBox.setValue(10)
@@ -2640,14 +2608,7 @@ class VersionCreatorTester(unittest.TestCase):
         shot1.save()
         
         dialog = version_creator.MainDialog()
-        #dialog.show()
-        #self.app.exec_()
-        #self.app.connect(
-        #    self.app,
-        #    QtCore.SIGNAL("lastWindowClosed()"),
-        #    self.app,
-        #    QtCore.SLOT("quit()")
-        #)
+        self.show_dialog(dialog)
         
         # set the tab to shots
         dialog.tabWidget.setCurrentIndex(1)
@@ -2780,8 +2741,84 @@ class VersionCreatorTester(unittest.TestCase):
         self.assertTrue(os.path.exists(pixmap_full_path))
         
         return pixmap
+    
+    def test_status_comboBox_is_filled_with_status_list(self):
+        """testing if the status_comboBox is filled with default statuses
+        """
+        dialog = version_creator.MainDialog()
+        item_count = dialog.statuses_comboBox.count()
+        self.assertEqual(item_count, len(conf.status_list))
+        
+        item_texts = []
+        for i in range(item_count):
+            self.assertEqual(
+                conf.status_list_long_names[i],
+                dialog.statuses_comboBox.itemText(i)
+            )
+    
+    def test_status_of_version_will_be_picked_from_statuses_comboBox(self):
+        """testing if the status of the created version will be picked from the
+        statuses_comboBox
+        """
+        
+        new_project = Project('Test Project')
+        new_project.save()
+        
+        new_asset = Asset(new_project, 'Test Asset')
+        new_asset.save()
+        
+        admin = db.query(User).first()
+        
+        asset_vtypes = db.query(VersionType)\
+            .filter(VersionType.type_for=='Asset')\
+            .all()
+        
+        # create a new version
+        new_version = Version(
+            version_of=new_asset,
+            base_name=new_asset.code,
+            type=asset_vtypes[0],
+            created_by=admin,
+            status=conf.status_list[3]
+        )
+        new_version.save()
+        
+        dialog = version_creator.MainDialog()
+        
+        ## first check if the status comes correctly from the version
+        #current_long_status = dialog.statuses_comboBox.currentText()
+        #index = conf.status_list_long_names.index(current_long_status)
+        #short_status = conf.status_list[index]
+        #
+        #self.assertEqual(
+        #    new_version.status,
+        #    short_status
+        #)
+        
+        # now create a new version with different status
+        dialog.statuses_comboBox.setCurrentIndex(4)
+        
+        QTest.mouseClick(
+            dialog.save_as_pushButton,
+            QtCore.Qt.LeftButton
+        )
+        
+        # get the new version
+        newest_version = db.query(Version)\
+            .filter(Version.version_of==new_asset)\
+            .filter(Version.base_name==new_asset.code)\
+            .filter(Version.type==asset_vtypes[0])\
+            .filter(Version.version_number==new_version.version_number+1)\
+            .first()
+        
+        self.assertEqual(
+            conf.status_list[4],
+            newest_version.status
+        )
+        
+        #dialog = version_creator.MainDialog()
+        #self.show_dialog(dialog)
 
-  
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     """tests the interaction of the UI with the given environment
     """
@@ -2952,7 +2989,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.projects_comboBox.setCurrentIndex(0)
         
         # and to asset1
-        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        self.test_dialog.assets_tableWidget.selectRow(0)
         
         # the versionType to the first one
         self.test_dialog.version_types_listWidget.setCurrentRow(0)
@@ -2978,7 +3015,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.projects_comboBox.setCurrentIndex(0)
         
         # and to asset2
-        self.test_dialog.assets_listWidget.setCurrentRow(1)
+        self.test_dialog.assets_tableWidget.selectRow(1)
         
         # be sure that there is no version type name in comboBox
         self.assertEqual(self.test_dialog.version_types_listWidget.count(), 0)
@@ -3001,7 +3038,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.projects_comboBox.setCurrentIndex(0)
         
         # and to asset1
-        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        self.test_dialog.assets_tableWidget.selectRow(0)
         
         # the versionType to the first one
         self.test_dialog.version_types_listWidget.setCurrentRow(0)
@@ -3039,7 +3076,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.tabWidget.setCurrentIndex(0)
         
         # set to the first asset
-        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        self.test_dialog.assets_tableWidget.selectRow(0)
         
         # set to the first version type
         self.test_dialog.version_types_listWidget.setCurrentRow(0)
@@ -3068,7 +3105,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.tabWidget.setCurrentIndex(0)
         
         # set to the first Asset
-        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        self.test_dialog.assets_tableWidget.selectRow(0)
         
         # set to the first version type
         self.test_dialog.version_types_listWidget.setCurrentRow(0)
@@ -3122,7 +3159,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.tabWidget.setCurrentIndex(0)
         
         # set to the first Asset
-        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        self.test_dialog.assets_tableWidget.selectRow(0)
         
         # set to the first version type
         self.test_dialog.version_types_listWidget.setCurrentRow(0)
@@ -3176,7 +3213,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.tabWidget.setCurrentIndex(0)
         
         # set to the first Asset
-        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        self.test_dialog.assets_tableWidget.selectRow(0)
         
         # set to the first version type
         self.test_dialog.version_types_listWidget.setCurrentRow(0)
@@ -3225,7 +3262,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.tabWidget.setCurrentIndex(0)
         
         # set to the first Asset
-        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        self.test_dialog.assets_tableWidget.selectRow(0)
         
         # set to the first version type
         self.test_dialog.version_types_listWidget.setCurrentRow(0)
@@ -3259,7 +3296,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.tabWidget.setCurrentIndex(0)
         
         # set to the first Asset
-        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        self.test_dialog.assets_tableWidget.selectRow(0)
         
         # set to the first version type
         self.test_dialog.version_types_listWidget.setCurrentRow(0)
@@ -3308,7 +3345,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_dialog.tabWidget.setCurrentIndex(0)
         
         # set to the first Asset
-        self.test_dialog.assets_listWidget.setCurrentRow(0)
+        self.test_dialog.assets_tableWidget.selectRow(0)
         
         # set to the first version type
         self.test_dialog.version_types_listWidget.setCurrentRow(0)

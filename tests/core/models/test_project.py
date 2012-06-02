@@ -10,7 +10,8 @@ import tempfile
 import unittest
 
 from oyProjectManager import db, config
-from oyProjectManager.core.models import (Project, Sequence, VersionType)
+from oyProjectManager.core.models import (Project, Sequence, VersionType,
+                                          Client)
 
 import logging
 logger = logging.getLogger("oyProjectManager.core.models")
@@ -198,7 +199,6 @@ class ProjectTester(unittest.TestCase):
         
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
-        
         
         self._name_test_values = [
             # (input, name, code)
@@ -596,3 +596,57 @@ class ProjectTester(unittest.TestCase):
         new_project = Project("Test Project")
         self.assertRaises(AttributeError, setattr, new_project, "code",
             "New Code")
+   
+    def test_client_argument_is_skipped(self):
+        """testing if skipping the client argument will set the client
+        attribute to None
+        """
+        new_proj = Project(name="Test Project")
+        self.assertEqual(None, new_proj.client)
+    
+    def test_client_argument_is_None(self):
+        """testing if the client argument can be None
+        """
+        new_proj = Project(name="Test Project", client=None)
+        self.assertEqual(None, new_proj.client)
+    
+    def test_client_attribute_is_None(self):
+        """testing if the client attribute is set to None will not cause any
+        error
+        """
+        new_client = Client(name="Test Client")
+        new_proj = Project(name="Test Project", client=new_client)
+        new_proj.client = None
+        self.assertEqual(None, new_proj.client)
+    
+    def test_client_argument_is_not_a_Client_instance(self):
+        """testing if a TypeError will be raised when the client argument is
+        not a Client instance
+        """
+        self.assertRaises(TypeError, Project, name="Test Project",
+            client="a client")
+    
+    def test_client_attribute_is_not_a_Client_instance(self):
+        """testing if a TypeError will be raised when the client attribute is
+        not set to a Client instance
+        """
+        new_client = Client(name='Test Client')
+        new_proj = Project(name='Test Project', client=new_client)
+        self.assertRaises(TypeError, setattr, new_proj, 'client', 'a client')
+    
+    def test_client_argument_is_working_properly(self):
+        """testing if the client argument properly sets the client attribute
+        """
+        new_client = Client(name='Test Client')
+        new_proj = Project(name='Test Project', client=new_client)
+        self.assertEqual(new_client, new_proj.client)
+    
+    def test_client_attribute_is_working_properly(self):
+        """testing if the client attribute is working properly
+        """
+        new_client1 = Client(name='Test Client 1')
+        new_client2 = Client(name='Test Client 2')
+        new_proj = Project(name='Test Project', client=new_client1)
+        self.assertNotEqual(new_client2, new_proj.client)
+        new_proj.client = new_client2
+        self.assertEqual(new_client2, new_proj.client)

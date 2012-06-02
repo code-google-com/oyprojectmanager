@@ -1,6 +1,36 @@
 Version History
 ===============
 
+0.2.4
+-----
+* Added :attr:`~oyProjectManager.core.models.Asset.type` attribute to the
+  :class:`~oyProjectManager.core.models.Asset` class. The main intention is to
+  be able to distinguish 'Props', 'Environment' etc. types of assets from each
+  other.
+
+* Added :attr:`~oyProjectManager.core.models.Version.status` attribute
+  to the :class:`~oyProjectManager.core.models.Version` class. This attribute
+  will help to track the status of the
+  :class:`~oyProjectManager.core.models.Asset` or
+  :class:`~oyProjectManager.core.models.Shot` version.
+
+* Added a new UI called ``status_manager``\ . It is for viewing statuses of the
+  Assets and Shots but because ``Take``\ s make the data 3 dimensional
+  (Versionable/Type/Take) to be able to view the data in 2d (the ui itself)
+  the only the `MAIN` take is considered. So if you have more than one take for
+  let say an asset, only the status of the `MAIN` take will be visible through
+  the UI.
+
+* Added a new column to the ``version_creator`` UI which shows the status of
+  the saved version.
+
+* Added a new class called :class:`~oyProjectManager.core.models.Client` to
+  manage :class:`~oyProjectManager.core.models.Project` clients.
+
+* Added a new attribute :attr:`~oyProjectManager.core.models.Project.client` to
+  the :class:`~oyProjectManager.core.models.Project` class to manage
+  :class:`~oyProjectManager.core.models.Client`\ s.
+
 0.2.3
 -----
 

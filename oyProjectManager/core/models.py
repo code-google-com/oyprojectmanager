@@ -21,7 +21,7 @@ from sqlalchemy.schema import Table
 
 from oyProjectManager import utils
 from oyProjectManager.utils import cache
-from oyProjectManager import db
+from oyProjectManager import db, conf
 from oyProjectManager.db.declarative import Base
 from oyProjectManager.core.errors import CircularDependencyError
 
@@ -347,9 +347,13 @@ class Project(Base):
         primaryjoin="Sequences.c.project_id==Projects.c.id"
     )
     
-#    version_types = relationship("VersionType")
+    client_id = Column(Integer, ForeignKey("Clients.id"))
+    client = relationship(
+        "Client",
+        primaryjoin="Projects.c.client_id==Clients.c.id"
+    )
     
-    def __new__(cls, name=None, code=None):
+    def __new__(cls, name=None, code=None, client=None):
         """the overridden __new__ method to manage the creation of a Project
         instances.
         
@@ -389,9 +393,9 @@ class Project(Base):
         
         # just create it normally
         logger.debug("returning a normal Project instance")
-        return super(Project, cls).__new__(cls, name, code)
+        return super(Project, cls).__new__(cls, name, code, client)
         
-    def __init__(self, name, code=None):
+    def __init__(self, name, code=None, client=None):
         # do not initialize if it is created from the DB
         if hasattr(self, "__skip_init__"):
             logging.debug("skipping the __init__ on Project")
@@ -432,6 +436,9 @@ class Project(Base):
         
         # and the structure
         self.structure = self.conf.project_structure
+        
+        # add the client
+        self.client = client
     
     @orm.reconstructor
     def __init_on_load__(self):
@@ -613,9 +620,19 @@ class Project(Base):
         
         :return: str
         """
-        
         return self._code
+    
+    @validates("client")
+    def _validate_client(self, key, client):
+        """validates the given client value
+        """
+        if client is not None:
+            if not isinstance(client, Client):
+                raise TypeError('Project.client should be an '
+                                'oyProjectManager.core.models.Client '
+                                'instance, not %s' % client.__class__.__name__)
         
+        return client
 
 class Sequence(Base):
     """Sequence object to help manage sequence related data.
@@ -974,7 +991,7 @@ class VersionableBase(Base):
         :class:`~oyProjectManager.core.models.Shot` class.
         """
     )
-
+    
     _name = Column(String(128))
     
     description = Column(String)
@@ -1371,6 +1388,11 @@ class Asset(VersionableBase):
       If the code becomes an empty string after formatting a ValueError will be
       raised. The code should be unique among all the Assets in the current
       :class:`~oyProjectManager.core.models.Project`.
+    
+    :param type: The ``type`` of this asset. Can be used to distinguish
+      different types of assets like 'Prop', 'Character', 'Vehicle' etc. If
+      given as None the default value (default_asset_type_name) from the config
+      will be used.
     """
 
     __tablename__ = "Assets"
@@ -1383,10 +1405,13 @@ class Asset(VersionableBase):
     asset_id = Column("id", Integer, ForeignKey("Versionables.id"),
                       primary_key=True)
     
-    def __init__(self, project, name, code=None):
+    type = Column(String(256))
+    
+    def __init__(self, project, name, code=None, type=None):
         self._project = project
         self.name = name
         self.code = code
+        self.type = type
     
     def __eq__(self, other):
         """equality operator
@@ -1512,6 +1537,35 @@ class Asset(VersionableBase):
         
         logger.debug("saving the asset %s" % self)
         db.session.commit()
+    
+    @validates('type')
+    def _validate_type(self, key, type):
+        """validates the given type value
+        """
+        if type is None:
+            from oyProjectManager import conf
+            type = conf.default_asset_type_name
+        
+        if not isinstance(type, (str, unicode)):
+            raise TypeError('Asset.type should be an instance of string or '
+                            'unicode not %s' % type.__class__.__name__)
+        
+        # strip the code
+        type = type.strip()
+        # remove unnecessary characters from the string
+        type = re.sub("([^a-zA-Z0-9\s_]+)", r"", type)
+        # remove all the characters from the beginning which are not alphabetic
+        type = re.sub("(^[^a-zA-Z0-9]+)", r"", type)
+        # substitute all spaces with "_" characters
+        type = re.sub("([\s])+", "_", type)
+        
+        # check if the code became empty string after validation
+        if type is "":
+            raise ValueError("Asset.type is not valid after validation")
+        
+        # convert the first letter to uppercase
+        type = type[0].upper() + type[1:]
+        return type
 
 class Version(Base):
     """Holds versions of assets or shots.
@@ -1684,6 +1738,10 @@ class Version(Base):
     
     is_published = Column(Boolean, default=False)
     
+    status = Column(
+        Enum(*conf.status_list, name='StatusNames'),
+    )
+    
     def __init__(self,
                  version_of,
                  base_name,
@@ -1693,7 +1751,9 @@ class Version(Base):
                  version_number=1,
                  note="",
                  extension="",
-                 is_published=False):
+                 is_published=False,
+                 status=None,
+                 ):
         self.is_published = is_published
         
         self._version_of = version_of
@@ -1710,6 +1770,8 @@ class Version(Base):
         
         # setting the extension will update the path variables already
         self.extension = extension
+        
+        self.status = status
     
     def __eq__(self, other):
         """the equality operator
@@ -2174,8 +2236,39 @@ class Version(Base):
                 if published_version.version_number > ref.version_number:
                     update_list.append(ref)
         
-        
         return update_list
+    
+    @validates('status')
+    def _validate_status(self, key, status):
+        """validates the given status value
+        """
+        
+        if status is None:
+            latest_version = self.latest_version()
+            if latest_version:
+                status = latest_version.status
+            else:
+                # set it to status[0]
+                status = conf.status_list[0]
+        
+        if not isinstance(status, (str, unicode)):
+            raise TypeError('Version.status should be one an instance of '
+                            'string and the value should be one of of %s not '
+                            '%s' %
+                            (conf.status_list, status.__class__.__name__)
+            )
+        
+        all_statuses = conf.status_list
+        all_statuses.extend(conf.status_list_long_names)
+        if status not in all_statuses:
+            raise ValueError('Version.status should be one of %s not %s' %
+                (conf.status_list, status))
+        
+        if status in conf.status_list_long_names:
+            index = conf.status_list_long_names.index(status)
+            status = conf.status_list[index]
+        
+        return status
 
 class VersionType(Base):
     """A template for :class:`~oyProjectManager.core.models.Version` class.
@@ -2763,6 +2856,64 @@ class User(Base):
             
             db.session.commit()
 
+class Client(Base):
+    """Represents the Client
+    
+    :param str name: The name of the client. It is a string can not be empty
+    
+    :param str generic_info: it is a string holding generic information about
+      the client.
+    """
+    
+    __tablename__ = "Clients"
+    __table_args__  = (
+        {"extend_existing":True}
+    )
+    
+    id = Column(Integer, primary_key=True)
+    
+    name = Column(String(256))
+    code = Column(String(256))
+    generic_info = Column(String)
+    
+    def __init__(self, name, code=None, generic_info=""):
+        self.name = name
+        self.code = code
+        self.generic_info = generic_info
+    
+    @validates('name')
+    def _validate_name(self, key, name):
+        """validates the given name value
+        """
+        if name is None or not isinstance(name, (str, unicode)):
+            raise TypeError('Client.name should be a string or unicode, not '
+                            '%s' % name.__class__.__name__)
+        return name
+    
+    @validates('code')
+    def _validate_code(self, key, code):
+        """validates the given code value
+        """
+        if code is None:
+            code = re.sub(r"[^A-Z]", "", self.name.title())
+        
+        if not isinstance(code, (str, unicode)):
+            raise TypeError('Client.code should be a string or unicode, not '
+                            '%s' % code.__class__.__name__)
+        
+        # remove spaces
+        code = code.replace(" ", "")
+        
+        return code
+    
+    def save(self):
+        """saves the instance to database
+        """
+        if db.session is not None:
+            if self not in db.session:
+                db.session.add(self)
+            db.session.commit()
+
 class EnvironmentBase(object):
     """Connects the environment (the host program) to the oyProjectManager.
     
@@ -3125,6 +3276,9 @@ class EnvironmentBase(object):
         
         :return:
         """
+        raise NotImplemented
+
+
 
 # secondary tables
 Version_References = Table(

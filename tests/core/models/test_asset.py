@@ -37,7 +37,8 @@ class AssetTester(unittest.TestCase):
         self.kwargs = {
             "project": self.test_proj,
             "name": "Test Asset",
-            "code": "TEST_ASSET"
+            "code": "TEST_ASSET",
+            'type': 'Prop',
         }
         
         self.test_asset = Asset(**self.kwargs)
@@ -306,3 +307,85 @@ class AssetTester(unittest.TestCase):
         self.assertFalse(asset1!=asset2)
         self.assertTrue(asset1!=asset3)
         self.assertTrue(asset3!=asset4)
+    
+    def test_type_argument_is_skipped(self):
+        """testing if skipping the type argument the type attribute will be set
+        to conf.default_asset_type_name
+        """
+        self.kwargs.pop('type')
+        new_asset = Asset(**self.kwargs)
+        self.assertEqual(new_asset.type, conf.default_asset_type_name)
+    
+    def test_type_argument_is_None(self):
+        """testing if setting the type argument to None will set the type
+        attribute to conf.default_asset_type_name
+        """
+        self.kwargs['type'] = None
+        new_asset = Asset(**self.kwargs)
+        self.assertEqual(new_asset.type, conf.default_asset_type_name)
+    
+    def test_type_attribute_is_set_to_None(self):
+        """testing if setting the type attribute to None will set the type to
+        conf.default_asset_type_name
+        """
+        self.test_asset.type = None
+        self.assertEqual(self.test_asset.type, conf.default_asset_type_name)
+    
+    def test_type_argument_accepts_string_or_unicode_only(self):
+        """testing if a TypeError will be raised when the type argument is set
+        to a value other than string or unicode value
+        """
+        self.kwargs['type'] = 12312
+        self.assertRaises(TypeError, Asset, **self.kwargs)
+    
+    def test_type_attribute_accepts_string_or_unicode_only(self):
+        """testing if a TypeError will be raised when the type attribute is set
+        to a value other than string or unicode
+        """
+        self.assertRaises(TypeError, setattr, self.test_asset, 'type', 2342)
+    
+    def test_type_argument_is_working_properly(self):
+        """testing if the type attribute is set with the type argument
+        """
+        self.kwargs['type'] = "Test_Type_1"
+        new_asset = Asset(**self.kwargs)
+        self.assertEqual(self.kwargs['type'], new_asset.type)
+    
+    def test_type_attribute_is_working_properly(self):
+        """testing if the type attribute is working properly
+        """
+        test_value = "Test_Type_1"
+        self.test_asset.type = test_value
+        self.assertEqual(self.test_asset.type, test_value)
+    
+    def test_type_argument_formatting(self):
+        """testing if the type argument is formatted correctly
+        """
+        for test_values in self._code_test_values:
+            input_value = test_values[0]
+            expected_value = test_values[1]
+            self.kwargs['type'] = input_value
+            new_asset = Asset(**self.kwargs)
+            self.assertEqual(new_asset.type, expected_value)
+    
+    def test_type_argument_is_invalid_after_formatting(self):
+        """testing if a ValueError will be raised when the type argument is
+        invalid after formatting
+        """
+        self.kwargs['type'] = '@#$@#$'
+        self.assertRaises(ValueError, Asset, **self.kwargs)
+    
+    def test_type_attribute_is_invalid_after_formatting(self):
+        """testing if a ValueError will be raised when the type attribute is
+        invalid after formatting
+        """
+        self.assertRaises(ValueError, setattr, self.test_asset, 'type', '#@$#')
+    
+    def test_type_attribute_formatting(self):
+        """testing if the type attribute is formatted correctly
+        """
+        for test_values in self._code_test_values:
+            input_value = test_values[0]
+            expected_value = test_values[1]
+            self.test_asset.type = input_value
+            self.assertEqual(self.test_asset.type, expected_value)
