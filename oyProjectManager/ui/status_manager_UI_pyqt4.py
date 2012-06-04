@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/status_manager.ui'
 #
-# Created: Mon Jun  4 12:32:01 2012
+# Created: Tue Jun  5 02:32:23 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -31,6 +31,10 @@ class Ui_Dialog(object):
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.verticalLayout.addLayout(self.horizontalLayout)
+        self.label_2 = QtGui.QLabel(Dialog)
+        self.label_2.setStyleSheet(_fromUtf8("color: red;"))
+        self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.verticalLayout.addWidget(self.label_2)
         self.tabWidget = QtGui.QTabWidget(Dialog)
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.assets_tab = QtGui.QWidget()
@@ -82,6 +86,7 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Project", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("Dialog", "Right Click to change Version status !!!", None, QtGui.QApplication.UnicodeUTF8))
         item = self.assets_tableWidget.horizontalHeaderItem(0)
         item.setText(QtGui.QApplication.translate("Dialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
         item = self.assets_tableWidget.horizontalHeaderItem(1)

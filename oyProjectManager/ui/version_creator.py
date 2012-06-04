@@ -451,7 +451,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                         
                         # update assets_tableWidget
                         self.tabWidget_changed(0)
-                
     
     def rename_asset(self, asset, new_name):
         """Renames the asset with the given new name

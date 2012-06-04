@@ -40,15 +40,6 @@ elif qt_module == "PyQt4":
     from oyProjectManager.ui import status_manager_UI_pyqt4 as status_manager_UI
 
 
-class ImageWidget(QtGui.QWidget):
-
-    def __init__(self, imagePath, parent):
-        super(ImageWidget, self).__init__(parent)
-        self.image = QtGui.QPixmap(imagePath)
-    
-    def paintEvent(self, event):
-        painter = QtGui.QPainter(self)
-        painter.drawPixmap(0, 0, self.image)
 
 def UI():
     """the UI to call the dialog by itself
@@ -122,7 +113,28 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
             QtCore.SIGNAL("currentChanged(int)"),
             self.tabWidget_changed
         )
-        # TODO: add a right mouse context menu to the items on the list
+        
+        # custom context menu for the assets_tableWidget
+        self.assets_tableWidget.setContextMenuPolicy(
+            QtCore.Qt.CustomContextMenu
+        )
+        
+        QtCore.QObject.connect(
+            self.assets_tableWidget,
+            QtCore.SIGNAL("customContextMenuRequested(const QPoint&)"),
+            self._show_assets_tableWidget_context_menu
+        )
+    
+        # custom context menu for the assets_tableWidget
+        self.shots_tableWidget.setContextMenuPolicy(
+            QtCore.Qt.CustomContextMenu
+        )
+        
+        QtCore.QObject.connect(
+            self.shots_tableWidget,
+            QtCore.SIGNAL("customContextMenuRequested(const QPoint&)"),
+            self._show_shots_tableWidget_context_menu
+        )
     
     def setup_defaults(self):
         """sets the defaults
@@ -159,17 +171,16 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     
     def tabWidget_changed(self):
         
-        if self.tabWidget.currentIndex() == 0: # update assets
-            # update the assets_tableWidget
-            self.fill_assets_tableWidget()
-        else:
+        if self.tabWidget.currentIndex(): # update assets
             # update the shots_tableWidget
             self.fill_shots_tableWidget()
+        else:
+            # update the assets_tableWidget
+            self.fill_assets_tableWidget()
     
     def fill_assets_tableWidget(self):
         """fills the asset_tableWidget
         """
-        logger.debug('updating the asset')
         # clear the table
         self.assets_tableWidget.clear()
         
@@ -201,8 +212,6 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
             .all()
         
         # feed the assets to the list
-#        self.assets_tableWidget.setRowCount(len(assets)+2)
-        
         items = []
         
         row = 0
@@ -220,6 +229,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                 take_names = ['-']
             
             for take_name in take_names:
+                
                 # add the asset type to the first column
                 column = 0
                 item = QtGui.QTableWidgetItem()
@@ -267,6 +277,9 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                 for type_code in asset_vtype_codes:
                     column += 1
                     
+                    # now for every asset vtype create two rows instead of one
+                    # and show the users name on the second row
+                    
                     # get the latest version of that type and take
                     version = db.query(Version)\
                         .join(VersionType)\
@@ -279,7 +292,9 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                     
                     if version:
                         # mark the status of that type in that take
-                        item = QtGui.QTableWidgetItem(version.status)
+                        item = QtGui.QTableWidgetItem(
+                            version.status + '\n' + version.created_by.name
+                        )
                         item.setTextAlignment(0x0004 | 0x0080)
                         
                         # set the color according to status
@@ -297,6 +312,9 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                         
                         item.setBackgroundColor(QtGui.QColor(*bgcolor))
                         
+                        # add this version to the item
+                        item.version = version
+                        
                     else:
                         # set the background color to black
                         item = QtGui.QTableWidgetItem('-')
@@ -306,30 +324,39 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                         item.setBackground(bg)
                         
                         item.setBackgroundColor(QtGui.QColor(0, 0, 0))
+                        
+                        # set the related version to None
+                        item.version = None
                     
                     items.append(item)
-                    #self.assets_tableWidget.setItem(row, column, item)
                     
                 row += 1
         
         self.assets_tableWidget.setRowCount(row)
-        # to reset row heights
-        self.assets_tableWidget.resizeRowsToContents()
         
         item_index = 0
         for r in range(row):
             for c in range(column + 1):
                 item = items[item_index]
                 self.assets_tableWidget.setItem(r, c, item)
-                if c==0:
-                    if item.has_thumbnail:
-                        # scale the row height
-                        self.assets_tableWidget.setRowHeight(
-                            r,
-                            conf.thumbnail_size[1] / 2
-                        )
-                
                 item_index += 1
+        
+        # adjust the row heights accordingly
+        self.assets_tableWidget.resizeRowsToContents()
+        
+        # need to pass over the first rows again
+        # to resize the thumbnail cell
+        for r in range(row):
+            item_index = r * (column + 1)
+            item = items[item_index]
+            if item.has_thumbnail:
+                # scale the row height
+                self.assets_tableWidget.setRowHeight(
+                    r,
+                    conf.thumbnail_size[1] / 2
+                )
+        
+        # resize columns to fit the content
         self.assets_tableWidget.resizeColumnsToContents()
         
         # set column width
@@ -338,7 +365,6 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     def fill_shots_tableWidget(self):
         """fills the shots_tableWidget
         """
-        
         # clear the tableWidget
         self.shots_tableWidget.clear()
         
@@ -364,7 +390,6 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
             return
         
         # get all the shots for the sequence
-        
         sequences = db.query(Sequence)\
             .filter(Sequence.project==project)\
             .order_by(Sequence.name)\
@@ -467,9 +492,10 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                             .first()
                         
                         if version:
-                            status = version.status
                             # mark the status of that type in that take
-                            item = QtGui.QTableWidgetItem(version.status)
+                            item = QtGui.QTableWidgetItem(
+                                version.status + '\n' + version.created_by.name
+                            )
                             item.setTextAlignment(0x0004 | 0x0080)
                             
                             # set the color according to status
@@ -487,6 +513,9 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                             
                             item.setBackgroundColor(QtGui.QColor(*bgcolor))
                             
+                            # set this version to the item
+                            item.version = version
+                            
                         else:
                             # set the background color to black
                             item = QtGui.QTableWidgetItem('-')
@@ -496,31 +525,103 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                             item.setBackground(bg)
                             
                             item.setBackgroundColor(QtGui.QColor(0, 0, 0))
+                            
+                            # set the version to None for this item
+                            item.version = None
                         
-                        #self.shots_tableWidget.setItem(row, column, item)
                         items.append(item)
                     
                     row += 1
         
         self.shots_tableWidget.setRowCount(row)
-        # to reset row heights
-        self.shots_tableWidget.resizeRowsToContents()
         
         item_index = 0
         for r in range(row):
             for c in range(column + 1):
                 item = items[item_index]
                 self.shots_tableWidget.setItem(r, c, item)
-                if c==0:
-                    if item.has_thumbnail:
-                        # scale the row height
-                        self.shots_tableWidget.setRowHeight(
-                            r,
-                            conf.thumbnail_size[1] / 2
-                        )
                 item_index += 1
         
+        # adjust the row heights accordingly
+        self.shots_tableWidget.resizeRowsToContents()
+        
+        # need to pass over the first rows again
+        # to resize the thumbnail cell
+        for r in range(row):
+            item_index = r * (column + 1)
+            item = items[item_index]
+            if item.has_thumbnail:
+                # scale the row height
+                self.shots_tableWidget.setRowHeight(
+                    r,
+                    conf.thumbnail_size[1] / 2
+                )
+        
+        # resize columns to fit the content
         self.shots_tableWidget.resizeColumnsToContents()
         
         # set the column width
         self.shots_tableWidget.setColumnWidth(0, conf.thumbnail_size[0] / 2)
+    
+    def _show_assets_tableWidget_context_menu(self, position):
+        """the custom context menu for the assets_tableWidget
+        """
+
+        # convert the position to global screen position
+        global_position = self.assets_tableWidget.mapToGlobal(position)
+        
+        # create the menu
+        self.assets_tableWidget_menu = QtGui.QMenu()
+        
+        for status_name in conf.status_list_long_names:
+            self.assets_tableWidget_menu.addAction(status_name)
+        
+        selected_item = self.assets_tableWidget_menu.exec_(global_position)
+        
+        if selected_item:
+            # something is chosen
+            # find the item under mouse
+            item = self.assets_tableWidget.itemAt(position)
+            if item.version:
+                # set the version status to the chosen status
+                status_index = conf.status_list_long_names.index(
+                    selected_item.text()
+                )
+                status = conf.status_list[status_index]
+                item.version.status = status
+                item.version.save()
+                
+                # request an update to the list
+                self.tabWidget_changed()
+    
+    def _show_shots_tableWidget_context_menu(self, position):
+        """the custom context menu for the shots_tableWidget
+        """
+        
+        # convert the position to global screen position
+        global_position = self.shots_tableWidget.mapToGlobal(position)
+        
+        # create the menu
+        self.shots_tableWidget_menu = QtGui.QMenu()
+        
+        for status_name in conf.status_list_long_names:
+            self.shots_tableWidget_menu.addAction(status_name)
+        
+        selected_item = self.shots_tableWidget_menu.exec_(global_position)
+        
+        if selected_item:
+            # something is chosen
+            # find the item under mouse
+            item = self.shots_tableWidget.itemAt(position)
+            if item.version:
+                # set the version status to the chosen status
+                status_index = conf.status_list_long_names.index(
+                    selected_item.text()
+                )
+                status = conf.status_list[status_index]
+                item.version.status = status
+                item.version.save()
+                
+                # request an update to the list
+                self.tabWidget_changed()
+ 

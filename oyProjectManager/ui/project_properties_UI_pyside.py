@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/project_properties.ui'
 #
-# Created: Mon Jun  4 12:32:01 2012
+# Created: Tue Jun  5 02:32:23 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
