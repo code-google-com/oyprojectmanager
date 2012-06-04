@@ -9,7 +9,7 @@ import sys
 import logging
 from sqlalchemy.sql.expression import distinct, func
 
-from oyProjectManager import config, db
+from oyProjectManager import config, db, utils
 from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
                                           Version, VersionType, Shot, User,
                                           VersionTypeEnvironments)
@@ -38,6 +38,17 @@ elif qt_module == "PyQt4":
     sip.setapi('QVariant', 2)
     from PyQt4 import QtGui, QtCore
     from oyProjectManager.ui import status_manager_UI_pyqt4 as status_manager_UI
+
+
+class ImageWidget(QtGui.QWidget):
+
+    def __init__(self, imagePath, parent):
+        super(ImageWidget, self).__init__(parent)
+        self.image = QtGui.QPixmap(imagePath)
+    
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.drawPixmap(0, 0, self.image)
 
 def UI():
     """the UI to call the dialog by itself
@@ -111,7 +122,6 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
             QtCore.SIGNAL("currentChanged(int)"),
             self.tabWidget_changed
         )
-        
         # TODO: add a right mouse context menu to the items on the list
     
     def setup_defaults(self):
@@ -149,9 +159,9 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     
     def tabWidget_changed(self):
         
-        if self.tabWidget.currentIndex == 0: # update assets
+        if self.tabWidget.currentIndex() == 0: # update assets
             # update the assets_tableWidget
-            self.fill_asset_tableWidget()
+            self.fill_assets_tableWidget()
         else:
             # update the shots_tableWidget
             self.fill_shots_tableWidget()
@@ -159,6 +169,10 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     def fill_assets_tableWidget(self):
         """fills the asset_tableWidget
         """
+        logger.debug('updating the asset')
+        # clear the table
+        self.assets_tableWidget.clear()
+        
         asset_vtypes = db.query(VersionType)\
             .filter(VersionType.type_for=='Asset')\
             .order_by(VersionType.name)\
@@ -166,7 +180,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         
         asset_vtype_codes = map(lambda x: x.code, asset_vtypes)
         
-        labels = ['Type', 'Name']
+        labels = ['Thumbnail', 'Type', 'Name', 'Take']
         labels.extend(map(lambda x: x.code, asset_vtypes))
         
         logger.debug('asset_tableWidget.labels: %s' % labels)
@@ -187,75 +201,147 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
             .all()
         
         # feed the assets to the list
-        self.assets_tableWidget.setRowCount(len(assets))
+#        self.assets_tableWidget.setRowCount(len(assets)+2)
+        
+        items = []
         
         row = 0
+        column = 0
         for asset in assets:
-            # add the asset type to the first column
-            column = 0
-            item = QtGui.QTableWidgetItem(asset.type)
-            item.setTextAlignment(0x0004 | 0x0080)
-            self.assets_tableWidget.setItem(row, column, item)
+           # get the distinct take names
+            take_names = map(
+                lambda x: x[0],
+                db.query(distinct(Version.take_name))
+                    .filter(Version.version_of==asset)
+                    .all()
+            )
             
-            # add the asset name to the second column
-            column += 1
-            item = QtGui.QTableWidgetItem(asset.name)
-            item.setTextAlignment(0x0004 | 0x0080)
-            self.assets_tableWidget.setItem(row, column, item)
+            if not len(take_names):
+                take_names = ['-']
             
-            #for type_code in type_codes:
-            for type_code in asset_vtype_codes:
-                column += 1
-                # just consider the MAIN take
-                
-                # get the latest version of that type and take
-                version = db.query(Version)\
-                    .join(VersionType)\
-                    .filter(Version.version_of==asset)\
-                    .filter(Version.type_id==VersionType.id)\
-                    .filter(VersionType.code==type_code)\
-                    .filter(Version.take_name==conf.default_take_name)\
-                    .order_by(Version.version_number.desc())\
-                    .first()
-                
-                if version:
-                    # mark the status of that type in that take
-                    item = QtGui.QTableWidgetItem(version.status)
-                    item.setTextAlignment(0x0004 | 0x0080)
-                    
-                    # set the color according to status
-                    index = conf.status_list.index(version.status)
-                    bgcolor = conf.status_bg_colors[index]
-                    fgcolor = conf.status_fg_colors[index]
-                    
-                    bg = item.background()
-                    bg.setColor(QtGui.QColor(*bgcolor))
-                    item.setBackground(bg)
-                    
-                    fg = item.foreground()
-                    fg.setColor(QtGui.QColor(*fgcolor))
-                    item.setForeground(fg)
-                    
-                    item.setBackgroundColor(QtGui.QColor(*bgcolor))
-                    
+            for take_name in take_names:
+                # add the asset type to the first column
+                column = 0
+                item = QtGui.QTableWidgetItem()
+                item.setTextAlignment(0x0004 | 0x0080)
+                # set the thumbnail
+                if asset.thumbnail:
+                    thumbnail_full_path = os.path.expandvars(
+                        os.path.join(
+                            "$" + conf.repository_env_key,
+                            asset.thumbnail
+                        )
+                    )
+                    pixmap = QtGui.QPixmap(thumbnail_full_path)
+                    pixmap = pixmap.scaled(
+                        conf.thumbnail_size[0] / 2,
+                        conf.thumbnail_size[1] / 2,
+                        QtCore.Qt.KeepAspectRatio,
+                        QtCore.Qt.SmoothTransformation
+                    )
+                    brush = QtGui.QBrush(pixmap)
+                    item.has_thumbnail = True
+                    item.setBackground(brush)
                 else:
-                    # set the background color to black
-                    item = QtGui.QTableWidgetItem('N/A')
-                    bg = item.background()
-                    bg.setColor(QtGui.QColor(0, 0, 0))
-                    item.setBackground(bg)
-                    
-                    item.setBackgroundColor(QtGui.QColor(0, 0, 0))
+                    item.has_thumbnail = False
+                items.append(item)
                 
-                self.assets_tableWidget.setItem(row, column, item)
-
-            row += 1
-
+                column = 1
+                item = QtGui.QTableWidgetItem(asset.type)
+                item.setTextAlignment(0x0004 | 0x0080)
+                items.append(item)
+                
+                # add the asset name to the second column
+                column = 2
+                item = QtGui.QTableWidgetItem(asset.name)
+                item.setTextAlignment(0x0004 | 0x0080)
+                items.append(item)
+                
+                # add the take name to the third column
+                column = 3
+                item = QtGui.QTableWidgetItem(take_name)
+                item.setTextAlignment(0x0004 | 0x0080)
+                #self.assets_tableWidget.setItem(row, column, item)
+                items.append(item)
+                
+                for type_code in asset_vtype_codes:
+                    column += 1
+                    
+                    # get the latest version of that type and take
+                    version = db.query(Version)\
+                        .join(VersionType)\
+                        .filter(Version.version_of==asset)\
+                        .filter(Version.type_id==VersionType.id)\
+                        .filter(VersionType.code==type_code)\
+                        .filter(Version.take_name==take_name)\
+                        .order_by(Version.version_number.desc())\
+                        .first()
+                    
+                    if version:
+                        # mark the status of that type in that take
+                        item = QtGui.QTableWidgetItem(version.status)
+                        item.setTextAlignment(0x0004 | 0x0080)
+                        
+                        # set the color according to status
+                        index = conf.status_list.index(version.status)
+                        bgcolor = conf.status_bg_colors[index]
+                        fgcolor = conf.status_fg_colors[index]
+                        
+                        bg = item.background()
+                        bg.setColor(QtGui.QColor(*bgcolor))
+                        item.setBackground(bg)
+                        
+                        fg = item.foreground()
+                        fg.setColor(QtGui.QColor(*fgcolor))
+                        item.setForeground(fg)
+                        
+                        item.setBackgroundColor(QtGui.QColor(*bgcolor))
+                        
+                    else:
+                        # set the background color to black
+                        item = QtGui.QTableWidgetItem('-')
+                        item.setTextAlignment(0x0004 | 0x0080)
+                        bg = item.background()
+                        bg.setColor(QtGui.QColor(0, 0, 0))
+                        item.setBackground(bg)
+                        
+                        item.setBackgroundColor(QtGui.QColor(0, 0, 0))
+                    
+                    items.append(item)
+                    #self.assets_tableWidget.setItem(row, column, item)
+                    
+                row += 1
+        
+        self.assets_tableWidget.setRowCount(row)
+        # to reset row heights
+        self.assets_tableWidget.resizeRowsToContents()
+        
+        item_index = 0
+        for r in range(row):
+            for c in range(column + 1):
+                item = items[item_index]
+                self.assets_tableWidget.setItem(r, c, item)
+                if c==0:
+                    if item.has_thumbnail:
+                        # scale the row height
+                        self.assets_tableWidget.setRowHeight(
+                            r,
+                            conf.thumbnail_size[1] / 2
+                        )
+                
+                item_index += 1
         self.assets_tableWidget.resizeColumnsToContents()
-
+        
+        # set column width
+        self.assets_tableWidget.setColumnWidth(0, conf.thumbnail_size[0] / 2)
+    
     def fill_shots_tableWidget(self):
         """fills the shots_tableWidget
         """
+        
+        # clear the tableWidget
+        self.shots_tableWidget.clear()
+        
         shot_vtypes = db.query(VersionType)\
             .filter(VersionType.type_for=='Shot')\
             .order_by(VersionType.name)\
@@ -263,7 +349,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         
         shot_vtype_codes = map(lambda x: x.code, shot_vtypes)
         
-        labels = ['Sequence', 'Number']
+        labels = ['Thumbnail', 'Sequence', 'Number', 'Take']
         labels.extend(map(lambda x: x.code, shot_vtypes))
         
         #logger.debug('shot_tableWidget.labels: %s' % labels)
@@ -293,76 +379,148 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         # set the row count for all shots in that sequence
         self.shots_tableWidget.setRowCount(shot_count)
         
+        items = []
         row = 0
+        column = 0
         for sequence in sequences:    
             shots = db.query(Shot)\
                 .filter(Shot.sequence==sequence)\
                 .order_by(Shot.number)\
                 .all()
             
+            # sort according to numbers
+            shots.sort(key=lambda x: utils.embedded_numbers(x.number))
+            
             #logger.debug('shots of sequence %s is %s' % (sequence.name, shots))
             
             # feed the shots to the list
             
             for shot in shots:
-                # add the seq name to the first column
-                column = 0
-                item = QtGui.QTableWidgetItem(sequence.name)
-                item.setTextAlignment(0x0004 | 0x0080)
-                self.shots_tableWidget.setItem(row, column, item)
+                take_names = map(
+                    lambda x: x[0],
+                    db.query(distinct(Version.take_name))
+                        .filter(Version.version_of==shot)
+                        .all()
+                )
                 
-                # add the shot code to the second column
-                column += 1
-                item = QtGui.QTableWidgetItem(shot.code)
-                item.setTextAlignment(0x0004 | 0x0080)
-                self.shots_tableWidget.setItem(row, column, item)
+                if not len(take_names):
+                    take_names = ['-']
                 
-                for type_code in shot_vtype_codes:
-                    column += 1
-                    # just consider the MAIN take
-                    
-                    # get the latest version of that type and take
-                    version = db.query(Version)\
-                        .join(VersionType)\
-                        .filter(Version.version_of==shot)\
-                        .filter(Version.type_id==VersionType.id)\
-                        .filter(VersionType.code==type_code)\
-                        .filter(Version.take_name==conf.default_take_name)\
-                        .order_by(Version.version_number.desc())\
-                        .first()
-                    
-                    if version:
-                        status = version.status
-                        # mark the status of that type in that take
-                        item = QtGui.QTableWidgetItem(version.status)
-                        item.setTextAlignment(0x0004 | 0x0080)
-                        
-                        # set the color according to status
-                        index = conf.status_list.index(version.status)
-                        bgcolor = conf.status_bg_colors[index]
-                        fgcolor = conf.status_fg_colors[index]
-                        
-                        bg = item.background()
-                        bg.setColor(QtGui.QColor(*bgcolor))
-                        item.setBackground(bg)
-                        
-                        fg = item.foreground()
-                        fg.setColor(QtGui.QColor(*fgcolor))
-                        item.setForeground(fg)
-                        
-                        item.setBackgroundColor(QtGui.QColor(*bgcolor))
-                        
+                for take_name in take_names:
+                    # add the seq name to the first column
+                    column = 0
+                    item = QtGui.QTableWidgetItem()
+                    item.setTextAlignment(0x0004 | 0x0080)
+                    #set the thumbnail
+                    if shot.thumbnail:
+                        thumbnail_full_path = os.path.expandvars(
+                            os.path.join(
+                                "$" + conf.repository_env_key,
+                                shot.thumbnail
+                            )
+                        )
+                        pixmap = QtGui.QPixmap(thumbnail_full_path)
+                        pixmap = pixmap.scaled(
+                            conf.thumbnail_size[0] / 2,
+                            conf.thumbnail_size[1] / 2,
+                            QtCore.Qt.KeepAspectRatio,
+                            QtCore.Qt.SmoothTransformation
+                        )
+                        brush = QtGui.QBrush(pixmap)
+                        item.has_thumbnail = True
+                        item.setBackground(brush)
                     else:
-                        # set the background color to black
-                        item = QtGui.QTableWidgetItem('N/A')
-                        bg = item.background()
-                        bg.setColor(QtGui.QColor(0, 0, 0))
-                        item.setBackground(bg)
-                        
-                        item.setBackgroundColor(QtGui.QColor(0, 0, 0))
+                        item.has_thumbnail = False
+                    items.append(item)
                     
-                    self.shots_tableWidget.setItem(row, column, item)
+                    column = 1
+                    item = QtGui.QTableWidgetItem(sequence.name)
+                    item.setTextAlignment(0x0004 | 0x0080)
+                    #self.shots_tableWidget.setItem(row, column, item)
+                    items.append(item)
+                    
+                    # add the shot code to the second column
+                    column = 2
+                    item = QtGui.QTableWidgetItem(shot.code)
+                    item.setTextAlignment(0x0004 | 0x0080)
+                    #self.shots_tableWidget.setItem(row, column, item)
+                    items.append(item)
+                    
+                    # add the take name to the third column
+                    column = 3
+                    item = QtGui.QTableWidgetItem(take_name)
+                    item.setTextAlignment(0x0004 | 0x0080)
+                    #self.assets_tableWidget.setItem(row, column, item)
+                    items.append(item)
                 
-                row += 1
-
+                    for type_code in shot_vtype_codes:
+                        column += 1
+                        
+                        # get the latest version of that type and take
+                        version = db.query(Version)\
+                            .join(VersionType)\
+                            .filter(Version.version_of==shot)\
+                            .filter(Version.type_id==VersionType.id)\
+                            .filter(VersionType.code==type_code)\
+                            .filter(Version.take_name==take_name)\
+                            .order_by(Version.version_number.desc())\
+                            .first()
+                        
+                        if version:
+                            status = version.status
+                            # mark the status of that type in that take
+                            item = QtGui.QTableWidgetItem(version.status)
+                            item.setTextAlignment(0x0004 | 0x0080)
+                            
+                            # set the color according to status
+                            index = conf.status_list.index(version.status)
+                            bgcolor = conf.status_bg_colors[index]
+                            fgcolor = conf.status_fg_colors[index]
+                            
+                            bg = item.background()
+                            bg.setColor(QtGui.QColor(*bgcolor))
+                            item.setBackground(bg)
+                            
+                            fg = item.foreground()
+                            fg.setColor(QtGui.QColor(*fgcolor))
+                            item.setForeground(fg)
+                            
+                            item.setBackgroundColor(QtGui.QColor(*bgcolor))
+                            
+                        else:
+                            # set the background color to black
+                            item = QtGui.QTableWidgetItem('-')
+                            item.setTextAlignment(0x0004 | 0x0080)
+                            bg = item.background()
+                            bg.setColor(QtGui.QColor(0, 0, 0))
+                            item.setBackground(bg)
+                            
+                            item.setBackgroundColor(QtGui.QColor(0, 0, 0))
+                        
+                        #self.shots_tableWidget.setItem(row, column, item)
+                        items.append(item)
+                    
+                    row += 1
+        
+        self.shots_tableWidget.setRowCount(row)
+        # to reset row heights
+        self.shots_tableWidget.resizeRowsToContents()
+        
+        item_index = 0
+        for r in range(row):
+            for c in range(column + 1):
+                item = items[item_index]
+                self.shots_tableWidget.setItem(r, c, item)
+                if c==0:
+                    if item.has_thumbnail:
+                        # scale the row height
+                        self.shots_tableWidget.setRowHeight(
+                            r,
+                            conf.thumbnail_size[1] / 2
+                        )
+                item_index += 1
+        
         self.shots_tableWidget.resizeColumnsToContents()
+        
+        # set the column width
+        self.shots_tableWidget.setColumnWidth(0, conf.thumbnail_size[0] / 2)

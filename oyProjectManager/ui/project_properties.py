@@ -6,8 +6,10 @@
 
 import os
 import logging
+from sqlalchemy.sql.expression import distinct
 from oyProjectManager import conf
-from oyProjectManager.core.models import Project
+from oyProjectManager.core.models import Project, Client
+from oyProjectManager import db
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +44,9 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         super(MainDialog, self).__init__(parent)
         self.setupUi(self)
         
+        if db.session is None:
+            db.setup()
+        
         self.resolution_presets = conf.resolution_presets
         self.project = project
         
@@ -74,7 +79,7 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
             conf.default_resolution_preset
         )
         self.resolution_comboBox.setCurrentIndex(index)
-
+    
     def _setup_defaults(self):
         """sets up the default values
         """
@@ -83,7 +88,15 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
             sorted(conf.resolution_presets.keys())
         )
         self.set_resolution_to_default()
-
+        
+        # clients
+        clients = map(
+            lambda x: x.name,
+            db.query(Client).order_by(Client.name.asc()).all()
+        )
+        self.clients_comboBox.clear()
+        self.clients_comboBox.addItems(clients)
+        
         # set the fps to conf.default_fps
         self.fps_spinBox.setValue(conf.default_fps)
         
@@ -117,6 +130,12 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         
         self.name_lineEdit.setText(project.name)
         self.code_lineEdit.setText(project.code)
+        
+        if project.client:
+            index = self.clients_comboBox.findText(project.client.name)
+            if index != -1:
+                self.clients_comboBox.setCurrentIndex(index)
+        
         self.fps_spinBox.setValue(project.fps)
         self.active_checkBox.setChecked(project.active)
         
@@ -148,7 +167,6 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
             self.resolution_comboBox.setCurrentIndex(
                 self.resolution_comboBox.count()-1
             )
-        
     
     def button_box_ok_clicked(self):
         """runs when the ok button clicked
@@ -160,6 +178,13 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         # get the data from the input fields
         name = self.name_lineEdit.text()
         code = self.code_lineEdit.text()
+        client_name = self.clients_comboBox.currentText()
+        client = db.query(Client).filter(Client.name==client_name).first()
+        if not client:
+            # just create the client
+            client = Client(name=client_name)
+            client.save()
+        
         resolution_name = self.resolution_comboBox.currentText()
         resolution_data = conf.resolution_presets[resolution_name]
         fps = self.fps_spinBox.value()
@@ -188,6 +213,7 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
            
         # update the project
         self.project.name = name
+        self.project.client = client
         self.project.fps = fps
         self.project.width = resolution_data[0]
         self.project.height = resolution_data[1]

@@ -2742,7 +2742,7 @@ class VersionCreatorTester(unittest.TestCase):
         
         return pixmap
     
-    def test_status_comboBox_is_filled_with_status_list(self):
+    def test_statuses_comboBox_is_filled_with_status_list(self):
         """testing if the status_comboBox is filled with default statuses
         """
         dialog = version_creator.MainDialog()
@@ -2818,6 +2818,103 @@ class VersionCreatorTester(unittest.TestCase):
         
         #dialog = version_creator.MainDialog()
         #self.show_dialog(dialog)
+    
+    def test_statuses_comboBox_is_restored_with_the_most_recent_versions_status(self):
+        """testing if the statuses_comboBox is  restored with the most recent
+        versions status
+        """
+        
+        db.setup()
+        
+        user = db.query(User).first()
+        
+        proj1 = Project('Test_Project')
+        proj1.save()
+        
+        avtypes = db.query(VersionType)\
+            .filter(VersionType.type_for=='Asset')\
+            .all()
+        
+        asset1 = Asset(proj1, 'Test Asset 1', type='Character')
+        asset1.save()
+        
+        asset2 = Asset(proj1, 'Test Asset 2', type='Environment')
+        asset2.save()
+        
+        # create a couple of versions
+        
+        # for asset1
+        vers_kwargs = {
+            'version_of': asset1,
+            'base_name': asset1.code,
+            'type': avtypes[0],
+            'created_by': user,
+            'status': 'WIP'
+        }
+        
+        vers1 = Version(**vers_kwargs)
+        vers1.save()
+        
+        vers_kwargs['status'] = 'REV'
+        vers2 = Version(**vers_kwargs)
+        vers2.save()
+        
+        # for asset2
+        vers_kwargs = {
+            'version_of': asset2,
+            'base_name': asset2.code,
+            'type': avtypes[1],
+            'created_by': user,
+            'status': 'CMP'
+        }
+        
+        vers3 = Version(**vers_kwargs)
+        vers3.save()
+        
+        vers_kwargs['status'] = 'APP'
+        vers4 = Version(**vers_kwargs)
+        vers4.save()
+        
+        # now bring up the UI
+        dialog = version_creator.MainDialog()
+        
+        # select the asset1
+        dialog.tabWidget.setCurrentIndex(0)
+        item = dialog.assets_tableWidget.findItems(
+            asset1.name,
+            QtCore.Qt.MatchExactly
+        )[0]
+        dialog.assets_tableWidget.setCurrentItem(item)
+        
+        # and test if the statuses_comboBox is set to the last status of the
+        # version
+        
+        index = conf.status_list.index(vers2.status)
+        long_name = conf.status_list_long_names[index]
+        
+        self.assertEqual(
+            long_name,
+            dialog.statuses_comboBox.currentText()
+        )
+        
+        # now set it to asset 2
+        item = dialog.assets_tableWidget.findItems(
+            asset2.name,
+            QtCore.Qt.MatchExactly
+        )[0]
+        dialog.assets_tableWidget.setCurrentItem(item)
+        
+        # and test if the statuses_comboBox is set to the last status of the
+        # version
+        index = conf.status_list.index(vers4.status)
+        long_name = conf.status_list_long_names[index]
+        
+        self.assertEqual(
+            long_name,
+            dialog.statuses_comboBox.currentText()
+        )
+        
+        self.show_dialog(dialog)
 
 class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     """tests the interaction of the UI with the given environment

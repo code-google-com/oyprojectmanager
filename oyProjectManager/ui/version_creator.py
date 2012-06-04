@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import distinct
 
 
-from oyProjectManager import config, db
+from oyProjectManager import config, db, utils
 from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
                                           Version, VersionType, Shot, User,
                                           VersionTypeEnvironments)
@@ -587,7 +587,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             )
             self.shots_listWidget.setCurrentItem(items[0])
         
-        
         # version_type name
         type_name = version.type.name
         items = self.version_types_listWidget.findItems(
@@ -606,7 +605,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             QtCore.Qt.MatchExactly
         )
         self.takes_listWidget.setCurrentItem(items[0])
-    
+   
     def project_changed(self):
         """updates the assets list_widget and sequences_comboBox for the 
         """
@@ -737,6 +736,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # update the shots_listWidget
         shots = db.query(Shot).filter(Shot.sequence==seq).all()
+        shots.sort(key=lambda x: utils.embedded_numbers(x.number))
         
         # add their names to the list
         self.shots_listWidget.clear()
@@ -917,10 +917,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         takes = map(
             lambda x: x[0],
             db.query(distinct(Version.take_name))
-            .join(VersionType)
-            .filter(VersionType.name==version_type_name)
-            .filter(Version.version_of==versionable)
-            .all()
+                .join(VersionType)
+                .filter(VersionType.name==version_type_name)
+                .filter(Version.version_of==versionable)
+                .all()
         )
         
         self.takes_listWidget.clear()
@@ -943,12 +943,49 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """runs when the takes_listWidget has changed
         """
         
-        # just update the previous_versions_tableWidget
+        # update the previous_versions_tableWidget
         self.update_previous_versions_tableWidget()
+        
+        # update the statuses_comboBox
+        versionable = self.get_versionable()
+        
+        # version type name
+        version_type_name = ""
+        item = self.version_types_listWidget.currentItem()
+        if item:
+            version_type_name = item.text()
+        
+        # take name
+        take_name = ""
+        item = self.takes_listWidget.currentItem()
+        if item:
+            take_name = item.text()
+        
+        # query the Versions of this type and take
+        query = db.query(Version).join(VersionType)\
+            .filter(VersionType.name==version_type_name)\
+            .filter(Version.version_of==versionable)\
+            .filter(Version.take_name==take_name)
+        
+        ## get the published only
+        #if self.show_published_only_checkBox.isChecked():
+        #    query = query.filter(Version.is_published==True)
+        
+        version = query.order_by(Version.version_number.desc()).first()
+        
+        if version:
+            status_index = conf.status_list.index(version.status)
+            status_long_name = conf.status_list_long_names[status_index]
+            index = self.statuses_comboBox.findText(status_long_name)
+            if index != -1:
+                self.statuses_comboBox.setCurrentIndex(index)
+ 
+        
     
     def update_previous_versions_tableWidget(self):
         """updates the previous_versions_tableWidget
         """
+        
         versionable = self.get_versionable()
         
         # version type name

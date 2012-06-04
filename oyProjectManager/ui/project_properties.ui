@@ -26,15 +26,25 @@
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <layout class="QGridLayout" name="gridLayout">
+         <item row="4" column="2">
+          <widget class="QSpinBox" name="fps_spinBox"/>
+         </item>
+         <item row="5" column="2">
+          <widget class="QCheckBox" name="active_checkBox">
+           <property name="text">
+            <string>Active</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="name_lineEdit"/>
+         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="name_label">
            <property name="text">
             <string>Name</string>
            </property>
           </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="name_lineEdit"/>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="code_label">
@@ -43,33 +53,37 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="1" column="2">
           <widget class="QLineEdit" name="code_lineEdit"/>
          </item>
-         <item row="2" column="0">
+         <item row="3" column="0">
           <widget class="QLabel" name="resolution_label">
            <property name="text">
             <string>Resolution</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="3" column="2">
           <widget class="QComboBox" name="resolution_comboBox"/>
          </item>
-         <item row="3" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="fps_label">
            <property name="text">
             <string>Fps</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="fps_spinBox"/>
-         </item>
-         <item row="4" column="1">
-          <widget class="QCheckBox" name="active_checkBox">
+         <item row="2" column="0">
+          <widget class="QLabel" name="label">
            <property name="text">
-            <string>Active</string>
+            <string>Client</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QComboBox" name="clients_comboBox">
+           <property name="editable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

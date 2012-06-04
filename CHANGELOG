@@ -14,12 +14,8 @@ Version History
   :class:`~oyProjectManager.core.models.Asset` or
   :class:`~oyProjectManager.core.models.Shot` version.
 
-* Added a new UI called ``status_manager``\ . It is for viewing statuses of the
-  Assets and Shots but because ``Take``\ s make the data 3 dimensional
-  (Versionable/Type/Take) to be able to view the data in 2d (the ui itself)
-  the only the `MAIN` take is considered. So if you have more than one take for
-  let say an asset, only the status of the `MAIN` take will be visible through
-  the UI.
+* Added a new UI called ``status_manager`` for viewing the Assets and Shots
+  statuses.
 
 * Added a new column to the ``version_creator`` UI which shows the status of
   the saved version.
@@ -30,6 +26,9 @@ Version History
 * Added a new attribute :attr:`~oyProjectManager.core.models.Project.client` to
   the :class:`~oyProjectManager.core.models.Project` class to manage
   :class:`~oyProjectManager.core.models.Client`\ s.
+
+* Updated ``version_creator`` UI, it now shows the Shots in correct numerical
+  order.
 
 0.2.3
 -----

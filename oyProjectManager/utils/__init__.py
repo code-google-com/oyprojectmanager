@@ -117,16 +117,15 @@ def mkdir(path):
     except OSError:
         pass
 
+def embedded_numbers(s):
+    re_digits = re.compile(r'(\d+)')
+    pieces = re_digits.split(str(s))
+    pieces[1::2] = map(int, pieces[1::2])
+    return pieces
+ 
 def sort_string_numbers(str_list):
     """sorts strings with embedded numbers
     """
-    
-    def embedded_numbers(s):
-        re_digits = re.compile(r'(\d+)')
-        pieces = re_digits.split(str(s))
-        pieces[1::2] = map(int, pieces[1::2])
-        return pieces
-    
     return sorted(str_list, key=embedded_numbers)
 
 def unique(s):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/status_manager.ui'
 #
-# Created: Thu May 31 18:19:35 2012
+# Created: Mon Jun  4 12:32:01 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(749, 701)
+        Dialog.resize(1081, 701)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.horizontalLayout = QtGui.QHBoxLayout()
@@ -31,10 +31,6 @@ class Ui_Dialog(object):
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.label_4 = QtGui.QLabel(Dialog)
-        self.label_4.setStyleSheet(_fromUtf8("color: red;"))
-        self.label_4.setObjectName(_fromUtf8("label_4"))
-        self.verticalLayout.addWidget(self.label_4)
         self.tabWidget = QtGui.QTabWidget(Dialog)
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.assets_tab = QtGui.QWidget()
@@ -86,7 +82,6 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Project", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("Dialog", "Warning!!!: This ui considers only the \'MAIN\' take of the Versions", None, QtGui.QApplication.UnicodeUTF8))
         item = self.assets_tableWidget.horizontalHeaderItem(0)
         item.setText(QtGui.QApplication.translate("Dialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
         item = self.assets_tableWidget.horizontalHeaderItem(1)

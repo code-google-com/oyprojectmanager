@@ -567,6 +567,7 @@ class Project(Base):
         # create the database
         if db.session is None:
             logger.debug("there is no session, creating a new one")
+            db.setup()
         
         if self not in db.session:
             db.session.add(self)
@@ -1016,7 +1017,7 @@ class VersionableBase(Base):
         It is a read-only attribute
         """
         return self._project
-
+    
     @validates("description")
     def _validate_description(self, key, description):
         """validates the given description value
@@ -2872,14 +2873,17 @@ class Client(Base):
     
     id = Column(Integer, primary_key=True)
     
-    name = Column(String(256))
-    code = Column(String(256))
+    name = Column(String(256), unique=True)
+    code = Column(String(256), unique=True)
     generic_info = Column(String)
     
     def __init__(self, name, code=None, generic_info=""):
         self.name = name
         self.code = code
         self.generic_info = generic_info
+    
+    def __repr__(self):
+        return "<Client : %s (%s)>" % (self.name, self.code)
     
     @validates('name')
     def _validate_name(self, key, name):

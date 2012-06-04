@@ -22,7 +22,7 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtTest import QTest
 
 from oyProjectManager import conf, db
-from oyProjectManager.core.models import Project
+from oyProjectManager.core.models import Project, Client
 from oyProjectManager.ui import project_properties
 
 logger = logging.getLogger("oyProjectManager.ui.project_properties")
@@ -75,6 +75,18 @@ class ProjectPropertiesTester(unittest.TestCase):
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
     
+    def show_dialog(self, dialog):
+        """shows the given dialog
+        """
+        dialog.show()
+        self.app.exec_()
+        self.app.connect(
+            self.app,
+            QtCore.SIGNAL("lastWindowClosed()"),
+            self.app,
+            QtCore.SLOT("quit()")
+        )
+    
     def test_resolution_comboBox_is_filled_with_resolutions_from_the_config(self):
         """testing if the resolution_comboBox is filled with predefined values
         from the oyProjectManager.conf
@@ -90,13 +102,17 @@ class ProjectPropertiesTester(unittest.TestCase):
         
         for preset in resolutions_from_conf:
             self.assertTrue(preset in resolutions_from_ui)
-
+    
     def test_passing_a_Project_instance_will_fill_the_interface_with_the_project(self):
         """testing if passing a Project instance will fill the interface with
         the data coming from the given Project instance
         """
-
+        
+        new_client = Client(name='Client Agency 1', code='CA1')
+        new_client.save()
+        
         new_project = Project("Test Project")
+        new_project.client = new_client
         new_project.width = 720
         new_project.height = 576
         new_project.pixel_aspect = 1.067
@@ -104,15 +120,7 @@ class ProjectPropertiesTester(unittest.TestCase):
         new_project.active = True
 
         dialog = project_properties.MainDialog(project=new_project)
-        #dialog.show()
-        #self.app.exec_()
-        #self.app.connect(
-        #    self.app,
-        #    QtCore.SIGNAL("lastWindowClosed()"),
-        #    self.app,
-        #    QtCore.SLOT("quit()")
-        #)
-        
+       
         # now check if the interface is filled properly
         self.assertEqual(
             dialog.name_lineEdit.text(), new_project.name
@@ -188,16 +196,21 @@ class ProjectPropertiesTester(unittest.TestCase):
         """testing if a Project instance is passed the interface will allow the
         given Project instance to be edited
         """
-
+        
+        new_client = Client(name='Test Client 1')
+        new_client.save()
+        
         new_project = Project("Test Project")
         new_project.create()
-
+        
         dialog = project_properties.MainDialog(project=new_project)
-
+        
         # now edit the project from the UI
         new_name = "Test Project New Name"
         new_fps = 50
         dialog.name_lineEdit.setText(new_name)
+        new_client_2_name = 'Test Client 2'
+        dialog.clients_comboBox.lineEdit().setText(new_client_2_name)
         dialog.fps_spinBox.setValue(new_fps)
         dialog.resolution_comboBox.setCurrentIndex(3)
         preset_name = dialog.resolution_comboBox.currentText()
@@ -212,12 +225,18 @@ class ProjectPropertiesTester(unittest.TestCase):
         new_structure = "This is the new structure\nwith three lines\n" + \
                         "and this is the third line"
         dialog.structure_textEdit.setText(new_structure)
-
+        
         # hit ok
         QTest.mouseClick(dialog.buttonBox.buttons()[0], Qt.LeftButton)
 
         # now check the data
         self.assertEqual(new_project.name, new_name)
+        self.assertEqual(new_project.client.name, new_client_2_name)
+        # check if a client is created with that name
+        
+        new_client_2 = db.query(Client).filter(Client.name==new_client_2_name).first()
+        self.assertIsInstance(new_client_2, Client)
+        
         self.assertEqual(new_project.fps, new_fps)
         self.assertEqual(new_project.width, resolution_data[0])
         self.assertEqual(new_project.height, resolution_data[1])
@@ -242,6 +261,8 @@ class ProjectPropertiesTester(unittest.TestCase):
         new_name = "Test Project New Name"
         new_fps = 50
         dialog.name_lineEdit.setText(new_name)
+        new_client_name = 'Test Client 1'
+        dialog.clients_comboBox.lineEdit().setText(new_client_name)
         dialog.fps_spinBox.setValue(new_fps)
         dialog.resolution_comboBox.setCurrentIndex(3)
         preset_name = dialog.resolution_comboBox.currentText()
@@ -256,6 +277,7 @@ class ProjectPropertiesTester(unittest.TestCase):
         
         # now check the data
         self.assertEqual(new_project.name, new_name)
+        self.assertEqual(new_project.client.name, new_client_name)
         self.assertEqual(new_project.fps, new_fps)
         self.assertEqual(new_project.width, resolution_data[0])
         self.assertEqual(new_project.height, resolution_data[1])
@@ -366,4 +388,3 @@ class ProjectPropertiesTester(unittest.TestCase):
         """
         dialog = project_properties.MainDialog()
         self.assertTrue(dialog.tabWidget.currentIndex()==0)
-    

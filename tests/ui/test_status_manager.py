@@ -113,22 +113,32 @@ class StatusViewerTester(unittest.TestCase):
         
         self.assertEqual(
             dialog.assets_tableWidget.horizontalHeaderItem(0).text(),
-            'Type'
+            'Thumbnail'
         )
         
         self.assertEqual(
             dialog.assets_tableWidget.horizontalHeaderItem(1).text(),
+            'Type'
+        )
+        
+        self.assertEqual(
+            dialog.assets_tableWidget.horizontalHeaderItem(2).text(),
             'Name'
         )
         
         self.assertEqual(
+            dialog.assets_tableWidget.horizontalHeaderItem(3).text(),
+            'Take'
+        )
+        
+        self.assertEqual(
             dialog.assets_tableWidget.columnCount(),
-            len(asset_vtypes) + 2
+            len(asset_vtypes) + 4
         )
         
         for i, vtype in enumerate(asset_vtypes):
             self.assertEqual(
-                dialog.assets_tableWidget.horizontalHeaderItem(i+2).text(),
+                dialog.assets_tableWidget.horizontalHeaderItem(i + 4).text(),
                 vtype.code
             )
     
@@ -199,6 +209,7 @@ class StatusViewerTester(unittest.TestCase):
             type=asset_vtypes[3],
             created_by=admin,
             status=conf.status_list[3],
+            take_name='Test_A'
         )
         version4.save()
         
@@ -208,6 +219,7 @@ class StatusViewerTester(unittest.TestCase):
             type=asset_vtypes[4],
             created_by=admin,
             status=conf.status_list[4],
+            take_name='Test_A'
         )
         version5.save()
         
@@ -217,6 +229,7 @@ class StatusViewerTester(unittest.TestCase):
             type=asset_vtypes[5],
             created_by=admin,
             status=conf.status_list[4],
+            take_name='Test_B'
         )
         version6.save()
         
@@ -225,7 +238,8 @@ class StatusViewerTester(unittest.TestCase):
             base_name=asset1.code,
             type=asset_vtypes[5],
             created_by=admin,
-            status=conf.status_list[4]
+            status=conf.status_list[4],
+            take_name='Test_B'
         )
         version7.save()
            
@@ -234,10 +248,64 @@ class StatusViewerTester(unittest.TestCase):
         
         # start tests
         
+        # What we should see shoul be:
+        # 
+        # +-----------+-------------+--------------+--------+---------------------+
+        # | Thumbnail | Type        |     Name     |  Take  | Asset Version Types |
+        # +===========+==============+========+=====================+
+        # |  (IMAGE)  | Char        | Test Asset 1 |  MAIN  | ******************* |
+        # +-----------+--------------+--------+---------------------+
+        # |  (IMAGE)  | Char        | Test Asset 1 | Test_A | ******************* |
+        # +-----------+-------------+--------------+--------+---------------------+
+        # |  (IMAGE)  | Char        | Test Asset 1 | Test_B | ******************* |
+        # +-----------+-------------+--------------+--------+---------------------+
+        # |  (IMAGE)  | Environment | Test Asset 3 |  ----  | ******************* |
+        # +-----------+-------------+--------------+--------+---------------------+
+        # |  (IMAGE)  | Prop        | Test Asset 2 |  ----  | ******************* |
+        # +-----------+-------------+--------------+--------+---------------------+
+        # |  (IMAGE)  | Prop        | Test Asset 4 |  ----  | ******************* |
+        # +-----------+-------------+--------------+--------+---------------------+
+        #
+        
         # set the project to project1
         dialog.projects_comboBox.setCurrentIndex(0)
         
         # asset1's vtypes[0] vtypes[1] vtypes[2] vtypes[3]
+        # set to assets
+        dialog.tabWidget.setCurrentIndex(0)
+        self.show_dialog(dialog)
+        
+        
+        # expect to see 6 rows
+        self.assertEqual(6, dialog.assets_tableWidget.rowCount())
+        
+        # expect the assets types listed in the first column
+        # first three should be Char
+        dialog.assets_tableWidget.setCurrentCell(0, 0)
+        self.assertEqual('Char', dialog.assets_tableWidget.currentItem().text())
+        dialog.assets_tableWidget.setCurrentCell(1, 0)
+        self.assertEqual('Char', dialog.assets_tableWidget.currentItem().text())
+        dialog.assets_tableWidget.setCurrentCell(2, 0)
+        self.assertEqual('Char', dialog.assets_tableWidget.currentItem().text())
+        
+        # next should be Environment
+        dialog.assets_tableWidget.setCurrentCell(3, 0)
+        self.assertEqual(
+            'Environment',
+            dialog.assets_tableWidget.currentItem().text()
+        )
+        
+        # the next two should be Prop
+        dialog.assets_tableWidget.setCurrentCell(4, 0)
+        self.assertEqual(
+            'Prop',
+            dialog.assets_tableWidget.currentItem().text()
+        )
+        dialog.assets_tableWidget.setCurrentCell(5, 0)
+        self.assertEqual(
+            'Prop',
+            dialog.assets_tableWidget.currentItem().text()
+        )
         
         
     def test_shots_tableWidget_is_filled_with_Shot_data(self):
@@ -385,11 +453,14 @@ class StatusViewerTester(unittest.TestCase):
         version8.save()
         
         dialog = status_manager.MainDialog()
-#        self.show_dialog(dialog)      
+#        self.show_dialog(dialog)
         
         # start tests
         
         # set the project to project1
         dialog.projects_comboBox.setCurrentIndex(0)
         
+        self.show_dialog(dialog)
+        
         # asset1's vtypes[0] vtypes[1] vtypes[2] vtypes[3]
+        self.fail('test is not finished yet!')

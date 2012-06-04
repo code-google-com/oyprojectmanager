@@ -222,7 +222,7 @@ class Config(object):
         
         default_fps = 25,
         
-        default_asset_type_name = "Default",
+        default_asset_type_name = "Generic",
         default_take_name = "MAIN",
         
         users_data = [{"name": "Administrator", "initials": "adm"}],
@@ -324,6 +324,8 @@ class Config(object):
         
         thumbnail_format = "JPG",
         thumbnail_quality = 70,
+        thumbnail_size = [320, 180],
+        
         
         version_types = [
             {

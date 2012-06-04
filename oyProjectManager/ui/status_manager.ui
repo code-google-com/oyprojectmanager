@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>749</width>
+    <width>1081</width>
     <height>701</height>
    </rect>
   </property>
@@ -40,16 +40,6 @@
       </spacer>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_4">
-     <property name="styleSheet">
-      <string notr="true">color: red;</string>
-     </property>
-     <property name="text">
-      <string>Warning!!!: This ui considers only the 'MAIN' take of the Versions</string>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QTabWidget" name="tabWidget">
