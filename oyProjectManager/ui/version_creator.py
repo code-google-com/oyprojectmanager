@@ -470,38 +470,41 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         global_position = \
             self.previous_versions_tableWidget.mapToGlobal(position)
         
-        # create the menu
-        previous_tableWidget_menu = QtGui.QMenu()
-        previous_tableWidget_menu.addAction("Publish")
-        previous_tableWidget_menu.addSeparator()
-        
         item = self.previous_versions_tableWidget.itemAt(position)
         index = item.row()
         version = self.previous_versions_tableWidget.versions[index]
         
+        # create the menu
+        menu = QtGui.QMenu()
+        
+        #if not version.is_published:
+        #    previous_versions_tableWidget_menu.addAction("Publish")
+        
+        #previous_versions_tableWidget_menu.addSeparator()
+        
         # add statuses
         for status in conf.status_list_long_names:
-            new_action = QtGui.QAction(status)
+            action = QtGui.QAction(status, menu)
+            action.setCheckable(True)
             # set it checked if the status of the version is the current status
             if version.status == status:
-                new_action.setChecked(True)
+                action.setChecked(True)
             
-            previous_tableWidget_menu.addAction(new_action)
+            menu.addAction(action)
         
-        selected_item = previous_tableWidget_menu.exec_(global_position)
+        selected_item = menu.exec_(global_position)
         
         if selected_item:
-            # something is chosen
-            if selected_item.text() == "Publish":
-                # publish the selected version
-                if version:
-                    # publish it
-                    if not version.is_published:
-                        version.is_published = True
-                        version.save()
-                        # refresh the tableWidget
-                        self.update_previous_versions_tableWidget()
-                        return
+            #if selected_item.text() == "Publish":
+            #    # publish the selected version
+            #    if version:
+            #        # publish it
+            #        if not version.is_published:
+            #            version.is_published = True
+            #            version.save()
+            #            # refresh the tableWidget
+            #            self.update_previous_versions_tableWidget()
+            #            return
             
             if selected_item.text() in conf.status_list_long_names:
                 # change the status of the version

@@ -1589,5 +1589,11 @@ class VersionTester(unittest.TestCase):
         new_version = Version(**self.kwargs)
         logger.debug(new_version.status)
         self.assertIsInstance(new_version.status, str)
-        str.
-        
+    
+    def test_status_attribute_is_working_properly(self):
+        """testing if the status attribute is working properly
+        """
+        new_version = Version(**self.kwargs)
+        new_version.status = conf.status_list_long_names[2]
+        self.assertEqual(conf.status_list_long_names[2], new_version.status)
+        self.assertEqual(conf.status_list[2], new_version.status)

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/status_manager.ui'
 #
-# Created: Tue Jun  5 02:32:23 2012
+# Created: Tue Jun  5 15:16:28 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -38,6 +38,7 @@ class Ui_Dialog(object):
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.assets_tableWidget = QtGui.QTableWidget(self.assets_tab)
         self.assets_tableWidget.setAutoFillBackground(True)
+        self.assets_tableWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.assets_tableWidget.setObjectName("assets_tableWidget")
         self.assets_tableWidget.setColumnCount(2)
         self.assets_tableWidget.setRowCount(0)
@@ -53,6 +54,7 @@ class Ui_Dialog(object):
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.shots_tab)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.shots_tableWidget = QtGui.QTableWidget(self.shots_tab)
+        self.shots_tableWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.shots_tableWidget.setObjectName("shots_tableWidget")
         self.shots_tableWidget.setColumnCount(2)
         self.shots_tableWidget.setRowCount(0)

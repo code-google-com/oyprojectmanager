@@ -567,7 +567,6 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         """the custom context menu for the assets_tableWidget
         """
         
-        # TODO: add Publish to the list
         # TODO: just try to update the color and the text of the item instead of updating all the table
         #       may be defining another method for setting the item color
         #       according to the given status will both reduce the code
@@ -577,57 +576,61 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         global_position = self.assets_tableWidget.mapToGlobal(position)
         
         # create the menu
-        self.assets_tableWidget_menu = QtGui.QMenu()
+        menu = QtGui.QMenu()
         
-        for status_name in conf.status_list_long_names:
-            self.assets_tableWidget_menu.addAction(status_name)
+        # get the version
+        item = self.assets_tableWidget.itemAt(position)
+        version = None
+        if hasattr(item, 'version'):
+            version = item.version
         
-        selected_item = self.assets_tableWidget_menu.exec_(global_position)
-        
-        if selected_item:
-            # something is chosen
-            # find the item under mouse
-            item = self.assets_tableWidget.itemAt(position)
-            if item.version:
+        if version:
+            for status in conf.status_list_long_names:
+                action = QtGui.QAction(status, menu)
+                action.setCheckable(True)
+                if version.status == status:
+                    action.setChecked(True)
+                menu.addAction(action)
+                
+            selected_item = menu.exec_(global_position)
+            
+            if selected_item:
                 # set the version status to the chosen status
-                status_index = conf.status_list_long_names.index(
-                    selected_item.text()
-                )
-                status = conf.status_list[status_index]
-                item.version.status = status
-                item.version.save()
+                version.status = selected_item.text()
+                version.save()
                 
                 # request an update to the list
                 self.tabWidget_changed()
-    
+   
     def _show_shots_tableWidget_context_menu(self, position):
         """the custom context menu for the shots_tableWidget
         """
-        
         # convert the position to global screen position
         global_position = self.shots_tableWidget.mapToGlobal(position)
         
         # create the menu
-        self.shots_tableWidget_menu = QtGui.QMenu()
+        menu = QtGui.QMenu()
         
-        for status_name in conf.status_list_long_names:
-            self.shots_tableWidget_menu.addAction(status_name)
+        # get the version
+        item = self.shots_tableWidget.itemAt(position)
+        version = None
+        if hasattr(item, 'version'):
+            version = item.version
         
-        selected_item = self.shots_tableWidget_menu.exec_(global_position)
-        
-        if selected_item:
-            # something is chosen
-            # find the item under mouse
-            item = self.shots_tableWidget.itemAt(position)
-            if item.version:
+        if version:
+            for status in conf.status_list_long_names:
+                action = QtGui.QAction(status, menu)
+                action.setCheckable(True)
+                if version.status == status:
+                    action.setChecked(True)
+                menu.addAction(action)
+            
+            selected_item = menu.exec_(global_position)
+            
+            if selected_item:
                 # set the version status to the chosen status
-                status_index = conf.status_list_long_names.index(
-                    selected_item.text()
-                )
-                status = conf.status_list[status_index]
-                item.version.status = status
-                item.version.save()
+                version.status = selected_item.text()
+                version.save()
                 
                 # request an update to the list
                 self.tabWidget_changed()
- 

@@ -1570,30 +1570,46 @@ class Asset(VersionableBase):
         type = type[0].upper() + type[1:]
         return type
 
-class VersionStatusComparator(Comparator):
+class VersionStatusComparator(str, Comparator):
     """The comparator class for Version.status
     """
     
-    def __init__(self, status):
+    def __new__(cls, status):
+        
         if isinstance(status, VersionStatusComparator):
-            self.status = status.status
+            status = status.status
         elif isinstance(status, basestring):
             status_list_long_names = conf.status_list_long_names
             if status in status_list_long_names:
                 index = status_list_long_names.index(status)
                 status = conf.status_list[index]
-            self.status = status
+            status = status   
+        
+        obj = str.__new__(cls, status)
+        obj.status = status
+        return obj
     
-    def operate(self, op, other):
+    #def __init__(self, status):
+    #    if isinstance(status, VersionStatusComparator):
+    #        self.status = status.status
+    #    elif isinstance(status, basestring):
+    #        status_list_long_names = conf.status_list_long_names
+    #        if status in status_list_long_names:
+    #            index = status_list_long_names.index(status)
+    #            status = conf.status_list[index]
+    #        self.status = status
+    
+    def __eq__(self, other):
         if not isinstance(other, VersionStatusComparator):
             other = VersionStatusComparator(other)
-        return op(self.__clause_element__(), other.status)
+        return self.__clause_element__() == other.status
    
     def __clause_element__(self):
         return self.status
     
-    def __str__(self):
-        return self.status
+#    def __set__(self, instance, value):
+    #def __str__(self):
+    #    return self.status
 
 class Version(Base):
     """Holds versions of assets or shots.
@@ -2302,7 +2318,6 @@ class Version(Base):
 
     @hybrid_property
     def status(self):
-        logger.debug('getting the status value')
         return VersionStatusComparator(self._status)
     
     @status.setter

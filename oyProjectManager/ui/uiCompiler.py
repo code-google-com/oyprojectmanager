@@ -24,9 +24,9 @@ path = os.path.dirname(oyProjectManager.__file__)
 ui_path = os.path.join(path, "ui")
 
 # version_creator
-uicFilePaths.append(os.path.join(ui_path, "version_creator.ui"))
-pyFilePaths_PyQt4.append(os.path.join(ui_path, "version_creator_UI_pyqt4.py"))
-pyFilePaths_PySide.append(os.path.join(ui_path, "version_creator_UI_pyside.py"))
+#uicFilePaths.append(os.path.join(ui_path, "version_creator.ui"))
+#pyFilePaths_PyQt4.append(os.path.join(ui_path, "version_creator_UI_pyqt4.py"))
+#pyFilePaths_PySide.append(os.path.join(ui_path, "version_creator_UI_pyside.py"))
 
 ## project_manager
 #uicFilePaths.append(os.path.join(ui_path, "project_manager.ui"))
@@ -64,9 +64,9 @@ pyFilePaths_PySide.append(os.path.join(ui_path, "version_creator_UI_pyside.py"))
 #pyFilePaths_PySide.append(os.path.join(ui_path, "create_asset_dialog_UI_pyside.py"))
 
 # status_manager
-#uicFilePaths.append(os.path.join(ui_path, "status_manager.ui"))
-#pyFilePaths_PyQt4.append(os.path.join(ui_path, "status_manager_UI_pyqt4.py"))
-#pyFilePaths_PySide.append(os.path.join(ui_path, "status_manager_UI_pyside.py"))
+uicFilePaths.append(os.path.join(ui_path, "status_manager.ui"))
+pyFilePaths_PyQt4.append(os.path.join(ui_path, "status_manager_UI_pyqt4.py"))
+pyFilePaths_PySide.append(os.path.join(ui_path, "status_manager_UI_pyside.py"))
 
 for i,uicFilePath in enumerate(uicFilePaths):
     
