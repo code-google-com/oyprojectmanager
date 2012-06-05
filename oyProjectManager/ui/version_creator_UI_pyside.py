@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Tue Jun  5 12:49:52 2012
+# Created: Tue Jun  5 17:17:51 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -154,7 +154,7 @@ class Ui_Dialog(object):
         spacerItem3 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_13.addItem(spacerItem3)
         self.create_shot_pushButton = QtGui.QPushButton(self.asset_info_groupBox_2)
-        self.create_shot_pushButton.setEnabled(True)
+        self.create_shot_pushButton.setEnabled(False)
         self.create_shot_pushButton.setObjectName("create_shot_pushButton")
         self.horizontalLayout_13.addWidget(self.create_shot_pushButton)
         self.verticalLayout_9.addLayout(self.horizontalLayout_13)
@@ -404,7 +404,7 @@ class Ui_Dialog(object):
         self.asset_info_groupBox.setTitle(QtGui.QApplication.translate("Dialog", "Asset Information", None, QtGui.QApplication.UnicodeUTF8))
         self.asset_name_label.setText(QtGui.QApplication.translate("Dialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
         self.create_asset_pushButton.setText(QtGui.QApplication.translate("Dialog", "Create New Asset", None, QtGui.QApplication.UnicodeUTF8))
-        self.assets_tableWidget.setToolTip(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>Right click to <span style=\" font-weight:600;\">RENAME ASSET</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.assets_tableWidget.setToolTip(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>Right click to</p><ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Rename Asset</span></li></ul></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_tableWidget.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("Dialog", "Type", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_tableWidget.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.assets_tab), QtGui.QApplication.translate("Dialog", "Assets", None, QtGui.QApplication.UnicodeUTF8))
@@ -435,7 +435,7 @@ class Ui_Dialog(object):
         self.previous_versions_groupBox.setTitle(QtGui.QApplication.translate("Dialog", "Previous Versions", None, QtGui.QApplication.UnicodeUTF8))
         self.show_published_only_checkBox.setText(QtGui.QApplication.translate("Dialog", "Show Published Only", None, QtGui.QApplication.UnicodeUTF8))
         self.show_only_label.setText(QtGui.QApplication.translate("Dialog", "Show Only", None, QtGui.QApplication.UnicodeUTF8))
-        self.previous_versions_tableWidget.setToolTip(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>Right click to <span style=\" font-weight:600;\">PUBLISH</span> or <span style=\" font-weight:600;\">CHANGE STATUS</span></p><p>or</p><p>Double click to <span style=\" font-weight:600;\">OPEN</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.previous_versions_tableWidget.setToolTip(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>Right click to:</p><ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Change Status</span></li><li style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Browse Outputs</span></li></ul><p>Double click to:</p><ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Open</span></li></ul></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.previous_versions_tableWidget.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("Dialog", "Version", None, QtGui.QApplication.UnicodeUTF8))
         self.previous_versions_tableWidget.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog", "User", None, QtGui.QApplication.UnicodeUTF8))
         self.previous_versions_tableWidget.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("Dialog", "File Size", None, QtGui.QApplication.UnicodeUTF8))

@@ -82,7 +82,7 @@ class StatusViewerTester(unittest.TestCase):
         """testing if the close button is closing the ui
         """
         dialog = status_manager.MainDialog()
-        dialog.show()
+        #dialog.show()
 
         self.assertEqual(dialog.isVisible(), True)
         
@@ -252,9 +252,9 @@ class StatusViewerTester(unittest.TestCase):
         # 
         # +-----------+-------------+--------------+--------+---------------------+
         # | Thumbnail | Type        |     Name     |  Take  | Asset Version Types |
-        # +===========+==============+========+=====================+
+        # +===========+=============+==============+========+=====================+
         # |  (IMAGE)  | Char        | Test Asset 1 |  MAIN  | ******************* |
-        # +-----------+--------------+--------+---------------------+
+        # +-----------+-------------+--------------+--------+---------------------+
         # |  (IMAGE)  | Char        | Test Asset 1 | Test_A | ******************* |
         # +-----------+-------------+--------------+--------+---------------------+
         # |  (IMAGE)  | Char        | Test Asset 1 | Test_B | ******************* |
@@ -273,45 +273,42 @@ class StatusViewerTester(unittest.TestCase):
         # asset1's vtypes[0] vtypes[1] vtypes[2] vtypes[3]
         # set to assets
         dialog.tabWidget.setCurrentIndex(0)
-        self.show_dialog(dialog)
-        
+        #self.show_dialog(dialog)
         
         # expect to see 6 rows
         self.assertEqual(6, dialog.assets_tableWidget.rowCount())
         
         # expect the assets types listed in the first column
         # first three should be Char
-        dialog.assets_tableWidget.setCurrentCell(0, 0)
+        dialog.assets_tableWidget.setCurrentCell(0, 1)
         self.assertEqual('Char', dialog.assets_tableWidget.currentItem().text())
-        dialog.assets_tableWidget.setCurrentCell(1, 0)
+        dialog.assets_tableWidget.setCurrentCell(1, 1)
         self.assertEqual('Char', dialog.assets_tableWidget.currentItem().text())
-        dialog.assets_tableWidget.setCurrentCell(2, 0)
+        dialog.assets_tableWidget.setCurrentCell(2, 1)
         self.assertEqual('Char', dialog.assets_tableWidget.currentItem().text())
         
         # next should be Environment
-        dialog.assets_tableWidget.setCurrentCell(3, 0)
+        dialog.assets_tableWidget.setCurrentCell(3, 1)
         self.assertEqual(
             'Environment',
             dialog.assets_tableWidget.currentItem().text()
         )
         
         # the next two should be Prop
-        dialog.assets_tableWidget.setCurrentCell(4, 0)
+        dialog.assets_tableWidget.setCurrentCell(4, 1)
         self.assertEqual(
             'Prop',
             dialog.assets_tableWidget.currentItem().text()
         )
-        dialog.assets_tableWidget.setCurrentCell(5, 0)
+        dialog.assets_tableWidget.setCurrentCell(5, 1)
         self.assertEqual(
             'Prop',
             dialog.assets_tableWidget.currentItem().text()
         )
-        
-        
+    
     def test_shots_tableWidget_is_filled_with_Shot_data(self):
         """testing if the shots_tableWidget is filled with shot data properly
         """
-        
         db.setup()
         
         # create a project
@@ -460,7 +457,7 @@ class StatusViewerTester(unittest.TestCase):
         # set the project to project1
         dialog.projects_comboBox.setCurrentIndex(0)
         
-        self.show_dialog(dialog)
+        #self.show_dialog(dialog)
         
         # asset1's vtypes[0] vtypes[1] vtypes[2] vtypes[3]
         self.fail('test is not finished yet!')

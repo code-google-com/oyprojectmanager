@@ -1745,7 +1745,6 @@ class Version(Base):
     __tablename__ = "Versions"
     
     __table_args__  = (
-#        UniqueConstraint("base_name", "take_name", "_version_number", "type_id"),
         UniqueConstraint("version_of_id", "take_name", "_version_number", "type_id"),
         {"extend_existing":True}
     )

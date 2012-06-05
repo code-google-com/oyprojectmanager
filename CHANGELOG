@@ -30,12 +30,13 @@ Version History
 * Updated ``version_creator`` UI, it now shows the Shots in correct numerical
   order.
 
-* Updated ``version_creator`` UI, it is now possible to change the Status of a
-  Version by right clicking on the Previous Versions TableWidget.
+* Updated ``version_creator`` UI, it is now possible to change the Status or
+  Browse the outputs of a Version by right clicking on the Previous Versions
+  TableWidget.
 
 * :attr:`~oyProjectManager.core.models.Version.status` is now comparable with
-  long status names, so comparaing "WTS" with "Waiting To Start" will return
-  True
+  long status names, so comparing "WTS" with "Waiting To Start" will return
+  True.
 
 0.2.3
 -----

@@ -492,6 +492,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             menu.addAction(action)
         
+        # add separator
+        menu.addSeparator()
+        
+        # add Browse Outputs
+        menu.addAction("Browse Outputs")
+        
         selected_item = menu.exec_(global_position)
         
         if selected_item:
@@ -506,7 +512,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             #            self.update_previous_versions_tableWidget()
             #            return
             
-            if selected_item.text() in conf.status_list_long_names:
+            choice = selected_item.text()
+            
+            if choice in conf.status_list_long_names:
                 # change the status of the version
                 if version:
                     version.status = selected_item.text()
@@ -514,7 +522,35 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                     # refresh the tableWidget
                     self.update_previous_versions_tableWidget()
                     return
-   
+            elif choice == 'Browse Outputs':
+                
+                import os
+                import subprocess
+                import platform
+                
+                command = []
+                
+                platform_info = platform.platform()
+                
+                if platform_info.startswith('Linux'):
+                    command = 'nautilus '
+                elif platform_info.startswith('Windows'):
+                    command = 'explorer '
+                elif platform_info.startswith('Darwin'):
+                    command = 'open -a /System/Library/CoreServices/Finder.app'
+                
+                path = os.path.expandvars(version.output_path)
+                command += " " + path
+                
+                if os.path.exists(path):
+                    subprocess.call(command, shell=True)
+                else:
+                    QtGui.QMessageBox.critical(
+                        self,
+                        "Error",
+                        "Path doesn't exists:\n" + path
+                    ) 
+    
     def rename_asset(self, asset, new_name):
         """Renames the asset with the given new name
         

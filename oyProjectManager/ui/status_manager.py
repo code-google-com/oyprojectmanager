@@ -566,53 +566,31 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     def _show_assets_tableWidget_context_menu(self, position):
         """the custom context menu for the assets_tableWidget
         """
-        
-        # TODO: just try to update the color and the text of the item instead of updating all the table
-        #       may be defining another method for setting the item color
-        #       according to the given status will both reduce the code
-        #       repetition and will help changing the color of the item
-        
-        # convert the position to global screen position
-        global_position = self.assets_tableWidget.mapToGlobal(position)
-        
-        # create the menu
-        menu = QtGui.QMenu()
-        
-        # get the version
-        item = self.assets_tableWidget.itemAt(position)
-        version = None
-        if hasattr(item, 'version'):
-            version = item.version
-        
-        if version:
-            for status in conf.status_list_long_names:
-                action = QtGui.QAction(status, menu)
-                action.setCheckable(True)
-                if version.status == status:
-                    action.setChecked(True)
-                menu.addAction(action)
-                
-            selected_item = menu.exec_(global_position)
-            
-            if selected_item:
-                # set the version status to the chosen status
-                version.status = selected_item.text()
-                version.save()
-                
-                # request an update to the list
-                self.tabWidget_changed()
-   
+        self._add_custom_context_menu_to_table_widget(
+            self.assets_tableWidget, position
+        )
+    
     def _show_shots_tableWidget_context_menu(self, position):
         """the custom context menu for the shots_tableWidget
         """
+        self._add_custom_context_menu_to_table_widget(
+            self.shots_tableWidget, position
+        )
+    
+    def _add_custom_context_menu_to_table_widget(self, tableWidget, position):
+        """Adds a custom context menu to the given table_widget, which is
+        a Shot or Asset table
+        :param tableWidget: The QTableWidget instance
+        :param position: QPosition that the right click is occurred
+        """
         # convert the position to global screen position
-        global_position = self.shots_tableWidget.mapToGlobal(position)
+        global_position = tableWidget.mapToGlobal(position)
         
         # create the menu
         menu = QtGui.QMenu()
         
         # get the version
-        item = self.shots_tableWidget.itemAt(position)
+        item = tableWidget.itemAt(position)
         version = None
         if hasattr(item, 'version'):
             version = item.version
@@ -625,12 +603,69 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                     action.setChecked(True)
                 menu.addAction(action)
             
+            # add separator
+            menu.addSeparator()
+            
+            # add browse output
+            action = QtGui.QAction("Browse Outputs", menu)
+            menu.addAction(action)
+            
             selected_item = menu.exec_(global_position)
             
             if selected_item:
                 # set the version status to the chosen status
-                version.status = selected_item.text()
-                version.save()
                 
-                # request an update to the list
-                self.tabWidget_changed()
+                choice = selected_item.text()
+                
+                if choice in conf.status_list_long_names:
+                    version.status = choice
+                    version.save()
+                    
+                    # update the item
+                    assert isinstance(item, QtGui.QTableWidgetItem)
+                    item.setText(
+                        version.status + '\n' + version.created_by.name
+                    )
+                    index = conf.status_list.index(version.status)
+                    bgcolor = conf.status_bg_colors[index]
+                    fgcolor = conf.status_fg_colors[index]
+                    
+                    bg = item.background()
+                    bg.setColor(QtGui.QColor(*bgcolor))
+                    item.setBackground(bg)
+                    
+                    fg = item.foreground()
+                    fg.setColor(QtGui.QColor(*fgcolor))
+                    item.setForeground(fg)
+                    
+                    item.setBackgroundColor(QtGui.QColor(*bgcolor))
+                elif choice == "Browse Outputs":
+                    
+                    import os
+                    import subprocess
+                    import platform
+                    
+                    command = []
+                    
+                    platform_info = platform.platform()
+                    
+                    if platform_info.startswith('Linux'):
+                        command = 'nautilus '
+                    elif platform_info.startswith('Windows'):
+                        command = 'explorer '
+                    elif platform_info.startswith('Darwin'):
+                        command = 'open -a /System/Library/CoreServices/Finder.app'
+                    
+                    path = os.path.expandvars(version.output_path)
+                    command += " " + path
+                    
+                    if os.path.exists(path):
+                        subprocess.call(command, shell=True)
+                    else:
+                        QtGui.QMessageBox.critical(
+                            self,
+                            "Error",
+                            "Path doesn't exists:\n" + path
+                        )
+                    
+                    
