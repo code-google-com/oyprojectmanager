@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/create_asset_dialog.ui'
 #
-# Created: Wed May 23 02:03:12 2012
+# Created: Tue Jun  5 17:39:05 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -35,11 +35,9 @@ class Ui_create_asset(object):
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.asset_types_comboBox = QtGui.QComboBox(create_asset)
+        self.asset_types_comboBox.setEditable(True)
         self.asset_types_comboBox.setObjectName(_fromUtf8("asset_types_comboBox"))
         self.horizontalLayout.addWidget(self.asset_types_comboBox)
-        self.add_new_type_toolButton = QtGui.QToolButton(create_asset)
-        self.add_new_type_toolButton.setObjectName(_fromUtf8("add_new_type_toolButton"))
-        self.horizontalLayout.addWidget(self.add_new_type_toolButton)
         self.gridLayout.addLayout(self.horizontalLayout, 1, 1, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout)
         self.buttonBox = QtGui.QDialogButtonBox(create_asset)
@@ -57,5 +55,4 @@ class Ui_create_asset(object):
         create_asset.setWindowTitle(QtGui.QApplication.translate("create_asset", "Create Asset", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("create_asset", "Asset Type", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("create_asset", "Asset Name", None, QtGui.QApplication.UnicodeUTF8))
-        self.add_new_type_toolButton.setText(QtGui.QApplication.translate("create_asset", "...", None, QtGui.QApplication.UnicodeUTF8))
 

@@ -316,7 +316,7 @@ class Config(object):
         {% endfor %}
         """,
         
-        asset_thumbnail_path = "{{project.code}}/Assets/{{asset.code}}/Thumbnail",
+        asset_thumbnail_path = "{{project.code}}/Assets/{{asset.type}}/{{asset.code}}/Thumbnail",
         asset_thumbnail_filename = "{{asset.code}}_thumbnail.{{extension}}",
         
         shot_thumbnail_path = "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{shot.code}}/Thumbnail",
@@ -325,7 +325,6 @@ class Config(object):
         thumbnail_format = "JPG",
         thumbnail_quality = 70,
         thumbnail_size = [320, 180],
-        
         
         version_types = [
             {
@@ -389,7 +388,7 @@ class Config(object):
             {
                 "name":"Model",
                 "code": "Model",
-                "path": "{{project.code}}/Assets/{{version.base_name}}/{{type.code}}",
+                "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
@@ -399,7 +398,7 @@ class Config(object):
             {
                 "name": "Other",
                 "code": "Other",
-                "path": "{{project.code}}/Others/{{version.base_name}}/{{type.code}}",
+                "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
@@ -429,7 +428,7 @@ class Config(object):
             {
                 "name": "Rig",
                 "code": "Rig",
-                "path": "{{project.code}}/Assets/{{version.base_name}}/{{type.code}}",
+                "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
@@ -469,7 +468,7 @@ class Config(object):
             {
                 "name": "Texture",
                 "code": "Texture",
-                "path": "{{project.code}}/Assets/{{version.base_name}}/{{type.code}}",
+                "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
@@ -479,7 +478,7 @@ class Config(object):
             {
                 "name": "Illustration",
                 "code": "Illust",
-                "path": "{{project.code}}/Assets/{{version.base_name}}/{{type.code}}",
+                "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
@@ -489,7 +488,7 @@ class Config(object):
             {
                 "name": "Shading",
                 "code": "Shading",
-                "path": "{{project.code}}/Assets/{{version.base_name}}/{{type.code}}",
+                "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",

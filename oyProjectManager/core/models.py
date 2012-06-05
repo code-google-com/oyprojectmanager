@@ -1939,8 +1939,9 @@ class Version(Base):
     def _template_variables(self):
         kwargs = {
             "project": self.version_of.project,
-            "sequence": self.version_of.sequence \
-            if isinstance(self.version_of, Shot) else "",
+            "sequence": self.version_of.sequence if isinstance(self.version_of, Shot) else "",
+            "shot": self.version_of,
+            "asset": self.version_of,
             "version": self,
             "type": self.type,
         }

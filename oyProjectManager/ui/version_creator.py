@@ -101,12 +101,12 @@ class create_asset_dialog(QtGui.QDialog, create_asset_dialog_UI.Ui_create_asset)
             self.buttonBox_accepted
         )
         
-        # add_new_type_toolButton
-        QtCore.QObject.connect(
-            self.add_new_type_toolButton,
-            QtCore.SIGNAL('clicked()'),
-            self.add_new_type_toolButton_clicked
-        )
+        ## add_new_type_toolButton
+        #QtCore.QObject.connect(
+        #    self.add_new_type_toolButton,
+        #    QtCore.SIGNAL('clicked()'),
+        #    self.add_new_type_toolButton_clicked
+        #)
     
     def _setup_defaults(self):
         """setting up the defaults
@@ -134,26 +134,26 @@ class create_asset_dialog(QtGui.QDialog, create_asset_dialog_UI.Ui_create_asset)
         self.ok = False
         self.close()
     
-    def add_new_type_toolButton_clicked(self):
-        """runs when add_new_type_toolButton is clicked
-        """
-        logger.debug('add_new_type_toolButton is clicked')
-        
-        type_name, ok = QtGui.QInputDialog(self).getText(
-            self,
-            'Enter new asset type name',
-            'Asset Type name:'
-        )
-        
-        if ok:
-            if type_name != '':
-                index = self.asset_types_comboBox.findText(type_name)
-                if index == -1:
-                    # add new type to the asset_type_ComboBox
-                    self.asset_types_comboBox.addItem(type_name)
-                    index = self.asset_types_comboBox.findText(type_name)
-                
-                self.asset_types_comboBox.setCurrentIndex(index)
+    #def add_new_type_toolButton_clicked(self):
+    #    """runs when add_new_type_toolButton is clicked
+    #    """
+    #    logger.debug('add_new_type_toolButton is clicked')
+    #    
+    #    type_name, ok = QtGui.QInputDialog(self).getText(
+    #        self,
+    #        'Enter new asset type name',
+    #        'Asset Type name:'
+    #    )
+    #    
+    #    if ok:
+    #        if type_name != '':
+    #            index = self.asset_types_comboBox.findText(type_name)
+    #            if index == -1:
+    #                # add new type to the asset_type_ComboBox
+    #                self.asset_types_comboBox.addItem(type_name)
+    #                index = self.asset_types_comboBox.findText(type_name)
+    #            
+    #            self.asset_types_comboBox.setCurrentIndex(index)
 
 class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     """The main asset version creation dialog for the system.
@@ -1484,18 +1484,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """
         """
         
-        #self.input_dialog = QtGui.QInputDialog(self)
-        
-#        print "self.input_dialog: %s " % self.input_dialog
-        
-        #asset_name, ok = self.input_dialog.getText(
-        #    self,
-        #    "Enter new asset name",
-        #    "Asset name:"
-        #)
-        
-        logger.setLevel(logging.DEBUG)
-       
         dialog = create_asset_dialog(parent=self)
         dialog.exec_()
         
@@ -1506,9 +1494,13 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         logger.debug('new asset_name: %s' % asset_name)
         logger.debug('new asset_type_name: %s' % asset_type_name)
         
-        if not ok or asset_name == "":
-            logger.debug("either canceled or the given asset_name is empty, "
-                         "not creating a new asset")
+        if not ok:
+            return
+        elif asset_name == "" or asset_type_name == "":
+            error_message = "The given Asset.name or Asset.type is " \
+                            "empty!!!\n\nNot creating any new asset!"
+            
+            QtGui.QMessageBox.critical(self, 'Error', error_message)
             return
         
         proj = self.get_current_project()
