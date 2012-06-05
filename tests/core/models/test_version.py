@@ -1572,3 +1572,22 @@ class VersionTester(unittest.TestCase):
         self.kwargs['status'] = conf.status_list_long_names[1]
         new_version = Version(**self.kwargs)
         self.assertEqual(new_version.status, conf.status_list[1])
+    
+    def test_status_attribute_is_comparable_with_long_status_names(self):
+        """testing if status attribute is comparable to statuses with long
+        names
+        """
+        logger.setLevel(logging.DEBUG)
+        status = conf.status_list_long_names[1]
+        self.kwargs['status'] = status
+        new_version = Version(**self.kwargs)
+        self.assertEqual(status, new_version.status)
+    
+    def test_status_attribute_is_a_string_instance(self):
+        """testing if the status attribute is a string
+        """
+        new_version = Version(**self.kwargs)
+        logger.debug(new_version.status)
+        self.assertIsInstance(new_version.status, str)
+        str.
+        

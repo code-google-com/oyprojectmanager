@@ -3,6 +3,7 @@
 # 
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
+from copy import copy
 
 import os
 import re
@@ -17,6 +18,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import synonym_for
 from sqlalchemy.orm import relationship, synonym, backref
 from sqlalchemy.orm.mapper import validates
+from sqlalchemy.ext.hybrid import Comparator, hybrid_property
 from sqlalchemy.schema import Table
 
 from oyProjectManager import utils
@@ -1568,6 +1570,31 @@ class Asset(VersionableBase):
         type = type[0].upper() + type[1:]
         return type
 
+class VersionStatusComparator(Comparator):
+    """The comparator class for Version.status
+    """
+    
+    def __init__(self, status):
+        if isinstance(status, VersionStatusComparator):
+            self.status = status.status
+        elif isinstance(status, basestring):
+            status_list_long_names = conf.status_list_long_names
+            if status in status_list_long_names:
+                index = status_list_long_names.index(status)
+                status = conf.status_list[index]
+            self.status = status
+    
+    def operate(self, op, other):
+        if not isinstance(other, VersionStatusComparator):
+            other = VersionStatusComparator(other)
+        return op(self.__clause_element__(), other.status)
+   
+    def __clause_element__(self):
+        return self.status
+    
+    def __str__(self):
+        return self.status
+
 class Version(Base):
     """Holds versions of assets or shots.
     
@@ -1739,7 +1766,7 @@ class Version(Base):
     
     is_published = Column(Boolean, default=False)
     
-    status = Column(
+    _status = Column(
         Enum(*conf.status_list, name='StatusNames'),
     )
     
@@ -2239,10 +2266,12 @@ class Version(Base):
         
         return update_list
     
-    @validates('status')
-    def _validate_status(self, key, status):
+#    @validates('status')
+    def _validate_status(self, status):
         """validates the given status value
         """
+        if isinstance(status, VersionStatusComparator):
+            status = status.status
         
         if status is None:
             latest_version = self.latest_version()
@@ -2259,7 +2288,7 @@ class Version(Base):
                             (conf.status_list, status.__class__.__name__)
             )
         
-        all_statuses = conf.status_list
+        all_statuses = copy(conf.status_list)
         all_statuses.extend(conf.status_list_long_names)
         if status not in all_statuses:
             raise ValueError('Version.status should be one of %s not %s' %
@@ -2271,6 +2300,15 @@ class Version(Base):
         
         return status
 
+    @hybrid_property
+    def status(self):
+        logger.debug('getting the status value')
+        return VersionStatusComparator(self._status)
+    
+    @status.setter
+    def status(self, status):
+        self._status = self._validate_status(status)
+    
 class VersionType(Base):
     """A template for :class:`~oyProjectManager.core.models.Version` class.
     

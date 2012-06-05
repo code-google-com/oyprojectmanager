@@ -327,6 +327,17 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self._show_assets_tableWidget_context_menu
         )
         
+        # custom context menu for the previous_versions_tableWidget
+        self.previous_versions_tableWidget.setContextMenuPolicy(
+            QtCore.Qt.CustomContextMenu
+        )
+        
+        QtCore.QObject.connect(
+            self.previous_versions_tableWidget,
+            QtCore.SIGNAL("customContextMenuRequested(const QPoint&)"),
+            self._show_previous_versions_tableWidget_context_menu
+        )
+         
         # create_asset_pushButton
         QtCore.QObject.connect(
             self.create_asset_pushButton,
@@ -451,7 +462,56 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                         
                         # update assets_tableWidget
                         self.tabWidget_changed(0)
-    
+
+    def _show_previous_versions_tableWidget_context_menu(self, position):
+        """the custom context menu for the pervious_versions_tableWidget
+        """
+        # convert the position to global screen position
+        global_position = \
+            self.previous_versions_tableWidget.mapToGlobal(position)
+        
+        # create the menu
+        previous_tableWidget_menu = QtGui.QMenu()
+        previous_tableWidget_menu.addAction("Publish")
+        previous_tableWidget_menu.addSeparator()
+        
+        item = self.previous_versions_tableWidget.itemAt(position)
+        index = item.row()
+        version = self.previous_versions_tableWidget.versions[index]
+        
+        # add statuses
+        for status in conf.status_list_long_names:
+            new_action = QtGui.QAction(status)
+            # set it checked if the status of the version is the current status
+            if version.status == status:
+                new_action.setChecked(True)
+            
+            previous_tableWidget_menu.addAction(new_action)
+        
+        selected_item = previous_tableWidget_menu.exec_(global_position)
+        
+        if selected_item:
+            # something is chosen
+            if selected_item.text() == "Publish":
+                # publish the selected version
+                if version:
+                    # publish it
+                    if not version.is_published:
+                        version.is_published = True
+                        version.save()
+                        # refresh the tableWidget
+                        self.update_previous_versions_tableWidget()
+                        return
+            
+            if selected_item.text() in conf.status_list_long_names:
+                # change the status of the version
+                if version:
+                    version.status = selected_item.text()
+                    version.save()
+                    # refresh the tableWidget
+                    self.update_previous_versions_tableWidget()
+                    return
+   
     def rename_asset(self, asset, new_name):
         """Renames the asset with the given new name
         
@@ -1652,8 +1712,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         published = self.publish_checkBox.isChecked()
         
-        status_index = self.statuses_comboBox.currentIndex()
-        status=conf.status_list[status_index]
+        status = self.statuses_comboBox.currentText()
         
         version = Version(
             versionable,

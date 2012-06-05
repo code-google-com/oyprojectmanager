@@ -566,7 +566,13 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     def _show_assets_tableWidget_context_menu(self, position):
         """the custom context menu for the assets_tableWidget
         """
-
+        
+        # TODO: add Publish to the list
+        # TODO: just try to update the color and the text of the item instead of updating all the table
+        #       may be defining another method for setting the item color
+        #       according to the given status will both reduce the code
+        #       repetition and will help changing the color of the item
+        
         # convert the position to global screen position
         global_position = self.assets_tableWidget.mapToGlobal(position)
         

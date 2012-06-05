@@ -16,3 +16,8 @@ logging.info("Init oyProjectManager")
 
 from oyProjectManager import config
 conf = config.Config()
+
+# TODO: Think about adding Task's and Type's as a replacement of VersionType
+# or stating in a different form separate the VersionType in to two new class
+# called Task and Type (as in Stalker)
+

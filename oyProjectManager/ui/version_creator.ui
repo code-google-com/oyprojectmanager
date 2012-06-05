@@ -172,6 +172,9 @@
                      </item>
                      <item>
                       <widget class="QTableWidget" name="assets_tableWidget">
+                       <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Right click to &lt;span style=&quot; font-weight:600;&quot;&gt;RENAME ASSET&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       </property>
                        <property name="editTriggers">
                         <set>QAbstractItemView::NoEditTriggers</set>
                        </property>
@@ -679,6 +682,9 @@ p, li { white-space: pre-wrap; }
            </item>
            <item>
             <widget class="QTableWidget" name="previous_versions_tableWidget">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Right click to &lt;span style=&quot; font-weight:600;&quot;&gt;PUBLISH&lt;/span&gt; or &lt;span style=&quot; font-weight:600;&quot;&gt;CHANGE STATUS&lt;/span&gt;&lt;/p&gt;&lt;p&gt;or&lt;/p&gt;&lt;p&gt;Double click to &lt;span style=&quot; font-weight:600;&quot;&gt;OPEN&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="editTriggers">
               <set>QAbstractItemView::NoEditTriggers</set>
              </property>
