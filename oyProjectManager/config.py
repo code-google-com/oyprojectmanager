@@ -486,8 +486,8 @@ class Config(object):
                 "type_for": "Asset"
             },
             {
-                "name": "Shading",
-                "code": "Shading",
+                "name": "Look Development",
+                "code": "LookDev",
                 "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
