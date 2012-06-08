@@ -18,7 +18,7 @@ from oyProjectManager import config, db, utils
 from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
                                           Version, VersionType, Shot, User,
                                           VersionTypeEnvironments)
-from oyProjectManager.ui import version_updater
+from oyProjectManager.ui import version_updater, ui_utils
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
@@ -432,11 +432,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         global_position = self.assets_tableWidget.mapToGlobal(position)
         
         # create the menu
-        self.assets_tableWidget_menu = QtGui.QMenu()
-        self.assets_tableWidget_menu.addAction("Rename Asset")
-        #self.asset_description_menu.addAction("Delete Asset")
+        menu = QtGui.QMenu()
+        menu.addAction("Rename Asset")
         
-        selected_item = self.assets_tableWidget_menu.exec_(global_position)
+        selected_item = menu.exec_(global_position)
         
         if selected_item:
             # something is chosen
@@ -523,28 +522,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                     self.update_previous_versions_tableWidget()
                     return
             elif choice == 'Browse Outputs':
-                
-                import os
-                import subprocess
-                import platform
-                
-                command = []
-                
-                platform_info = platform.platform()
-                
-                if platform_info.startswith('Linux'):
-                    command = 'nautilus '
-                elif platform_info.startswith('Windows'):
-                    command = 'explorer '
-                elif platform_info.startswith('Darwin'):
-                    command = 'open -a /System/Library/CoreServices/Finder.app'
-                
                 path = os.path.expandvars(version.output_path)
-                command += " " + path
-                
-                if os.path.exists(path):
-                    subprocess.call(command, shell=True)
-                else:
+                try:
+                    utils.open_browser_in_location(path)
+                except IOError:
                     QtGui.QMessageBox.critical(
                         self,
                         "Error",
@@ -584,7 +565,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.statuses_comboBox.addItems(conf.status_list_long_names)
         
         # fill the projects
-        projects = db.query(Project)\
+        projects = Project.query()\
             .filter(Project.active==True)\
             .order_by(Project.name)\
             .all()
@@ -595,7 +576,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.projects_comboBox.projects = projects
         
         # fill the users
-        users = db.query(User).all()
+        users = User.query().all()
         self.users_comboBox.users = users
         self.users_comboBox.addItems(map(lambda x:x.name, users))
         
@@ -608,7 +589,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         last_user = None
         if last_user_id is not None:
-            last_user = db.query(User).filter(User.id==last_user_id).first()
+            last_user = User.query().filter(User.id==last_user_id).first()
         
         logger.debug("last_user: %s" % last_user)
         
@@ -654,7 +635,11 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # set the project
         index = self.projects_comboBox.findText(version.project.name)
-        self.projects_comboBox.setCurrentIndex(index)
+        
+        if index != -1:
+            self.projects_comboBox.setCurrentIndex(index)
+        else:
+            return
         
         # set the versionable
         versionable = version.version_of
@@ -664,10 +649,18 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.tabWidget.setCurrentIndex(0)
             
             # set the asset name
-            item = self.assets_tableWidget.findItems(
+            items = self.assets_tableWidget.findItems(
                 versionable.name,
                 QtCore.Qt.MatchExactly
-            )[0]
+            )
+            item = None
+            if items:
+                item = items[0]
+            else:
+                return
+            
+            logger.debug('*******************************')
+            logger.debug('item: %s' % item)
             
             self.assets_tableWidget.setCurrentItem(item)
             
@@ -676,28 +669,41 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             #the sequence
             index = self.sequences_comboBox.findText(versionable.sequence.name)
-            self.sequences_comboBox.setCurrentIndex(index)
+            
+            if index != -1:
+                self.sequences_comboBox.setCurrentIndex(index)
+            else:
+                return
             
             # the shot code
             items = self.shots_listWidget.findItems(
                 versionable.code,
                 QtCore.Qt.MatchExactly
             )
-            self.shots_listWidget.setCurrentItem(items[0])
+            item = None
+            if items:
+                item = items[0]
+            else:
+                return
+            self.shots_listWidget.setCurrentItem(item)
         
         # version_type name
         type_name = version.type.name
+        logger.debug('finding type with name: %s' % type_name)
         items = self.version_types_listWidget.findItems(
             type_name,
             QtCore.Qt.MatchExactly
         )
+        
         if not items:
+            logger.debug('no items found with: %s' % type_name)
             return
         
         self.version_types_listWidget.setCurrentItem(items[0])
         
         # take_name
         take_name = version.take_name
+        logger.debug('finding take with name: %s' % take_name)
         items = self.takes_listWidget.findItems(
             take_name,
             QtCore.Qt.MatchExactly
@@ -731,7 +737,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # TODO: don't update if the project is the same with the cached one
             
             # get all the assets of the project
-            assets = db.query(Asset)\
+            assets = Asset.query()\
                 .filter(Asset.project==proj)\
                 .order_by(Asset.type)\
                 .order_by(Asset.name)\
@@ -761,11 +767,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 
                 self.assets_tableWidget.setItem(i, 1, item)
             
-            self.assets_tableWidget.resizeColumnToContents(0)
-            self.assets_tableWidget.resizeColumnToContents(1)
+            self.assets_tableWidget.resizeColumnsToContents()
             
             # set the list to the first asset
-            table_item = self.assets_tableWidget.itemAt(0, 0)
+            table_item = self.assets_tableWidget.item(0, 0)
             
             if table_item is not None:
                 self.assets_tableWidget.selectRow(0)
@@ -795,7 +800,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             logger.debug("tabWidget index changed to shots")
             
             # update the sequence comboBox
-            seqs = db.query(Sequence).filter(Sequence.project==proj).all()
+            seqs = Sequence.query().filter(Sequence.project==proj).all()
             
             self.sequences_comboBox.clear()
             self.sequences_comboBox.addItems([seq.name for seq in seqs])
@@ -833,7 +838,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             return
         
         # update the shots_listWidget
-        shots = db.query(Shot).filter(Shot.sequence==seq).all()
+        shots = Shot.query().filter(Shot.sequence==seq).all()
         shots.sort(key=lambda x: utils.embedded_numbers(x.number))
         
         # add their names to the list
@@ -867,7 +872,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         proj = self.get_current_project()
         
         #asset = \
-        #    db.query(Asset).\
+        #    Asset.query().\
         #    filter(Asset.project==proj).\
         #    filter_by(name=asset_name).\
         #    first()
@@ -999,7 +1004,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def version_types_listWidget_changed(self, index):
         """runs when the asset version types comboBox has changed
         """
-        
         versionable = self.get_versionable()
         
         # version type name
@@ -1008,7 +1012,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         if item:
             version_type_name = item.text()
         
-        logger.debug("version_type_name: %s" % version_type_name)
+        if version_type_name != '':
+            logger.debug("version_type_name: %s" % version_type_name)
+        else:
+            return
         
         # Takes
         # get all the takes of the current asset
@@ -1060,7 +1067,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             take_name = item.text()
         
         # query the Versions of this type and take
-        query = db.query(Version).join(VersionType)\
+        query = Version.query().join(VersionType)\
             .filter(VersionType.name==version_type_name)\
             .filter(Version.version_of==versionable)\
             .filter(Version.take_name==take_name)
@@ -1077,8 +1084,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             index = self.statuses_comboBox.findText(status_long_name)
             if index != -1:
                 self.statuses_comboBox.setCurrentIndex(index)
- 
-        
     
     def update_previous_versions_tableWidget(self):
         """updates the previous_versions_tableWidget
@@ -1092,7 +1097,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         if item:
             version_type_name = item.text()
         
-        logger.debug("version_type_name: %s" % version_type_name)
+        if version_type_name != '':
+            logger.debug("version_type_name: %s" % version_type_name)
+        else:
+            return
         
         # take name
         take_name = ""
@@ -1100,10 +1108,13 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         if item:
             take_name = item.text()
         
-        logger.debug("take_name: %s" % take_name)
+        if take_name != '':
+            logger.debug("take_name: %s" % take_name)
+        else:
+            return
         
         # query the Versions of this type and take
-        query = db.query(Version).join(VersionType)\
+        query = Version.query().join(VersionType)\
             .filter(VersionType.name==version_type_name)\
             .filter(Version.version_of==versionable)\
             .filter(Version.take_name==take_name)
@@ -1147,33 +1158,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # update the previous versions list
         for i, vers in enumerate(versions):
-        # TODO: add the Version instance to the tableWidget
-        
-        #            assert isinstance(vers, Version)
-        
-        #            # --------------------------------
-        #            # base_name
-        #            item = QtGui.QTableWidgetItem(vers.base_name)
-        #            # align to left and vertical center
-        #            item.setTextAlignment(0x0001 | 0x0080)
-        #            self.previous_versions_tableWidget.setItem(i, 0, item)
-        #            
-        #            # ------------------------------------
-        #            # type_name
-        #            item = QtGui.QTableWidgetItem(vers.type.name)
-        #            # align to center and vertical center
-        #            item.setTextAlignment(0x0001 | 0x0080)
-        #            self.previous_versions_tableWidget.setItem(i, 1, item)
-        #            # ------------------------------------
-        #            
-        #            # ------------------------------------
-        #            # take_name
-        #            item = QtGui.QTableWidgetItem(vers.take_name)
-        #            # align to center and vertical center
-        #            item.setTextAlignment(0x0001 | 0x0080)
-        #            self.previous_versions_tableWidget.setItem(i, 2, item)            
-        #            # ------------------------------------
-            
+           
             is_published = vers.is_published
             
             # ------------------------------------
@@ -1185,7 +1170,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             if is_published:
                 set_font(item)
             
-#            item.setFont(font_weight)
             self.previous_versions_tableWidget.setItem(i, 0, item)
             # ------------------------------------
         
@@ -1251,7 +1235,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # date
             
             # get the file date
-
             file_date = datetime.datetime.today()
             if os.path.exists(vers.full_path):
                 file_date =  datetime.datetime.fromtimestamp(
@@ -1278,208 +1261,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             self.previous_versions_tableWidget.setItem(i, 5, item)
             # ------------------------------------
-
-            ## ------------------------------------
-            ## full_path
-            #item = QtGui.QTableWidgetItem(vers.full_path)
-            ## align to center and vertical center
-            #item.setTextAlignment(0x0001 | 0x0080)
-
-            #if is_published:
-            #    set_font(item)
-            #
-            #self.previous_versions_tableWidget.setItem(i, 4, item)
-            ## ------------------------------------
-        
-#        # for test add an pixmap
-#        test_label = ImageWidget(
-#            "/home/eoyilmaz/test.jpg", self.previous_versions_tableWidget #.item(count, 0)
-#        )
-#        
-#        test_label.setText("Test")
-#        
-#        self.previous_versions_tableWidget.model()
-#        
-#        self.previous_versions_tableWidget.setCellWidget(
-#            count, 0, test_label
-#        )
-        
- 
-        
+       
         # resize the first column
-        self.previous_versions_tableWidget.resizeColumnToContents(0)
-        self.previous_versions_tableWidget.resizeColumnToContents(1)
-        self.previous_versions_tableWidget.resizeColumnToContents(2)
-        self.previous_versions_tableWidget.resizeColumnToContents(3)
-        self.previous_versions_tableWidget.resizeColumnToContents(4)
-#        self.previous_versions_tableWidget.resizeColumnToContents(5)
-#        self.previous_versions_tableWidget.resizeColumnToContents(6)
-#        self.previous_versions_tableWidget.resizeColumnToContents(7)
-    
-#    def asset_description_edit_pushButton_clicked(self):
-#        """checks the asset_description_edit_pushButton
-#        """
-#
-#        button = self.asset_description_edit_pushButton
-#        text_field = self.asset_description_textEdit
-#        
-#        # check or uncheck
-#        if button.text() != u"Done":
-#            # change the text to "Done"
-#            button.setText(u"Done")
-#            
-#            # make the text field read-write
-#            text_field.setReadOnly(False)
-#            
-#            # to discourage edits
-#            # disable the assets_listWidget
-#            self.assets_listWidget.setEnabled(False)
-#            
-#            # and the projects_comboBox
-#            self.projects_comboBox.setEnabled(False)
-#            
-#            # and the create_asset_pushButton
-#            self.create_asset_pushButton.setEnabled(False)
-#            
-#            # and the shots_tab
-#            self.shots_tab.setEnabled(False)
-#            
-#            # and the new_version_groupBox
-#            self.new_version_groupBox.setEnabled(False)
-#            
-#            # and the previous_versions_groupBox
-#            self.previous_versions_groupBox.setEnabled(False)
-#            
-#        else:
-#            asset_name = self.assets_listWidget.currentItem().text()
-#            
-#            # change the text to "Edit"
-#            button.setText("Edit")
-#            button.setStyleSheet("")
-#            text_field.setReadOnly(True)
-#            
-#            proj = self.get_current_project()
-#            asset = \
-#                db.query(Asset)\
-#                .filter(Asset.project==proj)\
-#                .filter_by(name=asset_name)\
-#                .first()
-#            
-#            # update the asset description
-#            logger.debug("asset description of %s changed to %s" % (
-#                    asset,
-#                    self.asset_description_textEdit.toPlainText()
-#                )
-#            )
-#            
-#            # only issue an update if the description has changed
-#            new_description = self.asset_description_textEdit.toPlainText()
-#            
-#            if asset.description != new_description:
-#                asset.description = new_description
-#                asset.save()
-#
-#            # re-enable assets_listWidget
-#            self.assets_listWidget.setEnabled(True)
-#
-#            # and the projects_comboBox
-#            self.projects_comboBox.setEnabled(True)
-#
-#            # and the create_asset_pushButton
-#            self.create_asset_pushButton.setEnabled(True)
-#
-#            # and the shots_tab
-#            self.shots_tab.setEnabled(True)
-#            
-#            # and the new_version_groupBox
-#            self.new_version_groupBox.setEnabled(True)
-#            
-#            # and the previous_versions_groupBox
-#            self.previous_versions_groupBox.setEnabled(True)
-    
-#    def shot_description_edit_pushButton_clicked(self):
-#        """checks the shot_description_edit_pushButton
-#        """
-#        # TODO: organize the actions, first do what needs to be done and then update the interface
-#        
-#        button = self.shot_description_edit_pushButton
-#        text_field = self.shot_description_textEdit
-#        list_widget = self.shots_listWidget
-#        tab = self.assets_tab
-#        
-#        # check or uncheck
-#        if button.text() != u"Done":
-#            # change the text to "Done"
-#            button.setText(u"Done")
-#            
-#            # make the text field read-write
-#            text_field.setReadOnly(False)
-#            
-#            # to discourage edits
-#            # disable the assets_listWidget
-#            list_widget.setEnabled(False)
-#            
-#            # and the projects_comboBox
-#            self.projects_comboBox.setEnabled(False)
-#            
-#            # and the sequences_comboBox
-#            self.sequences_comboBox.setEnabled(False)
-#            
-#            # and the create_shot_pushButton
-#            self.create_shot_pushButton.setEnabled(False)
-#            
-#            # and the assets_tab
-#            tab.setEnabled(False)
-#            
-#            # and the new_version_groupBox
-#            self.new_version_groupBox.setEnabled(False)
-#            
-#            # and the previous_versions_groupBox
-#            self.previous_versions_groupBox.setEnabled(False)
-#        else:
-#            # change the text to "Edit"
-#            button.setText("Edit")
-#            button.setStyleSheet("")
-#            text_field.setReadOnly(True)
-#            
-#            index = self.shots_listWidget.currentIndex().row()
-#            shot = self.shots_listWidget.shots[index]
-#            
-#            # update the shot description
-#            logger.debug("shot description of %s changed to '%s'" % (
-#                    shot,
-#                    self.shot_description_textEdit.toPlainText()
-#                )
-#            )
-#            
-#            # only issue an update if the description has changed
-#            new_description = self.shot_description_textEdit.toPlainText()
-#            
-#            if shot.description != new_description:
-#                shot.description = new_description
-#                shot.save()
-#            
-#            # re-enable shots_listWidget
-#            list_widget.setEnabled(True)
-#            
-#            # and the projects_comboBox
-#            self.projects_comboBox.setEnabled(True)
-#            
-#            # and the create_asset_pushButton
-#            self.create_shot_pushButton.setEnabled(True)
-#            
-#            # and the sequences_comboBox
-#            self.sequences_comboBox.setEnabled(True)
-#            
-#            # and the shots_tab
-#            tab.setEnabled(True)
-#            
-#            # and the new_version_groupBox
-#            self.new_version_groupBox.setEnabled(True)
-#            
-#            # and the previous_versions_groupBox
-#            self.previous_versions_groupBox.setEnabled(True)
-    
+        self.previous_versions_tableWidget.resizeColumnsToContents()
+   
     def create_asset_pushButton_clicked(self):
         """
         """
@@ -1531,19 +1316,20 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         versionable = None
         if self.tabWidget.currentIndex() == 0:
             index = self.assets_tableWidget.currentRow()
-            logger.debug('assets_tableWidget.currentRow: %s' % index)
+#            logger.debug('assets_tableWidget.currentRow: %s' % index)
             
             if index != -1:
                 versionable = self.assets_tableWidget.assets[index]
-                logger.debug("asset: %s" % versionable.name)
+#                logger.debug("asset: %s" % versionable.name)
             
         else:
             index = self.shots_listWidget.currentIndex().row()
             
             if index != -1:
                 versionable = self.shots_listWidget.shots[index]
-                logger.debug("shot: %s" % versionable.code)
+#                logger.debug("shot: %s" % versionable.code)
         
+        logger.debug('versionable: %s' % versionable)
         return versionable
     
     def get_version_type(self):
@@ -1570,7 +1356,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             version_type_name = item.text()
         
         # get the version type instance
-        return db.query(VersionType)\
+        return VersionType.query()\
             .filter(VersionType.type_for==type_for)\
             .filter(VersionType.name==version_type_name)\
             .first()
@@ -1689,7 +1475,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # it the current selection
         if ok:
             # get the type
-            vers_type = db.query(VersionType).filter_by(name=type_name).first()
+            vers_type = VersionType.query().filter_by(name=type_name).first()
             
             try:
                 self.add_type(vers_type)
@@ -1940,65 +1726,28 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                     "\n\n has been imported correctly!",
                     QtGui.QMessageBox.Ok
                 )
-
+    
     def clear_thumbnail(self):
-        """clears the thumbnail area
+        """clears the thumbnail_graphicsView
         """
-        
-        # clear the graphics scene in case there is no thumbnail
-        scene = self.thumbnail_graphicsView.scene()
-        if not scene:
-            scene = QtGui.QGraphicsScene(self.thumbnail_graphicsView)
-            self.thumbnail_graphicsView.setScene(scene)
-        
-        scene.clear()
-
+        ui_utils.clear_thumbnail(self.thumbnail_graphicsView)
+    
     def update_thumbnail(self):
         """updates the thumbnail for the selected versionable
         """
         
         # get the current versionable
         versionable = self.get_versionable()
-        
-        self.clear_thumbnail()
-        
-        # try to get a path for the thumbnail
-        if versionable:
-            if versionable.thumbnail:
-                logger.debug("updating thumbnail for %s" % versionable.code)
-
-                # get the thumbnail full path
-                thumbnail_full_path = os.path.expandvars(
-                    os.path.join(
-                        "$" + conf.repository_env_key,
-                        versionable.thumbnail
-                    )
-                )
-
-                logger.debug("creating pixmap from: %s" % thumbnail_full_path)
-
-                pixmap = QtGui.QPixmap(thumbnail_full_path).scaled(
-                    self.thumbnail_graphicsView.size(),
-                    QtCore.Qt.KeepAspectRatio,
-                    QtCore.Qt.SmoothTransformation
-                )
-                
-                scene = self.thumbnail_graphicsView.scene()
-                scene.addPixmap(pixmap)
+        ui_utils.update_gview_with_versionable_thumbnail(
+            versionable,
+            self.thumbnail_graphicsView
+        )
 
     def upload_thumbnail_pushButton_clicked(self):
         """runs when the upload_thumbnail_pushButton is clicked
         """
         
-        # get a file from a FileDialog
-        thumbnail_full_path = QtGui.QFileDialog.getOpenFileName(
-            self, "Choose Thumbnail",
-            os.path.expanduser("~"),
-            "Image Files (*.png *.jpg *.bmp)"
-        )
-
-        if isinstance(thumbnail_full_path, tuple):
-            thumbnail_full_path = thumbnail_full_path[0]
+        thumbnail_full_path = ui_utils.choose_thumbnail(self)
         
         # if the tumbnail_full_path is empty do not do anything
         if thumbnail_full_path == "":
@@ -2007,104 +1756,8 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # get the current versionable
         versionable = self.get_versionable()
         
-        self.upload_thumbnail(versionable, thumbnail_full_path)
+        ui_utils.upload_thumbnail(versionable, thumbnail_full_path)
         
         # update the thumbnail
         self.update_thumbnail()
     
-    def upload_thumbnail(self, versionable, thumbnail_source_full_path):
-        """Uploads the given thumbnail for the given versionable
-        
-        :param versionable: An instance of
-          :class:`~oyProjectManager.core.models.VersionableBase` which in
-          practice is an :class:`~oyProjectManager.core.models.Asset` or
-          a :class:`~oyProjectManager.core.models.Shot`.
-        
-        :param str thumbnail_full_path: A string which is showing the path of
-          the thumbnail image
-        """
-        
-        # split path, filename and extension
-        splits = os.path.split(thumbnail_source_full_path)
-        source_path = splits[0]
-        
-        splits = os.path.splitext(splits[1])
-        source_filename = splits[0]
-        source_extension = splits[1].replace(".", "")
-        
-        # create template vars
-        template_vars = {
-            "path": source_path,
-            "filename": source_filename,
-            "extension": source_extension
-        }
-        
-        # define the template for the versionable type (asset or shot)
-        thumbnail_full_path = ""
-        
-        if isinstance(versionable, Asset):
-            path_template = jinja2.Template(conf.asset_thumbnail_path)
-            filename_template = jinja2.Template(conf.asset_thumbnail_filename)
-
-            template_vars.update(
-                {
-                    "project": versionable.project,
-                    "asset": versionable,
-                }
-            )
-        elif isinstance(versionable, Shot):
-            path_template = jinja2.Template(conf.shot_thumbnail_path)
-            filename_template = jinja2.Template(conf.shot_thumbnail_filename)
-            
-            template_vars.update(
-                {
-                    "project": versionable.project,
-                    "sequence": versionable.sequence,
-                    "shot": versionable
-                }
-            )
-        
-        # render the templates
-        path = path_template.render(**template_vars)
-        filename = filename_template.render(**template_vars)
-        
-        # the path should be $REPO relative
-        thumbnail_full_path = os.path.join(
-            os.environ[conf.repository_env_key], path, filename
-        )
-        
-        # upload the choosen image to the repo, overwrite any image present
-        if thumbnail_full_path != "":
-            logger.debug("uploading thumbnail from:\n%s\nto:\n%s" % (
-                    thumbnail_source_full_path,
-                    thumbnail_full_path
-                )
-            )
-            # create the dirs
-            try:
-                os.makedirs(os.path.split(thumbnail_full_path)[0])
-            except OSError:
-                # dir exists
-                pass
-            
-            # instead of copying the item
-            #shutil.copy(thumbnail_source_full_path, thumbnail_full_path)
-            # just render a resized version to the output path
-            pixmap = QtGui.QPixmap(thumbnail_source_full_path).scaled(
-                self.thumbnail_graphicsView.size(),
-                QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.SmoothTransformation
-            )
-            # now render it to the path
-            pixmap.save(
-                thumbnail_full_path,
-                conf.thumbnail_format,
-                conf.thumbnail_quality
-            ) 
-
-        # update the database
-        versionable.thumbnail = \
-            os.path.join(path, filename).replace("\\", "/")
-        versionable.save()
-        
-        

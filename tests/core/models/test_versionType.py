@@ -513,7 +513,7 @@ class VersionTypeTester(unittest.TestCase):
         
 #        del new_vtype
         
-        new_vtypeDB = db.query(VersionType).\
+        new_vtypeDB = VersionType.query().\
             filter_by(name=self.kwargs["name"]).first()
         
         self.assertEqual(code, new_vtypeDB.code)

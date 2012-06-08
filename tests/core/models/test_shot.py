@@ -419,7 +419,7 @@ class ShotTester(unittest.TestCase):
         new_shot.save()
         
         # now query the database if it is created and read correctly
-        self.assertEqual(new_shot, db.query(Shot).first())
+        self.assertEqual(new_shot, Shot.query().first())
         
         # now update it
         new_shot.start_frame = 100
@@ -428,18 +428,18 @@ class ShotTester(unittest.TestCase):
 
         self.assertEqual(
             new_shot.start_frame,
-            db.query(Shot).first().start_frame
+            Shot.query().first().start_frame
         )
         self.assertEqual(
             new_shot.end_frame,
-            db.query(Shot).first().end_frame
+            Shot.query().first().end_frame
         )
         
         # now delete it
         db.session.delete(new_shot)
         db.session.commit()
         
-        self.assertEqual(db.query(Shot).all(), [])
+        self.assertEqual(Shot.query().all(), [])
     
     def test_equality_of_shots(self):
         """testing if the equality operator is working properly

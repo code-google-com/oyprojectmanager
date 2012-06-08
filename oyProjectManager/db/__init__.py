@@ -36,7 +36,7 @@ For a simple example, lets get all the shots for a Sequence called
   # setup the database session
   db.setup()
   
-  all_shots = db.query(Shot).join(Sequence).\
+  all_shots = Shot.query().join(Sequence).\
       filter(Sequence.project.name="TEST_PROJECT").\
       filter(Shot.sequence.name=="TEST_SEQ").all()
 

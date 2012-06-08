@@ -74,7 +74,7 @@ class Project_DB_Tester(unittest.TestCase):
 
         del new_proj
 
-        new_proj_DB = db.query(Project).first()
+        new_proj_DB = Project.query().first()
 
         self.assertEqual(new_proj_DB.name, name)
         self.assertEqual(new_proj_DB.path, path)
@@ -428,7 +428,7 @@ class ProjectTester(unittest.TestCase):
         for version_type in conf.version_types:
             version_type_name = version_type["name"]
             vtype_from_proj =\
-                db.query(VersionType).\
+                VersionType.query().\
                 filter_by(name=version_type_name).\
                 first()
             
@@ -449,7 +449,7 @@ class ProjectTester(unittest.TestCase):
 #        new_proj.save()
 #
 #        # now check if all the version types are removed from the db
-#        self.assertEqual(db.query(VersionType).all(), [])
+#        self.assertEqual(VersionType.query().all(), [])
 #
 #        # now add a new asset type with known name
 #        vtype = VersionType(

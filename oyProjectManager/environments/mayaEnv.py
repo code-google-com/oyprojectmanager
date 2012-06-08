@@ -649,7 +649,7 @@ class Maya(EnvironmentBase):
             else:
                 # try to get a version with the given path
 #                temp_version =\
-#                db.query(Version).filter(Version.full_path==full_path).first()
+#                Version.query().filter(Version.full_path==full_path).first()
                 temp_version = self.get_version_from_full_path(full_path)
                 
                 if temp_version:

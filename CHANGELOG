@@ -38,6 +38,39 @@ Version History
   long status names, so comparing "WTS" with "Waiting To Start" will return
   True.
 
+* Added the ``query`` method as a class method to the Base class in the
+  declarativeBase which will let you do queries directly by using the class
+  itself:
+    
+    # instead of doing this
+    projs = db.query(Project).all()
+    
+    # you can do like this
+    projs = Project.query().all()
+    
+    # To query for an Asset
+    my_asset = Asset.query().filter(Asset.name=='test').first()
+
+* The
+  :attr:`~oyProjectManager.core.models.VersionableBase.thumbnail` path is not
+  stored in the DB anymore but it is always rendered from the config file.
+
+* Added ``shot_editor`` UI which can be reached through ``project_manager``,
+  with it you can edit shot info and upload thumbnails for the shot.
+
+* Moved the thumbnail upload procedures to a new module called
+  :mod:`~oyProjectManager.ui.ui_utils`, and in the future releases all the
+  common UI related functionality will be placed in this module to increase
+  code reuse.
+
+* The given shot_number is now filtered in
+  :meth:`~oyProjectManager.core.models.Sequence.add_shot` method of
+  :class:`~oyProjectManager.core.models.Sequence` class, so giving a shot name
+  of "SH001" will create a new shot with shot number is "1" istead of "SH001"
+  in which the latter case will result a shot name of "SHSH001", and giving a
+  shot number of "00010" will correctly create a shot with the number is set to
+  "10" instead of "00010".
+
 0.2.3
 -----
 

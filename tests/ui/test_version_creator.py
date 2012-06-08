@@ -10,13 +10,7 @@ import shutil
 import tempfile
 import unittest
 
-#from PySide import QtCore, QtGui
-#from PySide.QtCore import Qt
-#from PySide.QtTest import QTest
 import sip
-import logging
-import datetime
-
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 from PyQt4 import QtCore, QtGui
@@ -31,6 +25,7 @@ from oyProjectManager.ui import version_creator
 
 conf = config.Config()
 
+import logging
 logger = logging.getLogger("oyProjectManager.ui.version_creator")
 logger.setLevel(logging.DEBUG)
 
@@ -95,27 +90,12 @@ class VersionCreatorTester(unittest.TestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
         
-        # re-parse the settings
-#        conf._parse_settings()
-
-        # for PySide
-#        if QtGui.qApp is None:
-#            print "qApp is None"
-#            self.app = QtGui.QApplication(sys.argv)
-#        else:
-#            print "qApp is OK"
-#            self.app = QtGui.qApp
-
         # for PyQt4
         self.app = QtGui.QApplication(sys.argv)
     
     def tearDown(self):
         """clean up the test
         """
-        # for PySide
-#        self.app.quit()
-#        del self.app
-
         # set the db.session to None
         db.session = None
         
@@ -353,7 +333,7 @@ class VersionCreatorTester(unittest.TestCase):
         """testing if the users combobox is filled with the user names
         """
         # get the users from the config
-        users = db.query(User).all()
+        users = User.query().all()
         
         dialog = version_creator.MainDialog()
         
@@ -376,7 +356,7 @@ class VersionCreatorTester(unittest.TestCase):
         """
         dialog = version_creator.MainDialog()
         users_from_UI = dialog.users_comboBox.users
-        users_from_DB = db.query(User).all()
+        users_from_DB = User.query().all()
         
         # converting from assertItemsEqual
         self.assertTrue(len(users_from_UI)==len(users_from_DB))
@@ -465,7 +445,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-        db.query(VersionType).filter_by(type_for="Asset").all()
+        VersionType.query().filter_by(type_for="Asset").all()
 
         vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
                         take_name="Main")
@@ -538,10 +518,10 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-        db.query(VersionType).filter_by(type_for="Asset").all()
+        VersionType.query().filter_by(type_for="Asset").all()
 
         shot_vtypes =\
-        db.query(VersionType).filter_by(type_for="Shot").all()
+        VersionType.query().filter_by(type_for="Shot").all()
 
         vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
                         take_name="Main")
@@ -679,11 +659,11 @@ class VersionCreatorTester(unittest.TestCase):
         
         # create a version with take name is different than Main
         
-        asset_vtypes = db.query(VersionType).\
-            filter(VersionType.type_for=="Asset").all()
+        asset_vtypes = VersionType.query()\
+            .filter(VersionType.type_for=="Asset").all()
         
-        shot_vtypes = db.query(VersionType).\
-            filter(VersionType.type_for=="Shot").all()
+        shot_vtypes = VersionType.query()\
+            .filter(VersionType.type_for=="Shot").all()
         
         user = User("Test User")
         
@@ -728,8 +708,8 @@ class VersionCreatorTester(unittest.TestCase):
         dialog = version_creator.MainDialog()
         
         # get all the asset version types for project
-        asset_vtypes = db.query(VersionType).\
-            filter(VersionType.type_for=="Asset").all()
+        asset_vtypes = VersionType.query()\
+            .filter(VersionType.type_for=="Asset").all()
         
         type_name = asset_vtypes[0].name
         
@@ -769,7 +749,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-            db.query(VersionType).filter_by(type_for="Asset").all()
+            VersionType.query().filter_by(type_for="Asset").all()
 
         vers1 = Version(asset1, asset1.name, asset_vtypes[0], user1,
                         take_name="Main")
@@ -832,7 +812,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-        db.query(VersionType).filter_by(type_for="Asset").all()
+        VersionType.query().filter_by(type_for="Asset").all()
 
         asset_vtypes[0].environments = ["TestEnv"]
         asset_vtypes[1].environments = ["TestEnv"]
@@ -905,7 +885,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         shot_vtypes =\
-            db.query(VersionType).filter_by(type_for="Shot").all()
+            VersionType.query().filter_by(type_for="Shot").all()
         
         shot_vtypes[0].environments = ["TestEnv"]
         shot_vtypes[1].environments = ["TestEnv"]
@@ -978,7 +958,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-        db.query(VersionType).filter_by(type_for="Asset").all()
+        VersionType.query().filter_by(type_for="Asset").all()
 
         vers1 = Version(
             asset1,
@@ -1063,7 +1043,7 @@ class VersionCreatorTester(unittest.TestCase):
 
         # create a couple of versions
         asset_vtypes =\
-            db.query(VersionType).filter_by(type_for="Asset").all()
+            VersionType.query().filter_by(type_for="Asset").all()
         
         vers1 = Version(
             asset1,
@@ -1211,7 +1191,7 @@ class VersionCreatorTester(unittest.TestCase):
 #                proj.session.add(asset)
 #                
 #                asset_types = \
-#                    db.query(VersionType).filter_by(type_for="Asset").all()
+#                    VersionType.query().filter_by(type_for="Asset").all()
 #                
 ##                data.append(asset)
 #                
@@ -1279,10 +1259,10 @@ class VersionCreatorTester(unittest.TestCase):
         shot3 = Shot(seq1, 3)
         shot3.save()
 
-        asset_vtypes = db.query(VersionType).\
+        asset_vtypes = VersionType.query().\
             filter_by(type_for="Asset").all()
 
-        shot_vtypes = db.query(VersionType).\
+        shot_vtypes = VersionType.query().\
             filter_by(type_for="Shot").all()
 
         # versions
@@ -1575,7 +1555,7 @@ class VersionCreatorTester(unittest.TestCase):
         
         # create a couple of versions
         asset_vtypes =\
-            db.query(VersionType).filter_by(type_for="Asset").all()
+            VersionType.query().filter_by(type_for="Asset").all()
         
         vers1 = Version(
             asset1,
@@ -1612,9 +1592,9 @@ class VersionCreatorTester(unittest.TestCase):
         
         # get types for assets and shots
         asset_vtypes = \
-            db.query(VersionType).filter_by(type_for="Asset").all()
+            VersionType.query().filter_by(type_for="Asset").all()
         shot_vtypes = \
-            db.query(VersionType).filter_by(type_for="Shot").all()
+            VersionType.query().filter_by(type_for="Shot").all()
         
         # create the dialog
         dialog = version_creator.MainDialog()
@@ -1652,10 +1632,8 @@ class VersionCreatorTester(unittest.TestCase):
         asset1.save()
         
         # get types for assets and shots
-        asset_vtypes = \
-            db.query(VersionType).filter_by(type_for="Asset").all()
-        shot_vtypes = \
-            db.query(VersionType).filter_by(type_for="Shot").all()
+        asset_vtypes = VersionType.query().filter_by(type_for="Asset").all()
+        shot_vtypes = VersionType.query().filter_by(type_for="Shot").all()
         
         # create the dialog
         dialog = version_creator.MainDialog()
@@ -1682,10 +1660,8 @@ class VersionCreatorTester(unittest.TestCase):
         asset1.save()
         
         # get types for assets and shots
-        asset_vtypes = \
-            db.query(VersionType).filter_by(type_for="Asset").all()
-        shot_vtypes = \
-            db.query(VersionType).filter_by(type_for="Shot").all()
+        asset_vtypes = VersionType.query().filter_by(type_for="Asset").all()
+        shot_vtypes = VersionType.query().filter_by(type_for="Shot").all()
         
         # create the dialog
         dialog = version_creator.MainDialog()
@@ -1898,11 +1874,11 @@ class VersionCreatorTester(unittest.TestCase):
         user2 = User(name="Test User 2", initials="TU2")
         
         # create versions
-        asset_vTypes = db.query(VersionType)\
+        asset_vTypes = VersionType.query()\
             .filter(VersionType.type_for=="Asset")\
             .all()
         
-        shot_vTypes = db.query(VersionType)\
+        shot_vTypes = VersionType.query()\
             .filter(VersionType.type_for=="Shot")\
             .all()
 
@@ -1965,7 +1941,7 @@ class VersionCreatorTester(unittest.TestCase):
             asset4, asset4.code, asset_vTypes[5], user2, take_name="Take8"
         )
         vers11.save()
-
+        
         vers12 = Version(
             asset4, asset4.code, asset_vTypes[4], user2, take_name="Take8"
         )
@@ -2067,8 +2043,8 @@ class VersionCreatorTester(unittest.TestCase):
         # check for an asset
         # check if the fields show data from version10
         self.assertEqual(
+            vers10.project.name,
             dialog.projects_comboBox.currentText(),
-            vers10.project.name
         )
         
         self.assertEqual(
@@ -2076,29 +2052,27 @@ class VersionCreatorTester(unittest.TestCase):
         )
         
         index = dialog.assets_tableWidget.currentRow()
-        dialog.assets_tableWidget.setCurrentCell(index, 0)
-        item_text = dialog.assets_tableWidget.currentItem().text()
+        item_text = dialog.assets_tableWidget.item(index, 0).text()
         self.assertEqual(
             item_text,
             vers10.version_of.type
         )
         
         index = dialog.assets_tableWidget.currentRow()
-        dialog.assets_tableWidget.setCurrentCell(index, 1)
-        item_text = dialog.assets_tableWidget.currentItem().text()
+        item_text = dialog.assets_tableWidget.item(index, 1).text()
         self.assertEqual(
-            item_text,
-            vers10.version_of.name
+            vers10.version_of.name,
+            item_text
         )
         
         self.assertEqual(
-            dialog.version_types_listWidget.currentItem().text(),
-            vers10.type.name
+            vers10.type.name,
+            dialog.version_types_listWidget.currentItem().text()
         )
         
         self.assertEqual(
+            vers10.take_name,
             dialog.takes_listWidget.currentItem().text(),
-            vers10.take_name
         )
         
         # check for a shot
@@ -2144,7 +2118,7 @@ class VersionCreatorTester(unittest.TestCase):
         asset = Asset(project, "Test Asset")
         asset.save()
         
-        asset_v_types = db.query(VersionType).\
+        asset_v_types = VersionType.query().\
             filter(VersionType.type_for=="Asset").all()
         
         user1 = User("User1")
@@ -2192,7 +2166,7 @@ class VersionCreatorTester(unittest.TestCase):
         asset1 = Asset(proj1, "Test Asset")
         asset1.save()
 
-        asset_vtypes = db.query(VersionType).filter_by(type_for="Asset").all()
+        asset_vtypes = VersionType.query().filter_by(type_for="Asset").all()
 
         user = User("Test User")
         db.session.add(user)
@@ -2226,7 +2200,7 @@ class VersionCreatorTester(unittest.TestCase):
         asset = Asset(proj1, "Test Asset 1")
         asset.save()
         
-        asset_types = db.query(VersionType).filter_by(type_for="Asset").all()
+        asset_types = VersionType.query().filter_by(type_for="Asset").all()
         
         user = User("Test User")
         user.save()
@@ -2296,7 +2270,7 @@ class VersionCreatorTester(unittest.TestCase):
         asset2 = Asset(project, "Test Asset 2")
         asset2.save()
         
-        aTypes = db.query(VersionType).filter_by(type_for="Asset").all()
+        aTypes = VersionType.query().filter_by(type_for="Asset").all()
         
         user = User("Test User")
         
@@ -2389,7 +2363,7 @@ class VersionCreatorTester(unittest.TestCase):
         asset2 = Asset(project, "Test Asset 2")
         asset2.save()
 
-        aTypes = db.query(VersionType).filter_by(type_for="Asset").all()
+        aTypes = VersionType.query().filter_by(type_for="Asset").all()
 
         user = User("Test User")
         
@@ -2529,7 +2503,7 @@ class VersionCreatorTester(unittest.TestCase):
         proj2 = Project("Test Project 2")
         proj2.save()
         
-        asset_vtypes = db.query(VersionType)\
+        asset_vtypes = VersionType.query()\
             .filter(VersionType.type_for=="Asset").all()
         
         asset1 = Asset(proj1, "Test Asset 1")
@@ -2639,52 +2613,8 @@ class VersionCreatorTester(unittest.TestCase):
         self.assertEqual(shot1.handle_at_start, handle_at_start)
         self.assertEqual(shot1.handle_at_end, handle_at_end)
     
-    def test_upload_thumbnail_updates_the_thumbnail_path_for_the_given_versionable(self):
-        """testing if the upload_thumbnail updates the thumbnail field of the
-        given Versionable instance
-        """
-        
-        proj = Project("Test Project")
-        proj.create()
-        
-        asset = Asset(proj, "Test Asset")
-        asset.save()
-        
-        self.assertEqual(asset.thumbnail, None)
-        
-        # save the image to the temp directory
-        pixmap_full_path = os.path.join(
-            self.temp_config_folder,
-            "test.jpg"
-        )
-        
-        logger.debug("pixmap_full_path: %s" % pixmap_full_path)
-        self.create_test_image(pixmap_full_path)
-        
-        thumbnail_full_path = os.path.join(
-            proj.code, "Assets", asset.code, "Thumbnail",
-            asset.code + "_thumbnail.jpg"
-        )
-        
-        # now upload a thumbnail
-        dialog = version_creator.MainDialog()
-        
-        dialog.upload_thumbnail(asset, pixmap_full_path)
-        
-        # now check if asset.thumbnail is correctly set
-        self.assertEqual(asset.thumbnail, thumbnail_full_path)
-        
-        # and the file is placed to the correct placement
-        self.assertTrue(
-            os.path.exists(
-                os.path.join(
-                    proj.path, thumbnail_full_path 
-                ) 
-            )
-        )
-    
     def test_update_thumbnail_clears_the_graphic_view_for_no_thumbnail(self):
-        """testing if the update_thumbnail method clears the graphic view for
+        """testing if the update_gview_with_image_file method clears the graphic view for
         no thumbnail
         """
         self.fail("test is not implemented yet")
@@ -2696,7 +2626,7 @@ class VersionCreatorTester(unittest.TestCase):
         self.fail("test is not implemented yet")
     
     def test_update_thumbnail_works_correctly_switching_from_asset_to_shots(self):
-        """testing if update_thumbnail works correctly when switching from
+        """testing if update_gview_with_image_file works correctly when switching from
         asset to shots
         """
         self.fail("test is not implemented yet")
@@ -2705,45 +2635,7 @@ class VersionCreatorTester(unittest.TestCase):
         """testing if the upload_thumbnail method can upload different formats
         """
         self.fail("test is not implemented yet")
-    
-    def create_test_image(self, pixmap_full_path):
-        """Creates a test image at the given path
-        """
-        
-        # first create a thumbnail
-        pixmap = QtGui.QPixmap(
-            [
-                "16 16 2 1",
-                "  c None",
-                ". c white",
-                " . . . . . . . .",
-                ". . . . . . . . ",
-                " . . . . . . . .",
-                ". . . . . . . . ",
-                " . . . . . . . .",
-                ". . . . . . . . ",
-                " . . . . . . . .",
-                ". . . . . . . . ",
-                " . . . . . . . .",
-                ". . . . . . . . ",
-                " . . . . . . . .",
-                ". . . . . . . . ",
-                " . . . . . . . .",
-                ". . . . . . . . ",
-                " . . . . . . . .",
-                ". . . . . . . . "
-            ]
-        )
-        
-       
-        # write the image
-        pixmap.save(pixmap_full_path)
-        
-        # assert the image is saved to the path
-        self.assertTrue(os.path.exists(pixmap_full_path))
-        
-        return pixmap
-    
+   
     def test_statuses_comboBox_is_filled_with_status_list(self):
         """testing if the status_comboBox is filled with default statuses
         """
@@ -2769,9 +2661,9 @@ class VersionCreatorTester(unittest.TestCase):
         new_asset = Asset(new_project, 'Test Asset')
         new_asset.save()
         
-        admin = db.query(User).first()
+        admin = User.query().first()
         
-        asset_vtypes = db.query(VersionType)\
+        asset_vtypes = VersionType.query()\
             .filter(VersionType.type_for=='Asset')\
             .all()
         
@@ -2806,7 +2698,7 @@ class VersionCreatorTester(unittest.TestCase):
         )
         
         # get the new version
-        newest_version = db.query(Version)\
+        newest_version = Version.query()\
             .filter(Version.version_of==new_asset)\
             .filter(Version.base_name==new_asset.code)\
             .filter(Version.type==asset_vtypes[0])\
@@ -2828,12 +2720,12 @@ class VersionCreatorTester(unittest.TestCase):
         
         db.setup()
         
-        user = db.query(User).first()
+        user = User.query().first()
         
         proj1 = Project('Test_Project')
         proj1.save()
         
-        avtypes = db.query(VersionType)\
+        avtypes = VersionType.query()\
             .filter(VersionType.type_for=='Asset')\
             .all()
         
@@ -3002,10 +2894,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_asset5 = Asset(self.test_project2, "Test Asset 5")
         self.test_asset6 = Asset(self.test_project2, "Test Asset 6")
         
-        self.test_user = db.query(User).first()
+        self.test_user = User.query().first()
         
         self.test_asset_versionTypes_for_project1 = \
-            db.query(VersionType).\
+            VersionType.query().\
             filter(VersionType.type_for=="Asset").\
             all()
         

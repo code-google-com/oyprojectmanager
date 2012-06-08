@@ -43,25 +43,20 @@ ui_path = os.path.join(path, "ui")
 #pyFilePaths_PyQt4.append(os.path.join(ui_path, "version_updater_UI_pyqt4.py"))
 #pyFilePaths_PySide.append(os.path.join(ui_path, "version_updater_UI_pyside.py"))
 
-## shotEditor
-#uicFilePaths.append(os.path.join(ui_path, "shotEditor.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "shotEditor_UI_pyqt4.py"))
-#pyFilePaths.append(os.path.join(ui_path, "shotEditor_UI_pyside.py"))
-#
-## projectSetter
-#uicFilePaths.append(os.path.join(ui_path, "projectSetter.ui"))
-#pyFilePaths.append(os.path.join(ui_path, "projectSetter_UI_pyqt4.py"))
-#pyFilePaths.append(os.path.join(ui_path, "projectSetter_UI_pyside.py"))
-#
+# shot_editor
+uicFilePaths.append(os.path.join(ui_path, "shot_editor.ui"))
+pyFilePaths_PyQt4.append(os.path.join(ui_path, "shot_editor_UI_pyqt4.py"))
+pyFilePaths_PySide.append(os.path.join(ui_path, "shot_editor_UI_pyside.py"))
+
 ## assetReplacer
 #uicFilePaths.append(os.path.join(ui_path, "assetReplacer.ui"))
 #pyFilePaths.append(os.path.join(ui_path, "assetReplacer_UI_pyqt4.py"))
 #pyFilePaths.append(os.path.join(ui_path, "assetReplacer_UI_pyside.py"))
 
 # create_asset_dialog
-uicFilePaths.append(os.path.join(ui_path, "create_asset_dialog.ui"))
-pyFilePaths_PyQt4.append(os.path.join(ui_path, "create_asset_dialog_UI_pyqt4.py"))
-pyFilePaths_PySide.append(os.path.join(ui_path, "create_asset_dialog_UI_pyside.py"))
+#uicFilePaths.append(os.path.join(ui_path, "create_asset_dialog.ui"))
+#pyFilePaths_PyQt4.append(os.path.join(ui_path, "create_asset_dialog_UI_pyqt4.py"))
+#pyFilePaths_PySide.append(os.path.join(ui_path, "create_asset_dialog_UI_pyside.py"))
 
 # status_manager
 #uicFilePaths.append(os.path.join(ui_path, "status_manager.ui"))

@@ -442,3 +442,28 @@ def file_name_conditioner(fileName):
     fileName = pattern.sub("_",fileName)
     
     return fileName
+
+def open_browser_in_location(path):
+    """Opens the os native browser at the given path
+    
+    :param path: The path that the browser should be opened at.
+    """
+    import os
+    import subprocess
+    import platform
+    
+    command = []
+    
+    platform_info = platform.platform()
+    
+    if platform_info.startswith('Linux'):
+        command = 'nautilus ' + path
+    elif platform_info.startswith('Windows'):
+        command = 'explorer ' + path.replace('/', '\\')
+    elif platform_info.startswith('Darwin'):
+        command = 'open -a /System/Library/CoreServices/Finder.app ' + path
+    
+    if os.path.exists(path):
+        subprocess.call(command, shell=True)
+    else:
+        raise IOError("%s doesn't exists!" % path)

@@ -532,7 +532,7 @@ class Sequence_DB_Tester(unittest.TestCase):
         test_seq2 = Sequence(test_project2, "SEQ1B", "SEQ1A")
         test_seq2.save() # no Integrity Error
     
-    def test_code_argumnet_is_not_unique_for_different_projects_2(self):
+    def test_code_argument_is_not_unique_for_different_projects_2(self):
         """testing if no code argument is unique for different projects will
         not raise IntegrityError
         """
@@ -551,3 +551,21 @@ class Sequence_DB_Tester(unittest.TestCase):
         
         s2 = Sequence(p3, "TVC", "TVC")
         s2.save()
+    
+    def test_add_shots_method_will_remove_the_shot_prefix_if_the_given_shot_starts_with_it(self):
+        """testing if the add_shots method will remove the shot prefix in the
+        given shot code if it starts with the shot prefix of the project
+        """
+        proj1 = Project('Test Proj1')
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'Test Seq1')
+        seq1.save()
+        
+        # now try to add a shot with the name SH001
+        seq1.add_shots(proj1.shot_number_prefix + "001")
+        
+        # now check the first shot of the seq1 has a shot number of 1 and the
+        # code is SH001
+        self.assertEqual("1", seq1.shots[0].number)
+        self.assertEqual('SH001', seq1.shots[0].code)

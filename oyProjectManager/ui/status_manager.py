@@ -140,7 +140,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         """sets the defaults
         """
         # fill the projects
-        projects = db.query(Project)\
+        projects = Project.query()\
             .filter(Project.active==True)\
             .order_by(Project.name)\
             .all()
@@ -184,7 +184,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         # clear the table
         self.assets_tableWidget.clear()
         
-        asset_vtypes = db.query(VersionType)\
+        asset_vtypes = VersionType.query()\
             .filter(VersionType.type_for=='Asset')\
             .order_by(VersionType.name)\
             .all()
@@ -206,7 +206,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
             return
         
         # get all the assets for the project
-        assets = db.query(Asset)\
+        assets = Asset.query()\
             .filter(Asset.project==project)\
             .order_by(Asset.type)\
             .all()
@@ -235,13 +235,8 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                 item = QtGui.QTableWidgetItem()
                 item.setTextAlignment(0x0004 | 0x0080)
                 # set the thumbnail
-                if asset.thumbnail:
-                    thumbnail_full_path = os.path.expandvars(
-                        os.path.join(
-                            "$" + conf.repository_env_key,
-                            asset.thumbnail
-                        )
-                    )
+                if os.path.exists(asset.thumbnail_full_path):
+                    thumbnail_full_path = asset.thumbnail_full_path
                     pixmap = QtGui.QPixmap(thumbnail_full_path)
                     pixmap = pixmap.scaled(
                         conf.thumbnail_size[0] / 2,
@@ -281,7 +276,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                     # and show the users name on the second row
                     
                     # get the latest version of that type and take
-                    version = db.query(Version)\
+                    version = Version.query()\
                         .join(VersionType)\
                         .filter(Version.version_of==asset)\
                         .filter(Version.type_id==VersionType.id)\
@@ -368,7 +363,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         # clear the tableWidget
         self.shots_tableWidget.clear()
         
-        shot_vtypes = db.query(VersionType)\
+        shot_vtypes = VersionType.query()\
             .filter(VersionType.type_for=='Shot')\
             .order_by(VersionType.name)\
             .all()
@@ -390,7 +385,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
             return
         
         # get all the shots for the sequence
-        sequences = db.query(Sequence)\
+        sequences = Sequence.query()\
             .filter(Sequence.project==project)\
             .order_by(Sequence.name)\
             .all()
@@ -408,7 +403,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         row = 0
         column = 0
         for sequence in sequences:    
-            shots = db.query(Shot)\
+            shots = Shot.query()\
                 .filter(Shot.sequence==sequence)\
                 .order_by(Shot.number)\
                 .all()
@@ -437,13 +432,8 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                     item = QtGui.QTableWidgetItem()
                     item.setTextAlignment(0x0004 | 0x0080)
                     #set the thumbnail
-                    if shot.thumbnail:
-                        thumbnail_full_path = os.path.expandvars(
-                            os.path.join(
-                                "$" + conf.repository_env_key,
-                                shot.thumbnail
-                            )
-                        )
+                    if os.path.exists(shot.thumbnail_full_path):
+                        thumbnail_full_path = shot.thumbnail_full_path
                         pixmap = QtGui.QPixmap(thumbnail_full_path)
                         pixmap = pixmap.scaled(
                             conf.thumbnail_size[0] / 2,
@@ -482,7 +472,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                         column += 1
                         
                         # get the latest version of that type and take
-                        version = db.query(Version)\
+                        version = Version.query()\
                             .join(VersionType)\
                             .filter(Version.version_of==shot)\
                             .filter(Version.type_id==VersionType.id)\
@@ -595,77 +585,60 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         if hasattr(item, 'version'):
             version = item.version
         
-        if version:
-            for status in conf.status_list_long_names:
-                action = QtGui.QAction(status, menu)
-                action.setCheckable(True)
-                if version.status == status:
-                    action.setChecked(True)
-                menu.addAction(action)
-            
-            # add separator
-            menu.addSeparator()
-            
-            # add browse output
-            action = QtGui.QAction("Browse Outputs", menu)
+        # no version, just return
+        if not version:
+            return
+        
+        for status in conf.status_list_long_names:
+            action = QtGui.QAction(status, menu)
+            action.setCheckable(True)
+            if version.status == status:
+                action.setChecked(True)
             menu.addAction(action)
+        
+        # add separator
+        menu.addSeparator()
+        
+        # add browse output
+        action = QtGui.QAction("Browse Outputs", menu)
+        menu.addAction(action)
+        
+        selected_item = menu.exec_(global_position)
+        
+        if selected_item:
+            # set the version status to the chosen status
             
-            selected_item = menu.exec_(global_position)
+            choice = selected_item.text()
             
-            if selected_item:
-                # set the version status to the chosen status
+            if choice in conf.status_list_long_names:
+                version.status = choice
+                version.save()
                 
-                choice = selected_item.text()
+                # update the item
+                assert isinstance(item, QtGui.QTableWidgetItem)
+                item.setText(
+                    version.status + '\n' + version.created_by.name
+                )
+                index = conf.status_list.index(version.status)
+                bgcolor = conf.status_bg_colors[index]
+                fgcolor = conf.status_fg_colors[index]
                 
-                if choice in conf.status_list_long_names:
-                    version.status = choice
-                    version.save()
-                    
-                    # update the item
-                    assert isinstance(item, QtGui.QTableWidgetItem)
-                    item.setText(
-                        version.status + '\n' + version.created_by.name
+                bg = item.background()
+                bg.setColor(QtGui.QColor(*bgcolor))
+                item.setBackground(bg)
+                
+                fg = item.foreground()
+                fg.setColor(QtGui.QColor(*fgcolor))
+                item.setForeground(fg)
+                
+                item.setBackgroundColor(QtGui.QColor(*bgcolor))
+            elif choice == "Browse Outputs":
+                path = os.path.expandvars(version.output_path)
+                try:
+                    utils.open_browser_in_location(path)
+                except IOError:
+                    QtGui.QMessageBox.critical(
+                        self,
+                        "Error",
+                        "Path doesn't exists:\n" + path
                     )
-                    index = conf.status_list.index(version.status)
-                    bgcolor = conf.status_bg_colors[index]
-                    fgcolor = conf.status_fg_colors[index]
-                    
-                    bg = item.background()
-                    bg.setColor(QtGui.QColor(*bgcolor))
-                    item.setBackground(bg)
-                    
-                    fg = item.foreground()
-                    fg.setColor(QtGui.QColor(*fgcolor))
-                    item.setForeground(fg)
-                    
-                    item.setBackgroundColor(QtGui.QColor(*bgcolor))
-                elif choice == "Browse Outputs":
-                    
-                    import os
-                    import subprocess
-                    import platform
-                    
-                    command = []
-                    
-                    platform_info = platform.platform()
-                    
-                    if platform_info.startswith('Linux'):
-                        command = 'nautilus '
-                    elif platform_info.startswith('Windows'):
-                        command = 'explorer '
-                    elif platform_info.startswith('Darwin'):
-                        command = 'open -a /System/Library/CoreServices/Finder.app'
-                    
-                    path = os.path.expandvars(version.output_path)
-                    command += " " + path
-                    
-                    if os.path.exists(path):
-                        subprocess.call(command, shell=True)
-                    else:
-                        QtGui.QMessageBox.critical(
-                            self,
-                            "Error",
-                            "Path doesn't exists:\n" + path
-                        )
-                    
-                    

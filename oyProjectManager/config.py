@@ -322,7 +322,7 @@ class Config(object):
         shot_thumbnail_path = "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{shot.code}}/Thumbnail",
         shot_thumbnail_filename = "{{shot.code}}_thumbnail.{{extension}}",
         
-        thumbnail_format = "JPG",
+        thumbnail_format = "jpg",
         thumbnail_quality = 70,
         thumbnail_size = [320, 180],
         

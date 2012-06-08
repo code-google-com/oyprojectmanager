@@ -234,7 +234,7 @@ class ProjectPropertiesTester(unittest.TestCase):
         self.assertEqual(new_project.client.name, new_client_2_name)
         # check if a client is created with that name
         
-        new_client_2 = db.query(Client).filter(Client.name==new_client_2_name).first()
+        new_client_2 = Client.query().filter(Client.name==new_client_2_name).first()
         self.assertIsInstance(new_client_2, Client)
         
         self.assertEqual(new_project.fps, new_fps)

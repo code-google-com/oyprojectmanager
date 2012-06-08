@@ -103,7 +103,7 @@ class StatusViewerTester(unittest.TestCase):
         
         db.setup()
         
-        asset_vtypes = db.query(VersionType)\
+        asset_vtypes = VersionType.query()\
             .filter(VersionType.type_for=='Asset')\
             .order_by(VersionType.name)\
             .all()
@@ -155,12 +155,12 @@ class StatusViewerTester(unittest.TestCase):
         proj2 = Project('Test Project 2')
         proj2.save()
         
-        asset_vtypes = db.query(VersionType)\
+        asset_vtypes = VersionType.query()\
             .filter(VersionType.type_for=='Asset')\
             .order_by(VersionType.name)\
             .all()
         
-        admin = db.query(User).first()
+        admin = User.query().first()
         
         asset1 = Asset(proj1, 'Test Asset 1', type='Char')
         asset1.save()
@@ -318,12 +318,12 @@ class StatusViewerTester(unittest.TestCase):
         proj2 = Project('Test Project 2')
         proj2.save()
         
-        shot_vtypes = db.query(VersionType)\
+        shot_vtypes = VersionType.query()\
             .filter(VersionType.type_for=='Shot')\
             .order_by(VersionType.name)\
             .all()
         
-        admin = db.query(User).first()
+        admin = User.query().first()
         
         # seqs for proj1
         seq1 = Sequence(proj1, 'Test Seq 1')

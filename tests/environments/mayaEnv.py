@@ -46,11 +46,11 @@ class MayaTester(unittest.TestCase):
         self.asset1 = Asset(self.project, "Test Asset 1")
 
         # version type
-        self.asset_vtypes = db.query(VersionType).\
-        filter(VersionType.type_for == "Asset").all()
+        self.asset_vtypes = VersionType.query()\
+            .filter(VersionType.type_for == "Asset").all()
         
-        self.shot_vtypes = db.query(VersionType).\
-        filter(VersionType.type_for == "Shot").all()
+        self.shot_vtypes = VersionType.query()\
+            .filter(VersionType.type_for == "Shot").all()
 
         self.user1 = User(name="Test User 1", email="user1@test.com")
 

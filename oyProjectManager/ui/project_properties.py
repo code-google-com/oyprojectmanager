@@ -92,7 +92,7 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         # clients
         clients = map(
             lambda x: x.name,
-            db.query(Client).order_by(Client.name.asc()).all()
+            Client.query().order_by(Client.name.asc()).all()
         )
         self.clients_comboBox.clear()
         self.clients_comboBox.addItems(clients)
@@ -179,7 +179,7 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         name = self.name_lineEdit.text()
         code = self.code_lineEdit.text()
         client_name = self.clients_comboBox.currentText()
-        client = db.query(Client).filter(Client.name==client_name).first()
+        client = Client.query().filter(Client.name==client_name).first()
         if not client:
             # just create the client
             client = Client(name=client_name)

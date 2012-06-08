@@ -46,30 +46,30 @@ class ProjectManager_Tester(unittest.TestCase):
         # re-parse the settings
         #        conf._parse_settings()
         
-        # for PySide
-#        if QtGui.qApp is None:
-#            print "qApp is None"
-#            self.app = QtGui.QApplication(sys.argv)
-#        else:
-#            print "qApp is OK"
-#            self.app = QtGui.qApp
-        
         # for PyQt4
         self.app = QtGui.QApplication(sys.argv)
     
     def tearDown(self):
         """clean up the test
         """
-        # for PySide
-#        self.app.quit()
-#        del self.app
-        
         # set the db.session to None
         db.session = None
 
         # delete the temp folders
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
+        
+    def show_dialog(self, dialog):
+        """show the given dialog
+        """
+        dialog.show()
+        self.app.exec_()
+        self.app.connect(
+            self.app,
+            QtCore.SIGNAL("lastWindowClosed()"),
+            self.app,
+            QtCore.SLOT("quit()")
+        )
     
     def test_projects_comboBox_is_filled_with_projects_on_the_database(self):
         """testing if the projects_comboBox is filled with Project instances
@@ -87,14 +87,8 @@ class ProjectManager_Tester(unittest.TestCase):
         
         # open UI
         dialog = project_manager.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+#        self.show_dialod(dialog)
+
         
         # check if the projects are listed there
         self.assertEqual(dialog.projects_comboBox.count(), 3)
@@ -119,7 +113,6 @@ class ProjectManager_Tester(unittest.TestCase):
         # now run the UI
         QTest.mouseClick(dialog.close_pushButton, Qt.LeftButton)
         self.assertEqual(dialog.isVisible(), False)        
-
     
     def test_projects_comboBox_index_is_0_on_init(self):
         """testing if the projects_comboBox is set to the first project on the
@@ -158,14 +151,11 @@ class ProjectManager_Tester(unittest.TestCase):
         self.assertTrue(project1 in dialog.projects_comboBox.projects)
         self.assertTrue(project2 in dialog.projects_comboBox.projects)
         self.assertTrue(project3 in dialog.projects_comboBox.projects)
-        
-        
     
     def test_sequences_comboBox_is_filled_with_sequences_from_the_current_project(self):
         """testing if the sequences_comboBox is filled with the correct
         sequences from the currently chosen Project instance
         """
-        
         project1 = Project("Test Project 1")
         project2 = Project("Test Project 2")
         
@@ -186,14 +176,7 @@ class ProjectManager_Tester(unittest.TestCase):
         
         # create dialog
         dialog = project_manager.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+#        self.show_dialog(dialog)
         
         # set the project to project2
         index = dialog.projects_comboBox.findText(project2.name)
@@ -224,7 +207,6 @@ class ProjectManager_Tester(unittest.TestCase):
 
         self.assertTrue(seq1.name in item_texts)
         self.assertTrue(seq2.name in item_texts)
-
 
     def test_sequences_comboBox_caches_Sequence_instances_in_sequences_attribute(self):
         """testing if the sequence_comboBox caches the Sequence instances in
@@ -328,14 +310,7 @@ class ProjectManager_Tester(unittest.TestCase):
         db.session.commit()
         
         dialog = project_manager.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+#        self.show_dialog(dialog)
         
         # set to project1
         index = dialog.projects_comboBox.findText(project1.name)
@@ -429,4 +404,38 @@ class ProjectManager_Tester(unittest.TestCase):
                 project_path
             )
         )
- 
+    
+    def test_edit_shot_button_opens_up_shot_editor_with_the_given_shot(self):
+        """testing if hitting the edit shot button opens up the shot_editor
+        dialog
+        """
+        proj1 = Project('Test Project')
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'Test Sequence')
+        seq1.save()
+        
+        shot = Shot(seq1, 1, 2, 435)
+        shot.handle_at_start = 23
+        shot.handle_at_end = 12
+        shot.save()
+        
+        dialog1 = project_manager.MainDialog()
+#        self.show_dialog(dialog1)
+        
+        # hit to the edit shot button
+#        QTest.mouseClick(
+#            dialog1.edit_shot_pushButton,
+#            QtCore.Qt.LeftButton
+#        )
+        
+        # check if the shot_editor dialog is opened
+        # HOW ????
+        self.fail('test is not finished yet')
+    
+    def test_new_shot_name_starts_with_shot_prefix(self):
+        """testing if the given shot name also includes the shot prefix the
+        included shot prefix will be removed
+        """
+        
+        self.fail('test is not implemented yet')

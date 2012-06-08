@@ -375,7 +375,7 @@ class Project(Base):
                 logger.debug("db.session is None, setting up a new session")
                 db.setup()
             
-            proj_db = db.query(Project).filter_by(name=name).first()
+            proj_db = Project.query().filter_by(name=name).first()
             
             if proj_db is not None:
                 # return the database instance
@@ -806,6 +806,18 @@ class Sequence(Base):
         
         new_shots = []
         for shot_number in new_shot_numbers:
+            # the shot_number can not start with the project.shot_number_prefix
+            if shot_number.startswith(self.project.shot_number_prefix):
+                # remove it
+                shot_number = re.sub(
+                    r"^[" + self.project.shot_number_prefix + "]+",
+                    "",
+                    shot_number
+                )
+            
+            # if the shot_number starts with zeros ('0000') remove them
+            shot_number = re.sub(r'^[0]+', '', shot_number)
+                
             # create a new shot instance
             new_shots.append(Shot(self, shot_number))
         
@@ -848,7 +860,7 @@ class Sequence(Base):
             
             new_shot_number = str(shot_number) + letter
             
-            shot_from_db = db.query(Shot).\
+            shot_from_db = Shot.query().\
                 filter(Shot.sequence_id==self.id).\
                 filter(Shot.number==new_shot_number).\
                 first()
@@ -999,8 +1011,6 @@ class VersionableBase(Base):
     
     description = Column(String)
     
-    thumbnail = Column(String)
-    
     @synonym_for("_versions")
     @property
     def versions(self):
@@ -1029,8 +1039,51 @@ class VersionableBase(Base):
                             "string or unicode")
         
         return description
-
-
+    
+    @property
+    def thumbnail_full_path(self):
+        """returns the thumbnail full path for this versionable
+        """
+        # just render a thumbnail path
+        template_vars = {}
+        
+        # define the template for the versionable type (asset or shot)
+        path_template = ''
+        filename_template = ''
+        if isinstance(self, Asset):
+            path_template = jinja2.Template(conf.asset_thumbnail_path)
+            filename_template = jinja2.Template(conf.asset_thumbnail_filename)
+            
+            template_vars.update(
+                {
+                    "project": self.project,
+                    "asset": self,
+                    "extension": conf.thumbnail_format
+                }
+            )
+        elif isinstance(self, Shot):
+            path_template = jinja2.Template(conf.shot_thumbnail_path)
+            filename_template = jinja2.Template(conf.shot_thumbnail_filename)
+            
+            template_vars.update(
+                {
+                    "project": self.project,
+                    "sequence": self.sequence,
+                    "shot": self,
+                    "extension": conf.thumbnail_format
+                }
+            )
+        
+        # render the templates
+        path = path_template.render(**template_vars)
+        filename = filename_template.render(**template_vars)
+        
+        # the path should be $REPO relative
+        thumbnail_full_path = os.path.join(
+            os.environ[conf.repository_env_key], path, filename
+        ).replace('\\', '/')
+        
+        return thumbnail_full_path
 
 class Shot(VersionableBase):
     """The class that enables the system to manage shot data.
@@ -1242,12 +1295,6 @@ class Shot(VersionableBase):
         # remove anything which is not a number or letter
         number = re.sub(r"[^0-9a-zA-Z\-]+", "", number)
 
-        # remove anything which is not a number from the beginning
-        #number = re.sub(
-        #    r"(^[^0-9]*)([0-9]*)([a-zA-Z]{0,1})([a-zA-Z0-9]*)",
-        #    r"\2\3",
-        #    number
-        #).upper()
         number = number.upper()
 
         if number == "":
@@ -1815,6 +1862,11 @@ class Version(Base):
         self.extension = extension
         
         self.status = status
+    
+    def __repr__(self):
+        """The representation of this version
+        """
+        return "<Version: %s>" % self.filename
     
     def __eq__(self, other):
         """the equality operator
@@ -3140,7 +3192,7 @@ class EnvironmentBase(object):
         path = self.trim_server_path(path)
         
         # get all the version instance at that path
-        return db.query(Version)\
+        return Version.query()\
             .filter(Version.path.startswith(path))\
             .order_by(Version.id.desc())\
             .all()
@@ -3163,7 +3215,7 @@ class EnvironmentBase(object):
         path = self.trim_server_path(path)
         
         # try to get a version with that info
-        version = db.query(Version)\
+        version = Version.query()\
             .filter(Version.path==path)\
             .filter(Version.filename==filename)\
             .first()

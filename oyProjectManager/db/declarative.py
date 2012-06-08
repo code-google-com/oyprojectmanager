@@ -7,4 +7,12 @@
 """
 
 from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
+
+
+class ORMClass(object):
+    @classmethod
+    def query(cls):
+        from oyProjectManager.db import query
+        return query(cls)
+
+Base = declarative_base(cls=ORMClass)

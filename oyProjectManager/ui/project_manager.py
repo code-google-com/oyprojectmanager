@@ -9,7 +9,7 @@ import sys
 
 import oyProjectManager
 from oyProjectManager import db
-from oyProjectManager.ui import project_properties
+from oyProjectManager.ui import project_properties, shot_editor
 from oyProjectManager.core.models import Project, Sequence, Shot
 
 
@@ -29,7 +29,6 @@ elif qt_module == "PyQt4":
     from PyQt4 import QtGui, QtCore
     from oyProjectManager.ui import project_manager_UI_pyqt4 as project_manager_UI
 
-
 def UI():
     """the UI to call the dialog by itself
     """
@@ -45,7 +44,6 @@ def UI():
     
     mainDialog = MainDialog()
     mainDialog.show()
-    #app.setStyle('Plastique')
     app.exec_()
 
     if self_quit:
@@ -57,7 +55,6 @@ def UI():
         )
 
     return mainDialog
-
 
 class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
     """the main dialog of the system
@@ -80,7 +77,7 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
         self.projects_comboBox.projects = []
         self.sequences_comboBox.sequences = []
         self.shots_comboBox.shots = []
-
+        
         # setup the database
         if db.session is None:
             db.setup()
@@ -144,6 +141,13 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
             self.new_sequence_pushButton_clicked
         )
         
+        # edit_shot_pushButton
+        QtCore.QObject.connect(
+            self.edit_shot_pushButton,
+            QtCore.SIGNAL('clicked()'),
+            self.edit_shot_pushButton_clicked
+        )
+        
         # new_shots_pushButton
         QtCore.QObject.connect(
             self.new_shots_pushButton,
@@ -173,7 +177,7 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
         """
         
         # fill projects
-        projects = db.query(Project)\
+        projects = Project.query()\
             .order_by(Project.name.asc())\
             .all()
 
@@ -192,7 +196,7 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
         """updates the sequences_comboBox according to the current project
         """
         project = self.get_current_project()
-        sequences = db.query(Sequence)\
+        sequences = Sequence.query()\
             .filter(Sequence.project==project)\
             .order_by(Sequence.name.asc())\
             .all()
@@ -226,7 +230,7 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
         """
         
         sequence = self.get_current_sequence()
-        shots = db.query(Shot)\
+        shots = Shot.query()\
             .filter(Shot.sequence==sequence)\
             .order_by(Shot.code.asc())\
             .all()
@@ -247,9 +251,16 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
         index = self.sequences_comboBox.currentIndex()
         if index != -1:
             return self.sequences_comboBox.sequences[index]
-        
         return None
-
+    
+    def get_current_shot(self):
+        """Returns the currently selected Shot instance fom the UI
+        """
+        index = self.shots_comboBox.currentIndex()
+        if index != -1:
+            return self.shots_comboBox.shots[index]
+        return None
+    
     def new_project_pushButton_clicked(self):
         """runs when new_project_pushButton is clicked
         """
@@ -316,10 +327,19 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
                 index = self.sequences_comboBox.findText(new_sequence.name)
                 self.sequences_comboBox.setCurrentIndex(index)
     
+    def edit_shot_pushButton_clicked(self):
+        """runs when the edit_shot_pushButton is clicked
+        """
+        shot = self.get_current_shot()
+        
+        if shot:
+            # create the shot_editor dialog
+            dialog = shot_editor.MainDialog(shot, self)
+            dialog.exec_()
+    
     def new_shots_pushButton_clicked(self):
         """runs when new_shots_pushButton clicked
         """
-        
         sequence = self.get_current_sequence()
         
         if sequence is None:
