@@ -167,25 +167,25 @@ class ProjectPropertiesTester(unittest.TestCase):
             new_project.shot_number_padding
         )
         
-        self.assertEqual(
-            dialog.revision_number_prefix_lineEdit.text(),
-            new_project.rev_number_prefix
-        )
+#        self.assertEqual(
+#            dialog.revision_number_prefix_lineEdit.text(),
+#            new_project.rev_number_prefix
+#        )
         
-        self.assertEqual(
-            dialog.revision_number_padding_spinBox.value(),
-            new_project.rev_number_padding
-        )
+#        self.assertEqual(
+#            dialog.revision_number_padding_spinBox.value(),
+#            new_project.rev_number_padding
+#        )
         
-        self.assertEqual(
-            dialog.version_number_prefix_lineEdit.text(),
-            new_project.ver_number_prefix
-        )
+#        self.assertEqual(
+#            dialog.version_number_prefix_lineEdit.text(),
+#            new_project.ver_number_prefix
+#        )
         
-        self.assertEqual(
-            dialog.version_number_padding_spinBox.value(),
-            new_project.ver_number_padding
-        )
+#        self.assertEqual(
+#            dialog.version_number_padding_spinBox.value(),
+#            new_project.ver_number_padding
+#        )
         
         self.assertEqual(
             dialog.structure_textEdit.toPlainText(),

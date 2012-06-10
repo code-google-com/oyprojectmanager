@@ -40,7 +40,7 @@ Version History
 
 * Added the ``query`` method as a class method to the Base class in the
   declarativeBase which will let you do queries directly by using the class
-  itself:
+  itself::
     
     # instead of doing this
     projs = db.query(Project).all()
@@ -51,9 +51,9 @@ Version History
     # To query for an Asset
     my_asset = Asset.query().filter(Asset.name=='test').first()
 
-* The
-  :attr:`~oyProjectManager.core.models.VersionableBase.thumbnail` path is not
-  stored in the DB anymore but it is always rendered from the config file.
+* The thumbnail path is not stored in the DB anymore but it is always rendered
+  from the config file and the attribute is renamed to
+  :attr:`~oyProjectManager.core.models.VersionableBase.thumbnail_full_path`
 
 * Added ``shot_editor`` UI which can be reached through ``project_manager``,
   with it you can edit shot info and upload thumbnails for the shot.
@@ -70,6 +70,11 @@ Version History
   in which the latter case will result a shot name of "SHSH001", and giving a
   shot number of "00010" will correctly create a shot with the number is set to
   "10" instead of "00010".
+  
+* Added installation information to the documentation.
+
+* Updated documentation of :class:`~oyProjectManager.config.Config` and
+  configuration of oyProjectManager.
 
 0.2.3
 -----

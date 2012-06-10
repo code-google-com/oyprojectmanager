@@ -11,8 +11,10 @@ Welcome to oyProjectManager's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    
+   installation.rst
+   configure.rst
    changelog.rst
 
 Summary

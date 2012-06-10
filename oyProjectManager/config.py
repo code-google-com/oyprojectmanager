@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+# Copyright (c) 2009-2012, Erkan Ozgur Yilmaz
+# 
+# This module is part of oyProjectManager and is released under the BSD 2
+# License: http://www.opensource.org/licenses/BSD-2-Clause
 
 import os
 import logging
@@ -6,173 +10,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Config(object):
-    """config abstraction
+    """Config abstraction
     
-    Idea is coming from Sphinx config
+    Idea is coming from Sphinx config.
     
-    **config.py File**
+    Holds system wide configuration variables. See
+    `configuring oyProjectManager`_ for more detail.
     
-    oyProjectManager uses the ``config.py`` to let one to customize the system
-    config.
-    
-    The ``config.py`` file is searched in a couple of places through the
-    system:
-        
-      * under "~/.oypmrc/" directory (not yet)
-      * under "$OYPROJECTMANAGER_PATH"
-    
-    The first path is a folder in the users home dir. The second one is a path
-    defined by the ``OYPROJECTMANAGER_PATH`` environment variable.
-    
-    Defining the ``config.py`` by using the environment variable gives the most
-    customizable and consistent setup through the studio. You can set
-    ``OYPROJECTMANAGER_PATH`` to a shared folder in your fileserver where all
-    the users can access.
-    
-    Because, ``config.py`` is a regular Python code which is executed by
-    oyProjectManager, you can do anything you were doing in a normal Python
-    script. This is very handy if you have another source of information which
-    is reachable by a Python script.
-    
-    In config.py you can:
-      
-      * Add new users
-      * Customize default project structure
-      * Customize file naming convention
-      * Customize path naming convention
-      * Customize the database file name
-      * Customize server paths
-      * Customize environments (host programs running oyProjectManager)
-      * and many more
-    
-    If there is no ``OYPROJECTMANAGER_PATH`` variable in your current
-    environment or it is not showing an existing path or there is no
-    ``config.py`` file the system will use the system defaults and it is
-    probably not going to work efficiently.
-    
-    Sample usage is::
-    
-      from oyProjectManager import config
-      conf = config.Config()
-      
-      print conf.database_url # will return sqlite:///$REPO/project_manager.db
-      
-      # print all the user names defined in the config.py
-      for user in conf.users:
-          print user.name
-    
-    **About the Users**
-    
-    The users in the oyProjectManager is held in the config file as a python
-    dictionary. You can add or remove users::
-      
-      users_data = [{"name": "Erkan Ozgur Yilmaz",
-                     "initials":"eoy",
-                     "email": "eoyilmaz@company.com"}]
-    
-    As seen in the above example the ``users_data`` variable is a python list
-    holding python dictionary, and the dictionary has keys like ``name``,
-    ``initials`` and ``email``.
-    
-    The users are created from the ``config.py`` file to be able to add them
-    easly (the UI will be written in next versions).
-    
-    **Config Variables**
-    
-    TODO: Add explanation of each variable
-    
-    Variables which can be set in ``config.py`` as follows::
-    
-      database_url = "sqlite:///$REPO/project_manager.db"
-    
-      shot_number_prefix = "SH"
-      shot_number_padding = 3
-      
-      rev_number_prefix = "r"
-      rev_number_padding = 2
-      
-      ver_number_prefix = "v"
-      ver_number_padding = 3
-      
-      default_fps = 25
-      
-      default_take_name = "MAIN"
-      
-      users_data = [{"name": "Administrator", "initials": "adm"}]
-      
-      repository_env_key = "REPO"
-      
-      repository = [
-          {
-              "name": "Default",
-              "windows_path": "~/Projects",
-              "linux_path": "~/Projects",
-              "osx_path": "~/Projects"
-          }
-      ]
-      
-      environments = [
-          {
-              "name":"Maya",
-              "extensions":["ma", "mb"]
-          },
-          {
-              "name":"Houdini",
-              "extensions":["hip"]
-          },
-          {
-              "name":"Nuke",
-              "extensions": ["nk"]
-          },
-          {
-              "name":"Photoshop",
-              "extensions": ["psd", "pdd"],
-              "export_extensions": ["tif", "tga", "bmp", "jpg", "iff"]
-          },
-          {
-              "name":"3DEqualizer",
-              "extensions": ["3te"]
-          },
-          {
-              "name":"Fusion",
-              "extensions": ["comp"]
-          }
-      ]
-      
-      resolution_presets = {
-          "PC Video": [640, 480, 1.0],
-          "NTSC": [720, 486, 0.91],
-          "NTSC 16:9": [720, 486, 1.21],
-          "PAL": [720, 576, 1.067],
-          "PAL 16:9": [720, 576, 1.46],
-          "HD 720": [1280, 720, 1.0],
-          "HD 1080": [1920, 1080, 1.0],
-          "1K Super 35": [1024, 778, 1.0],
-          "2K Super 35": [2048, 1556, 1.0],
-          "4K Super 35": [4096, 3112, 1.0],
-          "A4 Portrait": [2480, 3508, 1.0],
-          "A4 Landscape": [3508, 2480, 1.0],
-          "A3 Portrait": [3508, 4960, 1.0],
-          "A3 Landscape": [4960, 3508, 1.0],
-          "A2 Portrait": [4960, 7016, 1.0],
-          "A2 Landscape": [7016, 4960, 1.0],
-          "50x70cm Poster Portrait": [5905, 8268, 1.0],
-          "50x70cm Poster Landscape": [8268, 5905, 1.0],
-          "70x100cm Poster Portrait": [8268, 11810, 1.0],
-          "70x100cm Poster Landscape": [11810, 8268, 1.0],
-          "1k Square": [1024, 1024, 1.0],
-          "2K Square": [2048, 2048, 1.0],
-          "3K Square": [3072, 3072, 1.0],
-          "4K Square": [4096, 4096, 1.0],
-      }
-      
-      default_resolution_preset = "HD 1080"
-      
-      project_structure = "" # TODO: fix this
-      
-      version_types = ""  # TODO: fix this
-    
-    
+    .. _configuring oyProjectManager: ../configure.html
     """
     
     default_config_values = dict(
@@ -196,19 +41,19 @@ class Config(object):
         ],
         
         status_bg_colors = [
-            [192,  80,  77], #WTS
-            [255, 192,   0], #WIP
-            [ 89, 141, 213], #REV
-            [155, 187,  89], #APP
-            [155, 187,  89], #CMP
+            (192,  80,  77), #WTS
+            (255, 192,   0), #WIP
+            ( 89, 141, 213), #REV
+            (155, 187,  89), #APP
+            (155, 187,  89), #CMP
         ],
         
         status_fg_colors = [
-            [255, 255, 255], #WTS
-            [  0,   0,   0], #WIP
-            [  0,   0,   0], #REV
-            [  0,   0,   0], #APP
-            [  0,   0,   0], #CMP
+            (255, 255, 255), #WTS
+            (  0,   0,   0), #WIP
+            (  0,   0,   0), #REV
+            (  0,   0,   0), #APP
+            (  0,   0,   0), #CMP
         ],
         
         shot_number_prefix = "SH",
@@ -375,13 +220,7 @@ class Config(object):
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": """{{version.path}}/anim
                         {{version.path}}/cache
-                        {{version.path}}/exports
-                        {{version.path}}/fx_scenes
-                        {{version.path}}/maps
-                        {{version.path}}/misc
-                        {{version.path}}/obj
-                        {{version.path}}/sim_in
-                        {{version.path}}/sim_out""",
+                        {{version.path}}/exports""",
                 "environments": ["Maya", "Houdini"],
                 "type_for": "Shot"
             },
