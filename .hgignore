@@ -1,0 +1,16 @@
+# Ignore file for oyProjectManager
+
+# use glob syntax
+syntax: glob
+
+build/*
+dist/*
+oyProjectManager.egg-info/*
+docs/build/*
+docs/source/generated/*
+docs/source/static/.backup/*
+*.pyc
+*~
+.~*
+.DS_Store
+.coverage
