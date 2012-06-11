@@ -13,6 +13,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
    
+   screenshots.rst
    installation.rst
    configure.rst
    changelog.rst
@@ -32,6 +33,7 @@ Summary
    oyProjectManager.core.errors.CircularDependencyError
    oyProjectManager.core.models
    oyProjectManager.core.models.Asset
+   oyProjectManager.core.models.Client
    oyProjectManager.core.models.EnvironmentBase
    oyProjectManager.core.models.Project
    oyProjectManager.core.models.Sequence
@@ -40,6 +42,7 @@ Summary
    oyProjectManager.core.models.User
    oyProjectManager.core.models.Version
    oyProjectManager.core.models.VersionableBase
+   oyProjectManager.core.models.VersionStatusComparator
    oyProjectManager.core.models.VersionType
    oyProjectManager.db
    oyProjectManager.db.declarative

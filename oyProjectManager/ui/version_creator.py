@@ -8,12 +8,11 @@ import os
 import sys
 import logging
 import datetime
-import jinja2
 from sqlalchemy.exc import IntegrityError
 
 from sqlalchemy.sql.expression import distinct
 
-
+import oyProjectManager
 from oyProjectManager import config, db, utils
 from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
                                           Version, VersionType, Shot, User,
@@ -184,6 +183,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         super(MainDialog, self).__init__(parent)
         self.setupUi(self)
+        
+        # change the window title
+        self.setWindowTitle(
+            'Version Creator | ' + \
+            'oyProjectManager v' + oyProjectManager.__version__
+        )
         
         self.config = config.Config()
         self.repo = Repository()

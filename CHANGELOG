@@ -1,6 +1,12 @@
 Version History
 ===============
 
+0.2.4.1
+-------
+* Fixed titles of ``version_creator`` and ``status_manager`` UIs.
+
+* Added screenshots to the documentation.
+
 0.2.4
 -----
 * Added :attr:`~oyProjectManager.core.models.Asset.type` attribute to the
@@ -66,7 +72,7 @@ Version History
 * The given shot_number is now filtered in
   :meth:`~oyProjectManager.core.models.Sequence.add_shot` method of
   :class:`~oyProjectManager.core.models.Sequence` class, so giving a shot name
-  of "SH001" will create a new shot with shot number is "1" istead of "SH001"
+  of "SH001" will create a new shot with shot number is "1" instead of "SH001"
   in which the latter case will result a shot name of "SHSH001", and giving a
   shot number of "00010" will correctly create a shot with the number is set to
   "10" instead of "00010".
@@ -189,7 +195,7 @@ Version History
 
 * :class:`~oyProjectManager.core.models.Version` now has
   :meth:`~oyProjectManager.core.models.Version.is_latest_published_version` and
-  :meth:`~oyProjectManager.core.models.Version.
+  :meth:`~oyProjectManager.core.models.Version`.
 
 * Fixed a bug in the ``version_creator`` UI where the ``shots_listWidget`` was
   not correctly cleared after switching the current project from a project with
@@ -215,7 +221,7 @@ Version History
   listWidget, which will be much suitable for viewing all the types and takes
   at the first sight.
 
-* ``version_creator``now only lists active
+* ``version_creator`` now only lists active
   :class:`~oyProjectManager.core.models.Project`\ s.
 
 * Fixed ``maya_env`` references to Versions in the same workspace now updating
@@ -353,7 +359,7 @@ Version History
   ``project_id`` column.
 
 * Moved the ``description`` attribute to the
- :class:`~oyProjectManager.core.models.VersionableBase` class, which
+  :class:`~oyProjectManager.core.models.VersionableBase` class, which
   was a common attribute for the
   :class:`~oyProjectManager.core.models.Asset`` and
   :class:`~oyProjectManager.core.models.Shot` classes.

@@ -12,7 +12,6 @@ from oyProjectManager import db
 from oyProjectManager.ui import project_properties, shot_editor
 from oyProjectManager.core.models import Project, Sequence, Shot
 
-
 qt_module_key = "PREFERRED_QT_MODULE"
 qt_module = "PyQt4"
 

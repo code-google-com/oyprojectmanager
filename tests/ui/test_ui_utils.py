@@ -44,7 +44,8 @@ class UIUtilsTester(unittest.TestCase):
         # delete the temp folders
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
-     
+    
+    
     def create_test_image(self, pixmap_full_path):
         """Creates a test image at the given path
         """
@@ -93,8 +94,6 @@ class UIUtilsTester(unittest.TestCase):
         
         asset = Asset(proj, "Test Asset")
         asset.save()
-        
-        self.assertEqual(asset.thumbnail, None)
         
         # save the image to the temp directory
         pixmap_full_path = os.path.join(
