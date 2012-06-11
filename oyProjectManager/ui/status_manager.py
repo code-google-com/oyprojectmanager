@@ -9,6 +9,7 @@ import sys
 import logging
 from sqlalchemy.sql.expression import distinct, func
 
+import oyProjectManager
 from oyProjectManager import config, db, utils
 from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
                                           Version, VersionType, Shot, User,
@@ -82,6 +83,12 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         # setup the database
         if db.session is None:
             db.setup()
+        
+        # change the window title
+        self.setWindowTitle(
+            'Status Manager | ' + \
+            'oyProjectManager v' + oyProjectManager.__version__
+        )
         
         # data attributes
         self.projects_comboBox.projects = []

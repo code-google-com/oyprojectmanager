@@ -8,9 +8,7 @@ from copy import copy
 import os
 import re
 import logging
-#import datetime
 import jinja2
-#from beaker import cache
 
 from sqlalchemy import (orm, Column, String, Integer, Float, Enum, ForeignKey,
                         UniqueConstraint, Boolean)
@@ -26,9 +24,6 @@ from oyProjectManager.utils import cache
 from oyProjectManager import db, conf
 from oyProjectManager.db.declarative import Base
 from oyProjectManager.core.errors import CircularDependencyError
-
-# create a cache with the CacheManager
-#bCache = cache.CacheManager()
 
 # disable beaker DEBUG messages
 logger = logging.getLogger('beaker.container')
@@ -1090,15 +1085,15 @@ class Shot(VersionableBase):
     
     .. note::
       
-      There is a design flaw, which I've recognized at the day I'll release
-      version 0.2.0. The ``_code`` of the Shot is not stored in the database,
-      whereas the ``_code`` of a the Asset is. So one can not query Shot's by
-      using the ``_code`` attribute, but it is easy to get the same effect by
-      using the ``number`` attribute. So you need to create you queries with
-      ``number`` instead of ``_code``.
+       There is a design flaw, which I've recognized at the day I'll release
+       version 0.2.0. The ``_code`` of the Shot is not stored in the database,
+       whereas the ``_code`` of a the Asset is. So one can not query Shot's by
+       using the ``_code`` attribute, but it is easy to get the same effect by
+       using the ``number`` attribute. So you need to create you queries with
+       ``number`` instead of ``_code``.
+       
+       I hope I'll fix it in a later version.
       
-      I hope I'll fix it in a later version.
-    
     The total of the handle attributes should not be bigger then duration-1, in
     which results no frame for the real shot.
     
@@ -1123,6 +1118,7 @@ class Shot(VersionableBase):
     
     :param description: A string holding the short description of this shot.
       Can be skipped.
+    
     """
     
     __tablename__ = "Shots"
@@ -1341,7 +1337,7 @@ class Shot(VersionableBase):
         """
         
         # TODO: there is a weird situation here need to fix it later by
-        # introducing a new variable to the Project
+        #       introducing a new variable to the Project
         if "-" in self.number:
             return self.project.shot_number_prefix + self.number
         else:
@@ -1405,7 +1401,7 @@ class Asset(VersionableBase):
     every change made to that asset file.
     
     The name attribute will be copied to the code attribute if the code
-    
+    argument is None or an empty string.
     
     :param project: The :class:`~oyProjectManager.core.models.Project` instance
       that this Asset belongs to. It is not possible to initialize an Asset
@@ -1422,7 +1418,7 @@ class Asset(VersionableBase):
         
         * Spaces are allowed.
         * It should start with an upper case letter (A-Z)
-        * Only the following characters are allowed (-_ a-zA-Z0-9)
+        * Only the following characters are allowed (-\_ a-zA-Z0-9)
     
     :param code: The code of this asset. If it is given as None or empty string
       the value will be get from the name attribute.
@@ -1432,7 +1428,7 @@ class Asset(VersionableBase):
         * No spaces are allowed, all the spaces will be replaced with "_"
           (underscore) characters
         * It should start with upper case letter (A-Z)
-        * Only the following characters are allowed (a-zA-Z0-9_)
+        * Only the following characters are allowed (a-zA-Z0-9\_)
         * All the "-" (minus) signs are converted to "_" (under score)
       
       If the code becomes an empty string after formatting a ValueError will be
@@ -1675,7 +1671,7 @@ class Version(Base):
       * Each word in the string should start with an upper-case letter (title)
       * It can have all upper-case letters
       * CamelCase is allowed
-      * Valid characters are ([A-Z])([a-zA-Z0-9_])
+      * Valid characters are ([A-Z])([a-zA-Z0-9\_])
       * No white space characters are allowed, if a string is given with
         white spaces, it will be replaced with underscore ("_") characters.
       * No numbers are allowed at the beginning of the string

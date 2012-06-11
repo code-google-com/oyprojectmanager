@@ -222,9 +222,11 @@ class VersionableBaseTester(unittest.TestCase):
 #        # check versB1 is also deleted
 #        self.assertTrue(versB1 not in db.session)
     
-    def test_thumbnail_attribute_is_read_only(self):
-        """testing if the thumbnail attribute is a read-only attribute
+    def test_thumbnail_full_path_attribute_is_read_only(self):
+        """testing if the thumbnail_full_path attribute is a read-only
+        attribute
         """
         vbase = VersionableBase()
-        self.assertRaises(AttributeError, setattr, vbase, 'thumbnail', 'a_t')
+        self.assertRaises(AttributeError, setattr, vbase,
+            'thumbnail_full_path', 'a_t')
         

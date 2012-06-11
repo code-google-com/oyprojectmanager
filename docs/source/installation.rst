@@ -116,3 +116,11 @@ User Interfaces
     You can also run the ``project_manager`` from the regular Python shell if
     you have successfully installed oyProjectManager, SQLAlchemy and Jinja2 to
     your system installation of Python by using the `automated install`_.
+  
+  5. To bring up the status_manager interface use the following code::
+       
+       from oyProjectManager.ui import status_manager
+       status_manager.UI()
+     
+     Status manager is an interface where you are able to see the progress or
+     the status of your project.
