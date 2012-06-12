@@ -1,6 +1,10 @@
 Version History
 ===============
 
+0.2.4.2
+-------
+* Renamed 'Scene Assembly' to 'Layout' in VersionTypes.
+
 0.2.4.1
 -------
 * Fixed titles of ``version_creator`` and ``status_manager`` UIs.
