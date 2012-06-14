@@ -9,52 +9,49 @@ import platform
 
 import jinja2
 
-import nuke
+import PeyeonScript
 from oyProjectManager.core.models import EnvironmentBase
 from oyProjectManager import utils
 
 
-class Nuke(EnvironmentBase):
-    """the nuke environment class
+class Fusion(EnvironmentBase):
+    """the fusion environment class
     """
     
-    name = "Nuke"
+    name = "Fusion"
     
     def __init__(self, version=None, name='', extensions=None):
-        """nuke specific init
+        """fusion specific init
         """
-#        # call the supers __init__
-#        super(Nuke, self).__init__(asset, name, extensions)
-        
         # and add you own modifications to __init__
         # get the root node
-        self._root = self.get_root_node()
-        
-        self._main_output_node_name = "MAIN_OUTPUT"
+#        self._root = self.get_root_node()
+#        
+#        self._main_output_node_name = "MAIN_OUTPUT"
+        self.fusion = PeyeonScript.scriptapp("Fusion")
     
-    
-    def get_root_node(self):
-        """returns the root node of the current nuke session
-        """
-        return nuke.toNode("root")
+#    def get_root_node(self):
+#        """returns the root node of the current nuke session
+#        """
+#        return nuke.toNode("root")
     
     def save_as(self, version):
-        """"the save action for nuke environment
+        """"the save action for fusion environment
         
-        uses Nukes own python binding
+        uses Fusions own python binding
         """
         
-        # set the extension to '.nk'
-        version.extension = '.nk'
+        # set the extension to '.comp'
+        version.extension = '.comp'
         
         # set project_directory
-        self.project_directory = os.path.dirname(version.path)
+        #self.project_directory = os.path.dirname(version.path)
         
         # create the main write node
-        self.create_main_write_node(version)
+        #self.create_main_write_node(version)
         
         # replace read and write node paths
-        self.replace_external_paths()
+        #self.replace_external_paths()
         
         # create the path before saving
         try:
@@ -63,7 +60,14 @@ class Nuke(EnvironmentBase):
             # path already exists OSError
             pass
         
-        nuke.scriptSaveAs(version.full_path)
+        #nuke.scriptSaveAs(version.full_path)
+        version_full_path = version.full_path
+        
+        # windows fix
+        if os.name == 'nt':
+            version_full_path = version_full_path.replace('/', '\\')
+        
+        comp.Save(version_full_path)
         
         return True
     
@@ -71,17 +75,22 @@ class Nuke(EnvironmentBase):
         """the export action for nuke environment
         """
         # set the extension to '.nk'
-        version.extension = '.nk'
-        nuke.nodeCopy(version.fullPath)
+        version.extension = '.comp'
+#        nuke.nodeCopy(version.fullPath)
         return True
     
     def open_(self, version, force=False):
         """the open action for nuke environment
         """
-        nuke.scriptOpen(version.full_path)
+        version_full_path = version.full_path
+        
+        if os.name == 'nt':
+            version_full_path = version_full_path.replace('/', '\\')
+        
+        self.fusion.LoadComp(version_full_path)
         
         # set the project_directory
-        self.project_directory = os.path.dirname(version.path)
+        #self.project_directory = os.path.dirname(version.path)
         
         # TODO: file paths in different OS'es should be replaced with the current one
         # Check if the file paths are starting with a string matching one of the
@@ -89,7 +98,7 @@ class Nuke(EnvironmentBase):
         # matching the current OS 
         
         # replace paths
-        self.replace_external_paths()
+        #self.replace_external_paths()
         
         # return True to specify everything was ok and an empty list
         # for the versions those needs to be updated
@@ -103,7 +112,7 @@ class Nuke(EnvironmentBase):
     def import_(self, version):
         """the import action for nuke environment
         """
-        nuke.nodePaste(version.full_path)
+        #nuke.nodePaste(version.full_path)
         return True
 
     def get_current_version(self):
@@ -113,7 +122,8 @@ class Nuke(EnvironmentBase):
         
         :return: :class:`~oyProjectManager.core.models.Version`
         """
-        full_path = self._root.knob('name').value()
+        #full_path = self._root.knob('name').value()
+        full_path = comp.GetAttribs()['COMPS_FileName'].replace('\\', '/')
         return self.get_version_from_full_path(full_path)
     
     def get_version_from_recent_files(self):
@@ -179,18 +189,27 @@ class Nuke(EnvironmentBase):
                         adjust_frame_range=False):
         """sets the start and end frame range
         """
-        self._root.knob('first_frame').setValue(start_frame)
-        self._root.knob('last_frame').setValue(end_frame)
+        #self._root.knob('first_frame').setValue(start_frame)
+        #self._root.knob('last_frame').setValue(end_frame)
+        comp.SetAttrs(
+            {
+                "COMPN_GlobalStart": start_frame,
+                "COMPN_GlobalEnd": end_frame
+            }
+        )
+        
     
     def set_fps(self, fps=25):
         """sets the current fps
         """
-        self._root.knob('fps').setValue(fps)
+#        self._root.knob('fps').setValue(fps)
+        pass
     
     def get_fps(self):
         """returns the current fps
         """
-        return int(self._root.knob('fps').getValue())
+        #return int(self._root.knob('fps').getValue())
+        return None
     
     def get_main_write_node(self):
         """Returns the main write node in the scene or None.
