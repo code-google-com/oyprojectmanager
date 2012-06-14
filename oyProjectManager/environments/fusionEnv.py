@@ -139,7 +139,8 @@ class Fusion(EnvironmentBase):
         i = 1
         while True:
             try:
-                full_path = nuke.recentFile(i)
+#                full_path = nuke.recentFile(i)
+                raise RuntimeError
             except RuntimeError:
                 # no recent file anymore just return None
                 return None
