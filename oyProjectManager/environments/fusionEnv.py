@@ -334,7 +334,7 @@ class Fusion(EnvironmentBase):
         directory.
         """
         
-        root = self.get_root_node()
+        #root = self.get_root_node()
         
         # TODO: root node gets lost, fix it
         # there is a bug in Nuke, the root node get lost time to time find 
@@ -348,7 +348,8 @@ class Fusion(EnvironmentBase):
 #            
 #            return os.path.dirname(self.version.path)
         
-        return root["project_directory"].getValue()
+        #return root["project_directory"].getValue()
+        return None
     
     @project_directory.setter
     def project_directory(self, project_directory_in):
