@@ -36,7 +36,10 @@ def UI():
     
     self_quit = False
     if QtGui.QApplication.instance() is None:
-        app = QtGui.QApplication(sys.argv)
+        try:
+            app = QtGui.QApplication(sys.argv)
+        except AttributeError: # sys.argv gives argv.error
+            app = QtGui.QApplication([])
         self_quit = True
     else:
         app = QtGui.QApplication.instance()
