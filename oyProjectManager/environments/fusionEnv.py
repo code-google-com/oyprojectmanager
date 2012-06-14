@@ -123,7 +123,7 @@ class Fusion(EnvironmentBase):
         :return: :class:`~oyProjectManager.core.models.Version`
         """
         #full_path = self._root.knob('name').value()
-        full_path = comp.GetAttribs()['COMPS_FileName'].replace('\\', '/')
+        full_path = comp.GetAttrs()['COMPS_FileName'].replace('\\', '/')
         return self.get_version_from_full_path(full_path)
     
     def get_version_from_recent_files(self):
