@@ -7,7 +7,7 @@
 import os
 import platform
 
-import jinja2
+#import jinja2
 
 import PeyeonScript
 from oyProjectManager.core.models import EnvironmentBase
@@ -19,21 +19,221 @@ class Fusion(EnvironmentBase):
     """
     
     name = "Fusion"
+
+    fusion_formats = {
+        "Multimedia": {
+            "id": 0,
+            "Width": 320,
+            "Height": 240,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 15.0 
+        },
+        "NTSC (D1)": {
+            "id": 1,
+            "Width": 720,
+            "Height": 486,
+            "AspectX": 0.9,
+            "AspectY": 1.0,
+            "Rate": 29.97
+        },
+        "NTSC (DV)": {
+            "id": 2,
+            "Width": 720,
+            "Height": 480,
+            "AspectX": 0.9,
+            "AspectY": 1.0,
+            "Rate": 29.97
+        },
+        "NTSC (Perception)": {
+            "id": 3,
+            "Width": 720,
+            "Height": 480,
+            "AspectX": 0.9,
+            "AspectY": 1.0,
+            "Rate": 29.97
+        },
+        "NTSC (Square Pixel)": {
+            "id": 4,
+            "Width": 640,
+            "Height": 480,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 29.97
+        },
+        "NTSC 16:9": {
+            "id": 5,
+            "Width": 720,
+            "Height": 486,
+            "AspectX": 1.2,
+            "AspectY": 1.0,
+            "Rate": 29.97
+        },
+        "PAL / SECAM (D1)": {
+            "id": 6,
+            "Width": 720,
+            "Height": 576,
+            "AspectX": 1.0,
+            "AspectY": 0.9375,
+            "Rate": 25
+        },
+        "PAL / SECAM (Square Pixel)": {
+            "id": 7,
+            "Width": 768,
+            "Height": 576,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 25
+        },
+        "PALplus 16:9": {
+            "id": 8,
+            "Width": 720,
+            "Height": 576,
+            "AspectX": 1.0,
+            "AspectY": 0.703125,
+            "Rate": 25
+        },
+        "HDTV 720": {
+            "id": 9,
+            "Width": 1280,
+            "Height": 720,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 30
+        },
+        "HDTV 1080": {
+            "id": 10,
+            "Width": 1920,
+            "Height": 1080,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 30
+        },
+        "D16": {
+            "id": 11,
+            "Width": 2880,
+            "Height": 2304,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "2K Full Aperture (Super 35)": {
+            "id": 12,
+            "Width": 2048,
+            "Height": 1556,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "4K Full Aperture (Super 35)": {
+            "id": 13,
+            "Width": 4096,
+            "Height": 3112,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "2K Academy (Regular 35)": {
+            "id": 14,
+            "Width": 1828,
+            "Height": 1332,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "4K Academy (Regular 35)": {
+            "id": 15,
+            "Width": 3656,
+            "Height": 2664,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "2K Academy in Full Aperture": {
+            "id": 16,
+            "Width": 2048,
+            "Height": 1556,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "4K Academy in Full Aperture": {
+            "id": 17,
+            "Width": 4096,
+            "Height": 3112,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "2K Anamorphic (CinemaScope)": {
+            "id": 18,
+            "Width": 1828,
+            "Height": 1556,
+            "AspectX": 2.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "4K Anamorphic (CinemaScope)": {
+            "id": 19,
+            "Width": 3656,
+            "Height": 3112,
+            "AspectX": 2.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "2K 1.85": {
+            "id": 20,
+            "Width": 1828,
+            "Height": 988,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "4K 1.85": {
+            "id": 21,
+            "Width": 3656,
+            "Height": 1976,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "3K VistaVision": {
+            "id": 22,
+            "Width": 3072,
+            "Height": 2048,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "6K VistaVision": {
+            "id": 23,
+            "Width": 6144,
+            "Height": 4096,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+        "5K IMAX 70mm": {
+            "id": 24,
+            "Width": 5464,
+            "Height": 4096,
+            "AspectX": 1.0,
+            "AspectY": 1.0,
+            "Rate": 24
+        },
+    }
     
     def __init__(self, version=None, name='', extensions=None):
         """fusion specific init
         """
         # and add you own modifications to __init__
-        # get the root node
-#        self._root = self.get_root_node()
-#        
-#        self._main_output_node_name = "MAIN_OUTPUT"
         self.fusion = PeyeonScript.scriptapp("Fusion")
-    
-#    def get_root_node(self):
-#        """returns the root node of the current nuke session
-#        """
-#        return nuke.toNode("root")
+        self.fusion_prefs = self.fusion.GetPrefs()['Global']
+        
+        self.comp = comp # the global variable
+        self.comp_prefs = self.comp.GetPrefs()['Comp']
+        
+        self._main_output_node_name = "MAIN_OUTPUT"
     
     def save_as(self, version):
         """"the save action for fusion environment
@@ -45,10 +245,10 @@ class Fusion(EnvironmentBase):
         version.extension = '.comp'
         
         # set project_directory
-        #self.project_directory = os.path.dirname(version.path)
+        self.project_directory = os.path.dirname(version.path)
         
         # create the main write node
-        #self.create_main_write_node(version)
+        self.create_main_saver_node(version)
         
         # replace read and write node paths
         #self.replace_external_paths()
@@ -60,14 +260,11 @@ class Fusion(EnvironmentBase):
             # path already exists OSError
             pass
         
-        #nuke.scriptSaveAs(version.full_path)
-        version_full_path = version.full_path
-        
-        # windows fix
-        if os.name == 'nt':
-            version_full_path = version_full_path.replace('/', '\\')
-        
-        comp.Save(version_full_path)
+        version_full_path = os.path.normpath(version.full_path)
+
+        self.comp.Lock()
+        self.comp.Save(version_full_path.encode())
+        self.comp.Unlock()
         
         return True
     
@@ -82,12 +279,14 @@ class Fusion(EnvironmentBase):
     def open_(self, version, force=False):
         """the open action for nuke environment
         """
-        version_full_path = version.full_path
+        version_full_path = os.path.normpath(version.full_path)
+
+        # delete all the comps and open new one
+        #comps = self.fusion.GetCompList().values()
+        #for comp_ in comps:
+        #    comp_.Close()
         
-        if os.name == 'nt':
-            version_full_path = version_full_path.replace('/', '\\')
-        
-        self.fusion.LoadComp(version_full_path)
+        self.fusion.LoadComp(version_full_path.encode())
         
         # set the project_directory
         #self.project_directory = os.path.dirname(version.path)
@@ -123,7 +322,9 @@ class Fusion(EnvironmentBase):
         :return: :class:`~oyProjectManager.core.models.Version`
         """
         #full_path = self._root.knob('name').value()
-        full_path = comp.GetAttrs()['COMPS_FileName'].replace('\\', '/')
+        full_path = os.path.normpath(
+            self.comp.GetAttrs()['COMPS_FileName']
+        ).replace('\\', '/')
         return self.get_version_from_full_path(full_path)
     
     def get_version_from_recent_files(self):
@@ -135,20 +336,8 @@ class Fusion(EnvironmentBase):
         
         :return: :class:`~oyProjectManager.core.models.Version`
         """
-        # use the last file from the recent file list
-        i = 1
-        while True:
-            try:
-#                full_path = nuke.recentFile(i)
-                raise RuntimeError
-            except RuntimeError:
-                # no recent file anymore just return None
-                return None
-            i += 1
-            
-            version = self.get_version_from_full_path(full_path)
-            if version is not None:
-                return version
+        full_path = self.fusion_prefs["LastCompFile"]
+        return self.get_version_from_full_path(full_path)
     
     def get_version_from_project_dir(self):
         """Tries to find a Version from the current project directory
@@ -158,7 +347,7 @@ class Fusion(EnvironmentBase):
         versions = self.get_versions_from_path(self.project_directory)
         version = None
         
-        if len(versions):
+        if versions and len(versions):
             version = versions[0]
         
         return version
@@ -182,9 +371,11 @@ class Fusion(EnvironmentBase):
         """returns the current frame range
         """
         #self._root = self.get_root_node()
-        startFrame = int(self._root.knob('first_frame').value())
-        endFrame = int(self._root.knob('last_frame').value())
-        return startFrame, endFrame
+        #startFrame = int(self._root.knob('first_frame').value())
+        #endFrame = int(self._root.knob('last_frame').value())
+        start_frame = self.comp.GetAttrs()['COMPN_GlobalStart']
+        end_frame = self.comp.GetAttrs()['COMPN_GlobalEnd']
+        return start_frame, end_frame
     
     def set_frame_range(self, start_frame=1, end_frame=100,
                         adjust_frame_range=False):
@@ -192,13 +383,12 @@ class Fusion(EnvironmentBase):
         """
         #self._root.knob('first_frame').setValue(start_frame)
         #self._root.knob('last_frame').setValue(end_frame)
-        comp.SetAttrs(
+        self.comp.SetAttrs(
             {
                 "COMPN_GlobalStart": start_frame,
                 "COMPN_GlobalEnd": end_frame
             }
         )
-        
     
     def set_fps(self, fps=25):
         """sets the current fps
@@ -212,30 +402,39 @@ class Fusion(EnvironmentBase):
         #return int(self._root.knob('fps').getValue())
         return None
     
-    def get_main_write_node(self):
-        """Returns the main write node in the scene or None.
+    def get_main_saver_node(self):
+        """Returns the main saver node in the scene or None.
         """
-        # list all the write nodes in the current file
-        all_write_nodes = nuke.allNodes("Write")
         
-        for write_node in all_write_nodes:
-            if write_node.name().startswith(self._main_output_node_name):
-                main_write_node = write_node
-                return main_write_node
+        # list all the saver nodes in the current file
+        all_saver_nodes = self.comp.GetToolList(False, 'Saver').values()
+        
+        for saver_node in all_saver_nodes:
+            if saver_node.GetAttrs('TOOLS_Name').startswith(
+                self._main_output_node_name
+                ):
+                main_saver_node = saver_node
+                return main_saver_node
         
         return None
     
-    def create_main_write_node(self, version):
-        """creates the default write node if there is no one created before.
+    def create_main_saver_node(self, version):
+        """creates the default saver node if there is no one created before.
         """
         
-        # list all the write nodes in the current file
-        main_write_node = self.get_main_write_node()
+        # list all the save nodes in the current file
+        main_saver_node = self.get_main_saver_node()
         
-        if main_write_node is None:
+        if main_saver_node is None:
             # create one with correct output path
-            main_write_node = nuke.nodes.Write()
-            main_write_node.setName(self._main_output_node_name)
+            
+            # lock the comp to prevent the file dialog
+            self.comp.Lock()
+            
+            main_saver_node = self.comp.Saver
+            
+            # unlock the comp
+            self.comp.Unlock()
         
         # set the output path
         output_file_name = ""
@@ -243,7 +442,6 @@ class Fusion(EnvironmentBase):
         if version.type.type_for == "Shot":
             output_file_name = version.project.code + "_"
             output_file_name += version.version_of.sequence.code + "_"
-
         
         output_file_name += \
             version.base_name + "_" + \
@@ -251,17 +449,27 @@ class Fusion(EnvironmentBase):
             version.type.code + "_" + \
             "Output_" + \
             "v%03d" % version.version_number + "_" + \
-            version.created_by.initials + ".###.png"
+            version.created_by.initials + ".001.tga"
         
         # check if it is a stereo comp
         # if it is enable separate view rendering
-        
         output_file_full_path = os.path.join(
             version.output_path,
             output_file_name
-        ).replace("\\", "/")
+        ).replace('\\', '/')
         
-        main_write_node["file"].setValue(output_file_full_path)
+        # set the path
+        main_saver_node.Clip[0] = 'Comp:' + os.path.normpath(
+            utils.relpath(
+                os.path.dirname(version.full_path),
+                output_file_full_path,
+                "/",
+                ".."
+            )
+        ).encode()
+        
+        # set the main_saver_node name
+        main_saver_node.SetAttrs({'TOOLS_Name': self._main_output_node_name})
         
         # create the path
         try:
@@ -269,19 +477,6 @@ class Fusion(EnvironmentBase):
         except OSError:
             # path already exists
             pass
-        
-        # set the default output file type to jpeg
-        platform_system = platform.system()
-        
-        format_id = 10 
-        if platform_system == "Darwin":
-            format_id = 10 
-            # check the nuke version for nuke 6.2 and below
-            if (nuke.NUKE_VERSION_MAJOR + nuke.NUKE_VERSION_MINOR/10.0) < 6.3:
-                format_id = 11
-        
-        main_write_node["file_type"].setValue(format_id)
-        main_write_node["channels"].setValue("rgb")
     
     def replace_external_paths(self, mode=0):
         """replaces file paths with environment variable scripts
@@ -333,55 +528,60 @@ class Fusion(EnvironmentBase):
         Set it to the project root, and set all your paths relative to this
         directory.
         """
+
+        # try to figure it out from the maps
+        # search for Project path
+
+        project_dir = None
+        maps = self.comp_prefs['Paths'].get('Map', None)
+        if maps:
+            project_dir = maps.get('Project', None)
         
-        #root = self.get_root_node()
+        #if not project_dir:
+        #    # set the map for the project dir
+        #    if self.version:
+        #        project_dir = os.path.dirname(self.version.path)
+        #        self.project_directory = project_dir
         
-        # TODO: root node gets lost, fix it
-        # there is a bug in Nuke, the root node get lost time to time find 
-        # the source and fix it.
-#        if root is None:
-#            # there is a bug about Nuke,
-#            # sometimes it losses the root node, while it shouldn't
-#            # I can't find the source
-#            # so instead of using the root node,
-#            # just return the os.path.dirname(version.path)
-#            
-#            return os.path.dirname(self.version.path)
-        
-        #return root["project_directory"].getValue()
-        return None
+        return project_dir
     
     @project_directory.setter
     def project_directory(self, project_directory_in):
         
-        project_directory_in = project_directory_in.replace("\\", "/")
+        project_directory_in = os.path.normpath(project_directory_in)
         
-        root = self.get_root_node()
-        root["project_directory"].setValue(project_directory_in)
+        # set a path map
+        self.comp.SetPrefs(
+            {
+                'Comp.Paths.Map': {
+                    'Project:': project_directory_in.encode()
+                }
+            }
+        )
     
-    def create_slate_info(self):
-        """Returns info about the current shot which will contribute to the
-        shot slate
-        
-        :return: string
-        """
-        
-        version = self.get_current_version()
-        shot = version.version_of
-        
-        # create a jinja2 template
-        template = jinja2.Template("""Show: {{shot.project.name}}
-Shot: {{shot.number}}
-Frame Range: {{shot.start_frame}}-{{shot.end_frame}}
-Handles: +{{shot.handle_at_start}}, -{{shot.handle_at_end}}
-Artist: {{version.created_by.name}}
-Version: v{{'%03d'|format(version.version_number)}}
-Status: WIP
-        """)
-        
-        template_vars = {
-            "shot": shot,
-            "version": version
-        }
-        
-        return template.render(**template_vars)
+##    def create_slate_info(self):
+##        """Returns info about the current shot which will contribute to the
+##        shot slate
+##        
+##        :return: string
+##        """
+##        
+##        version = self.get_current_version()
+##        shot = version.version_of
+##        
+##        # create a jinja2 template
+##        template = jinja2.Template("""Show: {{shot.project.name}}
+##Shot: {{shot.number}}
+##Frame Range: {{shot.start_frame}}-{{shot.end_frame}}
+##Handles: +{{shot.handle_at_start}}, -{{shot.handle_at_end}}
+##Artist: {{version.created_by.name}}
+##Version: v{{'%03d'|format(version.version_number)}}
+##Status: WIP
+##        """)
+##        
+##        template_vars = {
+##            "shot": shot,
+##            "version": version
+##        }
+##        
+##        return template.render(**template_vars)

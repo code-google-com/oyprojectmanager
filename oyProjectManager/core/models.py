@@ -3099,7 +3099,8 @@ class EnvironmentBase(object):
         """returns the current Version instance which is open in the
         environment
         """
-        return self._version
+        
+        return self.get_current_version()
     
 #    @version.setter
 #    def version(self, version):
@@ -3183,7 +3184,9 @@ class EnvironmentBase(object):
         :return: A list of :class:`~oyProjectManager.core.models.Version`
             instances.
         """
-
+        if path is None or path=="":
+            return None
+        
         # get the path by trimming the server_path
         path = self.trim_server_path(path)
         

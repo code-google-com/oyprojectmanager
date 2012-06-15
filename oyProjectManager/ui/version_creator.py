@@ -46,7 +46,7 @@ elif qt_module == "PyQt4":
     from oyProjectManager.ui import version_creator_UI_pyqt4 as version_creator_UI
     from oyProjectManager.ui import create_asset_dialog_UI_pyqt4 as create_asset_dialog_UI
 
-def UI(environment):
+def UI(environment, skip_exec=None):
     """the UI to call the dialog by itself
     """
     global app
@@ -67,6 +67,10 @@ def UI(environment):
     mainDialog = MainDialog(environment)
     mainDialog.show()
     #app.setStyle('Plastique')
+    if not skip_exec:
+        #app = QtGui.QApplication([])
+        pass
+    
     app.exec_()
     
     if self_quit:
@@ -1213,8 +1217,11 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             fg = item.foreground()
             fg.setColor(QtGui.QColor(*fgcolor))
-            
-            item.setBackgroundColor(QtGui.QColor(*bgcolor))
+
+            try:
+                item.setBackgroundColor(QtGui.QColor(*bgcolor))
+            except AttributeError: # gives error with PySide
+                pass
             
             self.previous_versions_tableWidget.setItem(i, 2, item)
             # ------------------------------------
