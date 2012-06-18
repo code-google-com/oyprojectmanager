@@ -5,6 +5,10 @@ Version History
 -------
 * Renamed 'Scene Assembly' to 'Layout' in VersionTypes.
 
+* Added support for Eyeon Fusion.
+
+* Fixed Houdini environment.
+
 0.2.4.1
 -------
 * Fixed titles of ``version_creator`` and ``status_manager`` UIs.

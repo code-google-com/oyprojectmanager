@@ -3101,12 +3101,6 @@ class EnvironmentBase(object):
         """
         
         return self.get_current_version()
-    
-#    @version.setter
-#    def version(self, version):
-#        """sets the version of the environment
-#        """
-#        self._version = version
 
     @property
     def name(self):
@@ -3245,20 +3239,15 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
     
-    def getProject(self):
+    def get_project(self):
         """returns the current project from environment
         """
         raise NotImplemented
     
     def set_project(self, version):
-        """Sets the project to the given versions project.
+        """Sets the project to the given Versions project.
         
-        Because the projects are related to the created Version instances
-        instead of passing a Project instance it is much meaningful to pass a
-        Version instance which will have a reference to the Project instance
-        already.
-        
-        :param project: A :class:`~oyProjectManager.core.models.Version`.
+        :param version: A :class:`~oyProjectManager.core.models.Version`.
         """
         raise NotImplemented
     
@@ -3337,7 +3326,7 @@ class EnvironmentBase(object):
         self._extensions = extensions
 
     def has_extension(self, filename):
-        """Returns True if the given filenames extension is in the extensions
+        """Returns True if the given file names extension is in the extensions
         list false otherwise.
         
         accepts:
@@ -3347,15 +3336,12 @@ class EnvironmentBase(object):
         
         :param filename: A string containing the filename
         """
-
-        if fileName is None:
+        
+        if filename is None:
             return False
-
-        if fileName.split('.')[-1].lower() in self._extensions:
-            return True
-
-        return False
-
+        
+        return filename.split('.')[-1].lower() in self.extensions
+    
     def load_referenced_versions(self):
         """loads all the references
         """
@@ -3386,8 +3372,6 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
 
-
-
 # secondary tables
 Version_References = Table(
     "Version_References", Base.metadata,
@@ -3409,5 +3393,4 @@ def _check_circular_dependency(version, check_for_version):
             )
         else:
             _check_circular_dependency(reference, check_for_version)
-
 
