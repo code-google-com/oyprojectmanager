@@ -584,7 +584,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.projects_comboBox.projects = projects
         
         # fill the users
-        users = User.query().all()
+        users = User.query().order_by(User.name).all()
         self.users_comboBox.users = users
         self.users_comboBox.addItems(map(lambda x:x.name, users))
         

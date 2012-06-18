@@ -9,6 +9,8 @@ Version History
 
 * Fixed Houdini environment.
 
+* ``version_creator`` UI now lists users in alphabetical order.
+
 0.2.4.1
 -------
 * Fixed titles of ``version_creator`` and ``status_manager`` UIs.
