@@ -7,29 +7,38 @@
 import os
 import hou
 import re
-from oyProjectManager.core.models import Asset, Project, Sequence, Repository, EnvironmentBase
+from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
+                                          EnvironmentBase, Version)
 from oyProjectManager import utils
-
 
 class Houdini(EnvironmentBase):
     """the houdini environment class
     """
     
-    def save(self):
+    def save_as(self, version):
         """the save action for houdini environment
         """
         
+        if not version:
+            return
+        
         # set the extension to hip
-        self._asset.extension = 'hip'
+        assert isinstance(version, Version)
+        version.extension = 'hip'
         
         # create the folder if it doesn't exists
-        utils.createFolder( self._asset.path )
+        try:
+            os.makedirs(
+                os.path.dirname(
+                    version.full_path
+                )
+            )
+        except OSError:
+            # dirs exist
+            pass
         
         # houdini uses / instead of \ under windows
         # lets fix it
-        
-        fullPath = self._asset.fullPath
-        fullPath = fullPath.replace('\\','/')
         
         # *************************************************************
         # trying to set the render file name while the file has not been
@@ -39,63 +48,53 @@ class Houdini(EnvironmentBase):
         ## check if the HIP environment variable has some data
         #if os.environ["HIP"] == os.environ["HOME"]:
         # save the file to create a meaningful HIP variable
-        hou.hipFile.save(file_name=str(fullPath))
-
+        hou.hipFile.save(file_name=str(version.full_path))
+        
         # set the environment variables
-        self.setEnvironmentVariables()
+        self.set_environment_variables(version)
         
         # set the render file name
-        self.setRenderFileName()
+        self.set_render_filename(version)
         
         # houdini accepts only strings as file name, no unicode support as I
         # see
-        hou.hipFile.save(file_name=str(fullPath))
+        hou.hipFile.save(file_name=str(version.full_path))
         
         # set the environment variables
-        self.setEnvironmentVariables()
+        self.set_environment_variables(version)
         
         return True
     
-    
-    
-    
-    def open_(self, force=False):
+    def open_(self, version, force=False):
         """the open action for houdini environment
         """
+        if not version:
+            return
         
         if hou.hipFile.hasUnsavedChanges() and not force:
             raise RuntimeError
         
-        fullPath = self._asset.fullPath
-        fullPath = fullPath.replace('\\','/')
-        
-        hou.hipFile.load(file_name=str(fullPath), suppress_save_prompt=True)
+        hou.hipFile.load(
+            file_name=str(version.full_path),
+            suppress_save_prompt=True
+        )
         
         # set the environment variables
-        self.setEnvironmentVariables()
+        self.set_environment_variables(version)
         
         return True
     
-    
-    
-    
-    def import_(self):
+    def import_(self, version):
         """the import action for houdini environment
         """
-        
-        fullPath = self._asset.fullPath
-        fullPath = fullPath.replace('\\','/')
-        
-        hou.hipFile.merge( str(fullPath) )
-        
+        hou.hipFile.merge(str(version.fullPath))
         return True
-    
-    
-    
     
     def get_last_version(self):
         """gets the file name from houdini environment
         """
+        
+        # todo update this method
         
         foundValidAsset = False
         readRecentFile = True
@@ -133,10 +132,10 @@ class Houdini(EnvironmentBase):
                 readRecentFile = True
         
         if readRecentFile:
-            # there is no file oppend yet use the first valid file
+            # there is no file opened yet use the first valid file
             # from the recent files list
             
-            recentFiles = self.getRecentFileList()
+            recentFiles = self.get_recent_file_list()
             
             # unfix the windows paths from / to \\
             if os.name == 'nt':
@@ -161,52 +160,30 @@ class Houdini(EnvironmentBase):
         
         return fileName, path
     
-    
-    
-    
-    def setEnvironmentVariables(self):
-        """sets the environment variables according to the given assetObject
+    def set_environment_variables(self, version):
+        """sets the environment variables according to the given Version
+        instance
         """
-        # set the $JOB variable to the sequence root
-        repo = repository.Repository()
-        #repo_env_key = "$" + repo.repository_path_env_key
-        
-        #asset_path = str(self._asset.fullpath).replace("\\", "/")
-        sequence_path = str(self._asset.sequenceFullPath).replace('\\','/')
-        
-        # convert the sequence path to a self.repository_path_env_key relative 
-        sequence_path = repo.relative_path(sequence_path)
+        # set the $JOB variable to the parent of version.full_path
+        job = os.path.dirname(version.full_path)
         
         # update the environment variables
-        os.environ.update({"JOB": str(sequence_path)})
+        os.environ.update({"JOB": job})
         
         # also set it using hscript, hou is a little bit problematic
-        hou.hscript("set -g JOB = '" + str(sequence_path) + "'")
+        hou.hscript("set -g JOB = '" + job + "'")
         hou.allowEnvironmentVariableToOverwriteVariable("JOB", True)
-        #hou.hscript(
-        #    "set -g " + repo.repository_path_env_key + " = '" + \
-        #    str(os.environ[repo.repository_path_env_key]) + "'"
-        #)
     
-    
-    
-    
-    def getRecentFileList(self):
+    def get_recent_file_list(self):
         """returns the recent HIP files list from the houdini
         """
-        
         # use a FileHistory object
         fHist = FileHistory()
         
         # get the hip files list
-        recentHipFiles = fHist.getRecentFiles('HIP')
-        
-        return recentHipFiles
+        return fHist.get_recent_files('HIP')
     
-    
-    
-    
-    def getFrameRange(self):
+    def get_frame_range(self):
         """returns the frame range of the
         """
         # use the hscript commands to get the frame range
@@ -214,42 +191,43 @@ class Houdini(EnvironmentBase):
         
         pattern = r'[-0-9\.]+'
         
-        startFrame = int( hou.timeToFrame( float( re.search( pattern, timeInfo[2] ).group(0) ) ) )
-        duration = int( re.search( pattern, timeInfo[0] ).group(0) )
-        endFrame = startFrame + duration - 1
+        start_frame = int(
+            hou.timeToFrame(
+                float(re.search(pattern, timeInfo[2]).group(0))
+            )
+        )
+        duration = int(re.search(pattern, timeInfo[0]).group(0))
+        end_frame = start_frame + duration - 1
         
-        return startFrame, endFrame
+        return start_frame, end_frame
     
-    
-    
-    
-    def setFrameRange(self, startFrame=1, endFrame=100):
+    def set_frame_range(self, start_frame=1, end_frame=100, adjust_frame_range=False):
         """sets the frame range
         """
-        
         # --------------------------------------------
         # set the timeline
-        currFrame = hou.frame()
-        if currFrame < startFrame:
-            hou.setFrame( startFrame )
-        elif currFrame > endFrame:
-            hou.setFrame( endFrame )
+        current_frame = hou.frame()
+        if current_frame < start_frame:
+            hou.setFrame(start_frame)
+        elif current_frame > end_frame:
+            hou.setFrame(end_frame)
         
         # for now use hscript, the python version is not implemented yet
-        hou.hscript('tset `('+ str(startFrame) +'-1)/$FPS` `'+ str(endFrame)+'/$FPS`')
+        hou.hscript(
+            'tset `('+ str(start_frame) +'-1)/$FPS` `'+ str(end_frame)+'/$FPS`'
+        )
         
         # --------------------------------------------
         # Set the render nodes frame ranges if any
         # get the out nodes
-        outNodes = self.getOutputNodes()
+        output_nodes = self.get_output_nodes()
         
-        for outNode in outNodes:
-            outNode.setParms( {'trange':0,'f1':startFrame,'f2':endFrame,'f3':1})
+        for output_node in output_nodes:
+            output_node.setParms(
+                    {'trange':0,'f1':start_frame,'f2':end_frame,'f3':1}
+            )
     
-    
-    
-    
-    def getOutputNodes(self):
+    def get_output_nodes(self):
         """returns the rop nodes in the scene
         """
         ropContext = hou.node('/out')
@@ -267,57 +245,30 @@ class Houdini(EnvironmentBase):
         
         return new_out_nodes
     
-    
-    
-    
-    def getTimeUnit(self):
-        """returns the current time unit
+    def get_fps(self):
+        """returns the current fps
         """
-        
-        repo = repository.Repository()
-        time_units = repo.time_units
-        
-        currentFps = int(hou.fps())
-        
-        timeUnit = 'pal'
-        
-        for timeUnitName, timeUnitFps in time_units.iteritems():
-            if currentFps == timeUnitFps:
-                timeUnit = timeUnitName
-                break
-        
-        return timeUnit
+        return int(hou.fps())
     
-    
-    
-    
-    def setRenderFileName(self):
+    def set_render_filename(self, version):
         """sets the render file name
         """
-        # M:/JOBs/PRENSESIN_UYKUSU/SC_008/_RENDERED_IMAGES_/_SHOTS_/SH008/MasalKusu/`$OS`/SH008_MasalKusu_`$OS`_v006_oy.$F4.exr
-        # $REPO/PRENSESIN_UYKUSU/SC_008/_RENDERED_IMAGES_/_SHOTS_/SH008/MasalKusu/`$OS`/SH008_MasalKusu_`$OS`_v006_oy.$F4.exr
-        seq = self._asset.sequence
-        renderOutputFolder = self._asset.output_path # RENDERED_IMAGES/{{assetBaseName}}/{{assetSubName}}
-        assetBaseName = self._asset.baseName
-        assetSubName = self._asset.subName
-        versionString = self._asset.versionString
-        userInitials = self._asset.userInitials
+        render_output_folder = version.output_path
+        base_name = version.base_name
+        take_name = version.take_name
+        version_string = 'v%03d' % version.version_number
+        user_initials = version.created_by.initials
         
-        #outputFileName = renderOutputFolder + "/" + assetBaseName + "/" + \
-        #               assetSubName + "/`$OS`/" + assetBaseName + "_" + \
-        #               assetSubName + "_`$OS`_" + versionString + "_" + \
-        #               userInitials + ".$F4.exr"
-       
-        outputFileName = os.path.join(
-                             renderOutputFolder, "`$OS`",
-                             assetBaseName + "_" + assetSubName + "_`$OS`_" + \
-                             versionString + "_" + userInitials + ".$F4.exr"
-                         )
+        output_filename = os.path.join(
+            render_output_folder, "`$OS`",
+            base_name + "_" + take_name + "_`$OS`_" +
+            version_string + "_" + user_initials + ".$F4.exr"
+        )
         
-        outputFileName = outputFileName.replace('\\','/')
+        output_filename = output_filename.replace('\\','/')
         
         # compute a $JOB relative file path
-        # which is much safer if the file is going to be render in multiple oses
+        # which is much safer if the file is going to be render in multiple OSes
         # $HIP = the current asset path
         # $JOB = the current sequence path
         #hip = self._asset.path
@@ -327,94 +278,80 @@ class Houdini(EnvironmentBase):
         while "$" in job:
             job = os.path.expandvars(job)
         
-        #hip_relative_output_file_path = "$HIP/" + utils.relpath(hip, outputFileName, "/", "..")
-        job_relative_output_file_path = "$JOB/" + utils.relpath(job, outputFileName, "/", "..")
+        job_relative_output_file_path = "$JOB/" + utils.relpath(
+            job, output_filename, "/", ".."
+        )
         
-        outputNodes = self.getOutputNodes()
-        for outputNode in outputNodes:
+        output_nodes = self.get_output_nodes()
+        for output_node in output_nodes:
             # get only the ifd nodes for now
-            if outputNode.type().name() == 'ifd':
+            if output_node.type().name() == 'ifd':
                 # set the file name
-                #outputNode.setParms({'vm_picture': str(outputFileName)})
-                outputNode.setParms({'vm_picture': str(job_relative_output_file_path)})
+                output_node.setParms(
+                    {'vm_picture': str(job_relative_output_file_path)}
+                )
                 
                 # set the compression to zips (zip, single scanline)
-                outputNode.setParms({"vm_image_exr_compression": "zips"})
+                output_node.setParms({"vm_image_exr_compression": "zips"})
                 
                 # also create the folders
-                outputFileFullPath = outputNode.evalParm('vm_picture')
-                outputFilePath = os.path.dirname(outputFileFullPath)
+                output_file_full_path = output_node.evalParm('vm_picture')
+                output_file_path = os.path.dirname(output_file_full_path)
                 
-                print "outputFileFullPath: ", outputFileFullPath 
-                
-                utils.createFolder(
-                    os.path.expandvars(
-                        os.path.expandvars(outputFilePath)
+                flat_output_file_path = output_file_path
+                while "$" in flat_output_file_path:
+                    flat_output_file_path = os.path.expandvars(
+                        flat_output_file_path
                     )
-                )
+                
+                try:
+                    os.makedirs(flat_output_file_path)
+                except OSError:
+                    # dirs exists
+                    pass
     
-    
-    
-    
-    def setTimeUnit(self, timeUnit='pal'):
+    def set_fps(self, fps=25):
         """sets the time unit of the environment
         """
-        
-        repo = repository.Repository()
-        
-        try:
-            timeUnitFps = float(repo.time_units[timeUnit])
-        except KeyError:
-            # set it to pal by default
-            timeUnit='pal'
-            timeUnitFps = float(repo.time_units[timeUnit])
+        if fps <= 0:
+            return
         
         # keep the current start and end time of the time range
-        startFrame, endFrame = self.getFrameRange()
-        hou.setFps(timeUnitFps)
+        start_frame, end_frame = self.get_frame_range()
+        hou.setFps(fps)
         
-        self.setFrameRange(startFrame, endFrame)
-    
-    
-    
+        self.set_frame_range(start_frame, end_frame)
     
     def replace_paths(self):
         """replaces all the paths in all the path related nodes
         """
-        
         # get all the nodes and their childs and
         # try to get string and file path parameters
         # and replace them if they contain absolute paths
         pass
 
-
-
-
-
-
-
 class FileHistory(object):
-    """a houdini recent file history parser
+    """A Houdini recent file history parser
     
-    holds the data in a dictionary, where the keys are the file types and the
+    Holds the data in a dictionary, where the keys are the file types and the
     values are string list of recent file paths of that type
     """
     
-    
     def __init__(self):
-        self._historyFileName = 'file.history'
-        
-        self._historyFilePath = ''
+        self._history_file_name = 'file.history'
+        self._history_file_path = ''
         
         if os.name == 'nt':
             # under windows the HIH is useless
             # interpret the HIH from POSE environment variable
-            
-            self._historyFilePath = os.path.dirname( os.getenv('POSE') )
+            self._history_file_path = os.path.dirname( os.getenv('POSE') )
         else:
-            self._historyFilePath = os.getenv('HIH')
+            self._history_file_path = os.getenv('HIH')
         
-        self._historyFileFullPath = os.path.join( self._historyFilePath, self._historyFileName )
+        self._history_file_full_path = os.path.join(
+            self._history_file_path,
+            self._history_file_name
+        )
         
         self._buffer =  []
         
@@ -423,75 +360,56 @@ class FileHistory(object):
         self._read()
         self._parse()
     
-    
-    
-    
     def _read(self):
         """reads the history file to a buffer
         """
         try:
-            historyFile = open( self._historyFileFullPath )
+            history_file = open( self._history_file_full_path )
         except IOError:
             self._buffer = []
             return
         
-        self._buffer = historyFile.readlines()
+        self._buffer = history_file.readlines()
         
         # strip all the lines
         self._buffer = [ line.strip() for line in self._buffer ]
         
-        historyFile.close()
-    
-    
-    
+        history_file.close()
     
     def _parse(self):
         """parses the data in self._buffer
         """
-        
         self._history = dict()
+        buffer_list = self._buffer
+        key_name = ''
+        path_list = []
+        len_buffer = len(buffer_list)
         
-        bufferList = self._buffer
-        
-        keyName = ''
-        pathList = []
-        
-        lenBuffer = len(bufferList)
-        
-        for i in range(lenBuffer):
-            
+        for i in range(len_buffer):
             # try to find a '{'
-            if bufferList[i] == '{':
+            if buffer_list[i] == '{':
                 # create a key with the previous line
-                keyName = bufferList[i-1]
-                pathList = []
+                key_name = buffer_list[i-1]
+                path_list = []
                 
                 # starting from the next line
-                for j in range(i+1, lenBuffer ):
+                for j in range(i+1, len_buffer):
                     
-                    # add all the lines to the pathList until you find a '}'
-                    currentElement = bufferList[j]
-                    if  currentElement != '}':
-                        pathList.append( currentElement )
+                    # add all the lines to the path_list until you find a '}'
+                    current_element = buffer_list[j]
+                    if  current_element != '}':
+                        path_list.append(current_element)
                     else:
                         # set i to j+1 and let it continue
                         i = j + 1
                         break
-                
                 # append the key and data to the dictionary
-                self._history[ keyName ] = pathList
+                self._history[key_name] = path_list
     
-    
-    
-    
-    def getRecentFiles(self, typeName=''):
+    def get_recent_files(self, type_name=''):
         """returns the file list of the given file type
         """
-        
-        if typeName == '' or typeName == None:
+        if type_name == '' or type_name is None:
             return []
         else:
-            if self._history.has_key( typeName ):
-                return self._history[ typeName ]
-            else:
-                return []
+            return self._history.get('type_name', [])

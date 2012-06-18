@@ -5,21 +5,18 @@
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
 import os
-import platform
-
 #import jinja2
 
 import PeyeonScript
 from oyProjectManager.core.models import EnvironmentBase
 from oyProjectManager import utils
 
-
 class Fusion(EnvironmentBase):
     """the fusion environment class
     """
     
     name = "Fusion"
-
+    
     fusion_formats = {
         "Multimedia": {
             "id": 0,
@@ -559,29 +556,29 @@ class Fusion(EnvironmentBase):
             }
         )
     
-##    def create_slate_info(self):
-##        """Returns info about the current shot which will contribute to the
-##        shot slate
-##        
-##        :return: string
-##        """
-##        
-##        version = self.get_current_version()
-##        shot = version.version_of
-##        
-##        # create a jinja2 template
-##        template = jinja2.Template("""Show: {{shot.project.name}}
-##Shot: {{shot.number}}
-##Frame Range: {{shot.start_frame}}-{{shot.end_frame}}
-##Handles: +{{shot.handle_at_start}}, -{{shot.handle_at_end}}
-##Artist: {{version.created_by.name}}
-##Version: v{{'%03d'|format(version.version_number)}}
-##Status: WIP
-##        """)
-##        
-##        template_vars = {
-##            "shot": shot,
-##            "version": version
-##        }
-##        
-##        return template.render(**template_vars)
+#    def create_slate_info(self):
+#        """Returns info about the current shot which will contribute to the
+#        shot slate
+#        
+#        :return: string
+#        """
+#        
+#        version = self.get_current_version()
+#        shot = version.version_of
+#        
+#        # create a jinja2 template
+#        template = jinja2.Template("""Show: {{shot.project.name}}
+#Shot: {{shot.number}}
+#Frame Range: {{shot.start_frame}}-{{shot.end_frame}}
+#Handles: +{{shot.handle_at_start}}, -{{shot.handle_at_end}}
+#Artist: {{version.created_by.name}}
+#Version: v{{'%03d'|format(version.version_number)}}
+#Status: WIP
+#        """)
+#        
+#        template_vars = {
+#            "shot": shot,
+#            "version": version
+#        }
+#        
+#        return template.render(**template_vars)
