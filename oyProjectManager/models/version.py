@@ -443,7 +443,7 @@ class Version(Base):
         The resultant path is an absolute one. But the stored path in the
         database is just the relative portion to the
         :class:`~oyProjectManager.models.repository.Repository`\ .\ 
-        :attr:`~oyProjectManager.models.repisitory.Repository.server_path`
+        :attr:`~oyProjectManager.models.repository.Repository.server_path`
         """
         return os.path.join(
             self.project.path,

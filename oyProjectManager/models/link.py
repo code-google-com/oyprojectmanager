@@ -3,6 +3,8 @@
 # 
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm.mapper import validates
 
 from oyProjectManager.db.declarative import Base
 
@@ -41,4 +43,55 @@ class FileLink(Base):
       Can be anything.
     """
     
+    __tablename__ = "FileLinks"
     
+    id = Column(Integer, primary_key=True)
+    
+    filename = Column(String(256))
+    path = Column(String(1024))
+    type = Column(String(32))
+    
+    def __init__(self, filename, path, type=""):
+        self.filename = filename
+        self.path = path
+        self.type = type
+    
+    @validates('filename')
+    def _validate_filename(self, key, filename):
+        """validates the given filename value
+        """
+        if filename is None:
+            raise TypeError("FileLink.filename can not be None")
+        
+        if not isinstance(filename, (str, unicode)):
+            raise TypeError("FileLink.filename should be a str or unicode, "
+                            "not %s" % filename.__class__.__name__)
+        
+        return filename
+    
+    @validates('path')
+    def _validate_path(self, key, path):
+        """validates the given path value
+        """
+        if path is None:
+            raise TypeError("FileLink.path can not be None")
+        
+        if not isinstance(path, (str, unicode)):
+            raise TypeError("FileLink.path should be a str or unicode, "
+                            "not %s" % path.__class__.__name__)
+        return path
+    
+    @validates('type')
+    def _validate_type(self, key, type_):
+        """validates the given type value
+        """
+        
+        if type_ is None:
+            type_ = ""
+        
+        if not isinstance(type_, (str, unicode)):
+            raise TypeError("FileLink.type should be a str or unicode, "
+                            "not %s" % type_.__class__.__name__)
+        
+        return type_
+ 
