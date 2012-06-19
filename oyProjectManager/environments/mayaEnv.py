@@ -1000,10 +1000,6 @@ class Maya(EnvironmentBase):
                     file_texture_path,
                     "/", ".."
                 )
-#                new_path = new_path.replace(
-#                    os.environ[conf.repository_env_key],
-#                    "$" + conf.repository_env_key
-#                )
             
             logger.info("with: %s" % new_path)
             

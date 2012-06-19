@@ -14,6 +14,9 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
+
+# TODO: Remove Repository Class, it is useless
+
 class Repository(object):
     """Repository class gives information about the repository and projects in
     that repository.

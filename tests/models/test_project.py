@@ -22,8 +22,8 @@ class Project_DB_Tester(unittest.TestCase):
     def setUp(self):
         """set up the test
         """
-        
         conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
