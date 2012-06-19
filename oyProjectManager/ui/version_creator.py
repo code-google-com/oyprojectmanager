@@ -14,9 +14,13 @@ from sqlalchemy.sql.expression import distinct
 
 import oyProjectManager
 from oyProjectManager import config, db, utils
-from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
-                                          Version, VersionType, Shot, User,
-                                          VersionTypeEnvironments)
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.auth import User
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.repository import Repository
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import Version, VersionType, VersionTypeEnvironments
 from oyProjectManager.ui import version_updater, ui_utils
 
 logger = logging.getLogger('beaker.container')
@@ -166,8 +170,8 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     :param environment: It is an object which supplies **methods** like
       ``open``, ``save``, ``export``,  ``import`` or ``reference``. The most
       basic way to do this is to pass an instance of a class which is derived
-      from the :class:`~oyProjectManager.core.models.EnvironmentBase` which has
-      all this methods but produces ``NotImplemented`` errors if the child
+      from the :class:`~oyProjectManager.models.entity.EnvironmentBase` which
+      has all this methods but produces ``NotImplemented`` errors if the child
       class has not implemented these actions.
       
       The main duty of the Environment object is to introduce the host
@@ -543,7 +547,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def rename_asset(self, asset, new_name):
         """Renames the asset with the given new name
         
-        :param asset: The :class:`~oyProjectManager.core.models.Asset` instance
+        :param asset: The :class:`~oyProjectManager.models.asset.Asset` instance
           to be renamed.
         
         :param new_name: The desired new name for the asset.
@@ -632,7 +636,8 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def restore_ui(self, version):
         """Restores the UI with the given Version instance
         
-        :param version: :class:`~oyProjectManager.core.models.Version` instance
+        :param version: :class:`~oyProjectManager.models.version.Version`
+          instance
         """
         
         logger.debug("restoring ui with the given version: %s", version)
@@ -1348,7 +1353,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         will return the correct VersionType by looking at if it is an Asset or
         a Shot and picking the name of the VersionType from the comboBox
         
-        :returns: :class:`~oyProjectManager.core.models.VersionType`
+        :returns: :class:`~oyProjectManager.models.version.VersionType`
         """
         
         project = self.get_current_project()
@@ -1375,7 +1380,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def get_current_project(self):
         """Returns the currently selected project instance in the
         projects_comboBox
-        :return: :class:`~oyProjectManager.core.models.Project` instance
+        :return: :class:`~oyProjectManager.models.project.Project` instance
         """
         
         index = self.projects_comboBox.currentIndex()
@@ -1390,9 +1395,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """
         
         if not isinstance(version_type, VersionType):
-            raise TypeError("please supply a "
-                            "oyProjectManager.core.models.VersionType for the"
-                            "type to be added to the version_types_listWidget")
+            raise TypeError(
+                "please supply a oyProjectManager.models.version.VersionType "
+                "for the type to be added to the version_types_listWidget"
+            )
         
         # check if the given type is suitable for the current versionable
         versionable = self.get_versionable()
@@ -1524,10 +1530,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
 #                )
     
     def get_new_version(self):
-        """returns a :class:`~oyProjectManager.core.models.Version` instance
+        """returns a :class:`~oyProjectManager.models.version.Version` instance
         from the UI by looking at the input fields
         
-        :returns: :class:`~oyProjectManager.core.models.Version` instance
+        :returns: :class:`~oyProjectManager.models.version.Version` instance
         """
         
         # create a new version
@@ -1556,8 +1562,8 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         return version
     
     def get_previous_version(self):
-        """returns the :class:`~oyProjectManager.core.models.Version` instance
-        from the UI by looking at the previous_versions_tableWidget
+        """returns the :class:`~oyProjectManager.models.version.Version`
+        instance from the UI by looking at the previous_versions_tableWidget
         """
         
         index = self.previous_versions_tableWidget.currentRow()
@@ -1569,7 +1575,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """returns the current User instance from the interface by looking at
         the name of the user from the users comboBox
         
-        :return: :class:`~oyProjectManager.core.models.User` instance
+        :return: :class:`~oyProjectManager.models.auth.User` instance
         """
         
         index = self.users_comboBox.currentIndex()

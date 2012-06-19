@@ -6,11 +6,11 @@
 
 import unittest
 
-from oyProjectManager.core.models import Client
+from oyProjectManager.models.auth import Client
 
 
 class ClientTester(unittest.TestCase):
-    """tests the oyProjectManager.core.models.Client class
+    """tests the oyProjectManager.models.auth.Client class
     """
     
     def setUp(self):

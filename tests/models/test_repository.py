@@ -9,13 +9,11 @@ import shutil
 import tempfile
 import unittest
 
-from oyProjectManager import config, db
-from oyProjectManager.core.models import Repository, Project
-
-conf = config.Config()
+from oyProjectManager import conf, db
+from oyProjectManager.models.repository import Repository
 
 class RepositoryTester(unittest.TestCase):
-    """tests the oyProjectManager.core.models.Repository class
+    """tests the oyProjectManager.models.repository.Repository class
     """
     
     def setUp(self):
@@ -33,6 +31,8 @@ class RepositoryTester(unittest.TestCase):
         self.config_full_path = os.path.join(
             self.temp_config_folder, "config.py"
         )
+        
+        conf.database_url = "sqlite://"
     
     def tearDown(self):
         """cleanup the test

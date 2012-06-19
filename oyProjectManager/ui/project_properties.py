@@ -8,8 +8,9 @@ import os
 import logging
 from sqlalchemy.sql.expression import distinct
 from oyProjectManager import conf
-from oyProjectManager.core.models import Project, Client
 from oyProjectManager import db
+from oyProjectManager.models.auth import Client
+from oyProjectManager.models.project import Project
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +35,8 @@ elif qt_module == "PyQt4":
 class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
     """Dialog to edit project properties
     
-    If a :class:`~oyProjectManager.core.models.Project` instance is also passed
-    it will edit the given project.
+    If a :class:`~oyProjectManager.models.project.Project` instance is also
+    passed it will edit the given project.
     
     If no Project is passed then it will create and return a new one.
     """
@@ -120,7 +121,7 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
     def update_UI_from_project(self, project):
         """Updates the UI with the info from the given project instance
         
-        :param project: The :class:`~oyProjectManager.core.models.Project`
+        :param project: The :class:`~oyProjectManager.models.project.Project`
           instance which the UI data will be read from.
         """
         # if a project is given update the UI with the given project info

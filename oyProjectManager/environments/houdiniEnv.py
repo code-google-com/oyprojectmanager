@@ -7,9 +7,13 @@
 import os
 import hou
 import re
-from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
-                                          EnvironmentBase, Version)
 from oyProjectManager import utils
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.entity import EnvironmentBase
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.repository import Repository
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.version import Version
 
 class Houdini(EnvironmentBase):
     """the houdini environment class

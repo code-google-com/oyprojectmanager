@@ -9,22 +9,21 @@ import shutil
 import tempfile
 import unittest
 
-from oyProjectManager import db, config
-from oyProjectManager.core.models import (Project, Sequence, VersionType,
-                                          Client)
-
-import logging
-logger = logging.getLogger("oyProjectManager.core.models")
-logger.setLevel(logging.DEBUG)
-
-conf = config.Config()
+from oyProjectManager import db, conf
+from oyProjectManager.models.auth import Client
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.version import VersionType
 
 class Project_DB_Tester(unittest.TestCase):
     """Tests the design of the Projects after v0.2.0
     """
     
     def setUp(self):
-
+        """set up the test
+        """
+        
+        conf.database_url = "sqlite://"
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()

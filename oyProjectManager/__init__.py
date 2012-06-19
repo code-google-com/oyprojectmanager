@@ -21,3 +21,16 @@ conf = config.Config()
 # or stating in a different form separate the VersionType in to two new class
 # called Task and Type (as in Stalker)
 
+
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.auth import Client, User
+from oyProjectManager.models.entity import VersionableBase, EnvironmentBase
+from oyProjectManager.models.errors import CircularDependencyError
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.repository import Repository
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import (Version, VersionType,
+                                             VersionTypeEnvironments,
+                                             VersionStatusComparator,
+                                             Version_References)

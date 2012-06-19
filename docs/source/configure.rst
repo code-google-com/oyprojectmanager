@@ -57,7 +57,7 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: asset_thumbnail_filename
    
    A Jinja2 template showing the filename of
-   :class:`~oyProjectManager.core.models.Asset` thumbnails. The default
+   :class:`~oyProjectManager.models.asset.Asset` thumbnails. The default
    value is::
      
      asset_thumbnail_filename = "{{asset.code}}_thumbnail.{{extension}}"
@@ -65,7 +65,7 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: asset_thumbnail_path
    
    A Jinja2 template showing the path of
-   :class:`~oyProjectManager.core.models.Asset` thumbnails. The default
+   :class:`~oyProjectManager.models.asset.Asset` thumbnails. The default
    value is::
    
      asset_thumbnail_path = "{{project.code}}/Assets/{{asset.type}}/{{asset.code}}/Thumbnail"
@@ -82,21 +82,21 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: default_asset_type_name
    
    The default type name for newly created
-   :class:`~oyProjectManager.core.models.Asset` instances, not used if
+   :class:`~oyProjectManager.models.asset.Asset` instances, not used if
    another value is passed with the ``type`` argument. The default value is
    "Generic".
 
 .. confval:: default_fps
    
    The default fps value for newly created
-   :class:`~oyProjectManager.core.models.Project` instances, not used if
+   :class:`~oyProjectManager.models.project.Project` instances, not used if
    another value is supplied with the ``fps`` argument. The default value
    is "25".
 
 .. confval:: default_resolution_preset
    
    The name of the default resolution preset used in newly created
-   :class:`~oyProjectManager.core.models.Project` instances. Not used if
+   :class:`~oyProjectManager.models.project.Project` instances. Not used if
    the ``width``, ``height`` and ``aspect_ratio`` arguments are used. The
    default value is "HD 1080", the default value should exists in
    :confval:`resolution_presets` config value.
@@ -104,7 +104,7 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: default_take_name
    
    The default take name value for newly created
-   :class:`~oyProjectManager.core.models.Version` instances, not used if
+   :class:`~oyProjectManager.models.version.Version` instances, not used if
    another value is supplied with the ``take`` argument. The default value
    is "MAIN".
 
@@ -153,7 +153,7 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: project_structure
    
    The default project structure template for newly created
-   :class:`~oyProjectManager.core.models.Project` instances. It is a
+   :class:`~oyProjectManager.models.project.Project` instances. It is a
    Jinja2 template where every line is a definition of a folder in the
    project structure. The default value is::
      
@@ -188,7 +188,7 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: resolution_presets
    
    A dictionary holding resolution presets. This info is used while
-   creating :class:`~oyProjectManager.core.models.Project` instances. The
+   creating :class:`~oyProjectManager.models.project.Project` instances. The
    default value is::
    
       resolution_presets = {
@@ -221,8 +221,8 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: rev_number_padding
    
    The amount of padding applied to the
-   :attr:`~oyProjectManager.core.models.Version.revision_number` attribute
-   of :class:`~oyProjectManager.core.models.Version` class while generating
+   :attr:`~oyProjectManager.models.version.Version.revision_number` attribute
+   of :class:`~oyProjectManager.models.version.Version` class while generating
    filename of that Version instance. In default filename and path
    templates the revision_number attribute is not used. The default value
    is "2".
@@ -230,8 +230,8 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: rev_number_prefix
    
    The prefix of
-   :attr:`~oyProjectManager.core.models.Version.revision_number` attribute
-   of :class:`~oyProjectManager.core.models.Version` class while generating
+   :attr:`~oyProjectManager.models.version.Version.revision_number` attribute
+   of :class:`~oyProjectManager.models.version.Version` class while generating
    filename of that Version instance. In default filename and path
    templates the revision_number attribute is not used. The default value
    is "r".
@@ -239,7 +239,7 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: shot_number_padding
    
    The amount of padding applied to the
-   :class:`~oyProjectManager.core.models.Shot` number while generating the
+   :class:`~oyProjectManager.models.shot.Shot` number while generating the
    Shot code, the default value is 3 and for non standard shot numbers
    (like "46AB-4-B") use 0 or 1 to prevent your shot number padded with
    zeros::
@@ -257,14 +257,14 @@ Variables which can be set in ``config.py`` are as follows:
 
 .. confval:: shot_number_prefix
    
-   The prefix for :class:`~oyProjectManager.core.models.Shot` numbers. The
+   The prefix for :class:`~oyProjectManager.models.shot.Shot` numbers. The
    default value is "SH". So with the default configuration a Shot with
    number 1 will have a code of "SH001"
 
 .. confval:: shot_thumbnail_filename
    
    A Jinja2 template showing the filename of
-   :class:`~oyProjectManager.core.models.Shot` thumbnails. The default
+   :class:`~oyProjectManager.models.shot.Shot` thumbnails. The default
    value is::
      
      shot_thumbnail_filename = "{{shot.code}}_thumbnail.{{extension}}"
@@ -272,7 +272,7 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: shot_thumbnail_path
    
    A Jinja2 template showing the path of
-   :class:`~oyProjectManager.core.models.Shot` thumbnails. The default 
+   :class:`~oyProjectManager.models.shot.Shot` thumbnails. The default 
    value is::
      
      shot_thumbnail_path = "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{shot.code}}/Thumbnail"
@@ -361,8 +361,8 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: ver_number_padding
    
    The amount of padding applied to the
-   :attr:`~oyProjectManager.core.models.Version.version_number` attribute
-   of :class:`~oyProjectManager.core.models.Version` class while generating
+   :attr:`~oyProjectManager.models.version.Version.version_number` attribute
+   of :class:`~oyProjectManager.models.version.Version` class while generating
    filename of that Version instance. In default filename and path
    templates the ver_number_padding value is not used. The default value is
    "3".
@@ -370,8 +370,8 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: ver_number_prefix
    
    The prefix of
-   :attr:`~oyProjectManager.core.models.Version.version_number` attribute
-   of :class:`~oyProjectManager.core.models.Version` class while generating
+   :attr:`~oyProjectManager.models.version.Version.version_number` attribute
+   of :class:`~oyProjectManager.models.version.Version` class while generating
    filename of that Version instance. In default filename and path
    templates the ver_number_prefix value is not used. The default value is
    "v".
@@ -379,9 +379,9 @@ Variables which can be set in ``config.py`` are as follows:
 .. confval:: version_types
    
    A list of dictionaries holding all the available
-   :class:`~oyProjectManager.core.models.VersionType` info in the system.
+   :class:`~oyProjectManager.models.version.VersionType` info in the system.
    Again oyProjectManager will create
-   :class:`~oyProjectManager.core.models.VersionType` instances upon
+   :class:`~oyProjectManager.models.version.VersionType` instances upon
    database initialization. But it will not update the values for
    VersionType instances already in the database. So this value is only
    used when creating VersionType instances for the first time. You should
@@ -558,7 +558,7 @@ Variables which can be set in ``config.py`` are as follows:
    A list of dictionaries which is holding user info. It gives a place to
    enter user info, so the studio can add new users by adding their names
    to the ``config.py`` file. oyProjectManager will create a corresponding
-   :class:`~oyProjectManager.core.models.User` objects in the database upon
+   :class:`~oyProjectManager.models.auth.User` objects in the database upon
    every initialization of the database session. And deleting a user from
    this list will not delete the user from the database. The default value
    is::

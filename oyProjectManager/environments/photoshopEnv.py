@@ -4,7 +4,7 @@
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
-from oyProjectManager.core.models import EnvironmentBase
+from oyProjectManager.models.entity import EnvironmentBase
 
 class Photoshop(EnvironmentBase):
     """the photoshop environment class

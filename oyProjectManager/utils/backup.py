@@ -49,19 +49,19 @@ Examples::
 #:arg --sequence, -s: The name of the sequence. It should match the exact 
 #  sequence name, and if skipped, all the sequences under the given project 
 #  will be filtered and backed up.
-from oyProjectManager.core.models import Project
+from oyProjectManager.models.project import Project
 
 
 class BackUp(object):
     """Holds information about the backup process.
     
     :param project: The name of the project to be backed up or the
-      :class:`~oyProjectManager.core.models.Project` instance showing the 
+      :class:`~oyProjectManager.models.project.Project` instance showing the 
       project to be backed up. None or empty string will raise TypeError and
       ValueError respectively. If given as string a new
-      :class:`~oyProjectManager.core.models.Project` instance will be created
-      and hold in the :attr:`~oyProjectManager.utils.backup.BackUp.project`
-      attribute.
+      :class:`~oyProjectManager.models.project.Project` instance will be
+      created and hold in the
+      :attr:`~oyProjectManager.utils.backup.BackUp.project` attribute.
     
     :param extra_filter_rules: A path of a text file which holds the extra 
       filter rules. Can be skipped.
@@ -77,7 +77,7 @@ class BackUp(object):
     
 #   TODO: add individual sequences
 #    :param sequences: A list of strings or
-#      :class:`~oyProjectManager.core.models.Sequence` instances showing 
+#      :class:`~oyProjectManager.models.sequence.Sequence` instances showing 
 #      the sequences to be backed up. All the sequences should be valid for the
 #      given project. If one of the sequences doesn't belong to the given 
 #      project, a ValueError will be raised. Can be skipped or can be None then 
@@ -126,7 +126,7 @@ class BackUp(object):
         if not isinstance(project, Project) and \
            not isinstance(project, str):
             raise TypeError("BackUp.project should be an instance of"
-                            "oyProjectManager.core.models.Project instance")
+                            "oyProjectManager.models.project.Project instance")
         
         if project == "":
             raise ValueError
@@ -184,7 +184,7 @@ class BackUp(object):
     def project(self):
         """The project to be backed up.
         
-        It is an instance of :class:`~oyProjectManager.core.models.Project`.
+        It is an instance of :class:`~oyProjectManager.models.project.Project`.
         """
         return self._project
     

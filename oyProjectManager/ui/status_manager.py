@@ -11,9 +11,13 @@ from sqlalchemy.sql.expression import distinct, func
 
 import oyProjectManager
 from oyProjectManager import config, db, utils
-from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
-                                          Version, VersionType, Shot, User,
-                                          VersionTypeEnvironments)
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.auth import User
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.repository import Repository
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import Version, VersionType, VersionTypeEnvironments
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
@@ -166,7 +170,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     def get_current_project(self):
         """Returns the currently selected project instance in the
         projects_comboBox
-        :return: :class:`~oyProjectManager.core.models.Project` instance
+        :return: :class:`~oyProjectManager.models.project.Project` instance
         """
         index = self.projects_comboBox.currentIndex()
         try:

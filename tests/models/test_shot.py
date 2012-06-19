@@ -9,10 +9,10 @@ import shutil
 import tempfile
 import unittest
 from sqlalchemy.exc import IntegrityError
-from oyProjectManager import config, db
-from oyProjectManager.core.models import Project, Sequence, Shot
-
-conf = config.Config()
+from oyProjectManager import conf, db
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
 
 class ShotTester(unittest.TestCase):
     """tests the Shot class
@@ -21,9 +21,10 @@ class ShotTester(unittest.TestCase):
     def setUp(self):
         """setup the test settings with environment variables
         """
-        
         # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()

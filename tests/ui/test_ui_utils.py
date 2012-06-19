@@ -9,7 +9,8 @@ import tempfile
 import unittest
 import sys
 from oyProjectManager import conf, db
-from oyProjectManager.core.models import Project, Asset
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.project import Project
 from oyProjectManager.ui import ui_utils
 
 import sip
@@ -24,8 +25,10 @@ class UIUtilsTester(unittest.TestCase):
     def setUp(self):
         """setup the test
         """
-       # -----------------------------------------------------------------
+        # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
@@ -46,7 +49,7 @@ class UIUtilsTester(unittest.TestCase):
         shutil.rmtree(self.temp_projects_folder)
     
     
-    def create_test_image(self, pixmap_full_path):
+    def create_dummy_image(self, pixmap_full_path):
         """Creates a test image at the given path
         """
         
@@ -83,42 +86,49 @@ class UIUtilsTester(unittest.TestCase):
         self.assertTrue(os.path.exists(pixmap_full_path))
         
         return pixmap
- 
-    def test_upload_thumbnail_updates_the_thumbnail_path_for_the_given_versionable(self):
-        """testing if the upload_thumbnail updates the thumbnail field of the
-        given Versionable instance
+    
+    def test_upload_thumbnail_uploads_the_given_thumbnail_to_the_versionable_thumbnail_path(self):
+        """testing if the upload_thumbnail puts the given thumbnail file to the
+        given location
         """
-        
-        proj = Project("Test Project")
-        proj.create()
-        
-        asset = Asset(proj, "Test Asset")
-        asset.save()
-        
-        # save the image to the temp directory
-        pixmap_full_path = os.path.join(
-            self.temp_config_folder,
-            "test.jpg"
-        )
-        
-        self.create_test_image(pixmap_full_path)
-        
-        thumbnail_full_path = os.path.join(
-            proj.code, "Assets", asset.type, asset.code, "Thumbnail",
-            asset.code + "_thumbnail.jpg"
-        )
-        
-        # now upload a thumbnail
-        ui_utils.upload_thumbnail(asset, pixmap_full_path)
-        
-        # now check if asset.thumbnail is correctly set
-        self.assertEqual(asset.thumbnail_full_path, thumbnail_full_path)
-        
-        # and the file is placed to the correct placement
-        self.assertTrue(
-            os.path.exists(
-                os.path.join(
-                    proj.path, thumbnail_full_path 
-                ) 
-            )
-        )
+        self.fail('test is not implemented yet')
+    
+    # TODO: the behaviour has changed, please update this test
+    #def test_upload_thumbnail_updates_the_thumbnail_path_for_the_given_versionable(self):
+    #    """testing if the upload_thumbnail updates the thumbnail field of the
+    #    given Versionable instance
+    #    """
+    #    
+    #    proj = Project("Test Project")
+    #    proj.create()
+    #    
+    #    asset = Asset(proj, "Test Asset")
+    #    asset.save()
+    #    
+    #    # save the image to the temp directory
+    #    pixmap_full_path = os.path.join(
+    #        self.temp_config_folder,
+    #        "test.jpg"
+    #    )
+    #    
+    #    self.create_dummy_image(pixmap_full_path)
+    #    
+    #    thumbnail_full_path = os.path.join(
+    #        proj.code, "Assets", asset.type, asset.code, "Thumbnail",
+    #        asset.code + "_thumbnail.jpg"
+    #    )
+    #    
+    #    # now upload a thumbnail
+    #    ui_utils.upload_thumbnail(asset, pixmap_full_path)
+    #    
+    #    # now check if asset.thumbnail is correctly set
+    #    self.assertEqual(asset.thumbnail_full_path, thumbnail_full_path)
+    #    
+    #    # and the file is placed to the correct placement
+    #    self.assertTrue(
+    #        os.path.exists(
+    #            os.path.join(
+    #                proj.path, thumbnail_full_path 
+    #            ) 
+    #        )
+    #    )

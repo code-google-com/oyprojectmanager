@@ -12,6 +12,13 @@ import unittest
 
 import sip
 import logging
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.auth import User
+from oyProjectManager.models.entity import EnvironmentBase
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import Version, VersionType
 
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
@@ -19,13 +26,8 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 from PyQt4.QtTest import QTest
 
-from oyProjectManager import config, db
-from oyProjectManager.core.models import (Project, Asset, Version, User,
-                                          VersionType, Sequence, Shot,
-                                          EnvironmentBase)
+from oyProjectManager import conf, db
 from oyProjectManager.ui import shot_editor
-
-conf = config.Config()
 
 logger = logging.getLogger("oyProjectManager.ui.version_creator")
 logger.setLevel(logging.DEBUG)
@@ -37,9 +39,10 @@ class ShotEditorTester(unittest.TestCase):
     def setUp(self):
         """setup the test
         """
-        
         # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()

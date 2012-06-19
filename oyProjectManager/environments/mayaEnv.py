@@ -10,8 +10,9 @@ import os
 from pymel import core as pm
 
 from oyProjectManager import conf
-from oyProjectManager.core.models import Repository, EnvironmentBase
 from oyProjectManager import utils
+from oyProjectManager.models.entity import EnvironmentBase
+from oyProjectManager.models.repository import Repository
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -180,7 +181,7 @@ class Maya(EnvironmentBase):
         
         It also updates the referenced Version on open.
         
-        :returns: list of :class:`~oyProjectManager.core.models.Version`
+        :returns: list of :class:`~oyProjectManager.models.version.Version`
           instances which are referenced in to the opened version and those
           need to be updated
         """
@@ -235,7 +236,7 @@ class Maya(EnvironmentBase):
         scene.
         
         :param version: The desired
-          :class:`~oyProjectManager.core.models.Version` to be imported
+          :class:`~oyProjectManager.models.version.Version` to be imported
         """
         pm.importFile(version.full_path)
         
@@ -245,7 +246,7 @@ class Maya(EnvironmentBase):
         """References the given Version instance to the current Maya scene.
         
         :param version: The desired
-          :class:`~oyProjectManager.core.models.Version` instance to be
+          :class:`~oyProjectManager.models.version.Version` instance to be
           referenced.
         """
         
@@ -314,7 +315,7 @@ class Maya(EnvironmentBase):
         
         If it can't find any then returns None.
         
-        :return: :class:`~oyProjectManager.core.models.Version`
+        :return: :class:`~oyProjectManager.models.version.Version`
         """
         
         version = None
@@ -334,12 +335,12 @@ class Maya(EnvironmentBase):
     
     def get_version_from_recent_files(self):
         """It will try to create a
-        :class:`~oyProjectManager.core.models.Version` instance by looking at
+        :class:`~oyProjectManager.models.version.Version` instance by looking at
         the recent files list.
         
         It will return None if it can not find one.
         
-        :return: :class:`~oyProjectManager.core.models.Version`
+        :return: :class:`~oyProjectManager.models.version.Version`
         """
 
         version = None
@@ -379,7 +380,7 @@ class Maya(EnvironmentBase):
           its path
         * Still not able to find any Version instances returns None
         
-        :returns: :class:`~oyProjectManager.core.models.Version` instance or
+        :returns: :class:`~oyProjectManager.models.version.Version` instance or
             None
         """
         
@@ -544,7 +545,7 @@ class Maya(EnvironmentBase):
     def set_project(self, version):
         """Sets the project to the given version.
         
-        The Maya version uses :class:`~oyProjectManager.core.models.Version`
+        The Maya version uses :class:`~oyProjectManager.models.version.Version`
         instances to set the project. Because the Maya workspace is related to
         the the Asset or Shot which can be derived from the Version instance
         very easily.
