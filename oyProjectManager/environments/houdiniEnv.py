@@ -7,13 +7,18 @@
 import os
 import hou
 import re
-from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
-                                          EnvironmentBase, Version)
+from oyProjectManager.core.models import EnvironmentBase, Version
 from oyProjectManager import utils
+
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 class Houdini(EnvironmentBase):
     """the houdini environment class
     """
+
+    name = 'Houdini'
     
     def save_as(self, version):
         """the save action for houdini environment
@@ -82,97 +87,83 @@ class Houdini(EnvironmentBase):
         # set the environment variables
         self.set_environment_variables(version)
         
-        return True
+        return True, []
     
     def import_(self, version):
         """the import action for houdini environment
         """
         hou.hipFile.merge(str(version.fullPath))
         return True
+
+    def get_current_version(self):
+        """Returns the currently opened Version instance
+        """
+        version = None
+        full_path = hou.hipFile.name()
+        if full_path != 'untitled.hip':
+            version = self.get_version_from_full_path(full_path)
+        return version
+
+    def get_version_from_recent_files(self):
+        """returns the version from the recent files
+        """
+        version = None
+        recent_files = self.get_recent_file_list()
+        for i in range(len(recent_files)-1,0,-1):
+            version = self.get_version_from_full_path(recent_files[i])
+            if version:
+                break
+        return version
     
     def get_last_version(self):
         """gets the file name from houdini environment
         """
-        
-        # todo update this method
-        
-        foundValidAsset = False
-        readRecentFile = True
-        fileName = path = None
-        
-        repo = Repository()
-        
-        fullPath = hou.hipFile.name()
-        
-        # unfix windows path
-        if os.name == 'nt':
-            fullPath = fullPath.replace('/','\\')
-        
-        
-        if fullPath != 'untitled.hip':
-            fileName = os.path.basename( fullPath )
-            path = os.path.dirname( fullPath )
-            
-            # try to create an asset with that info
-            projName, seqName = repo.get_project_and_sequence_name_from_file_path( fullPath )
-            
-            if not projName is None and not seqName is None: 
-                proj = Project(projName)
-                seq = Sequence(proj, seqName)
-            
-            
-                testAsset = Asset(proj, seq, fileName)
-            
-                if testAsset.isValidAsset:
-                    fileName = testAsset.fileName
-                    path = testAsset.path
-                    readRecentFile = False
-            else:
-                # no good file name
-                readRecentFile = True
-        
-        if readRecentFile:
-            # there is no file opened yet use the first valid file
-            # from the recent files list
-            
-            recentFiles = self.get_recent_file_list()
-            
-            # unfix the windows paths from / to \\
-            if os.name == 'nt':
-                recentFiles = [recentFile.replace('/','\\') for recentFile in recentFiles]
-            
-            for i in range(len(recentFiles)-1,0,-1):
-                
-                fileName = os.path.basename( recentFiles[i] )
-                projName, seqName = repo.get_project_and_sequence_name_from_file_path( recentFiles[i] )
-                
-                if projName != None and seqName != None:
-                    
-                    proj = Project( projName )
-                    seq = Sequence( proj, seqName )
-                    
-                    testAsset = Asset( proj, seq, fileName )
-                    
-                    if testAsset.isValidAsset:
-                        path = testAsset.path
-                        foundValidAsset = True
-                        break
-        
-        return fileName, path
+
+        version = self.get_current_version()
+
+        if version is None:
+            # read the recent file list
+            version = self.get_version_from_recent_files()
+
+        #if version is None:
+        #    # get the latest possible version instance by using the project path
+
+        return version
     
     def set_environment_variables(self, version):
         """sets the environment variables according to the given Version
         instance
         """
+
+        if not version:
+            return
+        
         # set the $JOB variable to the parent of version.full_path
-        job = os.path.dirname(version.full_path)
+        logger.debug('version: %s' % version)
+        logger.debug('version.path: %s' % version.path)
+        logger.debug('version.filename: %s' % version.filename)
+        logger.debug('version.full_path: %s' % version.full_path)
+        logger.debug('version.full_path (calculated): %s' %
+                     os.path.join(
+                         version.path,
+                         version.filename
+                         ).replace("\\", "/")
+        )
+        job = os.path.dirname(str(version.full_path))
+        
+        logger.debug('job: %s' % job)
         
         # update the environment variables
-        os.environ.update({"JOB": job})
+        #os.environ.update({"JOB": job})
+        os.environ["JOB"] = job
         
         # also set it using hscript, hou is a little bit problematic
         hou.hscript("set -g JOB = '" + job + "'")
-        hou.allowEnvironmentVariableToOverwriteVariable("JOB", True)
+        try:
+            hou.allowEnvironmentVariableToOverwriteVariable("JOB", True)
+        except AttributeError:
+            # should be Houdini 12
+            hou.allowEnvironmentToOverwriteVariable('JOB', True)
     
     def get_recent_file_list(self):
         """returns the recent HIP files list from the houdini

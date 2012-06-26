@@ -1019,6 +1019,8 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         item = self.version_types_listWidget.currentItem()
         if item:
             version_type_name = item.text()
+
+        self.takes_listWidget.clear()
         
         if version_type_name != '':
             logger.debug("version_type_name: %s" % version_type_name)
@@ -1035,8 +1037,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 .filter(Version.version_of==versionable)
                 .all()
         )
-        
-        self.takes_listWidget.clear()
         
         logger.debug("len(takes) from db: %s" % len(takes))
         
@@ -1100,10 +1100,15 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         versionable = self.get_versionable()
         
         # version type name
-        version_type_name = ""
+        version_type_name = ''
         item = self.version_types_listWidget.currentItem()
         if item:
             version_type_name = item.text()
+
+        self.previous_versions_tableWidget.clear()
+        self.previous_versions_tableWidget.setHorizontalHeaderLabels(
+            self.previous_versions_tableWidget.labels
+        )
         
         if version_type_name != '':
             logger.debug("version_type_name: %s" % version_type_name)
@@ -1142,13 +1147,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # set the versions cache by adding them to the widget
         self.previous_versions_tableWidget.versions = versions
         
-        self.previous_versions_tableWidget.clear()
         self.previous_versions_tableWidget.setRowCount(len(versions))
-        
-        self.previous_versions_tableWidget.setHorizontalHeaderLabels(
-            self.previous_versions_tableWidget.labels
-        )
-        
         
         def set_font(item):
             """sets the font for the given item

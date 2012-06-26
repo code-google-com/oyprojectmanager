@@ -989,7 +989,7 @@ class VersionableBase(Base):
     )
     _project = relationship(
         "Project",
-        cascade="all"
+        #cascade="all"
     )
     
     _code = Column(
@@ -3101,19 +3101,7 @@ class EnvironmentBase(object):
         """
         
         return self.get_current_version()
-
-    @property
-    def name(self):
-        """returns the environment name
-        """
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        """sets the environment name
-        """
-        self._name = name
-
+    
     def save_as(self, version):
         """The save as action of this environment. It should save the current
         scene or file to the given version.full_path
@@ -3133,12 +3121,17 @@ class EnvironmentBase(object):
         """
         raise NotImplemented
 
-    def import_(self, asset):
+    def post_open(self, version):
+        """the post open action runs after open action
+        """
+        pass
+
+    def import_(self, version):
         """the import action
         """
         raise NotImplemented
 
-    def reference(self, asset):
+    def reference(self, version):
         """the reference action
         """
         raise NotImplemented
