@@ -77,7 +77,7 @@ class ClientTester(unittest.TestCase):
     
     def test_code_argument_is_skipped(self):
         """testing if the client code argument is skipped the code attribute
-        will be genereted from the name attributes initials
+        will be generated from the name attributes initials
         """
         test_name = "This is a test client"
         test_code = "TIATC"

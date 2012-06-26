@@ -56,6 +56,8 @@ class Config(object):
             (  0,   0,   0), #CMP
         ],
         
+        sequence_format = "%h%p%t %R",
+        
         shot_number_prefix = "SH",
         shot_number_padding = 3,
         

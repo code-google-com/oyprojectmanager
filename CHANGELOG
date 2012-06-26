@@ -15,8 +15,8 @@ Version History
     # you can do import them like this.
     from oyProjectManager import Project, Sequence, Shot, Asset
 
-* Tests are now using in memory database, which is way faster then the real
-  file based version.
+* Tests are now using in-memory database, which is way faster then the the file
+  based version.
 
 0.2.4.2
 -------

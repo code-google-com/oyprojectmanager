@@ -35,6 +35,9 @@ class FileLink(Base):
     :class:`~oyProjectManager.models.mixins.IOMixin` uses the FileLinks to
     specify their inputs and outputs.
     
+    FileLink.filename attribute can be a sequence of files with the correct
+    file name format, which is defined in studios config.py file.
+    
     :param path: The path of this FileLink instance, it is $REPO relative.
     
     :param filename: The filename of this FileLink instance.
@@ -85,7 +88,6 @@ class FileLink(Base):
     def _validate_type(self, key, type_):
         """validates the given type value
         """
-        
         if type_ is None:
             type_ = ""
         
@@ -94,4 +96,4 @@ class FileLink(Base):
                             "not %s" % type_.__class__.__name__)
         
         return type_
- 
+

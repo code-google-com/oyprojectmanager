@@ -692,7 +692,7 @@ class Version(Base):
     def is_latest_version(self):
         """returns True if this is the latest Version False otherwise
         """
-        return self.max_version == self.version_number
+        return self.max_version == self.version_numberd
     
     def is_latest_published_version(self):
         """returns True if this is the latest published Version False otherwise

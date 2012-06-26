@@ -236,6 +236,17 @@ Variables which can be set in ``config.py`` are as follows:
    templates the revision_number attribute is not used. The default value
    is "r".
 
+.. confval:: sequence_format
+   
+   oyProjectManager uses PySeq, a Python package to compress and uncompress
+   file sequences. This config value defines the format of the sequences and
+   used when compressing and uncompressing file sequences.
+   
+   The default value is "%h%p%t %R". Fore details about the format see the
+   documentation of `PySeq`_.
+   
+   .. _PySeq: http://rsgalloway.github.com/pyseq/
+
 .. confval:: shot_number_padding
    
    The amount of padding applied to the
