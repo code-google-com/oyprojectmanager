@@ -106,12 +106,18 @@ class Maya(EnvironmentBase):
         # set scene fps
         self.set_fps(project.fps)
         
-        # set render resolution
         # only if the file is a new version
         if version.version_number == 1:
+            # set render resolution
             self.set_resolution(project.width, project.height,
                 project.pixel_aspect)
-        
+        # set the render range
+        if version.type.type_for == 'Shot':
+            self.set_frame_range(
+                version.version_of.start_frame,
+                version.version_of.end_frame
+            )
+                
         # set the render file name and version
         self.set_render_fileName(version)
         
@@ -725,7 +731,7 @@ class Maya(EnvironmentBase):
         dRG = pm.PyNode('defaultRenderGlobals')
         dRG.setAttr('startFrame', start_frame )
         dRG.setAttr('endFrame', end_frame )
-    
+
     def get_fps(self):
         """returns the fps of the environment
         """

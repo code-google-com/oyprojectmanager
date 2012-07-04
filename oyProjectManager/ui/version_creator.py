@@ -1627,7 +1627,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         db.session.add(new_version)
         db.session.commit()
         
-        
         # save the last user
         conf.last_user_id = new_version.created_by.id
         
