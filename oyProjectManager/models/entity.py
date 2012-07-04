@@ -60,7 +60,7 @@ class VersionableBase(Base):
     )
     _project = relationship(
         "Project",
-        cascade="all"
+        #cascade="all"
     )
     
     _code = Column(
