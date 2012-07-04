@@ -11,6 +11,10 @@ Version History
 
 * ``version_creator`` UI now lists users in alphabetical order.
 
+* MayaEnv sets the frame range for Shot versions.
+
+* Fixed nukeEnv for Windows, now the output path is correctly set.
+
 0.2.4.1
 -------
 * Fixed titles of ``version_creator`` and ``status_manager`` UIs.
