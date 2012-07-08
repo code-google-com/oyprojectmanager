@@ -18,6 +18,14 @@ Version History
 * Tests are now using in-memory database, which is way faster then the the file
   based version.
 
+* Added the FileLink class to hold links to files in the file system. The
+  Version class will use this class in later versions. But for now it is used
+  in IOMixin.
+
+* Added the first ever mixin called IOMixin. It adds two new attributes to the
+  mixed in class called ``inputs`` and ``outputs``. The inputs and outputs
+  attributes are holding list of FileLink instances.
+
 0.2.4.2
 -------
 * Renamed 'Scene Assembly' to 'Layout' in VersionTypes.
