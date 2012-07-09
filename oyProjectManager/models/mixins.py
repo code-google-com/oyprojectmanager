@@ -100,6 +100,10 @@ class IOMixin(object):
       instances.
     """
     
+    def __init__(self, inputs=[], outputs=[]):
+        self.inputs = inputs
+        self.outputs = outputs
+    
     @declared_attr
     def inputs(cls):
         secondary_table = create_secondary_table(
@@ -118,7 +122,6 @@ class IOMixin(object):
             raise TypeError('%s.inputs should be all FileLink instances not, '
                             '%s' % (self.__class__.__name__,
                                     input_.__class__.__name__ ))
-        
         return input_
     
     @declared_attr
@@ -140,7 +143,18 @@ class IOMixin(object):
                             '%s' % (self.__class__.__name__,
                                     output.__class__.__name__ ))
         return output
+
+
+#class ReferenceMixin(object):
+#    """Adds the ability to hold references to the mixed in class.
+#    
+#    References are :class:`~oyProjectManager.models.link.FileLink` instances.
+#    Any class mixed in with the ReferenceMixin will be able to hold external
+#    information.
+#    
+#    :param list references: A list of
+#      :class:`~oyProjectManager.models.link.FileLink` instances. It can be a
+#      Link which is a file sequence or can be a web page address.
+#    """
+#    pass
     
-    def __init__(self, inputs=[], outputs=[]):
-        self.inputs = inputs
-        self.outputs = outputs

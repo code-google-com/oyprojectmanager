@@ -26,6 +26,7 @@ from oyProjectManager.models.asset import Asset
 from oyProjectManager.models.auth import Client, User
 from oyProjectManager.models.entity import VersionableBase, EnvironmentBase
 from oyProjectManager.models.errors import CircularDependencyError
+from oyProjectManager.models.link import FileLink
 from oyProjectManager.models.mixins import IOMixin
 from oyProjectManager.models.project import Project
 from oyProjectManager.models.repository import Repository

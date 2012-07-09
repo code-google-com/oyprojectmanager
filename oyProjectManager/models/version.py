@@ -22,9 +22,11 @@ from oyProjectManager import conf
 from oyProjectManager.db.declarative import Base
 from oyProjectManager.models.auth import User
 from oyProjectManager.models.errors import CircularDependencyError
+from oyProjectManager.models.mixins import IOMixin
 
 # create a logger
 import logging
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
@@ -69,8 +71,7 @@ class VersionStatusComparator(str, Comparator):
     #def __str__(self):
     #    return self.status
 
-
-class Version(Base):
+class Version(Base, IOMixin):
     """Holds versions of assets or shots.
     
     In oyProjectManager a Version is the file created for an
@@ -257,7 +258,11 @@ class Version(Base):
                  extension="",
                  is_published=False,
                  status=None,
-                 ):
+                 inputs=[],
+                 outputs=[]
+        ):
+        IOMixin.__init__(self, inputs, outputs)
+        
         self.is_published = is_published
         
         self._version_of = version_of
@@ -686,13 +691,12 @@ class Version(Base):
         """The :class:`~oyProjectManager.models.project.Project` instance that
         this Version belongs to
         """
-        
         return self.version_of.project
     
     def is_latest_version(self):
         """returns True if this is the latest Version False otherwise
         """
-        return self.max_version == self.version_numberd
+        return self.max_version == self.version_number
     
     def is_latest_published_version(self):
         """returns True if this is the latest published Version False otherwise

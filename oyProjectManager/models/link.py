@@ -97,3 +97,6 @@ class FileLink(Base):
         
         return type_
 
+#class Reference(Base):
+#    """FileLinks with reference types.
+#    """

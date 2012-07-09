@@ -9,7 +9,6 @@ import os
 import shutil
 import tempfile
 import unittest
-import logging
 from oyProjectManager import conf, db
 from oyProjectManager.models.asset import Asset
 from oyProjectManager.models.auth import User
@@ -1595,3 +1594,51 @@ class VersionTester(unittest.TestCase):
         new_version.status = conf.status_list_long_names[2]
         self.assertEqual(conf.status_list_long_names[2], new_version.status)
         self.assertEqual(conf.status_list[2], new_version.status)
+    
+    def test_inputs_argument_working_properly(self):
+        """testing the IOMixin part of the Version instances
+        """
+        from oyProjectManager import FileLink
+        self.kwargs['inputs'] = [
+            FileLink('test1.%03d.tga 1-10', '/tmp'),
+            FileLink('test2.%03d.tga 1-10', '/tmp')
+        ]
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.inputs, self.kwargs['inputs'])
+    
+    def test_inputs_attribute_is_working_properly(self):
+        """testing the IOMixin part of the Version instances
+        """
+        from oyProjectManager import FileLink
+        inputs = [
+            FileLink('test1.%03d.tga 1-10', '/tmp'),
+            FileLink('test2.%03d.tga 1-10', '/tmp')
+        ]
+        new_version = Version(**self.kwargs)
+        new_version.inputs = inputs
+        self.assertEqual(inputs, new_version.inputs)
+    
+    def test_outputs_argument_working_properly(self):
+        """testing the IOMixin part of the Version instances
+        """
+        from oyProjectManager import FileLink
+        self.kwargs['outputs'] = [
+            FileLink('test1.%03d.tga 1-10', '/tmp'),
+            FileLink('test2.%03d.tga 1-10', '/tmp')
+        ]
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.outputs, self.kwargs['outputs'])
+    
+    def test_outputs_attribute_is_working_properly(self):
+        """testing the IOMixin part of the Version instances
+        """
+        from oyProjectManager import FileLink
+        outputs = [
+            FileLink('test1.%03d.tga 1-10', '/tmp'),
+            FileLink('test2.%03d.tga 1-10', '/tmp')
+        ]
+        new_version = Version(**self.kwargs)
+        new_version.outputs = outputs
+        self.assertEqual(outputs, new_version.outputs)
+    
+    

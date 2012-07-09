@@ -26,6 +26,9 @@ Version History
   mixed in class called ``inputs`` and ``outputs``. The inputs and outputs
   attributes are holding list of FileLink instances.
 
+* Version class is now mixed in with IOMixin so it accepts FileLink instances
+  in its inputs and outputs attributes.
+
 0.2.4.2
 -------
 * Renamed 'Scene Assembly' to 'Layout' in VersionTypes.
