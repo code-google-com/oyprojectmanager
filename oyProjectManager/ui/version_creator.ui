@@ -57,6 +57,20 @@
          <widget class="QComboBox" name="projects_comboBox"/>
         </item>
         <item>
+         <widget class="QLabel" name="client_label">
+          <property name="text">
+           <string>Client:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="client_name_label">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_4">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -701,7 +715,7 @@ p, li { white-space: pre-wrap; }
               <bool>false</bool>
              </property>
              <property name="columnCount">
-              <number>5</number>
+              <number>6</number>
              </property>
              <attribute name="horizontalHeaderStretchLastSection">
               <bool>true</bool>
@@ -717,6 +731,11 @@ p, li { white-space: pre-wrap; }
              <column>
               <property name="text">
                <string>User</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Status</string>
               </property>
              </column>
              <column>

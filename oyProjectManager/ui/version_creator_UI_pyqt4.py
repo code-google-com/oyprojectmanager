@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Tue Jun  5 17:17:51 2012
+# Created: Tue Jul 10 01:15:47 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -48,6 +48,12 @@ class Ui_Dialog(object):
         self.projects_comboBox = QtGui.QComboBox(self.verticalWidget)
         self.projects_comboBox.setObjectName(_fromUtf8("projects_comboBox"))
         self.horizontalLayout_11.addWidget(self.projects_comboBox)
+        self.client_label = QtGui.QLabel(self.verticalWidget)
+        self.client_label.setObjectName(_fromUtf8("client_label"))
+        self.horizontalLayout_11.addWidget(self.client_label)
+        self.client_name_label = QtGui.QLabel(self.verticalWidget)
+        self.client_name_label.setObjectName(_fromUtf8("client_name_label"))
+        self.horizontalLayout_11.addWidget(self.client_name_label)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_11.addItem(spacerItem)
         self.user_label = QtGui.QLabel(self.verticalWidget)
@@ -341,7 +347,7 @@ class Ui_Dialog(object):
         self.previous_versions_tableWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.previous_versions_tableWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.previous_versions_tableWidget.setShowGrid(False)
-        self.previous_versions_tableWidget.setColumnCount(5)
+        self.previous_versions_tableWidget.setColumnCount(6)
         self.previous_versions_tableWidget.setObjectName(_fromUtf8("previous_versions_tableWidget"))
         self.previous_versions_tableWidget.setRowCount(0)
         item = QtGui.QTableWidgetItem()
@@ -354,6 +360,8 @@ class Ui_Dialog(object):
         self.previous_versions_tableWidget.setHorizontalHeaderItem(3, item)
         item = QtGui.QTableWidgetItem()
         self.previous_versions_tableWidget.setHorizontalHeaderItem(4, item)
+        item = QtGui.QTableWidgetItem()
+        self.previous_versions_tableWidget.setHorizontalHeaderItem(5, item)
         self.previous_versions_tableWidget.horizontalHeader().setStretchLastSection(True)
         self.previous_versions_tableWidget.verticalHeader().setStretchLastSection(False)
         self.verticalLayout_7.addWidget(self.previous_versions_tableWidget)
@@ -403,6 +411,8 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Version Creator - oyProjectManager", None, QtGui.QApplication.UnicodeUTF8))
         self.projects_label.setText(QtGui.QApplication.translate("Dialog", "Project", None, QtGui.QApplication.UnicodeUTF8))
+        self.client_label.setText(QtGui.QApplication.translate("Dialog", "Client:", None, QtGui.QApplication.UnicodeUTF8))
+        self.client_name_label.setText(QtGui.QApplication.translate("Dialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.user_label.setText(QtGui.QApplication.translate("Dialog", "User", None, QtGui.QApplication.UnicodeUTF8))
         self.asset_info_groupBox.setTitle(QtGui.QApplication.translate("Dialog", "Asset Information", None, QtGui.QApplication.UnicodeUTF8))
         self.asset_name_label.setText(QtGui.QApplication.translate("Dialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
@@ -446,10 +456,12 @@ class Ui_Dialog(object):
         item = self.previous_versions_tableWidget.horizontalHeaderItem(1)
         item.setText(QtGui.QApplication.translate("Dialog", "User", None, QtGui.QApplication.UnicodeUTF8))
         item = self.previous_versions_tableWidget.horizontalHeaderItem(2)
-        item.setText(QtGui.QApplication.translate("Dialog", "File Size", None, QtGui.QApplication.UnicodeUTF8))
+        item.setText(QtGui.QApplication.translate("Dialog", "Status", None, QtGui.QApplication.UnicodeUTF8))
         item = self.previous_versions_tableWidget.horizontalHeaderItem(3)
-        item.setText(QtGui.QApplication.translate("Dialog", "Date", None, QtGui.QApplication.UnicodeUTF8))
+        item.setText(QtGui.QApplication.translate("Dialog", "File Size", None, QtGui.QApplication.UnicodeUTF8))
         item = self.previous_versions_tableWidget.horizontalHeaderItem(4)
+        item.setText(QtGui.QApplication.translate("Dialog", "Date", None, QtGui.QApplication.UnicodeUTF8))
+        item = self.previous_versions_tableWidget.horizontalHeaderItem(5)
         item.setText(QtGui.QApplication.translate("Dialog", "Note", None, QtGui.QApplication.UnicodeUTF8))
         self.open_pushButton.setText(QtGui.QApplication.translate("Dialog", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.reference_pushButton.setText(QtGui.QApplication.translate("Dialog", "Reference", None, QtGui.QApplication.UnicodeUTF8))

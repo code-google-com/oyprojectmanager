@@ -27,6 +27,20 @@
       <widget class="QComboBox" name="projects_comboBox"/>
      </item>
      <item>
+      <widget class="QLabel" name="client_label">
+       <property name="text">
+        <string>Client:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="client_name_label">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>

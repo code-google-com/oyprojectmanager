@@ -9,10 +9,9 @@ import shutil
 import tempfile
 import unittest
 from sqlalchemy.exc import IntegrityError
-from oyProjectManager import config, db
-from oyProjectManager.core.models import (VersionType, Project)
-
-conf = config.Config()
+from oyProjectManager import conf, db
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.version import VersionType
 
 class VersionTypeTester(unittest.TestCase):
     """tests the VersionType class
@@ -21,9 +20,10 @@ class VersionTypeTester(unittest.TestCase):
     def setUp(self):
         """setup the test settings with environment variables
         """
-        
         # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()

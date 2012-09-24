@@ -14,11 +14,16 @@ import logging
 
 from pymel import core as pm
 from oyProjectManager import conf, db, utils
-from oyProjectManager.core.models import (Project, Asset, Version, VersionType,
-                                          User, Shot, Sequence)
 from oyProjectManager.environments import mayaEnv
 
 # set level to debug
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.auth import User
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import Version, VersionType
+
 logger = logging.getLogger("oyProjectManager.environments.mayaEnv")
 logger.setLevel(logging.DEBUG)
 

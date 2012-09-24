@@ -15,6 +15,9 @@ import unittest
 #from PySide.QtCore import Qt
 #from PySide.QtTest import QTest
 import sip
+from oyProjectManager.models.auth import Client
+from oyProjectManager.models.project import Project
+
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 from PyQt4 import QtCore, QtGui
@@ -22,12 +25,10 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtTest import QTest
 
 from oyProjectManager import conf, db
-from oyProjectManager.core.models import Project, Client
 from oyProjectManager.ui import project_properties
 
 logger = logging.getLogger("oyProjectManager.ui.project_properties")
 logger.setLevel(logging.DEBUG)
-
 
 class ProjectPropertiesTester(unittest.TestCase):
     """tests the project_properties UI

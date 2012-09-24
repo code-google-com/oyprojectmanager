@@ -9,7 +9,7 @@ import shutil
 import tempfile
 import unittest
 import logging
-from oyProjectManager.core.models import User
+from oyProjectManager.models.auth import User
 
 
 class ConfigTester(unittest.TestCase):
@@ -174,7 +174,7 @@ class ConfigTester(unittest.TestCase):
     
 #    def test_users_attribute_will_return_a_list_of_User_instances(self):
 #        """testing if the config.users will return a list of
-#        oyProjectManager.core.models.User instances defined in the config.py
+#        oyProjectManager.models.auth.User instances defined in the config.py
 #        file with the users_data variable
 #        """
 #        

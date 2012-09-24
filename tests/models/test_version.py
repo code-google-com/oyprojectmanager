@@ -9,17 +9,14 @@ import os
 import shutil
 import tempfile
 import unittest
-import logging
-from oyProjectManager import config, db
-from oyProjectManager.core.errors import CircularDependencyError
-from oyProjectManager.core.models import (Asset, Shot, Version, VersionType,
-                                          User, Project, Sequence)
-
-conf = config.Config()
-
-
-logger = logging.getLogger('oyProjectManager.core.models')
-logger.setLevel(logging.DEBUG)
+from oyProjectManager import conf, db
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.auth import User
+from oyProjectManager.models.errors import CircularDependencyError
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import Version, VersionType
 
 class VersionTester(unittest.TestCase):
     """tests the Version class
@@ -28,8 +25,10 @@ class VersionTester(unittest.TestCase):
     def setUp(self):
         """setup the test settings with environment variables
         """
-       # -----------------------------------------------------------------
+        # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
@@ -664,14 +663,14 @@ class VersionTester(unittest.TestCase):
     
     def test_created_by_argument_is_not_a_User_instance(self):
         """testing if a TypeError will be raised when the created_by argument
-        is not a oyProjectManager.core.models.User instance
+        is not a oyProjectManager.models.auth.User instance
         """
         self.kwargs["created_by"] = 1231
         self.assertRaises(TypeError, Version, **self.kwargs)
     
     def test_created_by_attribute_is_not_a_User_instance(self):
         """testing if a TypeError will be raised when the created_by attribute
-        is set to a value other than a oyProjectManager.core.models.User
+        is set to a value other than a oyProjectManager.models.auth.User
         instance
         """
         self.assertRaises(TypeError, setattr, self.test_version, "created_by",
@@ -1577,7 +1576,6 @@ class VersionTester(unittest.TestCase):
         """testing if status attribute is comparable to statuses with long
         names
         """
-        logger.setLevel(logging.DEBUG)
         status = conf.status_list_long_names[1]
         self.kwargs['status'] = status
         new_version = Version(**self.kwargs)
@@ -1587,7 +1585,6 @@ class VersionTester(unittest.TestCase):
         """testing if the status attribute is a string
         """
         new_version = Version(**self.kwargs)
-        logger.debug(new_version.status)
         self.assertIsInstance(new_version.status, str)
     
     def test_status_attribute_is_working_properly(self):
@@ -1597,3 +1594,51 @@ class VersionTester(unittest.TestCase):
         new_version.status = conf.status_list_long_names[2]
         self.assertEqual(conf.status_list_long_names[2], new_version.status)
         self.assertEqual(conf.status_list[2], new_version.status)
+    
+    def test_inputs_argument_working_properly(self):
+        """testing the IOMixin part of the Version instances
+        """
+        from oyProjectManager import FileLink
+        self.kwargs['inputs'] = [
+            FileLink('test1.%03d.tga 1-10', '/tmp'),
+            FileLink('test2.%03d.tga 1-10', '/tmp')
+        ]
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.inputs, self.kwargs['inputs'])
+    
+    def test_inputs_attribute_is_working_properly(self):
+        """testing the IOMixin part of the Version instances
+        """
+        from oyProjectManager import FileLink
+        inputs = [
+            FileLink('test1.%03d.tga 1-10', '/tmp'),
+            FileLink('test2.%03d.tga 1-10', '/tmp')
+        ]
+        new_version = Version(**self.kwargs)
+        new_version.inputs = inputs
+        self.assertEqual(inputs, new_version.inputs)
+    
+    def test_outputs_argument_working_properly(self):
+        """testing the IOMixin part of the Version instances
+        """
+        from oyProjectManager import FileLink
+        self.kwargs['outputs'] = [
+            FileLink('test1.%03d.tga 1-10', '/tmp'),
+            FileLink('test2.%03d.tga 1-10', '/tmp')
+        ]
+        new_version = Version(**self.kwargs)
+        self.assertEqual(new_version.outputs, self.kwargs['outputs'])
+    
+    def test_outputs_attribute_is_working_properly(self):
+        """testing the IOMixin part of the Version instances
+        """
+        from oyProjectManager import FileLink
+        outputs = [
+            FileLink('test1.%03d.tga 1-10', '/tmp'),
+            FileLink('test2.%03d.tga 1-10', '/tmp')
+        ]
+        new_version = Version(**self.kwargs)
+        new_version.outputs = outputs
+        self.assertEqual(outputs, new_version.outputs)
+    
+    

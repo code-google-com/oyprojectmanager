@@ -9,7 +9,7 @@
 import os
 import logging
 from oyProjectManager import conf
-from oyProjectManager.core.models import VersionableBase
+from oyProjectManager.models.entity import VersionableBase
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -48,7 +48,9 @@ def clear_thumbnail(gView):
 def update_gview_with_versionable_thumbnail(versionable, gView):
     """Updates the given QGraphicsView with the given Versionable thumbnail.
     
-    :param versionable: A oyProjectManager.core.models.VersionableBase instance
+    :param versionable: A
+      :class:`~oyProjectManager.models.entity.VersionableBase` instance
+    
     :param gView: A QtGui.QGraphicsView instance
     """
     
@@ -81,7 +83,7 @@ def update_gview_with_image_file(image_full_path, gView):
         height = size[1]
         
         if os.path.exists(image_full_path):
-            pixmap = QtGui.QPixmap(image_full_path).scaled(
+            pixmap = QtGui.QPixmap(image_full_path, format='JPG').scaled(
                 width, height,
                 QtCore.Qt.KeepAspectRatio,
                 QtCore.Qt.SmoothTransformation
@@ -94,12 +96,12 @@ def upload_thumbnail(versionable, thumbnail_source_full_path, size=conf.thumbnai
     """Uploads the given thumbnail for the given versionable
     
     :param versionable: An instance of
-      :class:`~oyProjectManager.core.models.VersionableBase` which in
-      practice is an :class:`~oyProjectManager.core.models.Asset` or
-      a :class:`~oyProjectManager.core.models.Shot`.
+      :class:`~oyProjectManager.models.entity.VersionableBase` which in
+      practice is an :class:`~oyProjectManager.models.asset.Asset` or
+      a :class:`~oyProjectManager.models.shot.Shot`.
     
-    :param str thumbnail_source_full_path: A string which is showing the path of
-      the thumbnail image
+    :param str thumbnail_source_full_path: A string which is showing the path
+      of the thumbnail image
     """
     
     # get width height
@@ -118,7 +120,7 @@ def upload_thumbnail(versionable, thumbnail_source_full_path, size=conf.thumbnai
     
     # instead of copying the item
     # just render a resized version to the output path
-    pixmap = QtGui.QPixmap(thumbnail_source_full_path).scaled(
+    pixmap = QtGui.QPixmap(thumbnail_source_full_path, format='JPG').scaled(
         width, height,
         QtCore.Qt.KeepAspectRatio,
         QtCore.Qt.SmoothTransformation

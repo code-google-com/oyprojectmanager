@@ -56,6 +56,8 @@ class Config(object):
             (  0,   0,   0), #CMP
         ],
         
+        sequence_format = "%h%p%t %R",
+        
         shot_number_prefix = "SH",
         shot_number_padding = 3,
         
@@ -197,7 +199,7 @@ class Config(object):
                 "code": "Comp",
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
-                "output_path": "{{version._path}}/Output/{{version.take_name}}",
+                "output_path": "{{version._path}}/Output/{{version.take_name}}/v{{'%03d'|format(version.version_number)}}",
                 "extra_folders": "",
                 "environments": ["Nuke", "Fusion"],
                 "type_for": "Shot"
@@ -285,8 +287,8 @@ class Config(object):
                 "type_for": "Shot"
             },
             {
-                "name": "Scene Assembly",
-                "code": "SceneAss",
+                "name": "Layout",
+                "code": "Layout",
                 "path":"{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",

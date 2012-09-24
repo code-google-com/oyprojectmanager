@@ -10,8 +10,11 @@ import assetReplacer_UI
 
 import oyProjectManager
 from oyProjectManager import utils
-from oyProjectManager.core.models import Asset, Project, Sequence, Repository
 from oyProjectManager.environments import environmentFactory
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.repository import Repository
+from oyProjectManager.models.sequence import Sequence
 from oyProjectManager.ui import singletonQApplication
 
 

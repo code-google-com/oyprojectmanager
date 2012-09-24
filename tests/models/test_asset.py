@@ -9,10 +9,9 @@ import shutil
 import tempfile
 import unittest
 from sqlalchemy.exc import IntegrityError
-from oyProjectManager import config, db
-from oyProjectManager.core.models import Project, Asset
-
-conf = config.Config()
+from oyProjectManager import conf, db
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.project import Project
 
 class AssetTester(unittest.TestCase):
     """tests the Asset class
@@ -21,10 +20,11 @@ class AssetTester(unittest.TestCase):
     def setUp(self):
         """setup the test settings with environment variables
         """
-        
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
+        conf.database_url = "sqlite://"
+        
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
         

@@ -22,8 +22,6 @@ elif qt_module == "PyQt4":
     from PyQt4 import QtGui, QtCore
     from oyProjectManager.ui import version_updater_UI_pyqt4 as version_updater_UI
 
-
-
 def UI(environment):
     """the UI to call the dialog by itself
     """
@@ -43,8 +41,7 @@ def UI(environment):
     mainDialog.show()
     #app.setStyle('Plastique')
     app.exec_()
-
-
+    
     if self_quit:
         app.connect(
             app,
@@ -64,8 +61,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
     For Maya environment the reference object is the PyMel Reference node,
     for other environments reference object type will be as native as it can be
     """
-
-
+    
     def __init__(self, environment=None, parent=None):
         super(MainDialog, self).__init__(parent)
         self.setupUi(self)
@@ -77,20 +73,23 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
         self._centerWindow()
         
         self._horizontalLabels = [
-            'Version Name',
+            'Versionable',
+            'Type',
+            'Take'
             'Current',
-            'Last',
+            'Latest',
             'Do Update?'
         ]
 
-        self.versions_tableWidget.setHorizontalHeaderLabels( self._horizontalLabels )
+        self.versions_tableWidget.setHorizontalHeaderLabels(self._horizontalLabels)
+        self.versions_tableWidget.versions = []
 
         self.setup_signals()
         
         self._version_tuple_list = []
         self._num_of_versions = 0
         
-        self._tableItems = []
+        #self._tableItems = []
         
         # setup the environment
         self.environment = environment
@@ -103,17 +102,32 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
         """
         # SIGNALS
         # cancel button
-        QtCore.QObject.connect(self.cancel_pushButton,
-            QtCore.SIGNAL("clicked()"), self.close)
+        QtCore.QObject.connect(
+            self.cancel_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.close
+        )
+        
         # select all button
-        QtCore.QObject.connect(self.selectAll_pushButton,
-            QtCore.SIGNAL("clicked()"), self._select_all_versions)
+        QtCore.QObject.connect(
+            self.selectAll_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self._select_all_versions
+        )
+        
         # select none button
-        QtCore.QObject.connect(self.selectNone_pushButton,
-            QtCore.SIGNAL("clicked()"), self._select_no_version)
+        QtCore.QObject.connect(
+            self.selectNone_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self._select_no_version
+        )
+        
         # update button
-        QtCore.QObject.connect(self.update_pushButton,
-            QtCore.SIGNAL("clicked()"), self.update_versions)
+        QtCore.QObject.connect(
+            self.update_pushButton,
+            QtCore.SIGNAL("clicked()"),
+            self.update_versions
+        )
     
     def _centerWindow(self):
         """centers the window to the screen
@@ -152,6 +166,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
         
         # set the row count
         self.versions_tableWidget.setRowCount(self._num_of_versions)
+        self.versions_tableWidget.versions = []
         
         unpublished_versions = []
         
@@ -165,51 +180,59 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
                 continue
             
             # ------------------------------------
-            # the critique name
-            base_name_tableWI = QtGui.QTableWidgetItem(version.base_name)
+            # the versionable name
+            item = QtGui.QTableWidgetItem(version.base_name)
             # align to left and vertical center
-            base_name_tableWI.setTextAlignment(0x0001 | 0x0080)
-            self.versions_tableWidget.setItem(i, 0, base_name_tableWI)
-            # ------------------------------------
+            item.setTextAlignment(0x0001 | 0x0080)
+            self.versions_tableWidget.setItem(i, 0, item)
+            
+            #-------------------------------------
+            # type name
+            item = QtGui.QTableWidgetItem(version.type)
+            # align to horizontal and vertical center
+            item.setTextAlignment(0x0004 | 0x0080)
+            self.versions_tableWidget.setItem(i, 1, item)
+            
+            #-------------------------------------
+            # take name
+            item = QtGui.QTableWidgetItem(version.take_name)
+            # align to horizontal and vertical center
+            item.setTextAlignment(0x0004 | 0x0080)
+            self.versions_tableWidget.setItem(i, 2, item)
             
             # ------------------------------------
             # current version
             current_version_number = str(version.version_number)
-            current_version_number_tableWI = QtGui.QTableWidgetItem(current_version_number)
+            item = QtGui.QTableWidgetItem(current_version_number)
             # align to horizontal and vertical center
-            current_version_number_tableWI.setTextAlignment(0x0004 | 0x0080)
-            self.versions_tableWidget.setItem(i, 1, current_version_number_tableWI)
-            # ------------------------------------
+            item.setTextAlignment(0x0004 | 0x0080)
+            self.versions_tableWidget.setItem(i, 3, item)
             
             # ------------------------------------
-            # last version
+            # latest version
             latest_published_version_number = \
                 str(version.latest_published_version().version_number)
-            lastest_version_tableWI = \
+            item = \
                 QtGui.QTableWidgetItem(latest_published_version_number)
             # align to horizontal and vertical center
-            lastest_version_tableWI.setTextAlignment(0x0004 | 0x0080)
-            self.versions_tableWidget.setItem(i, 2, lastest_version_tableWI)
+            item.setTextAlignment(0x0004 | 0x0080)
+            self.versions_tableWidget.setItem(i, 4, item)
             # ------------------------------------
             
             # ------------------------------------
             # do update ?
-            checkBox_tableWI = QtGui.QTableWidgetItem('')
-            #checkBox_tableWI.setCheckState(16)
-            try:
-                checkBox_tableWI.setCheckState(QtCore.Qt.CheckState.Checked)
-            except AttributeError:
-                checkBox_tableWI.setCheckState(1)
-
-            self.versions_tableWidget.setItem(i, 3, checkBox_tableWI)
+            item = QtGui.QTableWidgetItem('')
+            self.versions_tableWidget.setItem(i, 5, item)
             # ------------------------------------
             
-            self._tableItems.append(
-                [base_name_tableWI,
-                 current_version_number_tableWI,
-                 lastest_version_tableWI,
-                 checkBox_tableWI]
-            )
+            #self._tableItems.append(
+            #    [item,
+            #     item,
+            #     item,
+            #     item]
+            #)
+            
+            self.versions_tableWidget.versions.append(version)
         
         if len(unpublished_versions):
             QtGui.QMessageBox.warning(
@@ -231,21 +254,26 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
     def _select_all_versions(self):
         """selects all the versions in the tableWidget
         """
-        for currentItems in self._tableItems:
-            currentItem = currentItems[3]
-            currentItem.setCheckState(2)
+        #for currentItems in self._tableItems:
+        #    currentItem = currentItems[3]
+        #    currentItem.setCheckState(2)
+        for i in range(self.versions_tableWidget.rowCount()):
+            item = self.versions_tableWidget.item(i, 5)
+            item.setCheckState(2)
     
     def _select_no_version(self):
         """deselects all versions in the tableWidget
         """
-        for currentItems in self._tableItems:
-            currentItem = currentItems[3]
-            currentItem.setCheckState(0)
+        #for currentItems in self._tableItems:
+        #    currentItem = currentItems[3]
+        #    currentItem.setCheckState(0)
+        for i in range(self.versions_tableWidget.rowCount()):
+            item = self.versions_tableWidget.item(i, 5)
+            item.setCheckState(0)
     
     def update_versions(self):
         """updates the versions if it is checked in the UI
         """
-        
         # get the marked versions from UI first
         marked_versions = self.get_marked_versions()
         
@@ -258,16 +286,15 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
     def get_marked_versions(self):
         """returns the assets as tuple again, if it is checked in the interface
         """
-        
         marked_version_list = []
         
         # find the marked versions
         for i in range(self._num_of_versions):
-            checkBox_tableItem = self._tableItems[i][3]
+            checkBox_tableItem = self.versions_tableWidget.item(i, 5)
             
             if checkBox_tableItem.checkState() == 2:
                 # get the ith number of the asset
-                marked_version_list.append( self._version_tuple_list[i] )
+                marked_version_list.append(self._version_tuple_list[i])
         
         return marked_version_list
         

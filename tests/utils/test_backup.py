@@ -13,9 +13,7 @@
 #import jinja2
 #import pyseq
 #from oyProjectManager import config
-#from oyProjectManager.core.models import Asset, Repository, Sequence, Shot
-#
-#from oyProjectManager.core.models import Project
+#from oyProjectManager import Asset, Repository, Sequence, Shot, Project
 #from oyProjectManager.utils.backup import BackUp
 #
 #conf = config.Config()
@@ -81,14 +79,15 @@
 #    
 #    def test_project_argument_is_not_a_Project_instance_or_string(self):
 #        """testing if a TypeError will be raised when the project argument is
-#        not a :class:`~oyProjectManager.core.models.Project` instance or string
+#        not a :class:`~oyProjectManager.models.project.Project` instance or
+#        string
 #        """
 #        self.kwargs["project"] = 123123
 #        self.assertRaises(TypeError, BackUp, **self.kwargs)
 #    
 #    def test_project_attribute_is_not_a_Project_instance_or_string(self):
 #        """testing if a TypeError will be raised when the project attribute is
-#        not a :class:`~oyProjectManager.core.models.Project` instance or a
+#        not a :class:`~oyProjectManager.models.project.Project` instance or a
 #        valid project name
 #        """
 #        test_value = 123123

@@ -10,8 +10,8 @@ import platform
 import jinja2
 
 import nuke
-from oyProjectManager.core.models import EnvironmentBase
 from oyProjectManager import utils
+from oyProjectManager.models.entity import EnvironmentBase
 
 
 class Nuke(EnvironmentBase):
@@ -62,6 +62,13 @@ class Nuke(EnvironmentBase):
         except OSError:
             # path already exists OSError
             pass
+
+        # set frame range
+        if version.type.type_for == 'Shot':
+            self.set_frame_range(
+                version.version_of.start_frame,
+                version.version_of.end_frame
+            )
         
         nuke.scriptSaveAs(version.full_path)
         
@@ -111,19 +118,19 @@ class Nuke(EnvironmentBase):
         
         If it can't find any then returns None.
         
-        :return: :class:`~oyProjectManager.core.models.Version`
+        :return: :class:`~oyProjectManager.models.version.Version`
         """
         full_path = self._root.knob('name').value()
         return self.get_version_from_full_path(full_path)
     
     def get_version_from_recent_files(self):
         """It will try to create a
-        :class:`~oyProjectManager.core.models.Version` instance by looking at
+        :class:`~oyProjectManager.models.version.Version` instance by looking at
         the recent files list.
         
         It will return None if it can not find one.
         
-        :return: :class:`~oyProjectManager.core.models.Version`
+        :return: :class:`~oyProjectManager.models.version.Version`
         """
         # use the last file from the recent file list
         i = 1
@@ -142,12 +149,12 @@ class Nuke(EnvironmentBase):
     def get_version_from_project_dir(self):
         """Tries to find a Version from the current project directory
         
-        :return: :class:`~oyProjectManager.core.models.Version`
+        :return: :class:`~oyProjectManager.models.version.Version`
         """
         versions = self.get_versions_from_path(self.project_directory)
         version = None
         
-        if len(versions):
+        if versions:
             version = versions[0]
         
         return version
@@ -231,7 +238,7 @@ class Nuke(EnvironmentBase):
             version.type.code + "_" + \
             "Output_" + \
             "v%03d" % version.version_number + "_" + \
-            version.created_by.initials + ".###.png"
+            version.created_by.initials + ".###.tga"
         
         # check if it is a stereo comp
         # if it is enable separate view rendering
@@ -240,7 +247,8 @@ class Nuke(EnvironmentBase):
             version.output_path,
             output_file_name
         ).replace("\\", "/")
-        
+
+        # set the output to project path relative
         main_write_node["file"].setValue(output_file_full_path)
         
         # create the path
@@ -250,15 +258,15 @@ class Nuke(EnvironmentBase):
             # path already exists
             pass
         
-        # set the default output file type to jpeg
+        # set the default output file type to tga
         platform_system = platform.system()
         
-        format_id = 10 
+        format_id = 12
         if platform_system == "Darwin":
-            format_id = 10 
+            format_id = 12 
             # check the nuke version for nuke 6.2 and below
             if (nuke.NUKE_VERSION_MAJOR + nuke.NUKE_VERSION_MINOR/10.0) < 6.3:
-                format_id = 11
+                format_id = 13
         
         main_write_node["file_type"].setValue(format_id)
         main_write_node["channels"].setValue("rgb")
@@ -286,22 +294,20 @@ class Nuke(EnvironmentBase):
         writeGeoNodes = [node for node in allNodes if node.Class() == "WriteGeo"]
         
         def nodeRep(nodes):
+            """helper function to replace path values
+            """
             [node["file"].setValue(
                 repPath(
                     os.path.expandvars(
                         os.path.expanduser(
                             node["file"].getValue()
                         )
-                    )
+                    ).replace('\\', '/')
                 )
             ) for node in nodes]
         
-        nodeRep(readNodes)        
-        # the fucking windows is complaining about back-slashes again
-        # in the write nodes so the write nodes are going to be absolute
-        # path
-        if os.name != "nt":
-            nodeRep(writeNodes)
+        nodeRep(readNodes)
+        nodeRep(writeNodes)
         nodeRep(readGeoNodes)
         nodeRep(readGeo2Nodes)
         nodeRep(writeGeoNodes)

@@ -10,8 +10,9 @@ import os
 from pymel import core as pm
 
 from oyProjectManager import conf
-from oyProjectManager.core.models import Repository, EnvironmentBase
 from oyProjectManager import utils
+from oyProjectManager.models.entity import EnvironmentBase
+from oyProjectManager.models.repository import Repository
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -105,12 +106,18 @@ class Maya(EnvironmentBase):
         # set scene fps
         self.set_fps(project.fps)
         
-        # set render resolution
         # only if the file is a new version
         if version.version_number == 1:
+            # set render resolution
             self.set_resolution(project.width, project.height,
                 project.pixel_aspect)
-        
+            # set the render range
+            if version.type.type_for == 'Shot':
+                self.set_frame_range(
+                    version.version_of.start_frame,
+                    version.version_of.end_frame
+                )
+                
         # set the render file name and version
         self.set_render_fileName(version)
         
@@ -180,7 +187,7 @@ class Maya(EnvironmentBase):
         
         It also updates the referenced Version on open.
         
-        :returns: list of :class:`~oyProjectManager.core.models.Version`
+        :returns: list of :class:`~oyProjectManager.models.version.Version`
           instances which are referenced in to the opened version and those
           need to be updated
         """
@@ -235,7 +242,7 @@ class Maya(EnvironmentBase):
         scene.
         
         :param version: The desired
-          :class:`~oyProjectManager.core.models.Version` to be imported
+          :class:`~oyProjectManager.models.version.Version` to be imported
         """
         pm.importFile(version.full_path)
         
@@ -245,7 +252,7 @@ class Maya(EnvironmentBase):
         """References the given Version instance to the current Maya scene.
         
         :param version: The desired
-          :class:`~oyProjectManager.core.models.Version` instance to be
+          :class:`~oyProjectManager.models.version.Version` instance to be
           referenced.
         """
         
@@ -314,7 +321,7 @@ class Maya(EnvironmentBase):
         
         If it can't find any then returns None.
         
-        :return: :class:`~oyProjectManager.core.models.Version`
+        :return: :class:`~oyProjectManager.models.version.Version`
         """
         
         version = None
@@ -334,12 +341,12 @@ class Maya(EnvironmentBase):
     
     def get_version_from_recent_files(self):
         """It will try to create a
-        :class:`~oyProjectManager.core.models.Version` instance by looking at
+        :class:`~oyProjectManager.models.version.Version` instance by looking at
         the recent files list.
         
         It will return None if it can not find one.
         
-        :return: :class:`~oyProjectManager.core.models.Version`
+        :return: :class:`~oyProjectManager.models.version.Version`
         """
 
         version = None
@@ -379,7 +386,7 @@ class Maya(EnvironmentBase):
           its path
         * Still not able to find any Version instances returns None
         
-        :returns: :class:`~oyProjectManager.core.models.Version` instance or
+        :returns: :class:`~oyProjectManager.models.version.Version` instance or
             None
         """
         
@@ -447,7 +454,7 @@ class Maya(EnvironmentBase):
         dRG.setAttr('renderVersion', "v%03d" % version.version_number )
         dRG.setAttr('animation', 1)
         dRG.setAttr('outFormatControl', 0 )
-        dRG.setAttr('extensionPadding', 3 )
+        dRG.setAttr('extensionPadding', 4 )
         dRG.setAttr('imageFormat', 7 ) # force the format to iff
         dRG.setAttr('pff', 1)
         
@@ -544,7 +551,7 @@ class Maya(EnvironmentBase):
     def set_project(self, version):
         """Sets the project to the given version.
         
-        The Maya version uses :class:`~oyProjectManager.core.models.Version`
+        The Maya version uses :class:`~oyProjectManager.models.version.Version`
         instances to set the project. Because the Maya workspace is related to
         the the Asset or Shot which can be derived from the Version instance
         very easily.
@@ -724,7 +731,7 @@ class Maya(EnvironmentBase):
         dRG = pm.PyNode('defaultRenderGlobals')
         dRG.setAttr('startFrame', start_frame )
         dRG.setAttr('endFrame', end_frame )
-    
+
     def get_fps(self):
         """returns the fps of the environment
         """
@@ -999,10 +1006,6 @@ class Maya(EnvironmentBase):
                     file_texture_path,
                     "/", ".."
                 )
-#                new_path = new_path.replace(
-#                    os.environ[conf.repository_env_key],
-#                    "$" + conf.repository_env_key
-#                )
             
             logger.info("with: %s" % new_path)
             

@@ -9,8 +9,10 @@ import sys
 
 import oyProjectManager
 from oyProjectManager import db
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
 from oyProjectManager.ui import project_properties, shot_editor
-from oyProjectManager.core.models import Project, Sequence, Shot
 
 qt_module_key = "PREFERRED_QT_MODULE"
 qt_module = "PyQt4"
@@ -36,7 +38,10 @@ def UI():
     
     self_quit = False
     if QtGui.QApplication.instance() is None:
-        app = QtGui.QApplication(sys.argv)
+        try:
+            app = QtGui.QApplication(sys.argv)
+        except AttributeError: # sys.argv gives argv.error
+            app = QtGui.QApplication([])
         self_quit = True
     else:
         app = QtGui.QApplication.instance()
@@ -205,9 +210,9 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
     
     def get_current_project(self):
         """Returns the currently selected
-        :class:`~oyProjectManager.core.models.Project` instance from the UI
+        :class:`~oyProjectManager.models.project.Project` instance from the UI
         
-        :return: :class:`~oyProjectManager.core.models.Project`
+        :return: :class:`~oyProjectManager.models.project.Project`
         """
         
         index = self.projects_comboBox.currentIndex()
@@ -242,9 +247,9 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
     
     def get_current_sequence(self):
         """Returns the currently selected
-        :class:`~oyProjectManager.core.models.Sequence` instance from the UI
+        :class:`~oyProjectManager.models.sequence.Sequence` instance from the UI
         
-        :return: :class:`~oyProjectManager.core.models.Sequence`
+        :return: :class:`~oyProjectManager.models.sequence.Sequence`
         """
         
         index = self.sequences_comboBox.currentIndex()

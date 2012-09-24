@@ -11,9 +11,11 @@ from sqlalchemy.sql.expression import distinct, func
 
 import oyProjectManager
 from oyProjectManager import config, db, utils
-from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
-                                          Version, VersionType, Shot, User,
-                                          VersionTypeEnvironments)
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import Version, VersionType
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
@@ -52,7 +54,10 @@ def UI():
 
     self_quit = False
     if QtGui.QApplication.instance() is None:
-        app = QtGui.QApplication(sys.argv)
+        try:
+            app = QtGui.QApplication(sys.argv)
+        except AttributeError: # sys.argv gives argv.error
+            app = QtGui.QApplication([])
         self_quit = True
     else:
         app = QtGui.QApplication.instance()
@@ -158,12 +163,14 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         self.projects_comboBox.projects = projects
         self.projects_comboBox.setCurrentIndex(0)
         
+        self.project_changed()
+        
         self.fill_assets_tableWidget()
     
     def get_current_project(self):
         """Returns the currently selected project instance in the
         projects_comboBox
-        :return: :class:`~oyProjectManager.core.models.Project` instance
+        :return: :class:`~oyProjectManager.models.project.Project` instance
         """
         index = self.projects_comboBox.currentIndex()
         try:
@@ -174,6 +181,14 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     def project_changed(self):
         """runs when selection in projects_comboBox changed
         """
+        # set the client info
+        project = self.get_current_project()
+        if project:
+            # update the client info
+            self.client_name_label.setText(
+                project.client.name if project.client else "N/A"
+            )
+        
         self.tabWidget_changed()
     
     def tabWidget_changed(self):

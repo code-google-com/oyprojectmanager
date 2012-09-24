@@ -14,9 +14,13 @@ from sqlalchemy.sql.expression import distinct
 
 
 from oyProjectManager import config, db, utils
-from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
-                                          Version, VersionType, Shot, User,
-                                          VersionTypeEnvironments)
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.auth import User
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.repository import Repository
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import Version, VersionType, VersionTypeEnvironments
 from oyProjectManager.ui import ui_utils
 
 # create a logger

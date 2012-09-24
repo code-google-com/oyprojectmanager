@@ -14,17 +14,18 @@ import unittest
 #from PySide.QtCore import Qt
 #from PySide.QtTest import QTest
 import sip
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 from PyQt4.QtTest import QTest
 
-from oyProjectManager import config, db
-from oyProjectManager.core.models import (Project, Sequence, Shot)
+from oyProjectManager import conf, db
 from oyProjectManager.ui import project_manager
-
-conf = config.Config()
 
 class ProjectManager_Tester(unittest.TestCase):
     """tests the oyProjectManager.ui.project_manager
@@ -35,6 +36,8 @@ class ProjectManager_Tester(unittest.TestCase):
         """
         # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
