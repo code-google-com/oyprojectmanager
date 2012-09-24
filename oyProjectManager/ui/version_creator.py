@@ -50,7 +50,7 @@ elif qt_module == "PyQt4":
     from PyQt4 import QtGui, QtCore
     from oyProjectManager.ui import version_creator_UI_pyqt4 as version_creator_UI
 
-def UI(environment=None):
+def UI(environment, app_in=None, executer=None):
     """the UI to call the dialog by itself
     """
     global app
@@ -60,10 +60,13 @@ def UI(environment=None):
 
     self_quit = False
     if QtGui.QApplication.instance() is None:
-        try:
-            app = QtGui.QApplication(sys.argv)
-        except AttributeError: # sys.argv gives argv.error
-            app = QtGui.QApplication([])
+        if not app_in:
+            try:
+                app = QtGui.QApplication(sys.argv)
+            except AttributeError: # sys.argv gives argv.error
+                app = QtGui.QApplication([])
+        else:
+            app = app_in
         self_quit = True
     else:
         app = QtGui.QApplication.instance()
@@ -71,15 +74,18 @@ def UI(environment=None):
     mainDialog = MainDialog(environment)
     mainDialog.show()
     #app.setStyle('Plastique')
-    
-    app.exec_()
-    if self_quit:
-        app.connect(
-            app,
-            QtCore.SIGNAL("lastWindowClosed()"),
-            app,
-            QtCore.SLOT("quit()")
-        )
+
+    if executer is None:
+        app.exec_()
+        if self_quit:
+            app.connect(
+                app,
+                QtCore.SIGNAL("lastWindowClosed()"),
+                app,
+                QtCore.SLOT("quit()")
+            )
+    else:
+        executer.exec_(app, mainDialog)
     
     return mainDialog
 

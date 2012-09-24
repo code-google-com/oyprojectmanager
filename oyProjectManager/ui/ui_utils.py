@@ -83,7 +83,7 @@ def update_gview_with_image_file(image_full_path, gView):
         height = size[1]
         
         if os.path.exists(image_full_path):
-            pixmap = QtGui.QPixmap(image_full_path).scaled(
+            pixmap = QtGui.QPixmap(image_full_path, format='JPG').scaled(
                 width, height,
                 QtCore.Qt.KeepAspectRatio,
                 QtCore.Qt.SmoothTransformation
@@ -120,7 +120,7 @@ def upload_thumbnail(versionable, thumbnail_source_full_path, size=conf.thumbnai
     
     # instead of copying the item
     # just render a resized version to the output path
-    pixmap = QtGui.QPixmap(thumbnail_source_full_path).scaled(
+    pixmap = QtGui.QPixmap(thumbnail_source_full_path, format='JPG').scaled(
         width, height,
         QtCore.Qt.KeepAspectRatio,
         QtCore.Qt.SmoothTransformation

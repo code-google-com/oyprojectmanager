@@ -111,12 +111,12 @@ class Maya(EnvironmentBase):
             # set render resolution
             self.set_resolution(project.width, project.height,
                 project.pixel_aspect)
-        # set the render range
-        if version.type.type_for == 'Shot':
-            self.set_frame_range(
-                version.version_of.start_frame,
-                version.version_of.end_frame
-            )
+            # set the render range
+            if version.type.type_for == 'Shot':
+                self.set_frame_range(
+                    version.version_of.start_frame,
+                    version.version_of.end_frame
+                )
                 
         # set the render file name and version
         self.set_render_fileName(version)
@@ -454,7 +454,7 @@ class Maya(EnvironmentBase):
         dRG.setAttr('renderVersion', "v%03d" % version.version_number )
         dRG.setAttr('animation', 1)
         dRG.setAttr('outFormatControl', 0 )
-        dRG.setAttr('extensionPadding', 3 )
+        dRG.setAttr('extensionPadding', 4 )
         dRG.setAttr('imageFormat', 7 ) # force the format to iff
         dRG.setAttr('pff', 1)
         

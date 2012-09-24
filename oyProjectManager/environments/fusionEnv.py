@@ -223,7 +223,7 @@ class Fusion(EnvironmentBase):
     def __init__(self, version=None, name='', extensions=None):
         """fusion specific init
         """
-
+        
         # and add you own modifications to __init__
         self.fusion = PeyeonScript.scriptapp("Fusion")
         self.fusion_prefs = self.fusion.GetPrefs()['Global']
@@ -447,7 +447,7 @@ class Fusion(EnvironmentBase):
             version.type.code + "_" + \
             "Output_" + \
             "v%03d" % version.version_number + "_" + \
-            version.created_by.initials + ".001.tga"
+            version.created_by.initials + ".001.exr"
         
         # check if it is a stereo comp
         # if it is enable separate view rendering
