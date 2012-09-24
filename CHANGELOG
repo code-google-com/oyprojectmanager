@@ -15,6 +15,26 @@ Version History
 
 * Fixed nukeEnv for Windows, now the output path is correctly set.
 
+* The output path of the Comp type is changed to have the version number
+  included in the output.
+
+* Fusion environment now outputs OpenEXR files instead of TGA.
+
+* Houdini environment now works correctly if the output ROP nodes "vm_picture"
+  parameter is locked
+
+* Maya environment now  sets the frame range only for the first version.
+
+* Maya environment is now using a 4 digit padding in output files.
+
+* The image format is now forced to be JPG in thumbnails.
+
+* version_creator.UI() now uses the given app instance if any to be able to
+  connect the host applications event loop.
+
+* Added oyProjectManager.ui.pyqt_houdini from Houdini help docs which helps
+  creating Qt interfaces which are attached to the Houdini event loop.
+
 0.2.4.1
 -------
 * Fixed titles of ``version_creator`` and ``status_manager`` UIs.

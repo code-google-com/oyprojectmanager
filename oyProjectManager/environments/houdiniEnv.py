@@ -278,9 +278,13 @@ class Houdini(EnvironmentBase):
             # get only the ifd nodes for now
             if output_node.type().name() == 'ifd':
                 # set the file name
-                output_node.setParms(
-                    {'vm_picture': str(job_relative_output_file_path)}
-                )
+                try:
+                    output_node.setParms(
+                        {'vm_picture': str(job_relative_output_file_path)}
+                    )
+                except hou.PermissionError:
+                    # node is locked
+                    pass
                 
                 # set the compression to zips (zip, single scanline)
                 output_node.setParms({"vm_image_exr_compression": "zips"})
@@ -403,4 +407,4 @@ class FileHistory(object):
         if type_name == '' or type_name is None:
             return []
         else:
-            return self._history.get('type_name', [])
+            return self._history.get(type_name, [])
