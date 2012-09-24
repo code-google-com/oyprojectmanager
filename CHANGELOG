@@ -29,6 +29,16 @@ Version History
 * Version class is now mixed in with IOMixin so it accepts FileLink instances
   in its inputs and outputs attributes.
 
+* "Version Creator" UI is now able to run in environmentless mode in which it
+  will only generate a new version but only copy the path to the clipboard
+  instead of telling the environment to save the document to a specific path.
+
+* Added two new context menu to the previous_versions_tableWidget_context_menu
+  first one called "Copy Path" and the second "Copy Output Path", where in the
+  first menu users will be able to copy the specified versions full_path and in
+  the second menu the output_path of the version. The data is copied to the
+  clipboard.
+
 0.2.4.2
 -------
 * Renamed 'Scene Assembly' to 'Layout' in VersionTypes.

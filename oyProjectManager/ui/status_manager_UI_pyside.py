@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/status_manager.ui'
 #
-# Created: Tue Jun  5 17:17:52 2012
+# Created: Tue Jul 10 01:15:47 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -23,6 +23,12 @@ class Ui_Dialog(object):
         self.projects_comboBox = QtGui.QComboBox(Dialog)
         self.projects_comboBox.setObjectName("projects_comboBox")
         self.horizontalLayout.addWidget(self.projects_comboBox)
+        self.client_label = QtGui.QLabel(Dialog)
+        self.client_label.setObjectName("client_label")
+        self.horizontalLayout.addWidget(self.client_label)
+        self.client_name_label = QtGui.QLabel(Dialog)
+        self.client_name_label.setObjectName("client_name_label")
+        self.horizontalLayout.addWidget(self.client_name_label)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -79,6 +85,8 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Project", None, QtGui.QApplication.UnicodeUTF8))
+        self.client_label.setText(QtGui.QApplication.translate("Dialog", "Client:", None, QtGui.QApplication.UnicodeUTF8))
+        self.client_name_label.setText(QtGui.QApplication.translate("Dialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_tableWidget.setToolTip(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>Right click to:</p><ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Change Status</span></li><li style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Browse Outputs</span></li></ul></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_tableWidget.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("Dialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
         self.assets_tableWidget.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog", "Take", None, QtGui.QApplication.UnicodeUTF8))

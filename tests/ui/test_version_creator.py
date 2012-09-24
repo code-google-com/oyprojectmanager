@@ -2976,6 +2976,18 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
     
+    def show_dialog(self, dialog):
+        """show the given dialog
+        """
+        dialog.show()
+        self.app.exec_()
+        self.app.connect(
+            self.app,
+            QtCore.SIGNAL("lastWindowClosed()"),
+            self.app,
+            QtCore.SLOT("quit()")
+        )
+    
     def test_get_version_type_returns_VersionType_instance_from_the_UI(self):
         """testing if the get_version_type method returns the correct
         VersionType instance from the UI
@@ -3378,4 +3390,44 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
             self.test_dialog.takes_listWidget.currentItem().text()
         )
 
-        
+    def test_no_environment_given_export_selection_as_pushButton_is_hidden(self):
+        """testing if no environment instance is given the
+        export_selection_as_pushButton is hidden
+        """
+        new_vc_dialog = version_creator.MainDialog()
+        new_vc_dialog.show()
+        self.assertFalse(new_vc_dialog.export_as_pushButton.isVisible())
+    
+    def test_no_environment_given_save_as_pushButton_is_still_visible(self):
+        """testing if no environment instance is given the save_as_pushButton
+        is still visible
+        """
+        new_vc_dialog = version_creator.MainDialog()
+        new_vc_dialog.show()
+        self.assertTrue(new_vc_dialog.save_as_pushButton.isVisible())
+    
+    def test_no_environment_given_open_pushButton_is_hidden(self):
+        """testing if no environment instance is given the open_pushButton is
+        hidden
+        """
+        new_vc_dialog = version_creator.MainDialog()
+        new_vc_dialog.show()
+        #self.show_dialog(new_vc_dialog)
+        self.assertFalse(new_vc_dialog.open_pushButton.isVisible())
+    
+    def test_no_environment_given_reference_pushButton_is_hidden(self):
+        """testing if no environment instance is given the reference_pushButton
+        is hidden
+        """
+        new_vc_dialog = version_creator.MainDialog()
+        new_vc_dialog.show()
+        self.assertFalse(new_vc_dialog.reference_pushButton.isVisible())
+    
+    def test_no_environment_given_import_pushButton_is_hidden(self):
+        """testing if no environment instance is given the import_pushButton is
+        hidden
+        """
+        new_vc_dialog = version_creator.MainDialog()
+        new_vc_dialog.show()
+        self.assertFalse(new_vc_dialog.import_pushButton.isVisible())
+

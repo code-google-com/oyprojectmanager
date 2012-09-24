@@ -16,12 +16,14 @@ import oyProjectManager
 from oyProjectManager import config, db, utils
 from oyProjectManager.models.asset import Asset
 from oyProjectManager.models.auth import User
+from oyProjectManager.models.entity import EnvironmentBase
 from oyProjectManager.models.project import Project
 from oyProjectManager.models.repository import Repository
 from oyProjectManager.models.sequence import Sequence
 from oyProjectManager.models.shot import Shot
-from oyProjectManager.models.version import Version, VersionType, VersionTypeEnvironments
-from oyProjectManager.ui import version_updater, ui_utils
+from oyProjectManager.models.version import (Version, VersionType,
+                                             VersionTypeEnvironments)
+from oyProjectManager.ui import create_asset_dialog, version_updater, ui_utils
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
@@ -41,16 +43,14 @@ if os.environ.has_key(qt_module_key):
 if qt_module == "PySide":
     from PySide import QtGui, QtCore
     from oyProjectManager.ui import version_creator_UI_pyside as version_creator_UI
-    from oyProjectManager.ui import create_asset_dialog_UI_pyside as create_asset_dialog_UI
 elif qt_module == "PyQt4":
     import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
     from PyQt4 import QtGui, QtCore
     from oyProjectManager.ui import version_creator_UI_pyqt4 as version_creator_UI
-    from oyProjectManager.ui import create_asset_dialog_UI_pyqt4 as create_asset_dialog_UI
 
-def UI(environment):
+def UI(environment=None):
     """the UI to call the dialog by itself
     """
     global app
@@ -83,89 +83,11 @@ def UI(environment):
     
     return mainDialog
 
-
-class create_asset_dialog(QtGui.QDialog, create_asset_dialog_UI.Ui_create_asset):
-    """Called upon asset creation
-    """
-    def __init__(self, parent=None):
-        logger.debug('initializing create_asset_dialog')
-        super(create_asset_dialog, self).__init__(parent)
-        self.setupUi(self)
-        self.ok = False
-        
-        self._setup_signals()
-        self._setup_defaults()
-    
-    def _setup_signals(self):
-        """setting up the signals
-        """
-        
-        # buttonBox
-        QtCore.QObject.connect(
-            self.buttonBox,
-            QtCore.SIGNAL('accepted()'),
-            self.buttonBox_accepted
-        )
-        
-        ## add_new_type_toolButton
-        #QtCore.QObject.connect(
-        #    self.add_new_type_toolButton,
-        #    QtCore.SIGNAL('clicked()'),
-        #    self.add_new_type_toolButton_clicked
-        #)
-    
-    def _setup_defaults(self):
-        """setting up the defaults
-        """
-        # fill the asset_types_comboBox with all the asset types from the db
-        all_types = map(lambda x: x[0], db.query(distinct(Asset.type)).all())
-
-        if conf.default_asset_type_name not in all_types:
-            all_types.append(conf.default_asset_type_name)
-        
-        logger.debug('all_types: %s' % all_types)
-         
-        self.asset_types_comboBox.addItems(all_types)
-    
-    def buttonBox_accepted(self):
-        """runs when the buttonbox.OK is clicked
-        """
-        # just close the dialog
-        self.ok = True
-        self.close()
-    
-    def buttonBox_rejected(self):
-        """runs when the buttonbox.Cancel is clicked
-        """
-        self.ok = False
-        self.close()
-    
-    #def add_new_type_toolButton_clicked(self):
-    #    """runs when add_new_type_toolButton is clicked
-    #    """
-    #    logger.debug('add_new_type_toolButton is clicked')
-    #    
-    #    type_name, ok = QtGui.QInputDialog(self).getText(
-    #        self,
-    #        'Enter new asset type name',
-    #        'Asset Type name:'
-    #    )
-    #    
-    #    if ok:
-    #        if type_name != '':
-    #            index = self.asset_types_comboBox.findText(type_name)
-    #            if index == -1:
-    #                # add new type to the asset_type_ComboBox
-    #                self.asset_types_comboBox.addItem(type_name)
-    #                index = self.asset_types_comboBox.findText(type_name)
-    #            
-    #            self.asset_types_comboBox.setCurrentIndex(index)
-
 class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     """The main asset version creation dialog for the system.
     
     This is the main interface that the users of the oyProjectManager will use
-    to create a 
+    to create a new Version.
     
     :param environment: It is an object which supplies **methods** like
       ``open``, ``save``, ``export``,  ``import`` or ``reference``. The most
@@ -177,6 +99,16 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
       The main duty of the Environment object is to introduce the host
       application (Maya, Houdini, Nuke, etc.) to oyProjectManager and let it to
       open, save, export, import or reference a file.
+      
+      .. versionadded:: 0.2.5
+         No Environment Interaction
+         
+         From and after version 0.2.5 the UI is now able to handle the
+         situation of not being bounded to an Environment. So if there is no
+         Environment instance is given then the UI generates new Version
+         instance and will allow the user to "copy" the full path of the newly
+         generated Version. So environments which are not able to run Python
+         code (Photoshop etc.) will also be able to contribute to projects.
     
     :param parent: The parent ``PySide.QtCore.QObject`` of this interface. It
       is mainly useful if this interface is going to be attached to a parent
@@ -285,7 +217,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.asset_changed
         )
         
-        
         # shots_listWidget
         QtCore.QObject.connect(
             self.shots_listWidget,
@@ -377,7 +308,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             QtCore.SIGNAL("clicked()"),
             self.save_as_pushButton_clicked
         )
-
+        
         # open
         QtCore.QObject.connect(
             self.open_pushButton,
@@ -509,6 +440,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # add Browse Outputs
         menu.addAction("Browse Outputs")
         
+        menu.addSeparator()
+        menu.addAction("Copy Path")
+        menu.addAction("Copy Output Path")
+        
         selected_item = menu.exec_(global_position)
         
         if selected_item:
@@ -542,7 +477,15 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                         self,
                         "Error",
                         "Path doesn't exists:\n" + path
-                    ) 
+                    )
+            elif choice == 'Copy Path':
+                # just set the clipboard to the version.full_path
+                clipboard = QtGui.QApplication.clipboard()
+                clipboard.setText(os.path.normpath(version.full_path))
+            elif choice == 'Copy Output Path':
+                # just set the clipboard to the version.output_path
+                clipboard = QtGui.QApplication.clipboard()
+                clipboard.setText(os.path.normpath(version.output_path))
     
     def rename_asset(self, asset, new_name):
         """Renames the asset with the given new name
@@ -621,7 +564,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # run the project changed item for the first time
         self.project_changed()
         
-        if self.environment is not None:
+        if self.environment and isinstance(self.environment, EnvironmentBase):
             logger.debug("restoring the ui with the version from environment")
             
             # get the last version from the environment
@@ -631,6 +574,13 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             
             self.restore_ui(version_from_env)
         
+        else:
+            # hide some buttons
+            self.export_as_pushButton.setVisible(False)
+            self.open_pushButton.setVisible(False)
+            self.reference_pushButton.setVisible(False)
+            self.import_pushButton.setVisible(False)
+       
         logger.debug("finished setting up interface defaults")
     
     def restore_ui(self, version):
@@ -726,8 +676,14 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def project_changed(self):
         """updates the assets list_widget and sequences_comboBox for the 
         """
-        
         logger.debug("project_comboBox has changed in the UI")
+        
+        project = self.get_current_project()
+        if project:
+            # update the client info
+            self.client_name_label.setText(
+                project.client.name if project.client else "N/A"
+            )
         
         # call tabWidget_changed with the current index
         curr_tab_index = self.tabWidget.currentIndex()
@@ -1262,6 +1218,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # align to left and vertical center
             item.setTextAlignment(0x0001 | 0x0080)
             
+            if is_published:
+                set_font(item)
+            
             self.previous_versions_tableWidget.setItem(i, 4, item)
             # ------------------------------------
                         
@@ -1284,7 +1243,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """
         """
         
-        dialog = create_asset_dialog(parent=self)
+        dialog = create_asset_dialog.create_asset_dialog(parent=self)
         dialog.exec_()
         
         ok = dialog.ok
@@ -1601,7 +1560,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                     new_version.filename + "\n\n has been exported correctly!",
                     QtGui.QMessageBox.Ok
                 )
-
     
     def save_as_pushButton_clicked(self):
         """runs when the save_as_pushButton clicked
@@ -1620,8 +1578,40 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             return None
         
         # call the environments save_as method
-        if self.environment is not None:
+        # TODO: This should be in a try except block, because the environment can reject saving the file
+        if self.environment and isinstance(environment, EnvironmentBase):
             self.environment.save_as(new_version)
+        else:
+            logger.debug('No environment given, just generating paths')
+            
+            # just set the clipboard to the new_version.full_path
+            clipboard = QtGui.QApplication.clipboard()
+            v_path = os.path.normpath(new_version.full_path)
+            clipboard.setText(v_path)
+            
+            # create the path
+            try:
+                logger.debug('creating path for new version')
+                os.makedirs(new_version.path)
+            except OSError: # path already exists
+                pass
+            
+            # create the output path
+            try:
+                logger.debug('creating output_path for new version')
+                os.makedirs(new_version.output_path)
+            except OSError: # path already exists
+                pass
+            
+            # and warn the user about a new version is created and the
+            # clipboard is set to the new version full path
+            QtGui.QMessageBox.warning(
+                self,
+                "Path Generated",
+                "A new Version is created at:\n\n" + v_path + "\n\n" +
+                "And the path is copied to your clipboard!!!",
+                QtGui.QMessageBox.Ok
+            )
         
         # save the new version to the database
         db.session.add(new_version)
@@ -1630,8 +1620,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # save the last user
         conf.last_user_id = new_version.created_by.id
         
-        # close the UI
-        self.close()
+        if self.environment:
+            # close the UI
+            self.close()
+        else:
+            # refresh the UI
+            self.project_changed()
     
     def open_pushButton_clicked(self):
         """runs when the open_pushButton clicked
@@ -1644,7 +1638,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # call the environments open_ method
         if self.environment is not None:
-            
             to_update_list = []
             # environment can throw RuntimeError for unsaved changes
             try:

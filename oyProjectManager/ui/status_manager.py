@@ -12,12 +12,10 @@ from sqlalchemy.sql.expression import distinct, func
 import oyProjectManager
 from oyProjectManager import config, db, utils
 from oyProjectManager.models.asset import Asset
-from oyProjectManager.models.auth import User
 from oyProjectManager.models.project import Project
-from oyProjectManager.models.repository import Repository
 from oyProjectManager.models.sequence import Sequence
 from oyProjectManager.models.shot import Shot
-from oyProjectManager.models.version import Version, VersionType, VersionTypeEnvironments
+from oyProjectManager.models.version import Version, VersionType
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
@@ -165,6 +163,8 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         self.projects_comboBox.projects = projects
         self.projects_comboBox.setCurrentIndex(0)
         
+        self.project_changed()
+        
         self.fill_assets_tableWidget()
     
     def get_current_project(self):
@@ -181,6 +181,14 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     def project_changed(self):
         """runs when selection in projects_comboBox changed
         """
+        # set the client info
+        project = self.get_current_project()
+        if project:
+            # update the client info
+            self.client_name_label.setText(
+                project.client.name if project.client else "N/A"
+            )
+        
         self.tabWidget_changed()
     
     def tabWidget_changed(self):
