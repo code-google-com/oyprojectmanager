@@ -568,3 +568,22 @@ class Sequence_DB_Tester(unittest.TestCase):
         # code is SH001
         self.assertEqual("1", seq1.shots[0].number)
         self.assertEqual('SH001', seq1.shots[0].code)
+    
+    def test_add_shots_is_working_properly_for_projects_with_no_shot_number_prefix(self):
+        """testing if the add_shots method working properly for projects with
+        no or empty shot_number_prefix
+        """
+        proj1 = Project('proj1', 'proj1')
+        proj1.shot_number_prefix = ""
+        proj1.shot_number_padding = 0
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'seq91')
+        seq1.save()
+
+        shot_code = 'VFX91-3'
+        seq1.add_shots(shot_code)
+        # should complete without any error
+        
+        shot = seq1.shots[0]
+        self.assertEqual(shot.code, shot_code)

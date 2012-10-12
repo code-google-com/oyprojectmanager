@@ -55,7 +55,7 @@ class ShotTester(unittest.TestCase):
             ("324ASF", "324ASF"),
             ("AD43", "AD43"),
             ("AS43A", "AS43A"),
-            ("afasfas fasf asdf67", "AFASFASFASFASDF67"),
+            ("afasfas fasf    asdf67", "AFASFAS_FASF_ASDF67"),
             ("45a", "45A"),
             ("45acafs","45ACAFS"),
             ("45'^+'^+a", "45A"),
@@ -64,7 +64,8 @@ class ShotTester(unittest.TestCase):
             ("46B-3-B", "46B-3-B"),
             ("XB58P-4-C", "XB58P-4-C"),
             ("A143AN-04-D", "A143AN-04-D"),
-            ("xb58q-2-d", "XB58Q-2-D")
+            ("xb58q-2-d", "XB58Q-2-D"),
+            ("underscores_are_allowed", "UNDERSCORES_ARE_ALLOWED")
         ]
     
     def tearDown(self):

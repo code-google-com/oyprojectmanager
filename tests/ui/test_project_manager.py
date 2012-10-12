@@ -84,13 +84,15 @@ class ProjectManager_Tester(unittest.TestCase):
         project2 = Project("Test Project 2")
         project3 = Project("Test Project 3")
         
+        project3.active = False
+        
         project1.save()
         project2.save()
         project3.save()
         
         # open UI
         dialog = project_manager.MainDialog()
-#        self.show_dialod(dialog)
+        self.show_dialog(dialog)
 
         
         # check if the projects are listed there

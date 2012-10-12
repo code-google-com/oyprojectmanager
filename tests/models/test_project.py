@@ -9,7 +9,7 @@ import shutil
 import tempfile
 import unittest
 
-from oyProjectManager import db, conf
+from oyProjectManager import db, conf, Asset
 from oyProjectManager.models.auth import Client
 from oyProjectManager.models.project import Project
 from oyProjectManager.models.sequence import Sequence
@@ -649,3 +649,38 @@ class ProjectTester(unittest.TestCase):
         self.assertNotEqual(new_client2, new_proj.client)
         new_proj.client = new_client2
         self.assertEqual(new_client2, new_proj.client)
+    
+    def test_asset_attribute_is_read_only(self):
+        """testing if the asset attribute is read-only
+        """
+        new_proj = Project("Test Project for Asset Relation")
+        self.assertRaises(AttributeError, setattr, new_proj, "assets", [])
+    
+    def test_asset_attribute_returns_a_list_of_assets_related_to_this_project(self):
+        """testing if the asset attribute returns a list of assets which are
+        related to this project
+        """
+        new_proj1 = Project("Test Project 1")
+        new_proj1.create()
+        
+        new_proj2 = Project("Test Project 2")
+        new_proj2.create()
+        
+        new_proj3 = Project("Test Project 3")
+        new_proj3.create()
+        
+        asset1 = Asset(new_proj1, "Asset 1")
+        asset1.save()
+        
+        asset2 = Asset(new_proj1, "Asset 2")
+        asset2.save()
+        
+        asset3 = Asset(new_proj2, "Asset 3")
+        asset3.save()
+        
+        asset4 = Asset(new_proj2, "Asset 4")
+        asset4.save()
+        
+        self.assertItemsEqual(new_proj1.assets, [asset1, asset2])
+        self.assertItemsEqual(new_proj2.assets, [asset3, asset4])
+        self.assertItemsEqual(new_proj3.assets, [])

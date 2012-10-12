@@ -39,6 +39,19 @@ Version History
   the second menu the output_path of the version. The data is copied to the
   clipboard.
 
+* Project class now has an attribute called ``assets`` which will return the
+  list of assets that this Project instance has.
+
+* Fixed Bug: In Sequence.add_shots() method where adding new shots for
+  Projects with empty shot_number_prefix causing the re module to fail to
+  compile the empty expression.
+
+* It is now allowed to have underscores ("_"s) in Shot.number attribute, and
+  spaces will be replaced by underscores.
+
+* In project_manager ui the inactive projects are now have an icon at the
+  beginning of their names.
+
 0.2.4.2
 -------
 * Renamed 'Scene Assembly' to 'Layout' in VersionTypes.

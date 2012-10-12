@@ -220,24 +220,25 @@ class Shot(VersionableBase):
     def _validates_number(self, key, number):
         """validates the given number value
         """
-
+        
         if not isinstance(number, (int, str, unicode)):
             raise TypeError("Shot.number should be and instance of integer, "
                             "string or unicode")
-
+        
         # first convert it to a string
         number = str(number)
-
+        
         # then format it
         # remove anything which is not a number or letter
-        number = re.sub(r"[^0-9a-zA-Z\-]+", "", number)
-
+        number = re.sub(r"[^0-9a-zA-Z\-_\ ]+", "", number)
+        number = re.sub(r"[\ ]+", "_", number)
+        
         number = number.upper()
-
+        
         if number == "":
             raise ValueError("Shot.number is not in good format, please "
                              "supply something like 1, 2, 3A, 10B")
-
+        
         # now check if the number is present for the current Sequence
         shot_instance = db.session.query(Shot).\
             filter(Shot.number==number).\
@@ -247,7 +248,7 @@ class Shot(VersionableBase):
         if shot_instance is not None:
             raise ValueError("Shot.number already exists for the given "
                              "sequence please give a unique shot code")
-
+        
         return number
 
     def save(self):

@@ -189,7 +189,17 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
         self.projects_comboBox.projects = projects
         
         self.projects_comboBox.clear()
-        self.projects_comboBox.addItems(map(lambda x: x.name, projects))
+        #self.projects_comboBox.addItems(map(lambda x: x.name, projects))
+        for i, project in enumerate(projects):
+            if project.active:
+                self.projects_comboBox.addItem(project.name)
+            else:
+                self.projects_comboBox.addItem(
+                    QtGui.QIcon(
+                        ":/trolltech/styles/commonstyle/images/stop-24.png"
+                    ),
+                    project.name
+                )
     
     def projects_changed(self):
         """runs when the projects comboBox changed

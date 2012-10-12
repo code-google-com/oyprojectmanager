@@ -4,7 +4,7 @@
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
-__version__ = "0.2.4.2"
+__version__ = "0.2.5"
 
 import logging
 logging.basicConfig(
@@ -21,6 +21,7 @@ conf = config.Config()
 # or stating in a different form separate the VersionType in to two new class
 # called Task and Type (as in Stalker)
 
+# TODO: Add tests for deletion of Project, Sequence, Shot, Asset and other types 
 
 from oyProjectManager.models.asset import Asset
 from oyProjectManager.models.auth import Client, User

@@ -416,3 +416,11 @@ class Project(Base):
                                 'instance, not %s' % client.__class__.__name__)
         
         return client
+    
+    @property
+    def assets(self):
+        """Returns all the :class:`~oyProjectManager.models.asset.Asset`\ s related to this Project.
+        :return: list of :class:`~oyProjectManager.models.asset.Asset`
+        """
+        from oyProjectManager import Asset
+        return Asset.query().filter(Asset.project==self).all()

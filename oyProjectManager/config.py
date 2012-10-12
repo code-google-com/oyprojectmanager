@@ -70,7 +70,7 @@ class Config(object):
         default_fps = 25,
         
         default_asset_type_name = "Generic",
-        default_take_name = "MAIN",
+        default_take_name = "Main",
         
         users_data = [{"name": "Administrator", "initials": "adm"}],
         
@@ -151,15 +151,22 @@ class Config(object):
             {{seq_path}}/Edit/Sound
             {{seq_path}}/References/Artworks
             {{seq_path}}/References/Text/Scenario
+            {{seq_path}}/References/Text/Brief
             {{seq_path}}/References/Photos_Images
             {{seq_path}}/References/Videos
             {{seq_path}}/References/Others
+            {{seq_path}}/References/Storyboard
             {% for shot in sequence.shots %}
                 {{seq_path}}/Shots/{{shot.code}}
                 {{seq_path}}/Shots/{{shot.code}}/Plate
-                {{seq_path}}/Shots/{{shot.code}}/Ref
+                {{seq_path}}/Shots/{{shot.code}}/Reference
                 {{seq_path}}/Shots/{{shot.code}}/Texture
             {% endfor %}
+        {% endfor %}
+        {% for asset in project.assets%}
+            {% set asset_path = project.full_path + '/Assets/' + asset.type + '/' + asset.code %}
+            {{asset_path}}/Texture
+            {{asset_path}}/Reference
         {% endfor %}
         """,
         

@@ -189,18 +189,23 @@ class Sequence(Base):
         
         new_shots = []
         for shot_number in new_shot_numbers:
+            logger.debug('shot_number: %s' % shot_number)
+            
+            # if the project.shot_number_prefix is not '' or None
             # the shot_number can not start with the project.shot_number_prefix
-            if shot_number.startswith(self.project.shot_number_prefix):
-                # remove it
-                shot_number = re.sub(
-                    r"^[" + self.project.shot_number_prefix + "]+",
-                    "",
-                    shot_number
-                )
+            if self.project.shot_number_prefix != '' \
+                and self.project.shot_number_prefix is not None:
+                if shot_number.startswith(self.project.shot_number_prefix):
+                    # remove it
+                    shot_number = re.sub(
+                        r"^[" + self.project.shot_number_prefix + "]+",
+                        "",
+                        shot_number
+                    )
             
             # if the shot_number starts with zeros ('0000') remove them
             shot_number = re.sub(r'^[0]+', '', shot_number)
-                
+            
             # create a new shot instance
             new_shots.append(Shot(self, shot_number))
         

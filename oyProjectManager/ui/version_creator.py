@@ -50,8 +50,19 @@ elif qt_module == "PyQt4":
     from PyQt4 import QtGui, QtCore
     from oyProjectManager.ui import version_creator_UI_pyqt4 as version_creator_UI
 
-def UI(environment, app_in=None, executer=None):
+def UI(environment=None, app_in=None, executor=None):
     """the UI to call the dialog by itself
+    
+    :param environment: The
+      :class:`~oyProjectManager.models.entity.EnvironmentBase` can be None to
+      let the UI to work in "environmentless" mode in which it only creates
+      data in database and copies the resultant version file path to clipboard.
+    
+    :param app_in: A Qt Application instance, which you can pass to let the UI
+      be attached to the given applications event process.
+    
+    :param executor: Instead of calling app.exec_ the UI will call this given
+      function. It also passes the created app instance to this executor.
     """
     global app
     global mainDialog
@@ -75,7 +86,7 @@ def UI(environment, app_in=None, executer=None):
     mainDialog.show()
     #app.setStyle('Plastique')
 
-    if executer is None:
+    if executor is None:
         app.exec_()
         if self_quit:
             app.connect(
@@ -85,7 +96,7 @@ def UI(environment, app_in=None, executer=None):
                 QtCore.SLOT("quit()")
             )
     else:
-        executer.exec_(app, mainDialog)
+        executor.exec_(app, mainDialog)
     
     return mainDialog
 
@@ -1585,7 +1596,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # call the environments save_as method
         # TODO: This should be in a try except block, because the environment can reject saving the file
-        if self.environment and isinstance(environment, EnvironmentBase):
+        if self.environment and isinstance(self.environment, EnvironmentBase):
             self.environment.save_as(new_version)
         else:
             logger.debug('No environment given, just generating paths')
