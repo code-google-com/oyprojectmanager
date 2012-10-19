@@ -1,6 +1,39 @@
 Version History
 ===============
 
+0.2.5.1
+-------
+
+* Deletes are now cascaded. When a Project instance is deleted, all the related
+  Sequence, Assets are also deleted, which also deletes the Shots and all the
+  Version instances related to the deleted Assets and Shots. Also deleting a
+  Sequence will delete the related Shots and thus the related Versions, and
+  deleting an Asset will delete all the related Versions.
+
+* In version_creator UI the notes of previous versions can now be changed by
+  using the context menu on the previous_versions_tableWidget.
+
+* project_properties dialog now warns the user for empty code field
+
+* project_properties dialog now updates the code field when the name field is
+  changed.
+
+* mayaEnv now warns the user and rejects saving the file if there are external
+  references (file textures, mentalray textures, ibl nodes etc.), which are not
+  under $REPO.
+
+* In version_creator the take name is now formatted for newly created takes, so
+  every first letter of every word is now uppercase (title) and any fancy
+  characters including empty spaces are replaced with underscores. And the
+  newly added take name is selected in the list, and also the list is now
+  sorted after adding a new take name, and duplicate take names are now
+  prevented.
+
+* Updated the version_updater, it now correctly displays the take of the
+  versionable and also the 'Update' checkbox is now working correctly.
+
+* version_creator now lists only active users.
+
 0.2.5
 -----
 
@@ -51,36 +84,6 @@ Version History
 
 * In project_manager ui the inactive projects are now have an icon at the
   beginning of their names.
-
-* Deletes are now cascaded. When a Project instance is deleted, all the related
-  Sequence, Assets are also deleted, which also deletes the Shots and all the
-  Version instances related to the deleted Assets and Shots. Also deleting a
-  Sequence will delete the related Shots and thus the related Versions, and
-  deleting an Asset will delete all the related Versions.
-
-* In version_creator UI the notes of previous versions can now be changed by
-  using the context menu on the previous_versions_tableWidget.
-
-* project_properties dialog now warns the user for empty code field
-
-* project_properties dialog now updates the code field when the name field is
-  changed.
-
-* mayaEnv now warns the user and rejects saving the file if there are external
-  references (file textures, mentalray textures, ibl nodes etc.), which are not
-  under $REPO.
-
-* In version_creator the take name is now formatted for newly created takes, so
-  every first letter of every word is now uppercase (title) and any fancy
-  characters including empty spaces are replaced with underscores. And the
-  newly added take name is selected in the list, and also the list is now
-  sorted after adding a new take name, and duplicate take names are now
-  prevented.
-
-* Updated the version_updater, it now correctly displays the take of the
-  versionable and also the 'Update' checkbox is now working correctly.
-
-* version_creator now lists only active users.
 
 0.2.4.2
 -------
