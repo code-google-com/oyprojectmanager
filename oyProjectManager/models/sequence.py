@@ -67,9 +67,13 @@ class Sequence(Base):
     description = Column(String)
     
     project_id = Column(Integer, ForeignKey("Projects.id"))
+    
     _project = relationship("Project")
     
-    shots = relationship("Shot")
+    shots = relationship(
+        "Shot",
+        cascade="all, delete-orphan"
+    )
     
     def __new__(cls, project=None, name=None, code=None):
         """the overridden __new__ method to manage the creation of Sequence
@@ -217,9 +221,6 @@ class Sequence(Base):
         
         returns the alternative shot number
         """
-        
-        # TODO: this functionality should be shifted to the Shot class
-        
         # shot_number could be an int convert it to str
         # get the first integer as int in the string
         shot_number = utils.embedded_numbers(str(shot_number))[1]

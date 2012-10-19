@@ -8,11 +8,8 @@ import os
 import shutil
 import tempfile
 import unittest
-from sqlalchemy.exc import IntegrityError
-from oyProjectManager import conf, db
-from oyProjectManager.models.project import Project
-from oyProjectManager.models.sequence import Sequence
-from oyProjectManager.models.shot import Shot
+from oyProjectManager import (conf, db, Project, Sequence, Shot, Version, User,
+                              VersionType)
 
 class ShotTester(unittest.TestCase):
     """tests the Shot class
@@ -51,14 +48,14 @@ class ShotTester(unittest.TestCase):
         
         self._number_test_values = [
             (23, "23"),
-            ("23", "23"),
+            ("24", "24"),
             ("324ASF", "324ASF"),
             ("AD43", "AD43"),
             ("AS43A", "AS43A"),
             ("afasfas fasf    asdf67", "AFASFAS_FASF_ASDF67"),
             ("45a", "45A"),
             ("45acafs","45ACAFS"),
-            ("45'^+'^+a", "45A"),
+            ("45'^+'^+b", "45B"),
             ("45asf78wr", "45ASF78WR"),
             ("'^+'afsd2342'^+'asdFGH", "AFSD2342ASDFGH"),
             ("46B-3-B", "46B-3-B"),
@@ -143,14 +140,16 @@ class ShotTester(unittest.TestCase):
 #            self.assertEqual(test_value[1], new_shot.number)
     
     def test_number_is_already_defined_in_the_sequence(self):
-        """testing if an IntegrityError will be raised when the shot number is
+        """testing if a ValueError will be raised when the shot number is
         already defined in the given Sequence
         """
         self.kwargs["number"] = 101
         new_shot1 = Shot(**self.kwargs)
-        new_shot2 = Shot(**self.kwargs)
-        db.session.add_all([new_shot1, new_shot2])
-        self.assertRaises(IntegrityError, db.session.commit)
+        self.assertRaises(
+            ValueError,
+            Shot,
+            **self.kwargs
+        )
     
     def test_number_is_already_defined_in_the_sequence_for_an_already_created_one(self):
         """testing if a ValueError will be raised when the number is already
@@ -183,7 +182,6 @@ class ShotTester(unittest.TestCase):
         new_shot1 = Shot(**self.kwargs)
         self.assertEqual(new_shot1.code, "SH010")
         
-        
         self.kwargs["number"] = "10A"
         new_shot1 = Shot(**self.kwargs)
         self.assertEqual(new_shot1.code, "SH010A")
@@ -192,10 +190,10 @@ class ShotTester(unittest.TestCase):
         new_shot1 = Shot(**self.kwargs)
         self.assertEqual(new_shot1.code, "SHA143AN-04-D")
         
-        self.kwargs["number"] = "A143AN-04-D"
+        self.kwargs["number"] = "A143AN-04-DB"
         self.test_proj.shot_number_prefix = ""
         new_shot1 = Shot(**self.kwargs)
-        self.assertEqual(new_shot1.code, "A143AN-04-D")
+        self.assertEqual(new_shot1.code, "A143AN-04-DB")
     
     def test_code_attribute_is_calculated_from_the_number_attribute(self):
         """testing if the code attribute is calculated from the number
@@ -281,6 +279,7 @@ class ShotTester(unittest.TestCase):
         """testing if the start_frame attribute will be set to the default
         value when the start_frame argument is skipped
         """
+        self.kwargs['number'] = '1a'
         self.kwargs.pop("start_frame")
         new_shot = Shot(**self.kwargs)
         self.assertEqual(new_shot.start_frame, 1)
@@ -289,6 +288,7 @@ class ShotTester(unittest.TestCase):
         """testing if the start_frame attribute will be set to the default
         value when the start_frame argument is skipped
         """
+        self.kwargs['number'] = '1a'
         self.kwargs["start_frame"] = None
         new_shot = Shot(**self.kwargs)
         self.assertEqual(new_shot.start_frame, 1)
@@ -304,6 +304,7 @@ class ShotTester(unittest.TestCase):
         """testing if a TypeError will be raised when the start_frame argument
         is not an integer
         """
+        self.kwargs['number'] = '1a'
         self.kwargs["start_frame"] = "asdfa"
         self.assertRaises(TypeError, Shot, **self.kwargs)
     
@@ -333,6 +334,7 @@ class ShotTester(unittest.TestCase):
         """testing if the end_frame attribute will be set to the default
         value when the end_frame argument is skipped
         """
+        self.kwargs['number'] = '1a'
         self.kwargs.pop("end_frame")
         new_shot = Shot(**self.kwargs)
         self.assertEqual(new_shot.end_frame, 1)
@@ -341,6 +343,7 @@ class ShotTester(unittest.TestCase):
         """testing if the end_frame attribute will be set to the default
         value when the end_frame argument is skipped
         """
+        self.kwargs['number'] = '1a'
         self.kwargs["end_frame"] = None
         new_shot = Shot(**self.kwargs)
         self.assertEqual(new_shot.end_frame, 1)
@@ -356,6 +359,7 @@ class ShotTester(unittest.TestCase):
         """testing if a TypeError will be raised when the end_frame argument
         is not an integer
         """
+        self.kwargs['number'] = '1a'
         self.kwargs["end_frame"] = "asdfa"
         self.assertRaises(TypeError, Shot, **self.kwargs)
     
@@ -393,6 +397,7 @@ class ShotTester(unittest.TestCase):
         """testing if the duration attribute is updated correctly with the
         changing values of start_frame and end_frame values
         """
+        self.kwargs['number'] = '1duration'
         new_shot = Shot(**self.kwargs)
         self.assertEqual(new_shot.start_frame, 1)
         self.assertEqual(new_shot.end_frame, 100)
@@ -414,34 +419,45 @@ class ShotTester(unittest.TestCase):
         new_proj = Project("TEST_PROJ_FOR_CRUD")
         new_proj.create()
         
-        new_seq = Sequence(new_proj, "TEST_SEQ1")
+        new_seq = Sequence(new_proj, "TEST_SEQ103")
         new_seq.save()
         
-        new_shot = Shot(new_seq, 1)
+        new_shot = Shot(new_seq, '1a')
         new_shot.save()
         
         # now query the database if it is created and read correctly
-        self.assertEqual(new_shot, Shot.query().first())
+        self.assertEqual(
+            new_shot,
+            Shot.query()
+                .filter(Shot.number==new_shot.number)
+                .first()
+        )
         
         # now update it
         new_shot.start_frame = 100
         new_shot.end_frame = 200
         new_shot.save()
-
+        
         self.assertEqual(
             new_shot.start_frame,
-            Shot.query().first().start_frame
+            Shot.query()
+                .filter(Shot.number==new_shot.number)
+                .first()
+                .start_frame
         )
         self.assertEqual(
             new_shot.end_frame,
-            Shot.query().first().end_frame
+            Shot.query()
+                .filter(Shot.number==new_shot.number)
+                .first()
+                .end_frame
         )
         
         # now delete it
         db.session.delete(new_shot)
         db.session.commit()
         
-        self.assertEqual(Shot.query().all(), [])
+        self.assertEqual(len(Shot.query().all()), 1)
     
     def test_equality_of_shots(self):
         """testing if the equality operator is working properly
@@ -456,7 +472,8 @@ class ShotTester(unittest.TestCase):
         shot2 = Shot(seq1, 2)
         shot3 = Shot(seq2, 1)
         
-        shot1a = Shot(seq1, 1)
+        #shot1a = Shot(seq1, 1)
+        shot1a = seq1.shots[0]
         
         self.assertTrue(shot1==shot1a)
         self.assertFalse(shot1==shot2)
@@ -475,7 +492,8 @@ class ShotTester(unittest.TestCase):
         shot2 = Shot(seq1, 2)
         shot3 = Shot(seq2, 1)
         
-        shot1a = Shot(seq1, 1)
+        #shot1a = Shot(seq1, 1)
+        shot1a = seq1.shots[0]
         
         self.assertFalse(shot1!=shot1a)
         self.assertTrue(shot1!=shot2)
@@ -571,3 +589,181 @@ class ShotTester(unittest.TestCase):
        self.assertRaises(
            ValueError, setattr, self.test_shot, "handle_at_end", 50
        )
+    
+    def test_deleting_a_shot_will_not_delete_the_related_project(self):
+        """testing if deleting a shot will not delete the related project
+        """
+        proj1 = Project('test project 1')
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'test seq 1')
+        seq1.save()
+        
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+        
+        # check if they are in the session
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(shot1, db.session)
+        
+        # delete the shot
+        db.session.delete(shot1)
+        db.session.commit()
+        
+        self.assertNotIn(shot1, db.session)
+        
+        self.assertIn(proj1, db.session)
+    
+    def test_deleting_a_shot_will_not_delete_the_related_sequence(self):
+        """testing if deleting a shot will not delete the related sequence
+        """
+        proj1 = Project('test project 1')
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'test seq 1')
+        seq1.save()
+        
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+        
+        # check if they are in the session
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(shot1, db.session)
+        
+        # delete the shot
+        db.session.delete(shot1)
+        db.session.commit()
+        
+        self.assertNotIn(shot1, db.session)
+        self.assertIn(seq1, db.session)
+    
+    def test_deleting_a_shot_will_not_delete_the_other_shots_in_the_related_sequence(self):
+        """testing if deleting a shot will not delete the other shots in the
+        sequence
+        """
+        proj1 = Project('test project 1')
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'test seq 1')
+        seq1.save()
+        
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+        
+        shot2 = Shot(seq1, 2)
+        shot2.save()
+        
+        # check if they are in the session
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(shot1, db.session)
+        self.assertIn(shot2, db.session)
+        
+        # delete the shot
+        db.session.delete(shot1)
+        db.session.commit()
+        
+        self.assertNotIn(shot1, db.session)
+        self.assertIn(shot2, db.session)
+    
+    def test_deleting_a_shot_will_delete_the_related_versions(self):
+        """testing if deleting a shot will delete the related versions
+        """
+        
+        proj1 = Project('test project 1')
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'test sequence 1')
+        seq1.save()
+        
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+        
+        shot2 = Shot(seq1, 2)
+        shot2.save()
+        
+        user = User.query().first()
+        shot_vtypes = VersionType.query().filter_by(type_for="Shot").all()
+        
+        # versions for shot1
+        vers1 = Version(
+            shot1,
+            base_name=shot1.code,
+            type=shot_vtypes[0],
+            created_by=user
+        )
+        vers1.save()
+        
+        vers2 = Version(
+            shot1,
+            base_name=shot1.code,
+            type=shot_vtypes[0],
+            created_by=user
+        )
+        vers2.save()
+        
+        vers3 = Version(
+            shot1,
+            base_name=shot1.code,
+            type=shot_vtypes[0],
+            created_by=user
+        )
+        vers3.save()
+        
+        # versions for shot2
+        vers4 = Version(
+            shot2,
+            base_name=shot2.code,
+            type=shot_vtypes[0],
+            created_by=user
+        )
+        vers4.save()
+        
+        vers5 = Version(
+            shot2,
+            base_name=shot2.code,
+            type=shot_vtypes[0],
+            created_by=user
+        )
+        vers5.save()
+        
+        vers6 = Version(
+            shot2,
+            base_name=shot2.code,
+            type=shot_vtypes[0],
+            created_by=user
+        )
+        vers6.save()
+        
+        # test all are in the session
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(shot1, db.session)
+        self.assertIn(shot2, db.session)
+        self.assertIn(vers1, db.session)
+        self.assertIn(vers2, db.session)
+        self.assertIn(vers3, db.session)
+        self.assertIn(vers4, db.session)
+        self.assertIn(vers5, db.session)
+        self.assertIn(vers6, db.session)
+        
+        # delete shot1
+        db.session.delete(shot1)
+        db.session.commit()
+        
+        # check if versions are deleted
+        self.assertNotIn(shot1, db.session)
+        self.assertNotIn(vers1, db.session)
+        self.assertNotIn(vers2, db.session)
+        self.assertNotIn(vers3, db.session)
+        
+        # check if all the others are still there
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(shot2, db.session)
+        self.assertIn(vers4, db.session)
+        self.assertIn(vers5, db.session)
+        self.assertIn(vers6, db.session)
+    

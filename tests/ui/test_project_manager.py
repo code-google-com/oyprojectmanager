@@ -92,7 +92,7 @@ class ProjectManager_Tester(unittest.TestCase):
         
         # open UI
         dialog = project_manager.MainDialog()
-        self.show_dialog(dialog)
+        #self.show_dialog(dialog)
 
         
         # check if the projects are listed there

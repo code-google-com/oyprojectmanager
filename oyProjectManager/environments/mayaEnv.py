@@ -21,10 +21,6 @@ class Maya(EnvironmentBase):
     """the maya environment class
     """
     
-    # TODO: check for texture file paths and warn the user if there are
-    # textures with absolute paths which are not starting with the
-    # repo.server_path
-    
     name = "Maya"
     
     time_to_fps = {
@@ -75,6 +71,9 @@ class Maya(EnvironmentBase):
         
         It saves the given Version instance to the Version.full_path.
         """
+        
+        # do not save if there are local files
+        self.check_external_files()
         
         # set version extension to ma
         version.extension = '.ma'
@@ -141,15 +140,7 @@ class Maya(EnvironmentBase):
         )
         
         # update the reference list
-        # TODO: Why am I not using self.update_references_list here
-        reference_list = []
-        reference_info = self.get_referenced_versions()
-        for data in reference_info:
-            if data[0] not in reference_list:
-                reference_list.append(data[0])
-        
-        version.references = reference_list
-        version.save()
+        self.update_references_list(version)
         
         # append it to the recent file list
         self.append_to_recent_files(
@@ -224,10 +215,10 @@ class Maya(EnvironmentBase):
         # check the referenced assets for newer version
         to_update_list = self.check_referenced_versions()
         
-        for update_info in to_update_list:
-            version = update_info[0]
+        #for update_info in to_update_list:
+        #    version = update_info[0]
         
-        self.update_references_list()
+        self.update_references_list(version)
         
         return True, to_update_list
     
@@ -235,7 +226,7 @@ class Maya(EnvironmentBase):
         """Runs after opening a file
         """
         self.load_referenced_versions()
-        self.update_references_list()
+        self.update_references_list(version)
 
     def import_(self, version):
         """Imports the content of the given Version instance to the current
@@ -556,9 +547,6 @@ class Maya(EnvironmentBase):
         the the Asset or Shot which can be derived from the Version instance
         very easily.
         """
-        
-        # TODO: remove this method and the inherited one from the super
-        
         pm.workspace.open(
             os.path.dirname(
                 version.path
@@ -583,6 +571,63 @@ class Maya(EnvironmentBase):
             
         #assert(isinstance(recentFiles,pm.OptionVarList))
         recentFiles.appendVar( path )
+    
+    def check_external_files(self):
+        """checks for external files in the current scene and raises
+        RuntimeError if there are local files in the current scene, used as:
+            
+            - File Textures
+            - Mentalray Textures
+            - ImagePlanes
+            - IBL nodes
+            - References
+        """
+        
+        def is_in_repo(path):
+            """checks if the given path is in repository
+            :param path: the path which wanted to be checked
+            :return: True or False
+            """
+            assert isinstance(path, (str, unicode))
+            path = os.path.expandvars(path)
+            return path.startswith(os.environ[conf.repository_env_key])
+        
+        external_nodes = []
+        
+        # check for file textures
+        for file_texture in pm.ls(type=pm.nt.File):
+            path = file_texture.attr('fileTextureName').get()
+            if os.path.isabs(path) and not is_in_repo(path):
+                external_nodes.append(file_texture)
+        
+        # check for mentalray textures
+        for mr_texture in pm.ls(type=pm.nt.MentalrayTexture):
+            path = mr_texture.attr('fileTextureName').get()
+            if os.path.isabs(path) and not is_in_repo(path):
+                external_nodes.append(mr_texture)
+        
+        # check for ImagePlanes
+        for image_plane in pm.ls(type=pm.nt.ImagePlane):
+            path = image_plane.attr('imageName').get()
+            if os.path.isabs(path) and not is_in_repo(path):
+                external_nodes.append(image_plane)
+        
+        # check for IBL nodes
+        for ibl in pm.ls(type=pm.nt.MentalrayIblShape):
+            path = ibl.attr('texture').get()
+            if os.path.isabs(path) and not is_in_repo(path):
+                external_nodes.append(ibl)
+        
+        if external_nodes:
+            pm.select(external_nodes)
+            raise RuntimeError(
+                'There are external references in your scene!!!\n\n'
+                'The problematic nodes are:\n\n' +
+                "\n\t".join(map(lambda x: x.name(), external_nodes)) +
+                '\n\nThese nodes are added in to your selection list,\n'
+                'Please correct them!\n\n'
+                'YOUR FILE IS NOT GOING TO BE SAVED!!!'
+            )
     
     def check_referenced_versions(self):
         """checks the referenced assets versions
@@ -668,11 +713,11 @@ class Maya(EnvironmentBase):
         # return a sorted list
         return sorted(valid_versions, None, lambda x: x[2])
     
-    def update_references_list(self):
+    def update_references_list(self, version=None):
         """updates the references list of the current version
+        :param version: the version to be checked
         """
-        
-        version = self.get_current_version()
+        #version = self.get_current_version()
         
         if version is not None:
             # update the reference list

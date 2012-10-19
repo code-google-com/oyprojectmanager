@@ -66,7 +66,7 @@ class VersionTester(unittest.TestCase):
             "version_of": self.test_shot,
             "type": self.test_versionType,
             "base_name": "SH001",
-            "take_name": "MAIN",
+            "take_name": "Main",
             "version_number": 1,
             "note": "this is the note for this version",
             "created_by": self.test_user,
@@ -295,7 +295,7 @@ class VersionTester(unittest.TestCase):
                           "'^+'^#@$#")
 
     def test_take_name_argument_is_skipped(self):
-        """testing if the default value MAIN is used when the take_name
+        """testing if the default value Main is used when the take_name
         argument is skipped
         """
         self.kwargs.pop("take_name")
@@ -303,7 +303,7 @@ class VersionTester(unittest.TestCase):
         self.assertEqual(new_version.take_name, conf.default_take_name)
     
     def test_take_name_argument_is_None(self):
-        """testing if the default value MAIN is used when the take_name
+        """testing if the default value Main is used when the take_name
         argument is None
         """
         self.kwargs["take_name"] = None
@@ -831,7 +831,7 @@ class VersionTester(unittest.TestCase):
             self.test_version.full_path,
             os.path.join(
                 self.test_project.full_path,
-                "Sequences/TEST_SEQ1/Shots/SH001/TANIM/SH001_MAIN_TANIM_v001_tu.ma"
+                "Sequences/TEST_SEQ1/Shots/SH001/TANIM/SH001_Main_TANIM_v001_tu.ma"
             ).replace("\\", "/")
         )
 
@@ -1048,13 +1048,13 @@ class VersionTester(unittest.TestCase):
         self.kwargs["extension"] = "ma"
         new_vers = Version(**self.kwargs)
         
-        self.assertEqual(new_vers.filename, "SH001_MAIN_TANIM_v001_tu.ma")
+        self.assertEqual(new_vers.filename, "SH001_Main_TANIM_v001_tu.ma")
         
         # change the extension
         new_vers.extension = "mb"
         
         # check if the filename is also updated
-        self.assertEqual(new_vers.filename, "SH001_MAIN_TANIM_v001_tu.mb")
+        self.assertEqual(new_vers.filename, "SH001_Main_TANIM_v001_tu.mb")
     
     def test_project_attribute_is_read_only(self):
         """testing if the project attribute is read only

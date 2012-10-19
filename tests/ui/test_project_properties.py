@@ -37,6 +37,9 @@ class ProjectPropertiesTester(unittest.TestCase):
     def setUp(self):
         """setup the test
         """
+        # create an in memory database
+        conf.database_url = "sqlite://"
+        
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
@@ -192,6 +195,7 @@ class ProjectPropertiesTester(unittest.TestCase):
             dialog.structure_textEdit.toPlainText(),
             new_project.structure
         )
+    
 
     def test_UI_will_edit_the_given_Project_instance(self):
         """testing if a Project instance is passed the interface will allow the
@@ -250,7 +254,34 @@ class ProjectPropertiesTester(unittest.TestCase):
         self.assertEqual(new_project.ver_number_padding, 5)
         self.assertEqual(new_project.ver_number_prefix, "ver")
         self.assertEqual(new_project.structure, new_structure)
-
+    
+    def test_UI_will_not_allow_new_projects_with_no_code(self):
+        """testing if the UI will warn the user if no code is supplied
+        """
+        dialog = project_properties.MainDialog()
+        
+        # now edit the project from the UI
+        new_name = "Test Project New Name"
+        new_code = "test"
+        new_fps = 50
+        dialog.name_lineEdit.setText(new_name)
+        dialog.code_lineEdit.setText(new_code)
+        new_client_name = 'Test Client 1'
+        dialog.clients_comboBox.lineEdit().setText(new_client_name)
+        dialog.fps_spinBox.setValue(new_fps)
+        dialog.resolution_comboBox.setCurrentIndex(3)
+        preset_name = dialog.resolution_comboBox.currentText()
+        resolution_data = conf.resolution_presets[preset_name]
+        dialog.active_checkBox.setChecked(False)
+        
+        #self.show_dialog(dialog)
+        
+        # hit ok
+        # this will raise a dialog asking the user to set a proper code value
+        QTest.mouseClick(dialog.buttonBox.buttons()[0], Qt.LeftButton)
+        
+        self.fail('test can not be implemented')
+   
     def test_UI_will_create_a_new_Project_instance_if_it_is_not_passed_any(self):
         """testing if no Project instance is passed the interface will create
         a new Project instance with the values

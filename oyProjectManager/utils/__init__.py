@@ -4,37 +4,12 @@
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
-import glob
 
-import os, itertools, re
-
-
-
-# lower letters
+import os
+import re
+import itertools
 import shutil
-
-trChars = dict()
-
-trChars[u'\xc3\xa7'] = 'c'
-trChars[u'\xc4\x9f'] = 'g'
-trChars[u'\xc4\xb1'] = 'i'
-trChars[u'\xc3\xb6'] = 'o'
-trChars[u'\xc5\x9f'] = 's'
-trChars[u'\xc3\xbc'] = 'u'
-
-# upper letters
-trChars[u'\xc3\x87'] = 'C'
-trChars[u'\xc4\x9e'] = 'G'
-trChars[u'\xc4\xb0'] = 'I'
-trChars[u'\xc3\x96'] = 'O'
-trChars[u'\xc5\x9e'] = 'S'
-trChars[u'\xc3\x9c'] = 'U'
-
-validFileNameChars = r' abcdefghijklmnoprqstuvwxyzABCDEFGHIJKLMNOPRQSTUVWXYZ0123456789._-'
-validTextChars = validFileNameChars + r'!^+%&(){}[]:;?,|@`\'"/=*~$#'
-
-validFileNameCharsPattern = re.compile(r'[\w\.\-\ ]+')
-validTextCharsPattern = re.compile( r'[\w\.\-\ !\^+%&\(\)\{\}\[\]:;?,|\\@`\'"/=*~$#]+' )
+import glob
 
 def all_equal(elements):
     """return True if all the elements are equal, otherwise False.
@@ -132,7 +107,6 @@ def unique(s):
     """ Return a list of elements in s in arbitrary order, but without
     duplicates.
     """
-    
     # Try using a set first, because it's the fastest and will usually work
     try:
         return list(set(s))
@@ -155,7 +129,6 @@ def unique(s):
     for x in s:
         if x not in u:
             u.append(x)
-    
     return u
 
 def uncompress_range(_range):
@@ -167,7 +140,6 @@ def uncompress_range(_range):
     1,4-7 expands to 1,4,5,6,7
     1,4-7,11-4 expands to 1,4,5,6,7,8,9,10,11
     """
-    
     shotList = [] * 0
     
     assert(isinstance(_range, (str, unicode) ) )
@@ -211,51 +183,6 @@ def matchRange(_range):
         _range = ''
     
     return _range
-
-def stringConditioner(
-    text,
-    allowSpaces=False,
-    allowNumbers=True,
-    allowNumbersAtBeginning=False,
-    allowUnderScores=False,
-    upperCaseOnly=False,
-    capitalize=True
-    ):
-    """removes any spaces, underscores, and turkish characters from the name
-    """
-    
-    textFixed = unicode( text )
-    
-    textFixed = multiple_replace( textFixed, trChars )
-    
-    # remove all the white spaces and slashes
-    patternString = '\t\n\r\f\v\\\/,\.;~!"\'^+%&()=?*{}\-'
-    
-    if not allowSpaces:
-        patternString += ' '
-    
-    if not allowNumbers:
-        patternString += '0-9'
-    
-    if not allowUnderScores:
-        patternString += "_"
-    
-    if allowNumbers and not allowNumbersAtBeginning:
-        preMatchString = re.compile( '^[0-9]+')
-        textFixed = preMatchString.sub("",textFixed)
-    
-    matchString = '[' + patternString + ']+'
-    
-    pattern = re.compile(matchString)
-    textFixed = pattern.sub("",textFixed)
-    
-    if capitalize:
-        textFixed = textFixed.capitalize()
-    
-    if upperCaseOnly:
-        textFixed = textFixed.upper()
-    
-    return textFixed
 
 def multiple_replace( text, adict ):
     rx = re.compile('|'.join(map(re.escape, adict)))
@@ -424,25 +351,6 @@ def invalidCharacterRemover( text, validChars ):
     
     return conditionedText
 
-def file_name_conditioner(fileName):
-    """ conditions the file name by replacing the whitespaces and slashes and
-    back slashes with underscore ("_") characters
-    """
-    
-    assert(isinstance(fileName, (str, unicode) ) )
-    
-    fileName = multiple_replace( fileName, trChars )
-    
-    # make all uppercase
-    fileName = fileName.upper()
-    
-    # replace all the white spaces and slashes
-    # with underscore ("_") character
-    pattern = re.compile('[\t\n\r\f\v\\\/ ]+')
-    fileName = pattern.sub("_",fileName)
-    
-    return fileName
-
 def open_browser_in_location(path):
     """Opens the os native browser at the given path
     
@@ -467,3 +375,4 @@ def open_browser_in_location(path):
         subprocess.call(command, shell=True)
     else:
         raise IOError("%s doesn't exists!" % path)
+

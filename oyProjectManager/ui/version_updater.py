@@ -75,13 +75,15 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
         self._horizontalLabels = [
             'Versionable',
             'Type',
-            'Take'
+            'Take',
             'Current',
             'Latest',
             'Do Update?'
         ]
-
-        self.versions_tableWidget.setHorizontalHeaderLabels(self._horizontalLabels)
+        
+        self.versions_tableWidget.setHorizontalHeaderLabels(
+            self._horizontalLabels
+        )
         self.versions_tableWidget.versions = []
 
         self.setup_signals()
@@ -163,7 +165,6 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
     def _fill_UI(self):
         """fills the UI with the asset data
         """
-        
         # set the row count
         self.versions_tableWidget.setRowCount(self._num_of_versions)
         self.versions_tableWidget.versions = []
@@ -183,21 +184,27 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             # the versionable name
             item = QtGui.QTableWidgetItem(version.base_name)
             # align to left and vertical center
-            item.setTextAlignment(0x0001 | 0x0080)
+            item.setTextAlignment(
+                QtCore.Qt.AlignLeft + QtCore.Qt.AlignVCenter
+            )
             self.versions_tableWidget.setItem(i, 0, item)
             
             #-------------------------------------
             # type name
-            item = QtGui.QTableWidgetItem(version.type)
+            item = QtGui.QTableWidgetItem(version.type.name)
             # align to horizontal and vertical center
-            item.setTextAlignment(0x0004 | 0x0080)
+            item.setTextAlignment(
+                QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+            )
             self.versions_tableWidget.setItem(i, 1, item)
             
             #-------------------------------------
             # take name
             item = QtGui.QTableWidgetItem(version.take_name)
             # align to horizontal and vertical center
-            item.setTextAlignment(0x0004 | 0x0080)
+            item.setTextAlignment(
+                QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+            )
             self.versions_tableWidget.setItem(i, 2, item)
             
             # ------------------------------------
@@ -205,7 +212,9 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             current_version_number = str(version.version_number)
             item = QtGui.QTableWidgetItem(current_version_number)
             # align to horizontal and vertical center
-            item.setTextAlignment(0x0004 | 0x0080)
+            item.setTextAlignment(
+                QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+            )
             self.versions_tableWidget.setItem(i, 3, item)
             
             # ------------------------------------
@@ -215,22 +224,26 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             item = \
                 QtGui.QTableWidgetItem(latest_published_version_number)
             # align to horizontal and vertical center
-            item.setTextAlignment(0x0004 | 0x0080)
+            item.setTextAlignment(
+                QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+            )
             self.versions_tableWidget.setItem(i, 4, item)
             # ------------------------------------
             
             # ------------------------------------
             # do update ?
             item = QtGui.QTableWidgetItem('')
+            item.setTextAlignment(
+                QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+            )
+            try:
+                # for PyQt
+                item.setCheckState(QtCore.Qt.Unchecked)
+            except AttributeError:
+                # for PyCharm
+                item.setCheckState(0)
             self.versions_tableWidget.setItem(i, 5, item)
             # ------------------------------------
-            
-            #self._tableItems.append(
-            #    [item,
-            #     item,
-            #     item,
-            #     item]
-            #)
             
             self.versions_tableWidget.versions.append(version)
         
@@ -243,7 +256,6 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
                 "\n\nPlease publish them and re-open the current file.",
                 QtGui.QMessageBox.Ok
             )
- 
     
     def _do_env_read(self):
         """gets the asset tuple from env

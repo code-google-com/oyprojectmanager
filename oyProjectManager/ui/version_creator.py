@@ -5,6 +5,7 @@
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
 import os
+import re
 import sys
 import logging
 import datetime
@@ -13,16 +14,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import distinct
 
 import oyProjectManager
-from oyProjectManager import config, db, utils
-from oyProjectManager.models.asset import Asset
-from oyProjectManager.models.auth import User
-from oyProjectManager.models.entity import EnvironmentBase
-from oyProjectManager.models.project import Project
-from oyProjectManager.models.repository import Repository
-from oyProjectManager.models.sequence import Sequence
-from oyProjectManager.models.shot import Shot
-from oyProjectManager.models.version import (Version, VersionType,
-                                             VersionTypeEnvironments)
+from oyProjectManager import (config, db, utils, Asset, User, EnvironmentBase,
+                              Project, Repository, Sequence, Shot, Version,
+                              VersionType, VersionTypeEnvironments)
 from oyProjectManager.ui import create_asset_dialog, version_updater, ui_utils
 
 logger = logging.getLogger('beaker.container')
@@ -132,8 +126,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
       UI, like the Maya or Nuke.
     """
     
-    # TODO: add only active users to the interface
-    
     def __init__(self, environment=None, parent=None):
         logger.debug("initializing the interface")
         
@@ -156,8 +148,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.environment = environment
         
         # create the project attribute in projects_comboBox
-        # TODO: create an array of Project instances for each project_name in the comboBox
-        #       but just fill them when the Project instance is created
         self.users_comboBox.users = []
         self.projects_comboBox.projects = []
         self.sequences_comboBox.sequences = []
@@ -456,7 +446,8 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # add Browse Outputs
         menu.addAction("Browse Outputs")
-        
+        menu.addSeparator()
+        menu.addAction("Change Note...")
         menu.addSeparator()
         menu.addAction("Copy Path")
         menu.addAction("Copy Output Path")
@@ -495,6 +486,25 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                         "Error",
                         "Path doesn't exists:\n" + path
                     )
+            elif choice == 'Change Note...':
+                if version:
+                    # change the note
+                    self.input_dialog = QtGui.QInputDialog(self)
+                    
+                    new_note, ok = self.input_dialog.getText(
+                        self,
+                        "Enter the new note",
+                        "Please enter the new note:",
+                        QtGui.QLineEdit.Normal,
+                        version.note
+                    )
+                    
+                    if ok:
+                        # change the note of the version
+                        version.note = new_note
+                        version.save()
+                        # update the previous_versions_tableWidget
+                        self.update_previous_versions_tableWidget()
             elif choice == 'Copy Path':
                 # just set the clipboard to the version.full_path
                 clipboard = QtGui.QApplication.clipboard()
@@ -548,7 +558,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.projects_comboBox.projects = projects
         
         # fill the users
-        users = User.query().order_by(User.name).all()
+        users = User.query().filter(User.active==True).order_by(User.name).all()
         self.users_comboBox.users = users
         self.users_comboBox.addItems(map(lambda x:x.name, users))
         
@@ -590,13 +600,15 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             logger.debug("version_from_env: %s" % version_from_env)
             
             self.restore_ui(version_from_env)
-        
         else:
             # hide some buttons
             self.export_as_pushButton.setVisible(False)
-            self.open_pushButton.setVisible(False)
+            #self.open_pushButton.setVisible(False)
             self.reference_pushButton.setVisible(False)
             self.import_pushButton.setVisible(False)
+        
+        # update note field
+        self.note_textEdit.setText('')
        
         logger.debug("finished setting up interface defaults")
     
@@ -1486,23 +1498,45 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         self.input_dialog = QtGui.QInputDialog(self)
         
+        current_take_name = self.takes_listWidget.currentItem().text()
+        
         take_name, ok = self.input_dialog.getText(
             self,
             "Add Take Name",
-            "New Take Name"
+            "New Take Name",
+            QtGui.QLineEdit.Normal,
+            current_take_name
         )
         
         if ok:
             # add the given text to the takes_listWidget
             # if it is not empty
             if take_name != "":
-                item = self.takes_listWidget.addItem(take_name)
-                # set the take to the new one
-                self.takes_listWidget.setCurrentItem(item)
-#                setCurrentRow(
-#                    self.takes_listWidget.count() - 1,
-#                    QtGui.QItemSelectionModel.Rows
-#                )
+                # TODO: there are no tests for take_name conditioning
+                # if the given take name is in the list don't add it
+                take_name = take_name.title()
+                # replace spaces with underscores
+                take_name = re.sub(r'[\s\-]+', '_', take_name)
+                take_name = re.sub(r'[^a-zA-Z0-9_]+', '', take_name)
+                take_name = re.sub(r'[_]+', '_', take_name)
+                take_name = re.sub(r'[_]+$', '', take_name)
+                in_list = False
+                for i in range(self.takes_listWidget.count()):
+                    item = self.takes_listWidget.item(i)
+                    if item.text() == take_name:
+                        in_list = True
+                if not in_list:
+                    self.takes_listWidget.addItem(take_name)
+                    # sort the list
+                    self.takes_listWidget.sortItems()
+                    items = self.takes_listWidget.findItems(
+                        take_name,
+                        QtCore.Qt.MatchExactly
+                    )
+                    if items:
+                        item = items[0]
+                        # set the take to the new one
+                        self.takes_listWidget.setCurrentItem(item)
     
     def get_new_version(self):
         """returns a :class:`~oyProjectManager.models.version.Version` instance
@@ -1588,16 +1622,17 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         try:
             new_version = self.get_new_version()
         except (TypeError, ValueError) as e:
-            
             # pop up an Message Dialog to give the error message
             QtGui.QMessageBox.critical(self, "Error", e)
-            
             return None
         
         # call the environments save_as method
-        # TODO: This should be in a try except block, because the environment can reject saving the file
         if self.environment and isinstance(self.environment, EnvironmentBase):
-            self.environment.save_as(new_version)
+            try:
+                self.environment.save_as(new_version)
+            except RuntimeError as e:
+                QtGui.QMessageBox.critical(self, 'Error', str(e))
+                return None
         else:
             logger.debug('No environment given, just generating paths')
             

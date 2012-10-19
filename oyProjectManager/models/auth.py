@@ -56,7 +56,7 @@ class User(Base):
         self.name = name
         self.initials = initials
         self.email = email
-        self.active = True
+        self.active = active
     
     def __eq__(self, other):
         """the equality operator

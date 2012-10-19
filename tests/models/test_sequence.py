@@ -15,8 +15,6 @@ from oyProjectManager.models.repository import Repository
 from oyProjectManager.models.sequence import Sequence
 from oyProjectManager.models.shot import Shot
 
-# TODO: update the tests of the Sequence class
-
 class SequenceTester(unittest.TestCase):
     """tests the Sequence class
     """
@@ -286,7 +284,10 @@ class Sequence_DB_Tester(unittest.TestCase):
     """
     
     def setUp(self):
-        
+        """set up tests
+        """
+        conf.database_url = "sqlite://"
+ 
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
@@ -587,3 +588,76 @@ class Sequence_DB_Tester(unittest.TestCase):
         
         shot = seq1.shots[0]
         self.assertEqual(shot.code, shot_code)
+    
+    def test_deleting_a_sequence_will_not_delete_the_related_project(self):
+        """testing if deleting a sequence will not delete the related project
+        """
+        proj1 = Project('Test Project 1')
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'Test Sequence 1')
+        seq1.save()
+        
+        seq2 = Sequence(proj1, 'Test Sequence 2')
+        seq2.save()
+        
+        # check if they are in the session
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(seq2, db.session)
+        
+        db.session.delete(seq1)
+        db.session.commit()
+        
+        self.assertIn(proj1, db.session)
+        self.assertNotIn(seq1, db.session)
+        self.assertIn(seq2, db.session)
+    
+    def test_deleting_a_sequence_will_also_delete_the_related_shots(self):
+        """testing if deleting a sequence will also delete the related shots
+        """
+        proj1 = Project('Test Project 1')
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'Seq1')
+        seq1.save()
+        
+        seq2 = Sequence(proj1, 'Seq2')
+        seq2.save()
+        
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+        
+        shot2 = Shot(seq1, 2)
+        shot2.save()
+        
+        shot3 = Shot(seq2, 1)
+        shot3.save()
+        
+        shot4 = Shot(seq2, 2)
+        shot4.save()
+        
+        # check if they are in session
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(seq2, db.session)
+        self.assertIn(shot1, db.session)
+        self.assertIn(shot2, db.session)
+        self.assertIn(shot3, db.session)
+        self.assertIn(shot4, db.session)
+        
+        # delete seq1
+        db.session.delete(seq1)
+        db.session.commit()
+        
+        # check if all the objects which must be deleted are really deleted
+        self.assertNotIn(seq1, db.session)
+        self.assertNotIn(shot1, db.session)
+        self.assertNotIn(shot2, db.session)
+        
+        # and others are in
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq2, db.session)
+        self.assertIn(shot3, db.session)
+        self.assertIn(shot4, db.session)
+    

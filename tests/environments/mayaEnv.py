@@ -37,6 +37,8 @@ class MayaTester(unittest.TestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
+        conf.database_url = "sqlite://"
+        
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
 
@@ -453,15 +455,31 @@ class MayaTester(unittest.TestCase):
         # save it and expect no InvalidRequestError
         self.mEnv.save_as(vers2)
         
-        print vers2.references
-        
         self.mEnv.reference(vers1)
         vers3 = Version(asset1, asset1.code, self.asset_vtypes[1], self.user1)
         vers3.save()
- 
+        
         self.mEnv.save_as(vers3)
+    
+    def test_save_as_will_not_save_the_file_if_there_are_file_textures_with_local_path(self):
+        """testing if save_as will raise a RuntimeError if there are file
+        textures with local path
+        """
+        # create a texture file with local path
+        new_texture_file = pm.nt.File()
+        # generate a local path
+        local_file_full_path = os.path.join(
+            tempfile.gettempdir(),
+            "temp.png"
+        )
+        new_texture_file.fileTextureName.set(local_file_full_path)
         
-        
+        # now try to save it as a new version and expect a RuntimeError
+        self.assertRaises(
+            RuntimeError,
+            self.mEnv.save_as,
+            self.version1
+        )
     
     def test_open_updates_the_referenced_versions_list(self):
         """testing if the open method updates the Version.references list with

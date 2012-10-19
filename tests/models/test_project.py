@@ -9,11 +9,8 @@ import shutil
 import tempfile
 import unittest
 
-from oyProjectManager import db, conf, Asset
-from oyProjectManager.models.auth import Client
-from oyProjectManager.models.project import Project
-from oyProjectManager.models.sequence import Sequence
-from oyProjectManager.models.version import VersionType
+from oyProjectManager import (db, conf, Asset, Client, Project, Sequence,
+                              VersionType, Shot)
 
 class Project_DB_Tester(unittest.TestCase):
     """Tests the design of the Projects after v0.2.0
@@ -181,6 +178,126 @@ class Project_DB_Tester(unittest.TestCase):
 
         new_proj2 = Project(project_name)
         new_proj2.create()
+    
+    def test_deleting_a_project_deletes_the_related_assets(self):
+        """testing if deleting a project also deletes all Assets related to it
+        """
+        proj1 = Project("Test Project1")
+        proj1.save()
+        
+        proj2 = Project("Test Project2")
+        proj2.save()
+        
+        asset1 = Asset(proj1, "Test Asset 1")
+        asset1.save()
+        
+        asset2 = Asset(proj1, "Test Asset 2")
+        asset2.save()
+        
+        asset3 = Asset(proj2, "Test Asset 3")
+        asset3.save()
+        
+        # confirm assets are in session
+        self.assertIn(asset1, db.session)
+        self.assertIn(asset2, db.session)
+        
+        db.session.delete(proj1)
+        db.session.commit()
+        
+        # now check if asset1 and asset2 are also deleted
+        assets = db.session.query(Asset).all()
+        self.assertNotIn(asset1, assets)
+        self.assertNotIn(asset2, assets)
+        self.assertNotIn(asset1, db.session)
+        self.assertNotIn(asset2, db.session)
+        
+        # check if proj2 and asset3 are  still there
+        self.assertIn(proj2, db.session)
+        self.assertIn(asset3, db.session)
+    
+    def test_deleting_a_project_deletes_the_related_sequences(self):
+        """testing if deleting a project will also delete the related sequences
+        """
+        proj1 = Project("Test Project 1")
+        proj1.save()
+        
+        proj2 = Project("Test Project 2")
+        proj2.save()
+        
+        seq1 = Sequence(proj1, "Test Sequence 1")
+        seq1.save()
+        
+        seq2 = Sequence(proj1, "Test Sequence 2")
+        seq2.save()
+        
+        seq3 = Sequence(proj2, "Test Sequence 3")
+        seq3.save()
+        
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(seq2, db.session)
+        
+        db.session.delete(proj1)
+        db.session.commit()
+        
+        self.assertNotIn(proj1, db.session)
+        self.assertNotIn(seq1, db.session)
+        self.assertNotIn(seq2, db.session)
+        
+        self.assertIn(proj2, db.session)
+        self.assertIn(seq3, db.session)
+    
+    def test_deleting_a_project_will_delete_the_related_shots(self):
+        """testing if deleting a project will also delete the related shots
+        """
+        proj1 = Project("Test Project 1")
+        proj1.save()
+        
+        proj2 = Project("Test Project 2")
+        proj2.save()
+        
+        seq1 = Sequence(proj1, "Sequence 1")
+        seq1.save()
+        
+        seq2 = Sequence(proj2, "Sequence 2")
+        seq2.save()
+        
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+        
+        shot2 = Shot(seq1, 2)
+        shot2.save()
+        
+        shot3 = Shot(seq2, 1)
+        shot3.save()
+        
+        shot4 = Shot(seq2, 2)
+        shot4.save()
+        
+        # check all are in session
+        self.assertIn(proj1, db.session)
+        self.assertIn(proj2, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(seq2, db.session)
+        self.assertIn(shot1, db.session)
+        self.assertIn(shot2, db.session)
+        self.assertIn(shot3, db.session)
+        self.assertIn(shot4, db.session)
+        
+        # delete the project
+        db.session.delete(proj1)
+        db.session.commit()
+        
+        self.assertNotIn(proj1, db.session)
+        self.assertNotIn(seq1, db.session)
+        self.assertNotIn(shot1, db.session)
+        self.assertNotIn(shot2, db.session)
+        
+        self.assertIn(proj2, db.session)
+        self.assertIn(seq2, db.session)
+        self.assertIn(shot3, db.session)
+        self.assertIn(shot4, db.session)
+        
 
 class ProjectTester(unittest.TestCase):
     """tests the Project class

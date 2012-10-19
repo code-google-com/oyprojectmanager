@@ -205,6 +205,9 @@ class Asset(VersionableBase):
     def save(self):
         """saves the asset to the related projects database
         """
+        if db.session is None:
+            db.setup()
+        
         if self not in db.session:
             logger.debug("adding %s to the session" % self)
             db.session.add(self)

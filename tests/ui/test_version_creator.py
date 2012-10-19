@@ -87,6 +87,8 @@ class VersionCreatorTester(unittest.TestCase):
         # start of the setUp
         conf.database_url = "sqlite://"
         
+        db.setup()
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
@@ -348,6 +350,36 @@ class VersionCreatorTester(unittest.TestCase):
         for user in users:
             self.assertTrue(user.name in content)
     
+
+    def test_users_comboBox_is_filled_with_only_active_users_from_the_db(self):
+        """testing if the users combobox is filled only with active the user
+        names
+        """
+        # create a couple of users
+        user1 = User(name='user1')
+        user1.save()
+        
+        user2 = User(name='user2')
+        user2.save()
+        
+        user3 = User(name='user3', active=False)
+        user3.save()
+        
+        # get the users from the config
+        users = User.query().filter(User.active==True).all()
+        
+        dialog = version_creator.MainDialog()
+        
+        # check if only the active user names are in the comboBox
+        content = [dialog.users_comboBox.itemText(i)
+                   for i in range(dialog.users_comboBox.count())]
+        
+        # check the length
+        self.assertEqual(len(content), len(users))
+        
+        for user in users:
+            self.assertTrue(user.name in content)
+     
     def test_users_comboBox_has_users_attribute(self):
         """testing if the users_comboBox has an attribute called users
         """
@@ -2264,7 +2296,6 @@ class VersionCreatorTester(unittest.TestCase):
         """testing if previous_versions_tableWidget shows only published
         versions if show_published_only_checkBox is checked
         """
-        
         project = Project("Test Project")
         project.save()
         
@@ -2315,14 +2346,7 @@ class VersionCreatorTester(unittest.TestCase):
         vers4.save()
 
         dialog = version_creator.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+        self.show_dialog(dialog)
         
         # set to assets
         dialog.tabWidget.setCurrentIndex(0)
@@ -2832,13 +2856,8 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
         
-        # for PySide
-#        if QtGui.qApp is None:
-#            self.app = QtGui.QApplication(sys.argv)
-#        else:
-#            self.app = QtGui.qApp
+        db.setup()
         
-        # for PyQt4
         self.app = QtGui.QApplication(sys.argv)
         
         # create the necessary data
@@ -2863,7 +2882,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_shot1 = Shot(self.test_sequence1, 1)
         self.test_shot2 = Shot(self.test_sequence1, 2)
         self.test_shot3 = Shot(self.test_sequence1, 3)
-
+        
         # shots for sequence2
         self.test_shot4 = Shot(self.test_sequence2, 4)
         self.test_shot5 = Shot(self.test_sequence2, 5)

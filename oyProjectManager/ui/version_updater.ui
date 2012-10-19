@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>710</width>
+    <width>658</width>
     <height>442</height>
    </rect>
   </property>
@@ -42,7 +42,7 @@
       <bool>false</bool>
      </property>
      <property name="columnCount">
-      <number>10</number>
+      <number>6</number>
      </property>
      <attribute name="horizontalHeaderVisible">
       <bool>true</bool>
@@ -80,10 +80,6 @@
        <string>Do Update?</string>
       </property>
      </column>
-     <column/>
-     <column/>
-     <column/>
-     <column/>
     </widget>
    </item>
    <item>

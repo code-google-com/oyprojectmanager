@@ -111,7 +111,6 @@ class Shot(VersionableBase):
     def __eq__(self, other):
         """the equality operator
         """
-        
         return isinstance(other, Shot) and other.number == self.number and \
             other.sequence == self.sequence
     

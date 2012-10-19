@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Tue Jul 10 01:15:47 2012
-#      by: PyQt4 UI code generator 4.9.1
+# Created: Fri Oct 19 16:38:03 2012
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -46,6 +46,7 @@ class Ui_Dialog(object):
         self.projects_label.setObjectName(_fromUtf8("projects_label"))
         self.horizontalLayout_11.addWidget(self.projects_label)
         self.projects_comboBox = QtGui.QComboBox(self.verticalWidget)
+        self.projects_comboBox.setMaxVisibleItems(50)
         self.projects_comboBox.setObjectName(_fromUtf8("projects_comboBox"))
         self.horizontalLayout_11.addWidget(self.projects_comboBox)
         self.client_label = QtGui.QLabel(self.verticalWidget)
@@ -303,10 +304,19 @@ class Ui_Dialog(object):
         self.publish_checkBox.setObjectName(_fromUtf8("publish_checkBox"))
         self.horizontalLayout_7.addWidget(self.publish_checkBox)
         self.verticalLayout_6.addLayout(self.horizontalLayout_7)
+        self.horizontalLayout_17 = QtGui.QHBoxLayout()
+        self.horizontalLayout_17.setObjectName(_fromUtf8("horizontalLayout_17"))
+        spacerItem6 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_17.addItem(spacerItem6)
+        self.update_paths_checkBox = QtGui.QCheckBox(self.new_version_groupBox)
+        self.update_paths_checkBox.setChecked(True)
+        self.update_paths_checkBox.setObjectName(_fromUtf8("update_paths_checkBox"))
+        self.horizontalLayout_17.addWidget(self.update_paths_checkBox)
+        self.verticalLayout_6.addLayout(self.horizontalLayout_17)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
-        spacerItem6 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem6)
+        spacerItem7 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem7)
         self.export_as_pushButton = QtGui.QPushButton(self.new_version_groupBox)
         self.export_as_pushButton.setObjectName(_fromUtf8("export_as_pushButton"))
         self.horizontalLayout_2.addWidget(self.export_as_pushButton)
@@ -330,14 +340,14 @@ class Ui_Dialog(object):
         self.show_published_only_checkBox = QtGui.QCheckBox(self.previous_versions_groupBox)
         self.show_published_only_checkBox.setObjectName(_fromUtf8("show_published_only_checkBox"))
         self.horizontalLayout_10.addWidget(self.show_published_only_checkBox)
-        spacerItem7 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_10.addItem(spacerItem7)
+        spacerItem8 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_10.addItem(spacerItem8)
         self.show_only_label = QtGui.QLabel(self.previous_versions_groupBox)
         self.show_only_label.setObjectName(_fromUtf8("show_only_label"))
         self.horizontalLayout_10.addWidget(self.show_only_label)
         self.version_count_spinBox = QtGui.QSpinBox(self.previous_versions_groupBox)
         self.version_count_spinBox.setMaximum(999999)
-        self.version_count_spinBox.setProperty("value", 10)
+        self.version_count_spinBox.setProperty("value", 16)
         self.version_count_spinBox.setObjectName(_fromUtf8("version_count_spinBox"))
         self.horizontalLayout_10.addWidget(self.version_count_spinBox)
         self.verticalLayout_7.addLayout(self.horizontalLayout_10)
@@ -367,8 +377,8 @@ class Ui_Dialog(object):
         self.verticalLayout_7.addWidget(self.previous_versions_tableWidget)
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
         self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
-        spacerItem8 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_5.addItem(spacerItem8)
+        spacerItem9 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem9)
         self.open_pushButton = QtGui.QPushButton(self.previous_versions_groupBox)
         self.open_pushButton.setObjectName(_fromUtf8("open_pushButton"))
         self.horizontalLayout_5.addWidget(self.open_pushButton)
@@ -445,6 +455,7 @@ class Ui_Dialog(object):
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Sans Serif\'; font-size:9pt;\"><br /></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.status_label.setText(QtGui.QApplication.translate("Dialog", "Status", None, QtGui.QApplication.UnicodeUTF8))
         self.publish_checkBox.setText(QtGui.QApplication.translate("Dialog", "Publish", None, QtGui.QApplication.UnicodeUTF8))
+        self.update_paths_checkBox.setText(QtGui.QApplication.translate("Dialog", "Update Paths", None, QtGui.QApplication.UnicodeUTF8))
         self.export_as_pushButton.setText(QtGui.QApplication.translate("Dialog", "Export Selection As", None, QtGui.QApplication.UnicodeUTF8))
         self.save_as_pushButton.setText(QtGui.QApplication.translate("Dialog", "Save As", None, QtGui.QApplication.UnicodeUTF8))
         self.previous_versions_groupBox.setTitle(QtGui.QApplication.translate("Dialog", "Previous Versions", None, QtGui.QApplication.UnicodeUTF8))

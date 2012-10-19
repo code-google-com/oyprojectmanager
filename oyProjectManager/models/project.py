@@ -125,7 +125,8 @@ class Project(Base):
     
     sequences = relationship(
         "Sequence",
-        primaryjoin="Sequences.c.project_id==Projects.c.id"
+        primaryjoin="Sequences.c.project_id==Projects.c.id",
+        cascade="all, delete-orphan"
     )
     
     client_id = Column(Integer, ForeignKey("Clients.id"))

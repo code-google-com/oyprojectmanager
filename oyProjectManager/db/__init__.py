@@ -103,13 +103,20 @@ def setup(database_url_in=None):
     # try to use SQLAlchemy to separate the dialect and the address part and
     # expand any data and then merge it again
     
-    database_url_in = os.path.expanduser(
-        os.path.expandvars(
+    #database_url_in = os.path.expanduser(
+    #    os.path.expandvars(
+    #        os.path.expandvars(
+    #            database_url_in
+    #        )
+    #    )
+    #)
+    
+    while "$" in database_url_in or "~" in database_url_in:
+        database_url_in = os.path.expanduser(
             os.path.expandvars(
-                database_url_in
+                    database_url_in
             )
         )
-    )
     
     database_url = database_url_in
     

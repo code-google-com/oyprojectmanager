@@ -163,7 +163,7 @@ class Version(Base, IOMixin):
       skipped, can not be None or empty string.
     
     :param str take_name: A string showing the take name. The default value is
-      "MAIN" and it will be used in case it is skipped or it is set to None
+      "Main" and it will be used in case it is skipped or it is set to None
       or an empty string. Generally used to create an appropriate
       :attr:`~oyProjectManager.models.version.Version.filename` and a
       :attr:`~oyProjectManager.models.version.Version.path` value. 
@@ -225,11 +225,11 @@ class Version(Base, IOMixin):
     _extension = Column(String)
     
     base_name = Column(String)
-    take_name = Column(String, default="MAIN")
+    take_name = Column(String, default=conf.default_take_name)
     revision_number = Column(Integer, default=0)
     _version_number = Column(Integer, default=1, nullable=False)
     
-    note = Column(String)
+    note = Column(String, default='')
     created_by_id = Column(Integer, ForeignKey("Users.id"))
     created_by = relationship("User")
     
@@ -252,7 +252,7 @@ class Version(Base, IOMixin):
                  base_name,
                  type,
                  created_by,
-                 take_name="MAIN",
+                 take_name=conf.default_take_name,
                  version_number=1,
                  note="",
                  extension="",

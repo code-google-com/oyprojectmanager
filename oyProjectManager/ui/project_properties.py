@@ -73,6 +73,14 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
             QtCore.SIGNAL("accepted()"),
             self.button_box_ok_clicked
         )
+        
+        # changing the name of the project should also update the code
+        # if the code field is empty
+        QtCore.QObject.connect(
+            self.name_lineEdit,
+            QtCore.SIGNAL("textChanged(QString)"),
+            self.name_edited
+        )
 
     def set_resolution_to_default(self):
         # set the resolution to the default preset
@@ -179,6 +187,17 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         # get the data from the input fields
         name = self.name_lineEdit.text()
         code = self.code_lineEdit.text()
+        # check if the code is empty
+        if code=="":
+            # raise an error please
+            QtGui.QMessageBox.critical(
+                self,
+                "Error",
+                "Code field can not be empty,\n"
+                "Please enter a proper Code!!!"
+            )
+            return
+        
         client_name = self.clients_comboBox.currentText()
         client = Client.query().filter(Client.name==client_name).first()
         if not client:
@@ -236,3 +255,13 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         # and close the dialog
         self.close()
     
+    def name_edited(self, new_name):
+        """called by the ui event when the text in project name lineEdit
+        changed, it updates the code field if the code field is empty
+        :param new_name: the changed name
+        """
+        
+        # update only if the code field is empty
+        import re
+        new_code = re.sub(r'([^A-Z0-9]+)([\-\s]*)', '_', new_name.upper())
+        self.code_lineEdit.setText(new_code)

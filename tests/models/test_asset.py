@@ -9,9 +9,7 @@ import shutil
 import tempfile
 import unittest
 from sqlalchemy.exc import IntegrityError
-from oyProjectManager import conf, db
-from oyProjectManager.models.asset import Asset
-from oyProjectManager.models.project import Project
+from oyProjectManager import conf, db, Asset, Project, VersionType, User, Version
 
 class AssetTester(unittest.TestCase):
     """tests the Asset class
@@ -389,3 +387,276 @@ class AssetTester(unittest.TestCase):
             expected_value = test_values[1]
             self.test_asset.type = input_value
             self.assertEqual(self.test_asset.type, expected_value)
+    
+    def test_deleting_an_asset_will_not_delete_the_related_project(self):
+        """testing if deleting an asset will not delete the related project
+        """
+        proj1 = Project('test project 1')
+        proj1.save()
+        
+        asset = Asset(proj1, 'Test asset')
+        asset.save()
+        
+        # check if they are in the session
+        self.assertIn(proj1, db.session)
+        self.assertIn(asset, db.session)
+        
+        # delete the asset
+        db.session.delete(asset)
+        db.session.commit()
+        
+        # check if it is removed from the session
+        self.assertNotIn(asset, db.session)
+        
+        # and the project is there
+        self.assertIn(proj1, db.session)
+    
+    def test_deleting_an_asset_will_not_delete_the_other_assets_in_the_related_project(self):
+        """testing if deleting an asset will not delete the other assets in the
+        related project
+        """
+        proj1 = Project('test project 1')
+        proj1.save()
+        
+        asset1 = Asset(proj1, 'test asset 1')
+        asset1.save()
+        
+        asset2 = Asset(proj1, 'test asset 2')
+        asset2.save()
+        
+        asset3 = Asset(proj1, 'test asset 3')
+        asset3.save()
+        
+        # check if they are properly in the db.session
+        self.assertIn(proj1, db.session)
+        self.assertIn(asset1, db.session)
+        self.assertIn(asset2, db.session)
+        self.assertIn(asset3, db.session)
+        
+        # delete asset1
+        db.session.delete(asset1)
+        db.session.commit()
+        
+        # check if the asset1 is deleted
+        self.assertNotIn(asset1, db.session)
+        
+        # and the others are in place
+        self.assertIn(proj1, db.session)
+        self.assertIn(asset2, db.session)
+        self.assertIn(asset3, db.session)
+    
+    def test_deleting_an_asset_will_delete_all_the_related_versions(self):
+        """testing if deleting an asset will also delete the related versions
+        """
+        proj1 = Project('test project 1')
+        proj1.save()
+        
+        asset1 = Asset(proj1, 'test asset 1')
+        asset1.save()
+        
+        asset2 = Asset(proj1, 'test asset 2')
+        asset2.save()
+        
+        asset_vtypes = VersionType.query().filter_by(type_for="Asset").all()
+        
+        user = User.query().first()
+        
+        vers1 = Version(
+            version_of=asset1,
+            base_name=asset1.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers1.save()
+        
+        vers2 = Version(
+            version_of=asset1,
+            base_name=asset1.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers2.save()
+        
+        vers3 = Version(
+            version_of=asset1,
+            base_name=asset1.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers3.save()
+    
+        vers4 = Version(
+            version_of=asset2,
+            base_name=asset2.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers4.save()
+        
+        vers5 = Version(
+            version_of=asset2,
+            base_name=asset2.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers5.save()
+        
+        vers6 = Version(
+            version_of=asset2,
+            base_name=asset2.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers6.save()    
+        
+        # check if all are in the session
+        self.assertIn(proj1, db.session)
+        self.assertIn(asset1, db.session)
+        self.assertIn(asset2, db.session)
+        self.assertIn(vers1, db.session)
+        self.assertIn(vers2, db.session)
+        self.assertIn(vers3, db.session)
+        self.assertIn(vers4, db.session)
+        self.assertIn(vers5, db.session)
+        self.assertIn(vers6, db.session)
+        
+        # delete the asset
+        db.session.delete(asset1)
+        db.session.commit()
+        
+        # check if it is not in the session anymore
+        self.assertNotIn(asset1, db.session)
+        
+        # check if the versions are also deleted
+        self.assertNotIn(vers1, db.session)
+        self.assertNotIn(vers2, db.session)
+        self.assertNotIn(vers3, db.session)
+        
+        # check if the others are still there
+        self.assertIn(proj1, db.session)
+        self.assertIn(asset2, db.session)
+        self.assertIn(vers4, db.session)
+        self.assertIn(vers5, db.session)
+        self.assertIn(vers6, db.session)
+    
+    def test_deleting_an_asset_will_delete_all_the_related_versions_but_keep_references(self):
+        """testing if deleting an asset will only delete the version of that
+        asset and will keep the referenced versions.
+        """
+        proj1 = Project('test project 1')
+        proj1.save()
+        
+        asset1 = Asset(proj1, 'test asset 1')
+        asset1.save()
+        
+        asset2 = Asset(proj1, 'test asset 2')
+        asset2.save()
+        
+        asset_vtypes = VersionType.query().filter_by(type_for="Asset").all()
+        
+        user = User.query().first()
+        
+        vers1 = Version(
+            version_of=asset1,
+            base_name=asset1.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers1.save()
+        
+        vers2 = Version(
+            version_of=asset1,
+            base_name=asset1.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers2.save()
+        
+        vers3 = Version(
+            version_of=asset1,
+            base_name=asset1.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers3.save()
+    
+        vers4 = Version(
+            version_of=asset2,
+            base_name=asset2.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers4.save()
+        
+        vers5 = Version(
+            version_of=asset2,
+            base_name=asset2.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers5.save()
+        
+        vers6 = Version(
+            version_of=asset2,
+            base_name=asset2.code,
+            type=asset_vtypes[0],
+            created_by=user
+        )
+        vers6.save()
+        
+        # reference vers4, vers5 and vers6 to vers1, vers2 and vers3
+        vers1.references.append(vers4)
+        vers1.references.append(vers5)
+        vers1.references.append(vers6)
+        
+        vers2.references.append(vers4)
+        vers2.references.append(vers5)
+        vers2.references.append(vers6)
+        
+        vers3.references.append(vers4)
+        vers3.references.append(vers5)
+        vers3.references.append(vers6)
+        
+        # check if all are in the session
+        self.assertIn(proj1, db.session)
+        self.assertIn(asset1, db.session)
+        self.assertIn(asset2, db.session)
+        self.assertIn(vers1, db.session)
+        self.assertIn(vers2, db.session)
+        self.assertIn(vers3, db.session)
+        self.assertIn(vers4, db.session)
+        self.assertIn(vers5, db.session)
+        self.assertIn(vers6, db.session)
+        
+        # there should be 9 entries in the secondary table
+        result = db.session\
+            .query('referencer_id', 'reference_id')\
+            .from_statement("SELECT referencer_id, reference_id "
+                            "FROM Version_References").all()
+        self.assertEqual(len(result), 9)
+        
+        # delete the asset
+        db.session.delete(asset1)
+        db.session.commit()
+        
+        # check if it is not in the session anymore
+        self.assertNotIn(asset1, db.session)
+        
+        # check if the versions are also deleted
+        self.assertNotIn(vers1, db.session)
+        self.assertNotIn(vers2, db.session)
+        self.assertNotIn(vers3, db.session)
+        
+        # check if the others are still there
+        self.assertIn(proj1, db.session)
+        self.assertIn(asset2, db.session)
+        self.assertIn(vers4, db.session)
+        self.assertIn(vers5, db.session)
+        self.assertIn(vers6, db.session)
+        
+        # to be sure check the secondary table
+        result = db.session\
+            .query('referencer_id', 'reference_id')\
+            .from_statement("SELECT referencer_id, reference_id "
+                            "FROM Version_References").all()
+        self.assertEqual(len(result), 0)

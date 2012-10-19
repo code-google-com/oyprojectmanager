@@ -9,7 +9,7 @@ import os
 import jinja2
 from sqlalchemy import UniqueConstraint, Column, String, Integer, ForeignKey
 from sqlalchemy.ext.declarative import synonym_for
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy.orm import relationship, validates, backref
 from oyProjectManager import conf
 from oyProjectManager.db import Base
 from oyProjectManager.models.repository import Repository
@@ -52,14 +52,19 @@ class VersionableBase(Base):
     
     id = Column(Integer, primary_key=True)
     
-    _versions = relationship("Version")
+    _versions = relationship(
+        "Version",
+        cascade='all, delete, delete-orphan'
+    )
     
     project_id = Column(
-        Integer, ForeignKey("Projects.id"),
+        Integer, ForeignKey("Projects.id", ondelete='CASCADE'),
         nullable=False
     )
+
     _project = relationship(
         "Project",
+        backref=backref("versionables", cascade="all, delete")
     )
     
     _code = Column(
