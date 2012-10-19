@@ -99,6 +99,7 @@ class Maya(EnvironmentBase):
             self.replace_external_paths(mode=1)
         
         self.create_workspace_file(workspace_path)
+        self.create_workspace_folders(workspace_path)
         # this sets the project
         pm.workspace.open(workspace_path)
         
@@ -403,7 +404,7 @@ class Maya(EnvironmentBase):
         
         # image folder from the workspace.mel
         # {{project.full_path}}/Sequences/{{seqence.code}}/Shots/{{shot.code}}/.maya_files/RENDERED_IMAGES
-        image_folder_from_ws = pm.workspace.fileRules['image'] 
+        image_folder_from_ws = pm.workspace.fileRules['images'] 
         image_folder_from_ws_full_path = os.path.join(
             os.path.dirname(version.path),
             image_folder_from_ws
@@ -421,17 +422,11 @@ class Maya(EnvironmentBase):
         
         # convert the render_file_full_path to a relative path to the
         # imageFolderFromWS_full_path
-        
-#        print "imageFolderFromWS_full_path: %s" % image_folder_from_ws_full_path
-#        print "render_file_full_path: %s" % render_file_full_path
-
         render_file_rel_path = utils.relpath(
             image_folder_from_ws_full_path,
             render_file_full_path,
             sep="/"
         )
-        
-#        print "render_file_rel_path: %s" % render_file_rel_path
         
         if self.has_stereo_camera():
             # just add the <Camera> template variable to the file name
@@ -738,6 +733,7 @@ class Maya(EnvironmentBase):
         repo_env_key = "$" + conf.repository_env_key
         
         previous_version_full_path = ''
+        latest_version = None
         
         for version_tuple in version_tuple_list:
             version = version_tuple[0]
@@ -1060,65 +1056,7 @@ class Maya(EnvironmentBase):
         """creates the workspace.mel at the given path
         """
         
-        content = """//Maya 2012 Project Definition
-
-workspace -fr "3dPaintTextures" ".maya_files/PAINTINGS/TEXTURES/";
-workspace -fr "Adobe(R) Illustrator(R)" ".maya_files/OTHERS/data/";
-workspace -fr "aliasWire" ".maya_files/OTHERS/data/";
-workspace -fr "animImport" ".maya_files/OTHERS/data/";
-workspace -fr "animExport" ".maya_files/OTHERS/data/";
-workspace -fr "audio" ".maya_files/EDIT/SOUND/";
-workspace -fr "autoSave" ".maya_files/OTHERS/autosave/";
-workspace -fr "clips" ".maya_files/OTHERS/clips/";
-workspace -fr "DAE_FBX" ".maya_files/OTHERS/data/";
-workspace -fr "DAE_FBX export" ".maya_files/OTHERS/data/";
-workspace -fr "depth" ".maya_files/RENDERED_IMAGES/renderData/depth/";
-workspace -fr "diskCache" ".maya_files/OTHERS/data/";
-workspace -fr "DXF" ".maya_files/OTHERS/data/";
-workspace -fr "DXF export" ".maya_files/OTHERS/data/";
-workspace -fr "DXF_FBX" ".maya_files/OTHERS/data/";
-workspace -fr "DXF_FBX export" ".maya_files/OTHERS/data/";
-workspace -fr "eps" ".maya_files/OTHERS/data/";
-workspace -fr "EPS" ".maya_files/OTHERS/data/";
-workspace -fr "FBX" ".maya_files/OTHERS/data/";
-workspace -fr "FBX export" ".maya_files/OTHERS/data/";
-workspace -fr "fluidCache" ".maya_files/OTHERS/cache/";
-workspace -fr "furAttrMap" ".maya_files/OTHERS/fur/furAttrMap/";
-workspace -fr "furEqualMap" ".maya_files/OTHERS/fur/furEqualMap/";
-workspace -fr "furFiles" ".maya_files/OTHERS/fur/furFiles/";
-workspace -fr "furImages" ".maya_files/OTHERS/fur/furImages/";
-workspace -fr "furShadowMap" ".maya_files/OTHERS/fur/furShadowMap/";
-workspace -fr "IGES" ".maya_files/OTHERS/data/";
-workspace -fr "IGESexport" ".maya_files/OTHERS/data/";
-workspace -fr "illustrator" ".maya_files/OTHERS/data/";
-workspace -fr "image" ".maya_files/RENDERED_IMAGES/";
-workspace -fr "images" ".maya_files/RENDERED_IMAGES/";
-workspace -fr "iprImages" ".maya_files/RENDERED_IMAGES/renderData/iprImages/";
-workspace -fr "lights" ".maya_files/RENDERED_IMAGES/renderData/shaders/";
-workspace -fr "mayaAscii" ".maya_files/OTHERS/";
-workspace -fr "mayaBinary" ".maya_files/OTHERS/";
-workspace -fr "mel" ".maya_files/OTHERS/mel/";
-workspace -fr "mentalray" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
-workspace -fr "mentalRay" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
-workspace -fr "move" ".maya_files/OTHERS/data/";
-workspace -fr "movie" ".maya_files/OTHERS/data/";
-workspace -fr "OBJ" ".maya_files/OTHERS/data/";
-workspace -fr "OBJexport" ".maya_files/OTHERS/data/";
-workspace -fr "offlineEdit" ".maya_files/OHTERS/edits/";
-workspace -fr "particles" ".maya_files/OTHERS/particles/";
-workspace -fr "renderData" ".maya_files/LIGHTING/";
-workspace -fr "renderScenes" ".maya_files/LIGHTING/";
-workspace -fr "RIB" ".maya_files/OTHERS/data/";
-workspace -fr "RIBexport" ".maya_files/OTHERS/data/";
-workspace -fr "scene" ".maya_files/OTHERS/";
-workspace -fr "scripts" ".maya_files/OTHERS/mel/";
-workspace -fr "shaders" ".maya_files/RENDERED_IMAGES";
-workspace -fr "sound" ".maya_files/OTHERS/sound/";
-workspace -fr "sourceImages" ".maya_files/PAINTINGS/TEXTURES/";
-workspace -fr "templates" ".maya_files/OTHERS/assets/";
-workspace -fr "textures" ".maya_files/PAINTINGS/TEXTURES/";
-workspace -fr "translatorData" ".maya_files/OTHERS/";
-        """
+        content = conf.maya_workspace_file_content
         
         # check if there is a workspace.mel at the given path
         full_path = os.path.join(path, "workspace.mel")
@@ -1135,4 +1073,21 @@ workspace -fr "translatorData" ".maya_files/OTHERS/";
             workspace_file = file(full_path, "w")
             workspace_file.write(content)
             workspace_file.close()
+        
     
+    def create_workspace_folders(self, path):
+        """creates the workspace folders
+        :param path: the root of the workspace
+        """
+        
+        for key in pm.workspace.fileRules:
+            rule_path = pm.workspace.fileRules[key]
+            full_path = os.path.join(path, rule_path)
+            try:
+                os.makedirs(
+                    full_path
+                )
+            except OSError:
+                # dir exists
+                pass
+        

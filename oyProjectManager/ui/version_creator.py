@@ -1269,7 +1269,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         self.previous_versions_tableWidget.resizeColumnsToContents()
    
     def create_asset_pushButton_clicked(self):
-        """
+        """displays an input dialog and creates a new asset if everything is ok
         """
         
         dialog = create_asset_dialog.create_asset_dialog(parent=self)
@@ -1296,7 +1296,15 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         try:
             new_asset = Asset(proj, asset_name, type=asset_type_name)
             new_asset.save()
+            
+            # recreate the project structure
+            proj.create()
+            
+            # update the assets by calling project_changed
+            self.project_changed()
+ 
         except (TypeError, ValueError, IntegrityError) as e:
+            error_message = str(e)
             if isinstance(e, IntegrityError):
                 # the transaction needs to be rollback
                 db.session.rollback()
@@ -1306,10 +1314,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             QtGui.QMessageBox.critical(self, "Error", error_message)
             
             return
-        
-        # update the assets by calling project_changed
-        self.project_changed()
-    
+   
     def get_versionable(self):
         """returns the versionable from the UI, it is an asset or a shot
         depending on to the current tab

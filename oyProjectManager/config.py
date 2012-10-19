@@ -353,7 +353,65 @@ class Config(object):
                 "environments": ["3DEqualizer"],
                 "type_for": "Shot"
             }
-        ]
+        ],
+        
+        maya_workspace_file_content = """workspace -fr "3dPaintTextures" ".maya/sourceimages/3dPaintTextures/";
+workspace -fr "Adobe(R) Illustrator(R)" ".maya/data/";
+workspace -fr "aliasWire" ".maya/data/";
+workspace -fr "animImport" ".maya/data/";
+workspace -fr "animExport" ".maya/data/";
+workspace -fr "audio" ".maya/sound/";
+workspace -fr "autoSave" ".maya/autosave/";
+workspace -fr "clips" ".maya/clips/";
+workspace -fr "DAE_FBX" ".maya/data/";
+workspace -fr "DAE_FBX export" ".maya/data/";
+workspace -fr "depth" ".maya/renderData/depth/";
+workspace -fr "diskCache" ".maya/cache/";
+workspace -fr "DXF" ".maya/data/";
+workspace -fr "DXF export" ".maya/data/";
+workspace -fr "DXF_FBX" ".maya/data/";
+workspace -fr "DXF_FBX export" ".maya/data/";
+workspace -fr "eps" ".maya/data/";
+workspace -fr "EPS" ".maya/data/";
+workspace -fr "FBX" ".maya/data/";
+workspace -fr "FBX export" ".maya/data/";
+workspace -fr "fluidCache" ".maya/cache/fluid/";
+workspace -fr "furAttrMap" ".maya/renderData/fur/furAttrMap/";
+workspace -fr "furEqualMap" ".maya/renderData/fur/furEqualMap/";
+workspace -fr "furFiles" ".maya/renderData/fur/furFiles/";
+workspace -fr "furImages" ".maya/renderData/fur/furImages/";
+workspace -fr "furShadowMap" ".maya/renderData/fur/furShadowMap/";
+workspace -fr "IGES" ".maya/data/";
+workspace -fr "IGESexport" ".maya/data/";
+workspace -fr "illustrator" ".maya/data/";
+workspace -fr "image" ".maya/images/";
+workspace -fr "images" ".maya/images/";
+workspace -fr "iprImages" ".maya/renderData/iprImages/";
+workspace -fr "lights" ".maya/renderData/shaders/";
+workspace -fr "mayaAscii" ".maya/scenes/";
+workspace -fr "mayaBinary" ".maya/scenes/";
+workspace -fr "mel" ".maya/scripts/";
+workspace -fr "mentalray" ".maya/renderData/mentalray/";
+workspace -fr "mentalRay" ".maya/renderData/mentalray";
+workspace -fr "move" ".maya/data/";
+workspace -fr "movie" ".maya/movies/";
+workspace -fr "OBJ" ".maya/data/";
+workspace -fr "OBJexport" ".maya/data/";
+workspace -fr "offlineEdit" ".maya/scenes/edits/";
+workspace -fr "particles" ".maya/particles/";
+workspace -fr "renderData" ".maya/renderData/";
+workspace -fr "renderScenes" ".maya/scenes/";
+workspace -fr "RIB" ".maya/data/";
+workspace -fr "RIBexport" ".maya/data/";
+workspace -fr "scene" ".maya/scenes/";
+workspace -fr "scripts" ".maya/scripts/";
+workspace -fr "shaders" ".maya/renderData/shaders/";
+workspace -fr "sound" ".maya/sound/";
+workspace -fr "sourceImages" ".maya/sourceimages/";
+workspace -fr "templates" ".maya/assets/";
+workspace -fr "textures" ".maya/images/";
+workspace -fr "translatorData" ".maya/data/";
+"""
     )
     
     def __init__(self):

@@ -1,6 +1,15 @@
 Version History
 ===============
 
+0.2.5.2
+-------
+
+* mayaEnv.Maya now creates all the folders defined by the workspace fileRules.
+
+* Creating a new Asset in version_creator now trigger the recreation of the
+  project structure, this will allow any asset related folders to be created
+  automatically. Change ``project_structure`` config value as desired.
+
 0.2.5.1
 -------
 
