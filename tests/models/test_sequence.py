@@ -9,16 +9,11 @@ import shutil
 import tempfile
 import unittest
 from sqlalchemy.exc import IntegrityError
-from oyProjectManager import db, config
-from oyProjectManager.core.models import Project, Sequence, Repository, Shot
-
-import logging
-logger = logging.getLogger("oyProjectManager.core.models")
-logger.setLevel(logging.DEBUG)
-
-conf = config.Config()
-
-# TODO: update the tests of the Sequence class
+from oyProjectManager import db, conf
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.repository import Repository
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
 
 class SequenceTester(unittest.TestCase):
     """tests the Sequence class
@@ -29,6 +24,8 @@ class SequenceTester(unittest.TestCase):
         """
         # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
@@ -115,7 +112,7 @@ class SequenceTester(unittest.TestCase):
     
     def test_project_argument_is_not_a_Project_instance(self):
         """testing if a TypeError will be raised when the project argument is
-        not a oyProjectManager.core.models.Project instance
+        not a oyProjectManager.models.project.Project instance
         """
         self.kwargs["project"] = "Test Project"
         self.assertRaises(TypeError, Sequence, **self.kwargs)
@@ -287,7 +284,10 @@ class Sequence_DB_Tester(unittest.TestCase):
     """
     
     def setUp(self):
-        
+        """set up tests
+        """
+        conf.database_url = "sqlite://"
+ 
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
@@ -569,3 +569,95 @@ class Sequence_DB_Tester(unittest.TestCase):
         # code is SH001
         self.assertEqual("1", seq1.shots[0].number)
         self.assertEqual('SH001', seq1.shots[0].code)
+    
+    def test_add_shots_is_working_properly_for_projects_with_no_shot_number_prefix(self):
+        """testing if the add_shots method working properly for projects with
+        no or empty shot_number_prefix
+        """
+        proj1 = Project('proj1', 'proj1')
+        proj1.shot_number_prefix = ""
+        proj1.shot_number_padding = 0
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'seq91')
+        seq1.save()
+
+        shot_code = 'VFX91-3'
+        seq1.add_shots(shot_code)
+        # should complete without any error
+        
+        shot = seq1.shots[0]
+        self.assertEqual(shot.code, shot_code)
+    
+    def test_deleting_a_sequence_will_not_delete_the_related_project(self):
+        """testing if deleting a sequence will not delete the related project
+        """
+        proj1 = Project('Test Project 1')
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'Test Sequence 1')
+        seq1.save()
+        
+        seq2 = Sequence(proj1, 'Test Sequence 2')
+        seq2.save()
+        
+        # check if they are in the session
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(seq2, db.session)
+        
+        db.session.delete(seq1)
+        db.session.commit()
+        
+        self.assertIn(proj1, db.session)
+        self.assertNotIn(seq1, db.session)
+        self.assertIn(seq2, db.session)
+    
+    def test_deleting_a_sequence_will_also_delete_the_related_shots(self):
+        """testing if deleting a sequence will also delete the related shots
+        """
+        proj1 = Project('Test Project 1')
+        proj1.save()
+        
+        seq1 = Sequence(proj1, 'Seq1')
+        seq1.save()
+        
+        seq2 = Sequence(proj1, 'Seq2')
+        seq2.save()
+        
+        shot1 = Shot(seq1, 1)
+        shot1.save()
+        
+        shot2 = Shot(seq1, 2)
+        shot2.save()
+        
+        shot3 = Shot(seq2, 1)
+        shot3.save()
+        
+        shot4 = Shot(seq2, 2)
+        shot4.save()
+        
+        # check if they are in session
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq1, db.session)
+        self.assertIn(seq2, db.session)
+        self.assertIn(shot1, db.session)
+        self.assertIn(shot2, db.session)
+        self.assertIn(shot3, db.session)
+        self.assertIn(shot4, db.session)
+        
+        # delete seq1
+        db.session.delete(seq1)
+        db.session.commit()
+        
+        # check if all the objects which must be deleted are really deleted
+        self.assertNotIn(seq1, db.session)
+        self.assertNotIn(shot1, db.session)
+        self.assertNotIn(shot2, db.session)
+        
+        # and others are in
+        self.assertIn(proj1, db.session)
+        self.assertIn(seq2, db.session)
+        self.assertIn(shot3, db.session)
+        self.assertIn(shot4, db.session)
+    

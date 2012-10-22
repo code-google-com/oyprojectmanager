@@ -14,11 +14,16 @@ import logging
 
 from pymel import core as pm
 from oyProjectManager import conf, db, utils
-from oyProjectManager.core.models import (Project, Asset, Version, VersionType,
-                                          User, Shot, Sequence)
 from oyProjectManager.environments import mayaEnv
 
 # set level to debug
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.auth import User
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import Version, VersionType
+
 logger = logging.getLogger("oyProjectManager.environments.mayaEnv")
 logger.setLevel(logging.DEBUG)
 
@@ -32,6 +37,8 @@ class MayaTester(unittest.TestCase):
         # -----------------------------------------------------------------
         # start of the setUp
         # create the environment variable and point it to a temp directory
+        conf.database_url = "sqlite://"
+        
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
 
@@ -448,15 +455,31 @@ class MayaTester(unittest.TestCase):
         # save it and expect no InvalidRequestError
         self.mEnv.save_as(vers2)
         
-        print vers2.references
-        
         self.mEnv.reference(vers1)
         vers3 = Version(asset1, asset1.code, self.asset_vtypes[1], self.user1)
         vers3.save()
- 
+        
         self.mEnv.save_as(vers3)
+    
+    def test_save_as_will_not_save_the_file_if_there_are_file_textures_with_local_path(self):
+        """testing if save_as will raise a RuntimeError if there are file
+        textures with local path
+        """
+        # create a texture file with local path
+        new_texture_file = pm.nt.File()
+        # generate a local path
+        local_file_full_path = os.path.join(
+            tempfile.gettempdir(),
+            "temp.png"
+        )
+        new_texture_file.fileTextureName.set(local_file_full_path)
         
-        
+        # now try to save it as a new version and expect a RuntimeError
+        self.assertRaises(
+            RuntimeError,
+            self.mEnv.save_as,
+            self.version1
+        )
     
     def test_open_updates_the_referenced_versions_list(self):
         """testing if the open method updates the Version.references list with
@@ -809,3 +832,40 @@ class MayaTester(unittest.TestCase):
         
         self.fail("test is not implemented yet")
     
+    def test_save_as_creates_the_workspace_mel_file_in_the_given_path(self):
+        """testing if save_as creates the workspace.mel file in the Asset or
+        Shot root
+        """
+        # check if the workspace.mel file does not exist yet
+        workspace_mel_full_path = os.path.join(
+            os.path.dirname(self.version1.path),
+            'workspace.mel'
+        )
+        self.assertFalse(os.path.exists(workspace_mel_full_path))
+        self.mEnv.save_as(self.version1)
+        self.assertTrue(os.path.exists(workspace_mel_full_path))
+    
+    def test_save_as_creates_the_workspace_fileRule_folders(self):
+        """testing if save_as creates the fileRule folders
+        """
+        # first prove that the folders doesn't exist
+        for key in pm.workspace.fileRules.keys():
+            file_rule_partial_path = pm.workspace.fileRules[key]
+            file_rule_full_path = os.path.join(
+                os.path.dirname(self.version1.path),
+                file_rule_partial_path
+            )
+            self.assertFalse(os.path.exists(file_rule_full_path))
+        
+        self.mEnv.save_as(self.version1)
+        
+        # save_as and now expect the folders to be created
+        for key in pm.workspace.fileRules.keys():
+            file_rule_partial_path = pm.workspace.fileRules[key]
+            file_rule_full_path = os.path.join(
+                os.path.dirname(self.version1.path),
+                file_rule_partial_path
+            )
+            self.assertTrue(os.path.exists(file_rule_full_path))
+        
+ 

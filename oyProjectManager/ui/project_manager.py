@@ -9,8 +9,10 @@ import sys
 
 import oyProjectManager
 from oyProjectManager import db
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
 from oyProjectManager.ui import project_properties, shot_editor
-from oyProjectManager.core.models import Project, Sequence, Shot
 
 qt_module_key = "PREFERRED_QT_MODULE"
 qt_module = "PyQt4"
@@ -188,7 +190,7 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
         
         self.projects_comboBox.clear()
         #self.projects_comboBox.addItems(map(lambda x: x.name, projects))
-        for project in projects:
+        for i, project in enumerate(projects):
             if project.active:
                 self.projects_comboBox.addItem(project.name)
             else:
@@ -218,9 +220,9 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
     
     def get_current_project(self):
         """Returns the currently selected
-        :class:`~oyProjectManager.core.models.Project` instance from the UI
+        :class:`~oyProjectManager.models.project.Project` instance from the UI
         
-        :return: :class:`~oyProjectManager.core.models.Project`
+        :return: :class:`~oyProjectManager.models.project.Project`
         """
         
         index = self.projects_comboBox.currentIndex()
@@ -255,9 +257,9 @@ class MainDialog(QtGui.QDialog, project_manager_UI.Ui_dialog):
     
     def get_current_sequence(self):
         """Returns the currently selected
-        :class:`~oyProjectManager.core.models.Sequence` instance from the UI
+        :class:`~oyProjectManager.models.sequence.Sequence` instance from the UI
         
-        :return: :class:`~oyProjectManager.core.models.Sequence`
+        :return: :class:`~oyProjectManager.models.sequence.Sequence`
         """
         
         index = self.sequences_comboBox.currentIndex()

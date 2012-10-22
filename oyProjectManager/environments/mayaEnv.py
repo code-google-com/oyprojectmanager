@@ -10,8 +10,9 @@ import os
 from pymel import core as pm
 
 from oyProjectManager import conf
-from oyProjectManager.core.models import Repository, EnvironmentBase
 from oyProjectManager import utils
+from oyProjectManager.models.entity import EnvironmentBase
+from oyProjectManager.models.repository import Repository
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -19,10 +20,6 @@ logger.setLevel(logging.WARNING)
 class Maya(EnvironmentBase):
     """the maya environment class
     """
-    
-    # TODO: check for texture file paths and warn the user if there are
-    # textures with absolute paths which are not starting with the
-    # repo.server_path
     
     name = "Maya"
     
@@ -75,6 +72,9 @@ class Maya(EnvironmentBase):
         It saves the given Version instance to the Version.full_path.
         """
         
+        # do not save if there are local files
+        self.check_external_files()
+        
         # set version extension to ma
         version.extension = '.ma'
         
@@ -99,6 +99,7 @@ class Maya(EnvironmentBase):
             self.replace_external_paths(mode=1)
         
         self.create_workspace_file(workspace_path)
+        self.create_workspace_folders(workspace_path)
         # this sets the project
         pm.workspace.open(workspace_path)
         
@@ -140,15 +141,7 @@ class Maya(EnvironmentBase):
         )
         
         # update the reference list
-        # TODO: Why am I not using self.update_references_list here
-        reference_list = []
-        reference_info = self.get_referenced_versions()
-        for data in reference_info:
-            if data[0] not in reference_list:
-                reference_list.append(data[0])
-        
-        version.references = reference_list
-        version.save()
+        self.update_references_list(version)
         
         # append it to the recent file list
         self.append_to_recent_files(
@@ -186,7 +179,7 @@ class Maya(EnvironmentBase):
         
         It also updates the referenced Version on open.
         
-        :returns: list of :class:`~oyProjectManager.core.models.Version`
+        :returns: list of :class:`~oyProjectManager.models.version.Version`
           instances which are referenced in to the opened version and those
           need to be updated
         """
@@ -223,10 +216,10 @@ class Maya(EnvironmentBase):
         # check the referenced assets for newer version
         to_update_list = self.check_referenced_versions()
         
-        for update_info in to_update_list:
-            version = update_info[0]
+        #for update_info in to_update_list:
+        #    version = update_info[0]
         
-        self.update_references_list()
+        self.update_references_list(version)
         
         return True, to_update_list
     
@@ -234,14 +227,14 @@ class Maya(EnvironmentBase):
         """Runs after opening a file
         """
         self.load_referenced_versions()
-        self.update_references_list()
+        self.update_references_list(version)
 
     def import_(self, version):
         """Imports the content of the given Version instance to the current
         scene.
         
         :param version: The desired
-          :class:`~oyProjectManager.core.models.Version` to be imported
+          :class:`~oyProjectManager.models.version.Version` to be imported
         """
         pm.importFile(version.full_path)
         
@@ -251,7 +244,7 @@ class Maya(EnvironmentBase):
         """References the given Version instance to the current Maya scene.
         
         :param version: The desired
-          :class:`~oyProjectManager.core.models.Version` instance to be
+          :class:`~oyProjectManager.models.version.Version` instance to be
           referenced.
         """
         
@@ -320,7 +313,7 @@ class Maya(EnvironmentBase):
         
         If it can't find any then returns None.
         
-        :return: :class:`~oyProjectManager.core.models.Version`
+        :return: :class:`~oyProjectManager.models.version.Version`
         """
         
         version = None
@@ -340,12 +333,12 @@ class Maya(EnvironmentBase):
     
     def get_version_from_recent_files(self):
         """It will try to create a
-        :class:`~oyProjectManager.core.models.Version` instance by looking at
+        :class:`~oyProjectManager.models.version.Version` instance by looking at
         the recent files list.
         
         It will return None if it can not find one.
         
-        :return: :class:`~oyProjectManager.core.models.Version`
+        :return: :class:`~oyProjectManager.models.version.Version`
         """
 
         version = None
@@ -385,7 +378,7 @@ class Maya(EnvironmentBase):
           its path
         * Still not able to find any Version instances returns None
         
-        :returns: :class:`~oyProjectManager.core.models.Version` instance or
+        :returns: :class:`~oyProjectManager.models.version.Version` instance or
             None
         """
         
@@ -411,7 +404,7 @@ class Maya(EnvironmentBase):
         
         # image folder from the workspace.mel
         # {{project.full_path}}/Sequences/{{seqence.code}}/Shots/{{shot.code}}/.maya_files/RENDERED_IMAGES
-        image_folder_from_ws = pm.workspace.fileRules['image']
+        image_folder_from_ws = pm.workspace.fileRules['images'] 
         image_folder_from_ws_full_path = os.path.join(
             os.path.dirname(version.path),
             image_folder_from_ws
@@ -429,17 +422,11 @@ class Maya(EnvironmentBase):
         
         # convert the render_file_full_path to a relative path to the
         # imageFolderFromWS_full_path
-        
-#        print "imageFolderFromWS_full_path: %s" % image_folder_from_ws_full_path
-#        print "render_file_full_path: %s" % render_file_full_path
-
         render_file_rel_path = utils.relpath(
             image_folder_from_ws_full_path,
             render_file_full_path,
             sep="/"
         )
-        
-#        print "render_file_rel_path: %s" % render_file_rel_path
         
         if self.has_stereo_camera():
             # just add the <Camera> template variable to the file name
@@ -550,14 +537,11 @@ class Maya(EnvironmentBase):
     def set_project(self, version):
         """Sets the project to the given version.
         
-        The Maya version uses :class:`~oyProjectManager.core.models.Version`
+        The Maya version uses :class:`~oyProjectManager.models.version.Version`
         instances to set the project. Because the Maya workspace is related to
         the the Asset or Shot which can be derived from the Version instance
         very easily.
         """
-        
-        # TODO: remove this method and the inherited one from the super
-        
         pm.workspace.open(
             os.path.dirname(
                 version.path
@@ -582,6 +566,63 @@ class Maya(EnvironmentBase):
             
         #assert(isinstance(recentFiles,pm.OptionVarList))
         recentFiles.appendVar( path )
+    
+    def check_external_files(self):
+        """checks for external files in the current scene and raises
+        RuntimeError if there are local files in the current scene, used as:
+            
+            - File Textures
+            - Mentalray Textures
+            - ImagePlanes
+            - IBL nodes
+            - References
+        """
+        
+        def is_in_repo(path):
+            """checks if the given path is in repository
+            :param path: the path which wanted to be checked
+            :return: True or False
+            """
+            assert isinstance(path, (str, unicode))
+            path = os.path.expandvars(path)
+            return path.startswith(os.environ[conf.repository_env_key])
+        
+        external_nodes = []
+        
+        # check for file textures
+        for file_texture in pm.ls(type=pm.nt.File):
+            path = file_texture.attr('fileTextureName').get()
+            if os.path.isabs(path) and not is_in_repo(path):
+                external_nodes.append(file_texture)
+        
+        # check for mentalray textures
+        for mr_texture in pm.ls(type=pm.nt.MentalrayTexture):
+            path = mr_texture.attr('fileTextureName').get()
+            if os.path.isabs(path) and not is_in_repo(path):
+                external_nodes.append(mr_texture)
+        
+        # check for ImagePlanes
+        for image_plane in pm.ls(type=pm.nt.ImagePlane):
+            path = image_plane.attr('imageName').get()
+            if os.path.isabs(path) and not is_in_repo(path):
+                external_nodes.append(image_plane)
+        
+        # check for IBL nodes
+        for ibl in pm.ls(type=pm.nt.MentalrayIblShape):
+            path = ibl.attr('texture').get()
+            if os.path.isabs(path) and not is_in_repo(path):
+                external_nodes.append(ibl)
+        
+        if external_nodes:
+            pm.select(external_nodes)
+            raise RuntimeError(
+                'There are external references in your scene!!!\n\n'
+                'The problematic nodes are:\n\n' +
+                "\n\t".join(map(lambda x: x.name(), external_nodes)) +
+                '\n\nThese nodes are added in to your selection list,\n'
+                'Please correct them!\n\n'
+                'YOUR FILE IS NOT GOING TO BE SAVED!!!'
+            )
     
     def check_referenced_versions(self):
         """checks the referenced assets versions
@@ -667,11 +708,11 @@ class Maya(EnvironmentBase):
         # return a sorted list
         return sorted(valid_versions, None, lambda x: x[2])
     
-    def update_references_list(self):
+    def update_references_list(self, version=None):
         """updates the references list of the current version
+        :param version: the version to be checked
         """
-        
-        version = self.get_current_version()
+        #version = self.get_current_version()
         
         if version is not None:
             # update the reference list
@@ -692,6 +733,7 @@ class Maya(EnvironmentBase):
         repo_env_key = "$" + conf.repository_env_key
         
         previous_version_full_path = ''
+        latest_version = None
         
         for version_tuple in version_tuple_list:
             version = version_tuple[0]
@@ -1005,10 +1047,6 @@ class Maya(EnvironmentBase):
                     file_texture_path,
                     "/", ".."
                 )
-#                new_path = new_path.replace(
-#                    os.environ[conf.repository_env_key],
-#                    "$" + conf.repository_env_key
-#                )
             
             logger.info("with: %s" % new_path)
             
@@ -1018,65 +1056,7 @@ class Maya(EnvironmentBase):
         """creates the workspace.mel at the given path
         """
         
-        content = """//Maya 2012 Project Definition
-
-workspace -fr "3dPaintTextures" ".maya_files/PAINTINGS/TEXTURES/";
-workspace -fr "Adobe(R) Illustrator(R)" ".maya_files/OTHERS/data/";
-workspace -fr "aliasWire" ".maya_files/OTHERS/data/";
-workspace -fr "animImport" ".maya_files/OTHERS/data/";
-workspace -fr "animExport" ".maya_files/OTHERS/data/";
-workspace -fr "audio" ".maya_files/EDIT/SOUND/";
-workspace -fr "autoSave" ".maya_files/OTHERS/autosave/";
-workspace -fr "clips" ".maya_files/OTHERS/clips/";
-workspace -fr "DAE_FBX" ".maya_files/OTHERS/data/";
-workspace -fr "DAE_FBX export" ".maya_files/OTHERS/data/";
-workspace -fr "depth" ".maya_files/RENDERED_IMAGES/renderData/depth/";
-workspace -fr "diskCache" ".maya_files/OTHERS/data/";
-workspace -fr "DXF" ".maya_files/OTHERS/data/";
-workspace -fr "DXF export" ".maya_files/OTHERS/data/";
-workspace -fr "DXF_FBX" ".maya_files/OTHERS/data/";
-workspace -fr "DXF_FBX export" ".maya_files/OTHERS/data/";
-workspace -fr "eps" ".maya_files/OTHERS/data/";
-workspace -fr "EPS" ".maya_files/OTHERS/data/";
-workspace -fr "FBX" ".maya_files/OTHERS/data/";
-workspace -fr "FBX export" ".maya_files/OTHERS/data/";
-workspace -fr "fluidCache" ".maya_files/OTHERS/cache/";
-workspace -fr "furAttrMap" ".maya_files/OTHERS/fur/furAttrMap/";
-workspace -fr "furEqualMap" ".maya_files/OTHERS/fur/furEqualMap/";
-workspace -fr "furFiles" ".maya_files/OTHERS/fur/furFiles/";
-workspace -fr "furImages" ".maya_files/OTHERS/fur/furImages/";
-workspace -fr "furShadowMap" ".maya_files/OTHERS/fur/furShadowMap/";
-workspace -fr "IGES" ".maya_files/OTHERS/data/";
-workspace -fr "IGESexport" ".maya_files/OTHERS/data/";
-workspace -fr "illustrator" ".maya_files/OTHERS/data/";
-workspace -fr "image" ".maya_files/RENDERED_IMAGES/";
-workspace -fr "images" ".maya_files/RENDERED_IMAGES/";
-workspace -fr "iprImages" ".maya_files/RENDERED_IMAGES/renderData/iprImages/";
-workspace -fr "lights" ".maya_files/RENDERED_IMAGES/renderData/shaders/";
-workspace -fr "mayaAscii" ".maya_files/OTHERS/";
-workspace -fr "mayaBinary" ".maya_files/OTHERS/";
-workspace -fr "mel" ".maya_files/OTHERS/mel/";
-workspace -fr "mentalray" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
-workspace -fr "mentalRay" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
-workspace -fr "move" ".maya_files/OTHERS/data/";
-workspace -fr "movie" ".maya_files/OTHERS/data/";
-workspace -fr "OBJ" ".maya_files/OTHERS/data/";
-workspace -fr "OBJexport" ".maya_files/OTHERS/data/";
-workspace -fr "offlineEdit" ".maya_files/OHTERS/edits/";
-workspace -fr "particles" ".maya_files/OTHERS/particles/";
-workspace -fr "renderData" ".maya_files/LIGHTING/";
-workspace -fr "renderScenes" ".maya_files/LIGHTING/";
-workspace -fr "RIB" ".maya_files/OTHERS/data/";
-workspace -fr "RIBexport" ".maya_files/OTHERS/data/";
-workspace -fr "scene" ".maya_files/OTHERS/";
-workspace -fr "scripts" ".maya_files/OTHERS/mel/";
-workspace -fr "shaders" ".maya_files/RENDERED_IMAGES";
-workspace -fr "sound" ".maya_files/OTHERS/sound/";
-workspace -fr "sourceImages" ".maya_files/PAINTINGS/TEXTURES/";
-workspace -fr "templates" ".maya_files/OTHERS/assets/";
-workspace -fr "textures" ".maya_files/PAINTINGS/TEXTURES/";
-workspace -fr "translatorData" ".maya_files/OTHERS/";
-        """
+        content = conf.maya_workspace_file_content
         
         # check if there is a workspace.mel at the given path
         full_path = os.path.join(path, "workspace.mel")
@@ -1093,4 +1073,21 @@ workspace -fr "translatorData" ".maya_files/OTHERS/";
             workspace_file = file(full_path, "w")
             workspace_file.write(content)
             workspace_file.close()
+        
     
+    def create_workspace_folders(self, path):
+        """creates the workspace folders
+        :param path: the root of the workspace
+        """
+        
+        for key in pm.workspace.fileRules:
+            rule_path = pm.workspace.fileRules[key]
+            full_path = os.path.join(path, rule_path)
+            try:
+                os.makedirs(
+                    full_path
+                )
+            except OSError:
+                # dir exists
+                pass
+        

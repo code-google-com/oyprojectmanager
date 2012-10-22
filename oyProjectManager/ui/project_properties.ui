@@ -203,6 +203,23 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>name_lineEdit</tabstop>
+  <tabstop>code_lineEdit</tabstop>
+  <tabstop>clients_comboBox</tabstop>
+  <tabstop>resolution_comboBox</tabstop>
+  <tabstop>fps_spinBox</tabstop>
+  <tabstop>active_checkBox</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>shot_number_prefix_lineEdit</tabstop>
+  <tabstop>shot_number_padding_spinBox</tabstop>
+  <tabstop>revision_number_prefix_lineEdit</tabstop>
+  <tabstop>revision_number_padding_spinBox</tabstop>
+  <tabstop>version_number_prefix_lineEdit</tabstop>
+  <tabstop>version_number_padding_spinBox</tabstop>
+  <tabstop>structure_textEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

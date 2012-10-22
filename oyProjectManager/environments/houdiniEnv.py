@@ -7,8 +7,13 @@
 import os
 import hou
 import re
-from oyProjectManager.core.models import EnvironmentBase, Version
 from oyProjectManager import utils
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.entity import EnvironmentBase
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.repository import Repository
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.version import Version
 
 import logging
 logger = logging.getLogger(__name__)

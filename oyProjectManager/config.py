@@ -56,6 +56,8 @@ class Config(object):
             (  0,   0,   0), #CMP
         ],
         
+        sequence_format = "%h%p%t %R",
+        
         shot_number_prefix = "SH",
         shot_number_padding = 3,
         
@@ -68,7 +70,7 @@ class Config(object):
         default_fps = 25,
         
         default_asset_type_name = "Generic",
-        default_take_name = "MAIN",
+        default_take_name = "Main",
         
         users_data = [{"name": "Administrator", "initials": "adm"}],
         
@@ -149,15 +151,22 @@ class Config(object):
             {{seq_path}}/Edit/Sound
             {{seq_path}}/References/Artworks
             {{seq_path}}/References/Text/Scenario
+            {{seq_path}}/References/Text/Brief
             {{seq_path}}/References/Photos_Images
             {{seq_path}}/References/Videos
             {{seq_path}}/References/Others
+            {{seq_path}}/References/Storyboard
             {% for shot in sequence.shots %}
                 {{seq_path}}/Shots/{{shot.code}}
                 {{seq_path}}/Shots/{{shot.code}}/Plate
-                {{seq_path}}/Shots/{{shot.code}}/Ref
+                {{seq_path}}/Shots/{{shot.code}}/Reference
                 {{seq_path}}/Shots/{{shot.code}}/Texture
             {% endfor %}
+        {% endfor %}
+        {% for asset in project.assets%}
+            {% set asset_path = project.full_path + '/Assets/' + asset.type + '/' + asset.code %}
+            {{asset_path}}/Texture
+            {{asset_path}}/Reference
         {% endfor %}
         """,
         
@@ -344,7 +353,65 @@ class Config(object):
                 "environments": ["3DEqualizer"],
                 "type_for": "Shot"
             }
-        ]
+        ],
+        
+        maya_workspace_file_content = """workspace -fr "3dPaintTextures" ".maya/sourceimages/3dPaintTextures/";
+workspace -fr "Adobe(R) Illustrator(R)" ".maya/data/";
+workspace -fr "aliasWire" ".mayaFiles/data/";
+workspace -fr "animImport" ".mayaFiles/data/";
+workspace -fr "animExport" ".mayaFiles/data/";
+workspace -fr "audio" ".mayaFiles/sound/";
+workspace -fr "autoSave" ".mayaFiles/autosave/";
+workspace -fr "clips" ".mayaFiles/clips/";
+workspace -fr "DAE_FBX" ".mayaFiles/data/";
+workspace -fr "DAE_FBX export" ".mayaFiles/data/";
+workspace -fr "depth" ".mayaFiles/renderData/depth/";
+workspace -fr "diskCache" ".mayaFiles/cache/";
+workspace -fr "DXF" ".mayaFiles/data/";
+workspace -fr "DXF export" ".mayaFiles/data/";
+workspace -fr "DXF_FBX" ".mayaFiles/data/";
+workspace -fr "DXF_FBX export" ".mayaFiles/data/";
+workspace -fr "eps" ".mayaFiles/data/";
+workspace -fr "EPS" ".mayaFiles/data/";
+workspace -fr "FBX" ".mayaFiles/data/";
+workspace -fr "FBX export" ".mayaFiles/data/";
+workspace -fr "fluidCache" ".mayaFiles/cache/fluid/";
+workspace -fr "furAttrMap" ".mayaFiles/renderData/fur/furAttrMap/";
+workspace -fr "furEqualMap" ".mayaFiles/renderData/fur/furEqualMap/";
+workspace -fr "furFiles" ".mayaFiles/renderData/fur/furFiles/";
+workspace -fr "furImages" ".mayaFiles/renderData/fur/furImages/";
+workspace -fr "furShadowMap" ".mayaFiles/renderData/fur/furShadowMap/";
+workspace -fr "IGES" ".mayaFiles/data/";
+workspace -fr "IGESexport" ".mayaFiles/data/";
+workspace -fr "illustrator" ".mayaFiles/data/";
+workspace -fr "image" ".mayaFiles/images/";
+workspace -fr "images" ".mayaFiles/images/";
+workspace -fr "iprImages" ".mayaFiles/renderData/iprImages/";
+workspace -fr "lights" ".mayaFiles/renderData/shaders/";
+workspace -fr "mayaAscii" ".mayaFiles/scenes/";
+workspace -fr "mayaBinary" ".mayaFiles/scenes/";
+workspace -fr "mel" ".mayaFiles/scripts/";
+workspace -fr "mentalray" ".mayaFiles/renderData/mentalray/";
+workspace -fr "mentalRay" ".mayaFiles/renderData/mentalray";
+workspace -fr "move" ".mayaFiles/data/";
+workspace -fr "movie" ".mayaFiles/movies/";
+workspace -fr "OBJ" ".mayaFiles/data/";
+workspace -fr "OBJexport" ".mayaFiles/data/";
+workspace -fr "offlineEdit" ".mayaFiles/scenes/edits/";
+workspace -fr "particles" ".mayaFiles/particles/";
+workspace -fr "renderData" ".mayaFiles/renderData/";
+workspace -fr "renderScenes" ".mayaFiles/scenes/";
+workspace -fr "RIB" ".mayaFiles/data/";
+workspace -fr "RIBexport" ".mayaFiles/data/";
+workspace -fr "scene" ".mayaFiles/scenes/";
+workspace -fr "scripts" ".mayaFiles/scripts/";
+workspace -fr "shaders" ".mayaFiles/renderData/shaders/";
+workspace -fr "sound" ".mayaFiles/sound/";
+workspace -fr "sourceImages" ".mayaFiles/sourceimages/";
+workspace -fr "templates" ".mayaFiles/assets/";
+workspace -fr "textures" ".mayaFiles/images/";
+workspace -fr "translatorData" ".mayaFiles/data/";
+"""
     )
     
     def __init__(self):

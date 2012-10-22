@@ -11,9 +11,11 @@ from sqlalchemy.sql.expression import distinct, func
 
 import oyProjectManager
 from oyProjectManager import config, db, utils
-from oyProjectManager.core.models import (Asset, Project, Sequence, Repository,
-                                          Version, VersionType, Shot, User,
-                                          VersionTypeEnvironments)
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import Version, VersionType
 
 logger = logging.getLogger('beaker.container')
 logger.setLevel(logging.WARNING)
@@ -161,12 +163,14 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
         self.projects_comboBox.projects = projects
         self.projects_comboBox.setCurrentIndex(0)
         
+        self.project_changed()
+        
         self.fill_assets_tableWidget()
     
     def get_current_project(self):
         """Returns the currently selected project instance in the
         projects_comboBox
-        :return: :class:`~oyProjectManager.core.models.Project` instance
+        :return: :class:`~oyProjectManager.models.project.Project` instance
         """
         index = self.projects_comboBox.currentIndex()
         try:
@@ -177,6 +181,14 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     def project_changed(self):
         """runs when selection in projects_comboBox changed
         """
+        # set the client info
+        project = self.get_current_project()
+        if project:
+            # update the client info
+            self.client_name_label.setText(
+                project.client.name if project.client else "N/A"
+            )
+        
         self.tabWidget_changed()
     
     def tabWidget_changed(self):
@@ -315,7 +327,10 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                         fg.setColor(QtGui.QColor(*fgcolor))
                         item.setForeground(fg)
                         
-                        item.setBackgroundColor(QtGui.QColor(*bgcolor))
+                        try:
+                            item.setBackgroundColor(QtGui.QColor(*bgcolor))
+                        except AttributeError: # gives errpor with PySide
+                            pass
                         
                         # add this version to the item
                         item.version = version
@@ -328,7 +343,10 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                         bg.setColor(QtGui.QColor(0, 0, 0))
                         item.setBackground(bg)
                         
-                        item.setBackgroundColor(QtGui.QColor(0, 0, 0))
+                        try:
+                            item.setBackgroundColor(QtGui.QColor(0, 0, 0))
+                        except AttributeError: # gives error with PySide
+                            pass
                         
                         # set the related version to None
                         item.version = None
@@ -370,6 +388,9 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
     def fill_shots_tableWidget(self):
         """fills the shots_tableWidget
         """
+        
+        # TODO: merge cells of the same shot, or at least paint them in some other color
+        
         # clear the tableWidget
         self.shots_tableWidget.clear()
         
@@ -425,6 +446,7 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
             
             # feed the shots to the list
             
+            previous_shot = None
             for shot in shots:
                 take_names = map(
                     lambda x: x[0],
@@ -511,7 +533,10 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                             fg.setColor(QtGui.QColor(*fgcolor))
                             item.setForeground(fg)
                             
-                            item.setBackgroundColor(QtGui.QColor(*bgcolor))
+                            try:
+                                item.setBackgroundColor(QtGui.QColor(*bgcolor))
+                            except AttributeError: # for PySide
+                                pass
                             
                             # set this version to the item
                             item.version = version
@@ -524,7 +549,10 @@ class MainDialog(QtGui.QDialog, status_manager_UI.Ui_Dialog):
                             bg.setColor(QtGui.QColor(0, 0, 0))
                             item.setBackground(bg)
                             
-                            item.setBackgroundColor(QtGui.QColor(0, 0, 0))
+                            try:
+                                item.setBackgroundColor(QtGui.QColor(0, 0, 0))
+                            except AttributeError: # for PySide
+                                pass
                             
                             # set the version to None for this item
                             item.version = None

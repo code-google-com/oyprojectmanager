@@ -13,11 +13,11 @@ This is where all the magic happens.
   SQLite3 Database:
   
   To hold the information about all the data created
-  :class:`~oyProjectManager.core.models.Project`\ s,
-  :class:`~oyProjectManager.core.models.Sequence`\ s,
-  :class:`~oyProjectManager.core.models.Shot`\ s,
-  :class:`~oyProjectManager.core.models.Asset`\ s and
-  :class:`~oyProjectManager.core.models.VersionType`\ s
+  :class:`~oyProjectManager.models.project.Project`\ s,
+  :class:`~oyProjectManager.models.sequence.Sequence`\ s,
+  :class:`~oyProjectManager.models.shot.Shot`\ s,
+  :class:`~oyProjectManager.models.asset.Asset`\ s and
+  :class:`~oyProjectManager.models.version.VersionType`\ s
   , there is a ".metadata.db" file in the repository root. This SQLite3
   database has all the information about everything.
   
@@ -31,7 +31,7 @@ For a simple example, lets get all the shots for a Sequence called
 "TEST_SEQ" in the "TEST_PROJECT"::
 
   from oyProjectManager import db
-  from oyProjectManager.core.models import Project, Sequence, Shot
+  from oyProjectManager import Project, Sequence, Shot
   
   # setup the database session
   db.setup()
@@ -87,9 +87,6 @@ def setup(database_url_in=None):
     global metadata
     global database_url
     
-    # import all the models to let them attach themselves to the Base.mapper
-    from oyProjectManager.core import models
-    
     # create engine
     # TODO: create tests for this
     
@@ -106,13 +103,20 @@ def setup(database_url_in=None):
     # try to use SQLAlchemy to separate the dialect and the address part and
     # expand any data and then merge it again
     
-    database_url_in = os.path.expanduser(
-        os.path.expandvars(
+    #database_url_in = os.path.expanduser(
+    #    os.path.expandvars(
+    #        os.path.expandvars(
+    #            database_url_in
+    #        )
+    #    )
+    #)
+    
+    while "$" in database_url_in or "~" in database_url_in:
+        database_url_in = os.path.expanduser(
             os.path.expandvars(
-                database_url_in
+                    database_url_in
             )
         )
-    )
     
     database_url = database_url_in
     
@@ -155,11 +159,9 @@ def __init_db__():
     
     # get the users from the config
     from oyProjectManager import conf
-    
-    from oyProjectManager.core.models import User, VersionType
-    
     # ------------------------------------------------------
     # create the users
+    from oyProjectManager.models.auth import User
     
     # get all users from db
     users_from_db = query(User).all()
@@ -177,6 +179,8 @@ def __init_db__():
     
     # ------------------------------------------------------
     # add the VersionTypes
+    from oyProjectManager.models.version import VersionType
+    
     version_types_from_db = query(VersionType).all()
     
     for version_type in conf.version_types:

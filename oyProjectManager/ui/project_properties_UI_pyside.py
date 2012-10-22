@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/project_properties.ui'
 #
-# Created: Tue Jun  5 02:32:23 2012
-#      by: pyside-uic 0.2.13 running on PySide 1.1.0
+# Created: Fri Oct 19 16:38:03 2012
+#      by: pyside-uic 0.2.13 running on PySide 1.1.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -124,6 +124,20 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
+        Dialog.setTabOrder(self.tabWidget, self.name_lineEdit)
+        Dialog.setTabOrder(self.name_lineEdit, self.code_lineEdit)
+        Dialog.setTabOrder(self.code_lineEdit, self.clients_comboBox)
+        Dialog.setTabOrder(self.clients_comboBox, self.resolution_comboBox)
+        Dialog.setTabOrder(self.resolution_comboBox, self.fps_spinBox)
+        Dialog.setTabOrder(self.fps_spinBox, self.active_checkBox)
+        Dialog.setTabOrder(self.active_checkBox, self.buttonBox)
+        Dialog.setTabOrder(self.buttonBox, self.shot_number_prefix_lineEdit)
+        Dialog.setTabOrder(self.shot_number_prefix_lineEdit, self.shot_number_padding_spinBox)
+        Dialog.setTabOrder(self.shot_number_padding_spinBox, self.revision_number_prefix_lineEdit)
+        Dialog.setTabOrder(self.revision_number_prefix_lineEdit, self.revision_number_padding_spinBox)
+        Dialog.setTabOrder(self.revision_number_padding_spinBox, self.version_number_prefix_lineEdit)
+        Dialog.setTabOrder(self.version_number_prefix_lineEdit, self.version_number_padding_spinBox)
+        Dialog.setTabOrder(self.version_number_padding_spinBox, self.structure_textEdit)
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))

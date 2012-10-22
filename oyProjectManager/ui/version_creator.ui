@@ -54,7 +54,25 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="projects_comboBox"/>
+         <widget class="QComboBox" name="projects_comboBox">
+          <property name="maxVisibleItems">
+           <number>50</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="client_label">
+          <property name="text">
+           <string>Client:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="client_name_label">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
         </item>
         <item>
          <spacer name="horizontalSpacer_4">
@@ -590,6 +608,33 @@ p, li { white-space: pre-wrap; }
             </layout>
            </item>
            <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_17">
+             <item>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="update_paths_checkBox">
+               <property name="text">
+                <string>Update Paths</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
               <spacer name="horizontalSpacer_7">
@@ -674,7 +719,7 @@ p, li { white-space: pre-wrap; }
                 <number>999999</number>
                </property>
                <property name="value">
-                <number>10</number>
+                <number>16</number>
                </property>
               </widget>
              </item>
@@ -701,7 +746,7 @@ p, li { white-space: pre-wrap; }
               <bool>false</bool>
              </property>
              <property name="columnCount">
-              <number>5</number>
+              <number>6</number>
              </property>
              <attribute name="horizontalHeaderStretchLastSection">
               <bool>true</bool>
@@ -717,6 +762,11 @@ p, li { white-space: pre-wrap; }
              <column>
               <property name="text">
                <string>User</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Status</string>
               </property>
              </column>
              <column>
@@ -750,6 +800,13 @@ p, li { white-space: pre-wrap; }
                 </size>
                </property>
               </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="chose_pushButton">
+               <property name="text">
+                <string>Choose</string>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QPushButton" name="open_pushButton">

@@ -8,10 +8,7 @@ import os
 import shutil
 import tempfile
 import unittest
-from oyProjectManager import config, db
-from oyProjectManager.core.models import User
-
-conf = config.Config()
+from oyProjectManager import conf, db
 
 class UserTester(unittest.TestCase):
     """tests the User class
@@ -20,9 +17,10 @@ class UserTester(unittest.TestCase):
     def setUp(self):
         """setup the test settings with environment variables
         """
-        
         # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()

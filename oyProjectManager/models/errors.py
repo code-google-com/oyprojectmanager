@@ -4,8 +4,11 @@
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
-from exceptions import Exception
 
+# create a logger
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 class CircularDependencyError(Exception):
     """Raised when there is circular dependencies between Versions

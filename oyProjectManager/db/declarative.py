@@ -8,7 +8,6 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 
-
 class ORMClass(object):
     @classmethod
     def query(cls):

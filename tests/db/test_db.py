@@ -9,13 +9,7 @@ import shutil
 import tempfile
 import unittest
 
-from oyProjectManager import db, config
-
-import logging
-logger = logging.getLogger("oyProjectManager.core.models")
-logger.setLevel(logging.DEBUG)
-
-conf = config.Config()
+from oyProjectManager import db, conf
 
 class DB_Tester(unittest.TestCase):
     """tests the :mod:`oyProjectManager.db` module
@@ -26,6 +20,8 @@ class DB_Tester(unittest.TestCase):
         """
         # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()

@@ -8,8 +8,9 @@ import os
 import logging
 from sqlalchemy.sql.expression import distinct
 from oyProjectManager import conf
-from oyProjectManager.core.models import Project, Client
 from oyProjectManager import db
+from oyProjectManager.models.auth import Client
+from oyProjectManager.models.project import Project
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +35,8 @@ elif qt_module == "PyQt4":
 class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
     """Dialog to edit project properties
     
-    If a :class:`~oyProjectManager.core.models.Project` instance is also passed
-    it will edit the given project.
+    If a :class:`~oyProjectManager.models.project.Project` instance is also
+    passed it will edit the given project.
     
     If no Project is passed then it will create and return a new one.
     """
@@ -71,6 +72,14 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
             self.buttonBox,
             QtCore.SIGNAL("accepted()"),
             self.button_box_ok_clicked
+        )
+        
+        # changing the name of the project should also update the code
+        # if the code field is empty
+        QtCore.QObject.connect(
+            self.name_lineEdit,
+            QtCore.SIGNAL("textChanged(QString)"),
+            self.name_edited
         )
 
     def set_resolution_to_default(self):
@@ -120,7 +129,7 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
     def update_UI_from_project(self, project):
         """Updates the UI with the info from the given project instance
         
-        :param project: The :class:`~oyProjectManager.core.models.Project`
+        :param project: The :class:`~oyProjectManager.models.project.Project`
           instance which the UI data will be read from.
         """
         # if a project is given update the UI with the given project info
@@ -178,6 +187,17 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         # get the data from the input fields
         name = self.name_lineEdit.text()
         code = self.code_lineEdit.text()
+        # check if the code is empty
+        if code=="":
+            # raise an error please
+            QtGui.QMessageBox.critical(
+                self,
+                "Error",
+                "Code field can not be empty,\n"
+                "Please enter a proper Code!!!"
+            )
+            return
+        
         client_name = self.clients_comboBox.currentText()
         client = Client.query().filter(Client.name==client_name).first()
         if not client:
@@ -235,3 +255,13 @@ class MainDialog(QtGui.QDialog, project_properties_UI.Ui_Dialog):
         # and close the dialog
         self.close()
     
+    def name_edited(self, new_name):
+        """called by the ui event when the text in project name lineEdit
+        changed, it updates the code field if the code field is empty
+        :param new_name: the changed name
+        """
+        
+        # update only if the code field is empty
+        import re
+        new_code = re.sub(r'([^A-Z0-9]+)([\-\s]*)', '_', new_name.upper())
+        self.code_lineEdit.setText(new_code)

@@ -11,19 +11,22 @@ import tempfile
 import unittest
 
 import sip
+from oyProjectManager.models.asset import Asset
+from oyProjectManager.models.auth import User
+from oyProjectManager.models.entity import EnvironmentBase
+from oyProjectManager.models.project import Project
+from oyProjectManager.models.sequence import Sequence
+from oyProjectManager.models.shot import Shot
+from oyProjectManager.models.version import Version, VersionType
+
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 from PyQt4.QtTest import QTest
 
-from oyProjectManager import config, db
-from oyProjectManager.core.models import (Project, Asset, Version, User,
-                                          VersionType, Sequence, Shot,
-                                          EnvironmentBase)
+from oyProjectManager import conf, db
 from oyProjectManager.ui import version_creator
-
-conf = config.Config()
 
 import logging
 logger = logging.getLogger("oyProjectManager.ui.version_creator")
@@ -80,9 +83,12 @@ class VersionCreatorTester(unittest.TestCase):
     def setUp(self):
         """setup the test
         """
-        
         # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
+        db.setup()
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
@@ -344,6 +350,36 @@ class VersionCreatorTester(unittest.TestCase):
         for user in users:
             self.assertTrue(user.name in content)
     
+
+    def test_users_comboBox_is_filled_with_only_active_users_from_the_db(self):
+        """testing if the users combobox is filled only with active the user
+        names
+        """
+        # create a couple of users
+        user1 = User(name='user1')
+        user1.save()
+        
+        user2 = User(name='user2')
+        user2.save()
+        
+        user3 = User(name='user3', active=False)
+        user3.save()
+        
+        # get the users from the config
+        users = User.query().filter(User.active==True).all()
+        
+        dialog = version_creator.MainDialog()
+        
+        # check if only the active user names are in the comboBox
+        content = [dialog.users_comboBox.itemText(i)
+                   for i in range(dialog.users_comboBox.count())]
+        
+        # check the length
+        self.assertEqual(len(content), len(users))
+        
+        for user in users:
+            self.assertTrue(user.name in content)
+     
     def test_users_comboBox_has_users_attribute(self):
         """testing if the users_comboBox has an attribute called users
         """
@@ -2260,7 +2296,6 @@ class VersionCreatorTester(unittest.TestCase):
         """testing if previous_versions_tableWidget shows only published
         versions if show_published_only_checkBox is checked
         """
-        
         project = Project("Test Project")
         project.save()
         
@@ -2311,14 +2346,7 @@ class VersionCreatorTester(unittest.TestCase):
         vers4.save()
 
         dialog = version_creator.MainDialog()
-#        dialog.show()
-#        self.app.exec_()
-#        self.app.connect(
-#            self.app,
-#            QtCore.SIGNAL("lastWindowClosed()"),
-#            self.app,
-#            QtCore.SLOT("quit()")
-#        )
+        self.show_dialog(dialog)
         
         # set to assets
         dialog.tabWidget.setCurrentIndex(0)
@@ -2817,9 +2845,10 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
     def setUp(self):
         """setup the test
         """
-        
         # -----------------------------------------------------------------
         # start of the setUp
+        conf.database_url = "sqlite://"
+        
         # create the environment variable and point it to a temp directory
         self.temp_config_folder = tempfile.mkdtemp()
         self.temp_projects_folder = tempfile.mkdtemp()
@@ -2827,13 +2856,8 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         os.environ["OYPROJECTMANAGER_PATH"] = self.temp_config_folder
         os.environ[conf.repository_env_key] = self.temp_projects_folder
         
-        # for PySide
-#        if QtGui.qApp is None:
-#            self.app = QtGui.QApplication(sys.argv)
-#        else:
-#            self.app = QtGui.qApp
+        db.setup()
         
-        # for PyQt4
         self.app = QtGui.QApplication(sys.argv)
         
         # create the necessary data
@@ -2858,7 +2882,7 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         self.test_shot1 = Shot(self.test_sequence1, 1)
         self.test_shot2 = Shot(self.test_sequence1, 2)
         self.test_shot3 = Shot(self.test_sequence1, 3)
-
+        
         # shots for sequence2
         self.test_shot4 = Shot(self.test_sequence2, 4)
         self.test_shot5 = Shot(self.test_sequence2, 5)
@@ -2970,6 +2994,18 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         # delete the temp folder
         shutil.rmtree(self.temp_config_folder)
         shutil.rmtree(self.temp_projects_folder)
+    
+    def show_dialog(self, dialog):
+        """show the given dialog
+        """
+        dialog.show()
+        self.app.exec_()
+        self.app.connect(
+            self.app,
+            QtCore.SIGNAL("lastWindowClosed()"),
+            self.app,
+            QtCore.SLOT("quit()")
+        )
     
     def test_get_version_type_returns_VersionType_instance_from_the_UI(self):
         """testing if the get_version_type method returns the correct
@@ -3373,4 +3409,73 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
             self.test_dialog.takes_listWidget.currentItem().text()
         )
 
+    def test_no_environment_given_export_selection_as_pushButton_is_hidden(self):
+        """testing if no environment instance is given the
+        export_selection_as_pushButton is hidden
+        """
+        new_vc_dialog = version_creator.MainDialog()
+        new_vc_dialog.show()
+        self.assertFalse(new_vc_dialog.export_as_pushButton.isVisible())
+    
+    def test_no_environment_given_save_as_pushButton_is_still_visible(self):
+        """testing if no environment instance is given the save_as_pushButton
+        is still visible
+        """
+        new_vc_dialog = version_creator.MainDialog()
+        new_vc_dialog.show()
+        self.assertTrue(new_vc_dialog.save_as_pushButton.isVisible())
+    
+    def test_no_environment_given_open_pushButton_is_hidden(self):
+        """testing if no environment instance is given the open_pushButton is
+        hidden
+        """
+        new_vc_dialog = version_creator.MainDialog()
+        new_vc_dialog.show()
+        #self.show_dialog(new_vc_dialog)
+        self.assertFalse(new_vc_dialog.open_pushButton.isVisible())
+    
+    def test_no_environment_given_reference_pushButton_is_hidden(self):
+        """testing if no environment instance is given the reference_pushButton
+        is hidden
+        """
+        new_vc_dialog = version_creator.MainDialog()
+        new_vc_dialog.show()
+        self.assertFalse(new_vc_dialog.reference_pushButton.isVisible())
+    
+    def test_no_environment_given_import_pushButton_is_hidden(self):
+        """testing if no environment instance is given the import_pushButton is
+        hidden
+        """
+        new_vc_dialog = version_creator.MainDialog()
+        new_vc_dialog.show()
+        self.assertFalse(new_vc_dialog.import_pushButton.isVisible())
+    
+    def test_mode_is_one_will_hide_some_elements(self):
+        """testing if the mode is set to 1 will hide the read_write elements
+        """
+        vc_dialog = version_creator.MainDialog(mode=1)
+        vc_dialog.show()
+        self.assertFalse(vc_dialog.create_asset_pushButton.isVisible())
+        self.assertFalse(vc_dialog.add_type_toolButton.isVisible())
+        self.assertFalse(vc_dialog.add_take_toolButton.isVisible())
+        self.assertFalse(vc_dialog.note_label.isVisible())
+        self.assertFalse(vc_dialog.note_textEdit.isVisible())
+        self.assertFalse(vc_dialog.statuses_comboBox.isVisible())
+        self.assertFalse(vc_dialog.publish_checkBox.isVisible())
+        self.assertFalse(vc_dialog.update_paths_checkBox.isVisible())
+        self.assertFalse(vc_dialog.export_as_pushButton.isVisible())
+        self.assertFalse(vc_dialog.save_as_pushButton.isVisible())
+        self.assertFalse(vc_dialog.open_pushButton.isVisible())
+        self.assertFalse(vc_dialog.reference_pushButton.isVisible())
+        self.assertFalse(vc_dialog.import_pushButton.isVisible())
+        self.assertFalse(vc_dialog.upload_thumbnail_pushButton.isVisible())
+        self.assertFalse(vc_dialog.users_comboBox.isVisible())
+        self.assertFalse(vc_dialog.user_label.isVisible())
+        self.assertTrue(vc_dialog.chose_pushButton.isVisible())
         
+        # set the shots tab
+        vc_dialog.tabWidget.setCurrentIndex(1)
+        
+        self.assertFalse(vc_dialog.shot_info_update_pushButton.isVisible())
+    
+    

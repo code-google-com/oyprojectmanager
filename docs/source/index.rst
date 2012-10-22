@@ -28,22 +28,20 @@ Summary
    oyProjectManager
    oyProjectManager.config
    oyProjectManager.config.Config
-   oyProjectManager.core.abstractClasses
-   oyProjectManager.core.abstractClasses.Singleton
-   oyProjectManager.core.errors.CircularDependencyError
-   oyProjectManager.core.models
-   oyProjectManager.core.models.Asset
-   oyProjectManager.core.models.Client
-   oyProjectManager.core.models.EnvironmentBase
-   oyProjectManager.core.models.Project
-   oyProjectManager.core.models.Sequence
-   oyProjectManager.core.models.Shot
-   oyProjectManager.core.models.Repository
-   oyProjectManager.core.models.User
-   oyProjectManager.core.models.Version
-   oyProjectManager.core.models.VersionableBase
-   oyProjectManager.core.models.VersionStatusComparator
-   oyProjectManager.core.models.VersionType
+   oyProjectManager.models
+   oyProjectManager.models.asset.Asset
+   oyProjectManager.models.auth.Client
+   oyProjectManager.models.auth.User
+   oyProjectManager.models.entity.EnvironmentBase
+   oyProjectManager.models.entity.VersionableBase
+   oyProjectManager.models.errors.CircularDependencyError
+   oyProjectManager.models.project.Project
+   oyProjectManager.models.sequence.Sequence
+   oyProjectManager.models.shot.Shot
+   oyProjectManager.models.repository.Repository
+   oyProjectManager.models.version.Version
+   oyProjectManager.models.version.VersionStatusComparator
+   oyProjectManager.models.version.VersionType
    oyProjectManager.db
    oyProjectManager.db.declarative
    oyProjectManager.utils
