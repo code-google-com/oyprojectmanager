@@ -802,6 +802,13 @@ p, li { white-space: pre-wrap; }
               </spacer>
              </item>
              <item>
+              <widget class="QPushButton" name="chose_pushButton">
+               <property name="text">
+                <string>Choose</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="open_pushButton">
                <property name="text">
                 <string>Open</string>

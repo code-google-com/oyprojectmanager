@@ -4,11 +4,18 @@ Version History
 0.2.5.2
 -------
 
-* mayaEnv.Maya now creates all the folders defined by the workspace fileRules.
+* mayaEnv.Maya now creates all the folders defined in the
+  pymel.core.workspace.fileRules dictionary.
 
 * Creating a new Asset in version_creator now trigger the recreation of the
   project structure, this will allow any asset related folders to be created
   automatically. Change ``project_structure`` config value as desired.
+
+* Added a new config value called ``maya_workspace_file_content`` to hold the
+  workspace.mel content.
+
+* version_creator UI now can work in read-only mode where it is only used for
+  choosing existing versions.
 
 0.2.5.1
 -------

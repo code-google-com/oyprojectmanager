@@ -3449,4 +3449,33 @@ class VersionCreator_Environment_Relation_Tester(unittest.TestCase):
         new_vc_dialog = version_creator.MainDialog()
         new_vc_dialog.show()
         self.assertFalse(new_vc_dialog.import_pushButton.isVisible())
-
+    
+    def test_mode_is_one_will_hide_some_elements(self):
+        """testing if the mode is set to 1 will hide the read_write elements
+        """
+        vc_dialog = version_creator.MainDialog(mode=1)
+        vc_dialog.show()
+        self.assertFalse(vc_dialog.create_asset_pushButton.isVisible())
+        self.assertFalse(vc_dialog.add_type_toolButton.isVisible())
+        self.assertFalse(vc_dialog.add_take_toolButton.isVisible())
+        self.assertFalse(vc_dialog.note_label.isVisible())
+        self.assertFalse(vc_dialog.note_textEdit.isVisible())
+        self.assertFalse(vc_dialog.statuses_comboBox.isVisible())
+        self.assertFalse(vc_dialog.publish_checkBox.isVisible())
+        self.assertFalse(vc_dialog.update_paths_checkBox.isVisible())
+        self.assertFalse(vc_dialog.export_as_pushButton.isVisible())
+        self.assertFalse(vc_dialog.save_as_pushButton.isVisible())
+        self.assertFalse(vc_dialog.open_pushButton.isVisible())
+        self.assertFalse(vc_dialog.reference_pushButton.isVisible())
+        self.assertFalse(vc_dialog.import_pushButton.isVisible())
+        self.assertFalse(vc_dialog.upload_thumbnail_pushButton.isVisible())
+        self.assertFalse(vc_dialog.users_comboBox.isVisible())
+        self.assertFalse(vc_dialog.user_label.isVisible())
+        self.assertTrue(vc_dialog.chose_pushButton.isVisible())
+        
+        # set the shots tab
+        vc_dialog.tabWidget.setCurrentIndex(1)
+        
+        self.assertFalse(vc_dialog.shot_info_update_pushButton.isVisible())
+    
+    
