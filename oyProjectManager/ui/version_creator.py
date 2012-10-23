@@ -15,7 +15,7 @@ from sqlalchemy.sql.expression import distinct
 
 import oyProjectManager
 from oyProjectManager import (config, db, utils, Asset, User, EnvironmentBase,
-                              Project, Repository, Sequence, Shot, Version,
+                              Project, Sequence, Shot, Version,
                               VersionType, VersionTypeEnvironments)
 from oyProjectManager.ui import create_asset_dialog, version_updater, ui_utils
 
@@ -164,9 +164,6 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # change the window title
         self.setWindowTitle(window_title)
-        
-        self.config = config.Config()
-        self.repo = Repository()
         
         # setup the database
         if db.session is None:
@@ -1361,7 +1358,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             item = QtGui.QTableWidgetItem(vers.note)
             # align to left and vertical center
             item.setTextAlignment(0x0001 | 0x0080)
-
+            
             if is_published:
                 set_font(item)
             
