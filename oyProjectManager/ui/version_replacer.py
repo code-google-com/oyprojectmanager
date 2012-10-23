@@ -85,163 +85,51 @@ class MainDialog(QtGui.QDialog, version_replacer_UI.Ui_Dialog):
         self.setupUi(self)
         
         # change the window title
-        environmentTitle = ''
-        if environmentName != None:
-            enviornmentTitle = environmentName
+        window_title = 'Version Replacer | ' + \
+            'oyProjectManager v' + oyProjectManager.__version__
         
-        self._environmentFactory = environmentFactory.EnvironmentFactory()
+        self.environment = environment
         
-        self.setWindowTitle( environmentTitle + ' | ' +
-                             self.windowTitle() +  ' | ' +
-                             'oyProjectManager v' + oyProjectManager.__version__ )
+        if self.environment:
+            window_title += " | " + environment.name
+        else:
+            window_title += " | No Environment"
         
         # center to the window
         self._centerWindow()
         
-        # ------------------------------------------------------------
-        # SIGNALS
-        # ------------------------------------------------------------
         self._horizontalLabels = [ 'Original Asset', 'Update To' ]
         
-        self._numOfRefs = 0
-        self._refDatas = []
-        self._versionListBuffer = []
-
-        
-        self._project = None
-        self._sequence = None
-        self._asset = None
-        
-        self._assetsToReplaceList = []
-        
-        # create a repository object
-        self._repo = repository.Repository()
-        
-        # create the environment object
-        self._environment = self._environmentFactory.create( None, environmentName )
-        
-        #---------
-        # SIGNALS
-        #---------
-        # cancel button
-        QtCore.QObject.connect( self.cancel_pushButton,
-                                QtCore.SIGNAL("clicked()"),
-                                self.close )
-        
-        # project change ---> update sequence
-        QtCore.QObject.connect( self.project_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self._updateProjectObject )
-        
-        QtCore.QObject.connect( self.project_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.updateSequenceList )
-        
-        # sequence change ---> update _no_sub_name_field
-        QtCore.QObject.connect( self.sequence_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self._updateSequenceObject )
-        
-        QtCore.QObject.connect( self.sequence_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.updateForNoSubName )
-        
-        # sequence change ---> update asset type
-        QtCore.QObject.connect( self.sequence_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.updateAssetTypeList )
-        
-        # type change ---> fill baseName comboBox and update subName
-        QtCore.QObject.connect( self.assetType_comboBox1,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.updateBaseNameField )
-        
-        # baseName change ---> full update subName
-        QtCore.QObject.connect( self.baseName_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.updateSubNameField )
-        
-        # subName change ---> full update assetFile_comboBox
-        QtCore.QObject.connect( self.project_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.fullUpdateAssetFilesComboBox )
-        
-        QtCore.QObject.connect( self.sequence_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.fullUpdateAssetFilesComboBox )
-        
-        QtCore.QObject.connect( self.assetType_comboBox1,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.fullUpdateAssetFilesComboBox )
-        
-        QtCore.QObject.connect( self.baseName_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.fullUpdateAssetFilesComboBox )
-        
-        QtCore.QObject.connect( self.subName_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.fullUpdateAssetFilesComboBox )
-        
-        # replace button ---> do replace
-        QtCore.QObject.connect( self.replace_pushButton,
-                                QtCore.SIGNAL("clicked()"),
-                                self.replaceAssets )
-        
-        # remove replacement button --> remove replacement
-        QtCore.QObject.connect( self.removeReplacement_pushButton,
-                                QtCore.SIGNAL("clicked()"),
-                                self.removeReplacement )
-        
-        # assetList ---> double click update all fields
-        QtCore.QObject.connect( self.assetList_tableWidget,
-                                QtCore.SIGNAL("cellDoubleClicked(int,int)"),
-                                self.updateComboBoxesForAsset )
-        
-        self._fillUI()
-        self.update_project_list()
-        
-        if self._numOfRefs > 0:
-            # just act like the first asset has been double clicked
-            self.updateComboBoxesForAsset(0,0)
-        
-        
-        ## add a popup menu
-        #self._popupMenu = QtGui.QMenu( self )#.assetList_tableWidget )
-        #self._popupMenu.addSeparator()
-        
-        #QtCore.QObject.connect( self.assetList_tableWidget,
-                                #QtCore.SIGNAL("itemClicked(QTableWidgetItem*)"),
-                                #self._popupMenu.show )
-        ##self._popupMenu.show()
-    
+        self.numOfRefs = 0
+        self.refData = []
+        self.versionListBuffer = []
+   
     def _centerWindow(self):
         """centers the window to the screen
         """
-        
         screen = QtGui.QDesktopWidget().screenGeometry()
         size =  self.geometry()
         self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2)
     
-    def updateReferencedAssetsFromEnvironment(self):
-        """gets the referenced assets from the environment
+    def update_references_from_environment(self):
+        """gets the references from the environment
         """
-        
         # get all the referenced assets from the environment
-        self._refDatas = self._environment.getReferencedAssets()
-        self._numOfRefs = len( self._refDatas )
+        self.refData = self.environment.get_referenced_versions()
+        self.numOfRefs = len(self.refData)
     
     def _fillUI(self):
         """fills the UI with values from environment
         """
-        self.updateReferencedAssetsFromEnvironment()
+        self.update_references_from_environment()
         
         self.assetList_tableWidget.clear()
-        self.assetList_tableWidget.setRowCount( self._numOfRefs )
+        self.assetList_tableWidget.setRowCount( self.numOfRefs )
         self.assetList_tableWidget.setHorizontalHeaderLabels( self._horizontalLabels )
         
         
         # fill the assetList tableWidget
-        for i, refData in enumerate(self._refDatas):
+        for i, refData in enumerate(self.refData):
             
             assetObj = refData[0]
             assert(isinstance(assetObj, Asset))
@@ -503,10 +391,10 @@ class MainDialog(QtGui.QDialog, version_replacer_UI.Ui_Dialog):
         currSGFIV = currentSequence.generateFakeInfoVariables
         allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
         
-        self._versionListBuffer = []
+        self.versionListBuffer = []
         
         if len(allVersionsList) > 0:
-            self._versionListBuffer = sorted( filter( self._environment.hasValidExtension, allVersionsList ) )
+            self.versionListBuffer = sorted( filter( self._environment.hasValidExtension, allVersionsList ) )
     
     def fullUpdateAssetFilesComboBox(self):
         """invokes a version list buffer update and a assets files comboBox update
@@ -518,7 +406,7 @@ class MainDialog(QtGui.QDialog, version_replacer_UI.Ui_Dialog):
         """just updates if the number of maximum displayable entry is changed
         """
         _buffer = []
-        _buffer = self._versionListBuffer
+        _buffer = self.versionListBuffer
         self.fillAssetFilesComboBox( _buffer )
     
     def fillAssetFilesComboBox(self, assetFileNames):

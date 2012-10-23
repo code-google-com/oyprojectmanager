@@ -709,6 +709,7 @@ class Maya(EnvironmentBase):
                 temp_version = self.get_version_from_full_path(full_path)
                 
                 if temp_version:
+                    # TODO: don't use the full_path here, it can be get from version instance itself
                     valid_versions.append((temp_version, reference, full_path))
                     
                     prev_version = temp_version
