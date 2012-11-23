@@ -355,8 +355,8 @@ class Config(object):
             }
         ],
         
-        maya_workspace_file_content = """workspace -fr "3dPaintTextures" ".maya/sourceimages/3dPaintTextures/";
-workspace -fr "Adobe(R) Illustrator(R)" ".maya/data/";
+        maya_workspace_file_content = """workspace -fr "3dPaintTextures" ".mayaFiles/sourceimages/3dPaintTextures/";
+workspace -fr "Adobe(R) Illustrator(R)" ".mayaFiles/data/";
 workspace -fr "aliasWire" ".mayaFiles/data/";
 workspace -fr "animImport" ".mayaFiles/data/";
 workspace -fr "animExport" ".mayaFiles/data/";
