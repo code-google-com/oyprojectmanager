@@ -12,6 +12,9 @@ Version History
 * In version_updater the column label "Latest" is changed to
   "Latest Published" to make it clear.
 
+* Fixed mayaEnv.Maya.export_as(), the workspace.mel is now properly created
+  upon "export as".
+
 0.2.5.2
 -------
 

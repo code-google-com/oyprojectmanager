@@ -157,12 +157,20 @@ class Maya(EnvironmentBase):
         # check if there is something selected
         if len(pm.ls(sl=True)) < 1:
             raise RuntimeError("There is nothing selected to export")
+
+        # do not save if there are local files
+        self.check_external_files()
         
         # set the extension to ma by default
         version.extension = '.ma'
         
         # create the folder if it doesn't exists
         utils.createFolder(version.path)
+
+        workspace_path = os.path.dirname(version.path)
+        
+        self.create_workspace_file(workspace_path)
+        self.create_workspace_folders(workspace_path)
         
         # export the file
         pm.exportSelected(version.full_path, type='mayaAscii')
@@ -190,6 +198,9 @@ class Maya(EnvironmentBase):
         # set the project
         new_workspace = os.path.dirname(version.path)
 
+        #self.create_workspace_file(workspace_path)
+        #self.create_workspace_folders(workspace_path)
+        
         pm.workspace.open(new_workspace)
         
         # check for unsaved changes
@@ -1069,18 +1080,18 @@ class Maya(EnvironmentBase):
         # check if there is a workspace.mel at the given path
         full_path = os.path.join(path, "workspace.mel")
         
-        if not os.path.exists(full_path):
-            try:
-                os.makedirs(
-                    os.path.dirname(full_path)
-                )
-            except OSError:
-                # dir exists
-                pass
+        #if not os.path.exists(full_path):
+        try:
+            os.makedirs(
+                os.path.dirname(full_path)
+            )
+        except OSError:
+            # dir exists
+            pass
                 
-            workspace_file = file(full_path, "w")
-            workspace_file.write(content)
-            workspace_file.close()
+        workspace_file = file(full_path, "w")
+        workspace_file.write(content)
+        workspace_file.close()
         
     
     def create_workspace_folders(self, path):
@@ -1091,6 +1102,7 @@ class Maya(EnvironmentBase):
         for key in pm.workspace.fileRules:
             rule_path = pm.workspace.fileRules[key]
             full_path = os.path.join(path, rule_path)
+            print full_path
             try:
                 os.makedirs(
                     full_path
