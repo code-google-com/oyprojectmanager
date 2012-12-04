@@ -15,6 +15,9 @@ Version History
 * Fixed mayaEnv.Maya.export_as(), the workspace.mel is now properly created
   upon "export as".
 
+* Fixed mayaEnv.Maya.save_as(), switching from a different workspace now
+  will create the correct folder of the new workspace.
+
 0.2.5.2
 -------
 

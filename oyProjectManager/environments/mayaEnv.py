@@ -98,10 +98,12 @@ class Maya(EnvironmentBase):
             # replace external paths with absolute ones
             self.replace_external_paths(mode=1)
         
-        self.create_workspace_file(workspace_path)
-        self.create_workspace_folders(workspace_path)
         # this sets the project
         pm.workspace.open(workspace_path)
+
+        # create the workspace folders
+        self.create_workspace_file(workspace_path)
+        self.create_workspace_folders(workspace_path)
         
         # set scene fps
         self.set_fps(project.fps)
