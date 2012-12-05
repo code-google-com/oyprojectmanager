@@ -88,21 +88,24 @@ class Maya(EnvironmentBase):
         
         # if the new workspace path is not matching the with the previous one
         # update the external paths to absolute version
+        logger.debug("current workspace: %s" % current_workspace_path)
+        logger.debug("next workspace: %s" % workspace_path)
+        
         if current_workspace_path != workspace_path:
             logger.debug("changing workspace detected!")
-            logger.debug("current workspace: %s" % current_workspace_path)
-            logger.debug("next workspace: %s" % workspace_path)
             logger.debug("converting paths to absolute, to be able to "
                          "preserve external paths")
             
             # replace external paths with absolute ones
             self.replace_external_paths(mode=1)
-        
-        # this sets the project
-        pm.workspace.open(workspace_path)
 
         # create the workspace folders
         self.create_workspace_file(workspace_path)
+        
+        # this sets the project
+        pm.workspace.open(workspace_path)
+        
+        # create workspace folders
         self.create_workspace_folders(workspace_path)
         
         # set scene fps
