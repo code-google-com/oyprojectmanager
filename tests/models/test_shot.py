@@ -63,7 +63,8 @@ class ShotTester(unittest.TestCase):
             ("A143AN-04-D", "A143AN-04-D"),
             ("xb58q-2-d", "XB58Q-2-D"),
             ("underscores_are_allowed", "UNDERSCORES_ARE_ALLOWED"),
-            ("304_sb_0403_0040", "304_SB_0403_0040")
+            ("304_sb_0403_0040", "304_SB_0403_0040"),
+            #("0001", "1"),
         ]
     
     def tearDown(self):

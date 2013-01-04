@@ -208,7 +208,7 @@ class Sequence(Base):
                     )
             
             # if the shot_number starts with zeros ('0000') remove them
-            shot_number = re.sub(r'^[0]+', '', shot_number)
+            #shot_number = re.sub(r'^[0]+', '', shot_number)
             
             # create a new shot instance
             new_shots.append(Shot(self, shot_number))
