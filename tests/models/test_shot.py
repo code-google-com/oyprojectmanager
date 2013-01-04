@@ -196,6 +196,11 @@ class ShotTester(unittest.TestCase):
         self.test_proj.shot_number_prefix = ""
         new_shot1 = Shot(**self.kwargs)
         self.assertEqual(new_shot1.code, "A143AN-04-DB")
+        
+        self.kwargs['number'] = '304_sb_0403_0040'
+        self.test_proj.shot_number_prefix = ""
+        new_shot1 = Shot(**self.kwargs)
+        self.assertEqual(new_shot1.code, '304_SB_0403_0040')
     
     def test_code_attribute_is_calculated_from_the_number_attribute(self):
         """testing if the code attribute is calculated from the number

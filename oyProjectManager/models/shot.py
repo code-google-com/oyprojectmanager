@@ -279,7 +279,7 @@ class Shot(VersionableBase):
         
         # TODO: there is a weird situation here need to fix it later by
         #       introducing a new variable to the Project
-        if "-" in self.number:
+        if "-" in self.number or "_" in self.number:
             return self.project.shot_number_prefix + self.number
         else:
             number = re.sub(r"[A-Z]+", "", self.number)

@@ -202,7 +202,7 @@ class Sequence(Base):
                 if shot_number.startswith(self.project.shot_number_prefix):
                     # remove it
                     shot_number = re.sub(
-                        r"^[" + self.project.shot_number_prefix + "]+",
+                        r"^[%s]" % self.project.shot_number_prefix,
                         "",
                         shot_number
                     )

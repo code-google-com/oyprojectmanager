@@ -15,6 +15,10 @@ from oyProjectManager.models.repository import Repository
 from oyProjectManager.models.sequence import Sequence
 from oyProjectManager.models.shot import Shot
 
+import logging
+logger = logging.getLogger('oyProjectManager.models.sequence')
+logger.setLevel(logging.DEBUG)
+
 class SequenceTester(unittest.TestCase):
     """tests the Sequence class
     """
@@ -405,7 +409,7 @@ class Sequence_DB_Tester(unittest.TestCase):
         
         expected_shot_numbers = [
             '1', '2', '3', '4', '5', '6', '7', '8', '10', '12', '13', '14',
-            '15'
+            '15', '304_SB_0403_0040'
         ]
         
         # assert there is no shots in the sequence
@@ -425,18 +429,19 @@ class Sequence_DB_Tester(unittest.TestCase):
         
         # add a couple of more
         #new_seq1.add_shots("5-8,10,12-15")
-        new_seq1.add_shots("5,6,7,8,10,12,13,14,15")
+        new_seq1.add_shots("5,6,7,8,10,12,13,14,15,304_sb_0403_0040")
         
-        self.assertTrue(len(new_seq1.shots)==13)
-        self.assertTrue(new_seq1.shots[4].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[5].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[6].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[7].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[8].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[9].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[10].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[11].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[12].number in expected_shot_numbers)
+        self.assertTrue(len(new_seq1.shots)==14)
+        self.assertIn(new_seq1.shots[4].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[5].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[6].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[7].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[8].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[9].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[10].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[11].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[12].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[13].number, expected_shot_numbers)
     
     def test_add_alternative_shot_is_working_properly(self):
         """testing if the add_alternative_shot method is working properly
