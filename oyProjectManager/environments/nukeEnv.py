@@ -237,8 +237,7 @@ class Nuke(EnvironmentBase):
             version.take_name + "_" + \
             version.type.code + "_" + \
             "Output_" + \
-            "v%03d" % version.version_number + "_" + \
-            version.created_by.initials + ".###.tga"
+            "v%03d" % version.version_number + ".###.tga"
         
         # check if it is a stereo comp
         # if it is enable separate view rendering
