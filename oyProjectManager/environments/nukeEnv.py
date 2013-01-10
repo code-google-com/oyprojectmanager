@@ -237,7 +237,7 @@ class Nuke(EnvironmentBase):
             version.take_name + "_" + \
             version.type.code + "_" + \
             "Output_" + \
-            "v%03d" % version.version_number + ".###.tga"
+            "v%03d" % version.version_number + ".###.png"
         
         # check if it is a stereo comp
         # if it is enable separate view rendering
@@ -257,15 +257,15 @@ class Nuke(EnvironmentBase):
             # path already exists
             pass
         
-        # set the default output file type to tga
+        # set the default output file type to png
         platform_system = platform.system()
         
-        format_id = 12
+        format_id = 11
         if platform_system == "Darwin":
-            format_id = 12 
+            format_id = 11
             # check the nuke version for nuke 6.2 and below
             if (nuke.NUKE_VERSION_MAJOR + nuke.NUKE_VERSION_MINOR/10.0) < 6.3:
-                format_id = 13
+                format_id = 12
         
         main_write_node["file_type"].setValue(format_id)
         main_write_node["channels"].setValue("rgb")
