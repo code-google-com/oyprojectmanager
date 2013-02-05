@@ -207,7 +207,7 @@ class Config(object):
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
                 "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}/v{{'%03d'|format(version.version_number)}}",
-                "extra_folders": "",
+                "extra_folders": "{{version.path}}/Elements",
                 "environments": ["Nuke", "Fusion"],
                 "type_for": "Shot"
             },
