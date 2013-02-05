@@ -160,8 +160,10 @@ class MainDialog(QtGui.QDialog, version_replacer_UI.Ui_Dialog):
         """
         currentProjectName = self.getCurrentProjectName()
         
-        if self._project == None or self._project.name != currentProjectName or (currentProjectName != "" or currentProjectName != None ):
-            self._project = project.Project( currentProjectName )
+        if self._project is None or \
+           self._project.name != currentProjectName or \
+           (currentProjectName != "" or currentProjectName is not None):
+            self._project = Project( currentProjectName )
     
     def _updateSequenceObject(self):
         """updates the sequence object if it is not
@@ -169,10 +171,12 @@ class MainDialog(QtGui.QDialog, version_replacer_UI.Ui_Dialog):
         currentSequenceName = self.getCurrentSequenceName()
         
         #assert(isinstance(self._sequence,Sequence))
-        if self._sequence == None or self._sequence.name != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) or \
+        if self._sequence is None or \
+           self._sequence.name != currentSequenceName and \
+           (currentSequenceName != "" or currentSequenceName is not None) or \
            self._sequence.projectName != self._project.name:
             self._updateProjectObject()
-            newSeq = project.Sequence( self._project, currentSequenceName )
+            newSeq = Sequence(self._project, currentSequenceName)
             if newSeq._exists:
                 self._sequence = newSeq
     
@@ -194,11 +198,11 @@ class MainDialog(QtGui.QDialog, version_replacer_UI.Ui_Dialog):
         """
         
         self._updateProjectObject()
-        currentProjet = self._project
+        currentProject = self._project
         
         # create a project and ask the child sequences
         self.sequence_comboBox.clear()
-        sequences = currentProjet.sequenceNames()
+        sequences = currentProject.sequenceNames()
         
         self.sequence_comboBox.addItems( sequences )
         

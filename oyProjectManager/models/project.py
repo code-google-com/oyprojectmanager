@@ -54,12 +54,10 @@ class Project(Base):
       
       The given project name is validated against the following rules:
       
-        * The name can only have a-z, A-Z, 0-9 and "-_" characters, all the
+        * The name can only have a-z, A-Z, 0-9, "_" and "-" characters, all the
           other characters will be filtered out.
-        * The name can only start with literals, no spaces, no numbers or any
-          other character is not allowed.
-        * Numbers and underscores are only be allowed if they are not the first
-          letter.
+        * The name can start with literals, numbers and underscore character.
+          No spaces, or any other characters are allowed at the beginning.
     
     :param code: The code of the project. Should be a string or unicode. If
       given as None it will be generated from the
@@ -67,15 +65,10 @@ class Project(Base):
       empty string or become an empty string after validation a ValueError will
       be raised.
       
-        * The name can only have A-Z and 0-9 and "_" characters, all the other
-          chars are going to be filtered out.
-        * The name can only start with literals, no spaces, no numbers or any
-          other character is not allowed.
-        * Numbers and underscores are only be allowed if they are not the first
-          letter.
-        * All the letters should be upper case.
-        * All the minus ("-") signs will be converted to underscores ("_")
-        * All the CamelCase formatting are expanded to underscore (CAMEL_CASE)
+        * The code can only have a-z, A-Z, 0-9, "_" and "-" characters, all the
+          other characters will be filtered out.
+        * The code can start with literals, numbers and underscore character.
+          No spaces, or any other characters are allowed at the beginning.
         
       The :attr:`~oyProjectManager.models.project.Project.code` is a read only
       attribute.
@@ -264,7 +257,7 @@ class Project(Base):
         # remove unnecessary characters from the string
         name = re.sub("([^a-zA-Z0-9\s_\-]+)", r"", name)
         # remove all the characters from the beginning which are not alphabetic
-        name = re.sub("(^[^a-zA-Z]+)", r"", name)
+        name = re.sub("(^[^a-zA-Z0-9_]+)", r"", name)
         
         # check if the name became empty string after validation
         if name is "":
@@ -276,29 +269,31 @@ class Project(Base):
     def _condition_code(cls, code):
         
         if code is None:
-            raise TypeError("The Project.code can not be None")
+            raise TypeError("The %s.code can not be None" % cls.__name__)
         
         if not isinstance(code, (str, unicode)):
-            raise TypeError("Project.code should be an instance of string or "
-                            "unicode not %s" % type(code))
+            raise TypeError("%s.code should be an instance of string or "
+                            "unicode not %s" % (cls.__name__, type(code)))
         
         if code is "":
-            raise ValueError("The Project.code can not be an empty string")
+            raise ValueError("The %s.code can not be an empty string" %
+                             cls.__name__)
         
         # strip the code
         code = code.strip()
         # convert all the "-" signs to "_"
-        code = code.replace("-", "_")
+        #code = code.replace("-", "_")
         # replace camel case letters
-        code = re.sub(r"(.+?[a-z]+)([A-Z])", r"\1_\2", code)
+        #code = re.sub(r"(.+?[a-z]+)([A-Z])", r"\1_\2", code)
         # remove unnecessary characters from the string
-        code = re.sub("([^a-zA-Z0-9\s_]+)", r"", code)
-        # remove all the characters from the beginning which are not alphabetic
-        code = re.sub("(^[^a-zA-Z]+)", r"", code)
+        code = re.sub("([^a-zA-Z0-9\s_\-]+)", r"", code)
+        # remove all the characters from the beginning which are not
+        # alphanumeric
+        code = re.sub("(^[^a-zA-Z0-9_]+)", r"", code)
         # substitute all spaces with "_" characters
         code = re.sub("([\s])+", "_", code)
         # convert it to upper case
-        code = code.upper()
+        #code = code.upper()
         
         # check if the code became empty string after validation
         if code is "":
