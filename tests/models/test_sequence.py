@@ -50,24 +50,24 @@ class SequenceTester(unittest.TestCase):
         
         self._name_test_values = [
             # (input, name, code)
-            ("test sequence", "test sequence", "TEST_SEQUENCE"),
-            ("123 test sequence", "test sequence", "TEST_SEQUENCE"),
-            ("£#$£#$test£#$£#$sequence", "testsequence", "TESTSEQUENCE"),
-            ("_123test sequence", "test sequence", "TEST_SEQUENCE"),
-            ("CamelCase", "CamelCase", "CAMEL_CASE"),
-            ("234CamelCase", "CamelCase", "CAMEL_CASE"),
-            ("camelCase", "camelCase", "CAMEL_CASE"),
-            ("CamelCase", "CamelCase", "CAMEL_CASE"),
-            ("minus-sign", "minus-sign", "MINUS_SIGN"),
-            ("123432!+!'^+Test_SEquence323^+'^%&+%&324", "Test_SEquence323324",
-             "TEST_SEQUENCE323324"),
-            ("    ---test 9s_sequence", "test 9s_sequence", "TEST_9S_SEQUENCE"),
-            ("    ---test 9s-sequence", "test 9s-sequence", "TEST_9S_SEQUENCE"),
+            ("test sequence", "test sequence", "test_sequence"),
+            ("123 test sequence", "123 test sequence", "123_test_sequence"),
+            ("£#$£#$test£#$£#$sequence", "testsequence", "testsequence"),
+            ("_123test sequence", "_123test sequence", "_123test_sequence"),
+            ("CamelCase", "CamelCase", "CamelCase"),
+            ("234CamelCase", "234CamelCase", "234CamelCase"),
+            ("camelCase", "camelCase", "camelCase"),
+            ("CamelCase", "CamelCase", "CamelCase"),
+            ("minus-sign", "minus-sign", "minus-sign"),
+            ("123432!+!'^+Test_SEquence323^+'^%&+%&324", "123432Test_SEquence323324",
+             "123432Test_SEquence323324"),
+            ("    ---test 9s_sequence", "test 9s_sequence", "test_9s_sequence"),
+            ("    ---test 9s-sequence", "test 9s-sequence", "test_9s-sequence"),
             (" multiple     spaces are    converted to under     scores",
              "multiple     spaces are    converted to under     scores",
-             "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
-            ("_Sequence_Setup_", "Sequence_Setup_", "SEQUENCE_SETUP_"),
-            ("_SEQUENCE_SETUP_", "SEQUENCE_SETUP_", "SEQUENCE_SETUP_"),
+             "multiple_spaces_are_converted_to_under_scores"),
+            ("_Sequence_Setup_", "_Sequence_Setup_", "_Sequence_Setup_"),
+            ("_SEQUENCE_SETUP_", "_SEQUENCE_SETUP_", "_SEQUENCE_SETUP_"),
             ("FUL_3D", "FUL_3D", "FUL_3D"),
         ]
 
@@ -176,7 +176,7 @@ class SequenceTester(unittest.TestCase):
         """
         self.kwargs.pop("code")
         self.kwargs["name"] = "Test Sequence"
-        expected_value = "TEST_SEQUENCE"
+        expected_value = "Test_Sequence"
         new_seq1 = Sequence(**self.kwargs)
         self.assertEqual(new_seq1.code, expected_value)
 
@@ -199,7 +199,7 @@ class SequenceTester(unittest.TestCase):
         """
         self.kwargs["code"] = None
         self.kwargs["name"] = "Test Sequence"
-        expected_value = "TEST_SEQUENCE"
+        expected_value = "Test_Sequence"
         new_seq1 = Sequence(**self.kwargs)
         self.assertEqual(new_seq1.code, expected_value)
     

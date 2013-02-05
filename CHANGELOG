@@ -1,5 +1,15 @@
 Version History
 ===============
+0.2.5.4
+-------
+* Now it is possible to name the Projects and Sequences more freely.
+  
+  * Lower case characters are allowed in the code attribute
+  * Underscore character is allowed at the beginning of the name and code
+    attributes.
+  * Minus (-) character is allowed in the code attribute.
+  * Numbers are allowed at the beginning of both the name and code attributes.
+  * CamelCase letters will be preserved in code attribute.
 
 0.2.5.3
 -------

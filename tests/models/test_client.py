@@ -84,7 +84,7 @@ class ClientTester(unittest.TestCase):
         self.kwargs.pop('code')
         self.kwargs['name'] = test_name
         new_client = Client(**self.kwargs)
-        self.assertEqual(new_client.code, test_code)
+        self.assertTrue(new_client.code.startswith(test_code))
     
     def test_code_argument_is_None(self):
         """testing if the client code argument is None the code attribute will
@@ -95,7 +95,7 @@ class ClientTester(unittest.TestCase):
         self.kwargs['code'] = None
         self.kwargs['name'] = test_name
         new_client = Client(**self.kwargs)
-        self.assertEqual(new_client.code, test_code)
+        self.assertTrue(new_client.code.startswith(test_code))
     
     def test_code_attribute_is_set_to_None(self):
         """testing if the code attribute value will be regenerated from the
@@ -107,7 +107,7 @@ class ClientTester(unittest.TestCase):
         self.kwargs['name'] = test_name
         new_client = Client(**self.kwargs)
         new_client.code = None
-        self.assertEqual(new_client.code, test_code)
+        self.assertTrue(new_client.code.startswith(test_code))
     
     def test_code_argument_is_not_a_string_instance(self):
         """testing if a TypeError will be raised when the code argument is not
@@ -129,7 +129,7 @@ class ClientTester(unittest.TestCase):
         test_code = "TestCode"
         self.kwargs['code'] = test_code
         new_client = Client(**self.kwargs)
-        self.assertEqual(new_client.code, test_code)
+        self.assertTrue(new_client.code.startswith(test_code))
     
     def test_code_attribute_is_working_properly(self):
         """testing if the code attribute is working properly
