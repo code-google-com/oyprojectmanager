@@ -296,11 +296,12 @@ class EnvironmentBase(object):
         :param path_in: The path that wanted to be trimmed
         :return: str
         """
-        repo = Repository()
-        
-        server_path = repo.server_path
+        server_path = os.environ['REPO'].replace('\\', '/')
         if path_in.startswith(server_path):
-            path_in = path_in[len(os.path.normpath(server_path))+1:]
+            length = len(server_path)
+            if not server_path.endswith('/'):
+                length += 1
+            path_in = path_in[length:]
         
         return path_in
     
@@ -329,6 +330,7 @@ class EnvironmentBase(object):
             return None
         
         # get the path by trimming the server_path
+        path = path.replace('\\', '/')
         path = self.trim_server_path(path)
         
         # get all the version instance at that path
@@ -350,9 +352,11 @@ class EnvironmentBase(object):
         
         :return: :class:`~oyProjectManager.models.version.Version`
         """
-
+        
         path, filename = os.path.split(full_path)
         path = self.trim_server_path(path)
+        
+        logger.debug('path: %s' % path)
         
         # try to get a version with that info
         version = Version.query()\

@@ -98,7 +98,7 @@ class Maya(EnvironmentBase):
             
             # replace external paths with absolute ones
             self.replace_external_paths(mode=1)
-
+        
         # create the workspace folders
         self.create_workspace_file(workspace_path)
         
@@ -336,7 +336,7 @@ class Maya(EnvironmentBase):
         
         # pm.env.sceneName() always uses "/"
         full_path = pm.env.sceneName()
-        
+        logger.debug('full_path : %s' % full_path)
         # try to get it from the current open scene
         if full_path != '':
             logger.debug("trying to get the version from current file")
@@ -601,16 +601,20 @@ class Maya(EnvironmentBase):
             """
             assert isinstance(path, (str, unicode))
             path = os.path.expandvars(path)
-            return path.startswith(os.environ[conf.repository_env_key])
+            return path.startswith(
+                os.environ[conf.repository_env_key].replace('\\', '/')
+            )
         
         external_nodes = []
         
         # check for file textures
         for file_texture in pm.ls(type=pm.nt.File):
             path = file_texture.attr('fileTextureName').get()
+            logger.debug('checking path: %s' % path)
             if path is not None \
                and os.path.isabs(path) \
                and not is_in_repo(path):
+                logger.debug('is not in repo: %s' % path)
                 external_nodes.append(file_texture)
         
         # check for mentalray textures
