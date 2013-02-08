@@ -1023,13 +1023,17 @@ class Maya(EnvironmentBase):
                     )
                 
                 if unresolved_path.startswith(repo.server_path):
-    
+                    server_path = repo.server_path
+                    # fix for paths like S:/ (ending with a slash) for $REPO
+                    if server_path.endswith('/'):
+                        server_path = server_path[:-1]
+
                     new_ref_path = ""
                     
                     if mode:
                         # convert to absolute path
                         new_ref_path = ref.path.replace(
-                            repo.server_path,
+                            server_path,
                             repo_env_key
                         )
                     else:
