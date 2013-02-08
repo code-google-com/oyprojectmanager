@@ -1009,6 +1009,11 @@ class Maya(EnvironmentBase):
         
         workspace_path = pm.workspace.path
         
+        # fix for paths like S:/ (ending with a slash) for $REPO
+        server_path = os.environ[conf.repository_env_key]
+        if server_path.endswith('/'):
+            server_path = server_path[:-1]
+
         # replace reference paths with $REPO
         for ref in pm.listReferences():
             unresolved_path = ref.unresolvedPath().replace("\\", "/")
@@ -1022,12 +1027,7 @@ class Maya(EnvironmentBase):
                         unresolved_path
                     )
                 
-                if unresolved_path.startswith(repo.server_path):
-                    server_path = repo.server_path
-                    # fix for paths like S:/ (ending with a slash) for $REPO
-                    if server_path.endswith('/'):
-                        server_path = server_path[:-1]
-
+                if unresolved_path.startswith(server_path):
                     new_ref_path = ""
                     
                     if mode:
@@ -1056,12 +1056,18 @@ class Maya(EnvironmentBase):
             
             logger.info("replacing file texture: %s" % file_texture_path)
             
-            file_texture_path = os.path.expandvars(file_texture_path)
+            file_texture_path = os.path.normpath(
+                os.path.expandvars(
+                    file_texture_path
+                )
+            )
+            file_texture_path = file_texture_path.replace("\\", "/")
             
             # convert to absolute
             if not os.path.isabs(file_texture_path):
                 file_texture_path = os.path.join(
-                    workspace_path, file_texture_path
+                    workspace_path,
+                    file_texture_path
                 ).replace("\\", "/")
             
             new_path = ""
@@ -1069,7 +1075,7 @@ class Maya(EnvironmentBase):
             if mode:
                 # convert to absolute
                 new_path = file_texture_path.replace(
-                    os.environ[conf.repository_env_key],
+                    server_path,
                     "$" + conf.repository_env_key
                 )
             else:
