@@ -1366,7 +1366,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # ------------------------------------
        
         # resize the first column
+        self.previous_versions_tableWidget.resizeRowsToContents()
         self.previous_versions_tableWidget.resizeColumnsToContents()
+        self.previous_versions_tableWidget.resizeRowsToContents()
    
     def create_asset_pushButton_clicked(self):
         """displays an input dialog and creates a new asset if everything is ok
