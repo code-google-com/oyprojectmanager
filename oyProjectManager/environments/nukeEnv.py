@@ -233,7 +233,8 @@ class Nuke(EnvironmentBase):
                 output_file_name += version.version_of.sequence.code + "_"
             
             # get the output format
-            output_format_enum = main_write_node.knob('file_type').value()
+            output_format_enum = \
+                main_write_node.knob('file_type').value().strip()
             if output_format_enum == '':
                 # set it to png by default
                 output_format_enum = 'png'
