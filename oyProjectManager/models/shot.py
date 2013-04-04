@@ -232,7 +232,7 @@ class Shot(VersionableBase):
         number = re.sub(r"[^0-9a-zA-Z\-_\ ]+", "", number)
         number = re.sub(r"[\ ]+", "_", number)
         
-        number = number.upper()
+        #number = number.upper()
         
         if number == "":
             raise ValueError("Shot.number is not in good format, please "
