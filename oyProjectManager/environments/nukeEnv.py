@@ -230,7 +230,7 @@ class Nuke(EnvironmentBase):
             
             if version.type.type_for == "Shot":
                 output_file_name = version.project.code + "_"
-                output_file_name += version.version_of.sequence.code + "_"
+                #output_file_name += version.version_of.sequence.code + "_"
             
             # get the output format
             output_format_enum = \
@@ -244,8 +244,7 @@ class Nuke(EnvironmentBase):
                 version.base_name + "_" + \
                 version.take_name + "_" + \
                 version.type.code + "_" + \
-                "Output_" + \
-                "v%03d" % version.version_number + ".###." + output_format_enum
+                "v%03d" % version.version_number + ".####." + output_format_enum
             
             # check if it is a stereo comp
             # if it is enable separate view rendering
