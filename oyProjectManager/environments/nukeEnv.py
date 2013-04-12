@@ -239,12 +239,19 @@ class Nuke(EnvironmentBase):
                 # set it to png by default
                 output_format_enum = 'png'
                 main_write_node.knob('file_type').setValue(output_format_enum)
+            elif output_format_enum == 'ffmpeg':
+                output_format_enum = 'mov'
 
             output_file_name += \
                 version.base_name + "_" + \
                 version.take_name + "_" + \
                 version.type.code + "_" + \
-                "v%03d" % version.version_number + ".####." + output_format_enum
+                "v%03d" % version.version_number
+            
+            if output_format_enum != 'mov':
+              output_file_name += ".####." + output_format_enum
+            else:
+              output_file_name += '.' + output_format_enum
             
             # check if it is a stereo comp
             # if it is enable separate view rendering
