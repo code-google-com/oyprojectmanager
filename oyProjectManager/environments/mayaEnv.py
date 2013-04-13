@@ -88,19 +88,25 @@ class Maya(EnvironmentBase):
         
         # if the new workspace path is not matching the with the previous one
         # update the external paths to absolute version
+        logger.debug("current workspace: %s" % current_workspace_path)
+        logger.debug("next workspace: %s" % workspace_path)
+        
         if current_workspace_path != workspace_path:
             logger.debug("changing workspace detected!")
-            logger.debug("current workspace: %s" % current_workspace_path)
-            logger.debug("next workspace: %s" % workspace_path)
             logger.debug("converting paths to absolute, to be able to "
                          "preserve external paths")
             
             # replace external paths with absolute ones
             self.replace_external_paths(mode=1)
         
+        # create the workspace folders
         self.create_workspace_file(workspace_path)
+        
         # this sets the project
         pm.workspace.open(workspace_path)
+        
+        # create workspace folders
+        self.create_workspace_folders(workspace_path)
         
         # set scene fps
         self.set_fps(project.fps)
@@ -156,12 +162,20 @@ class Maya(EnvironmentBase):
         # check if there is something selected
         if len(pm.ls(sl=True)) < 1:
             raise RuntimeError("There is nothing selected to export")
+
+        # do not save if there are local files
+        self.check_external_files()
         
         # set the extension to ma by default
         version.extension = '.ma'
         
         # create the folder if it doesn't exists
         utils.createFolder(version.path)
+
+        workspace_path = os.path.dirname(version.path)
+        
+        self.create_workspace_file(workspace_path)
+        self.create_workspace_folders(workspace_path)
         
         # export the file
         pm.exportSelected(version.full_path, type='mayaAscii')
@@ -189,6 +203,9 @@ class Maya(EnvironmentBase):
         # set the project
         new_workspace = os.path.dirname(version.path)
 
+        #self.create_workspace_file(workspace_path)
+        #self.create_workspace_folders(workspace_path)
+        
         pm.workspace.open(new_workspace)
         
         # check for unsaved changes
@@ -319,7 +336,7 @@ class Maya(EnvironmentBase):
         
         # pm.env.sceneName() always uses "/"
         full_path = pm.env.sceneName()
-        
+        logger.debug('full_path : %s' % full_path)
         # try to get it from the current open scene
         if full_path != '':
             logger.debug("trying to get the version from current file")
@@ -403,7 +420,7 @@ class Maya(EnvironmentBase):
         
         # image folder from the workspace.mel
         # {{project.full_path}}/Sequences/{{seqence.code}}/Shots/{{shot.code}}/.maya_files/RENDERED_IMAGES
-        image_folder_from_ws = pm.workspace.fileRules['image'] 
+        image_folder_from_ws = pm.workspace.fileRules['images'] 
         image_folder_from_ws_full_path = os.path.join(
             os.path.dirname(version.path),
             image_folder_from_ws
@@ -421,17 +438,11 @@ class Maya(EnvironmentBase):
         
         # convert the render_file_full_path to a relative path to the
         # imageFolderFromWS_full_path
-        
-#        print "imageFolderFromWS_full_path: %s" % image_folder_from_ws_full_path
-#        print "render_file_full_path: %s" % render_file_full_path
-
         render_file_rel_path = utils.relpath(
             image_folder_from_ws_full_path,
             render_file_full_path,
             sep="/"
         )
-        
-#        print "render_file_rel_path: %s" % render_file_rel_path
         
         if self.has_stereo_camera():
             # just add the <Camera> template variable to the file name
@@ -590,32 +601,45 @@ class Maya(EnvironmentBase):
             """
             assert isinstance(path, (str, unicode))
             path = os.path.expandvars(path)
-            return path.startswith(os.environ[conf.repository_env_key])
+            return path.startswith(
+                os.environ[conf.repository_env_key].replace('\\', '/')
+            )
         
         external_nodes = []
         
         # check for file textures
         for file_texture in pm.ls(type=pm.nt.File):
             path = file_texture.attr('fileTextureName').get()
-            if os.path.isabs(path) and not is_in_repo(path):
+            logger.debug('checking path: %s' % path)
+            if path is not None \
+               and os.path.isabs(path) \
+               and not is_in_repo(path):
+                logger.debug('is not in repo: %s' % path)
                 external_nodes.append(file_texture)
         
         # check for mentalray textures
         for mr_texture in pm.ls(type=pm.nt.MentalrayTexture):
             path = mr_texture.attr('fileTextureName').get()
-            if os.path.isabs(path) and not is_in_repo(path):
+            logger.debug("path of %s: %s" % (mr_texture, path))
+            if path is not None \
+               and os.path.isabs(path) \
+               and not is_in_repo(path):
                 external_nodes.append(mr_texture)
         
         # check for ImagePlanes
         for image_plane in pm.ls(type=pm.nt.ImagePlane):
             path = image_plane.attr('imageName').get()
-            if os.path.isabs(path) and not is_in_repo(path):
+            if path is not None \
+               and os.path.isabs(path) \
+               and not is_in_repo(path):
                 external_nodes.append(image_plane)
         
         # check for IBL nodes
         for ibl in pm.ls(type=pm.nt.MentalrayIblShape):
             path = ibl.attr('texture').get()
-            if os.path.isabs(path) and not is_in_repo(path):
+            if path is not None \
+               and os.path.isabs(path) \
+               and not is_in_repo(path):
                 external_nodes.append(ibl)
         
         if external_nodes:
@@ -700,11 +724,10 @@ class Maya(EnvironmentBase):
                 )
             else:
                 # try to get a version with the given path
-#                temp_version =\
-#                Version.query().filter(Version.full_path==full_path).first()
                 temp_version = self.get_version_from_full_path(full_path)
                 
                 if temp_version:
+                    # TODO: don't use the full_path here, it can be get from version instance itself
                     valid_versions.append((temp_version, reference, full_path))
                     
                     prev_version = temp_version
@@ -738,6 +761,7 @@ class Maya(EnvironmentBase):
         repo_env_key = "$" + conf.repository_env_key
         
         previous_version_full_path = ''
+        latest_version = None
         
         for version_tuple in version_tuple_list:
             version = version_tuple[0]
@@ -985,6 +1009,11 @@ class Maya(EnvironmentBase):
         
         workspace_path = pm.workspace.path
         
+        # fix for paths like S:/ (ending with a slash) for $REPO
+        server_path = os.environ[conf.repository_env_key]
+        if server_path.endswith('/'):
+            server_path = server_path[:-1]
+
         # replace reference paths with $REPO
         for ref in pm.listReferences():
             unresolved_path = ref.unresolvedPath().replace("\\", "/")
@@ -998,14 +1027,13 @@ class Maya(EnvironmentBase):
                         unresolved_path
                     )
                 
-                if unresolved_path.startswith(repo.server_path):
-    
+                if unresolved_path.startswith(server_path):
                     new_ref_path = ""
                     
                     if mode:
                         # convert to absolute path
                         new_ref_path = ref.path.replace(
-                            repo.server_path,
+                            server_path,
                             repo_env_key
                         )
                     else:
@@ -1028,12 +1056,18 @@ class Maya(EnvironmentBase):
             
             logger.info("replacing file texture: %s" % file_texture_path)
             
-            file_texture_path = os.path.expandvars(file_texture_path)
+            file_texture_path = os.path.normpath(
+                os.path.expandvars(
+                    file_texture_path
+                )
+            )
+            file_texture_path = file_texture_path.replace("\\", "/")
             
             # convert to absolute
             if not os.path.isabs(file_texture_path):
                 file_texture_path = os.path.join(
-                    workspace_path, file_texture_path
+                    workspace_path,
+                    file_texture_path
                 ).replace("\\", "/")
             
             new_path = ""
@@ -1041,7 +1075,7 @@ class Maya(EnvironmentBase):
             if mode:
                 # convert to absolute
                 new_path = file_texture_path.replace(
-                    os.environ[conf.repository_env_key],
+                    server_path,
                     "$" + conf.repository_env_key
                 )
             else:
@@ -1060,79 +1094,39 @@ class Maya(EnvironmentBase):
         """creates the workspace.mel at the given path
         """
         
-        content = """//Maya 2012 Project Definition
-
-workspace -fr "3dPaintTextures" ".maya_files/PAINTINGS/TEXTURES/";
-workspace -fr "Adobe(R) Illustrator(R)" ".maya_files/OTHERS/data/";
-workspace -fr "aliasWire" ".maya_files/OTHERS/data/";
-workspace -fr "animImport" ".maya_files/OTHERS/data/";
-workspace -fr "animExport" ".maya_files/OTHERS/data/";
-workspace -fr "audio" ".maya_files/EDIT/SOUND/";
-workspace -fr "autoSave" ".maya_files/OTHERS/autosave/";
-workspace -fr "clips" ".maya_files/OTHERS/clips/";
-workspace -fr "DAE_FBX" ".maya_files/OTHERS/data/";
-workspace -fr "DAE_FBX export" ".maya_files/OTHERS/data/";
-workspace -fr "depth" ".maya_files/RENDERED_IMAGES/renderData/depth/";
-workspace -fr "diskCache" ".maya_files/OTHERS/data/";
-workspace -fr "DXF" ".maya_files/OTHERS/data/";
-workspace -fr "DXF export" ".maya_files/OTHERS/data/";
-workspace -fr "DXF_FBX" ".maya_files/OTHERS/data/";
-workspace -fr "DXF_FBX export" ".maya_files/OTHERS/data/";
-workspace -fr "eps" ".maya_files/OTHERS/data/";
-workspace -fr "EPS" ".maya_files/OTHERS/data/";
-workspace -fr "FBX" ".maya_files/OTHERS/data/";
-workspace -fr "FBX export" ".maya_files/OTHERS/data/";
-workspace -fr "fluidCache" ".maya_files/OTHERS/cache/";
-workspace -fr "furAttrMap" ".maya_files/OTHERS/fur/furAttrMap/";
-workspace -fr "furEqualMap" ".maya_files/OTHERS/fur/furEqualMap/";
-workspace -fr "furFiles" ".maya_files/OTHERS/fur/furFiles/";
-workspace -fr "furImages" ".maya_files/OTHERS/fur/furImages/";
-workspace -fr "furShadowMap" ".maya_files/OTHERS/fur/furShadowMap/";
-workspace -fr "IGES" ".maya_files/OTHERS/data/";
-workspace -fr "IGESexport" ".maya_files/OTHERS/data/";
-workspace -fr "illustrator" ".maya_files/OTHERS/data/";
-workspace -fr "image" ".maya_files/RENDERED_IMAGES/";
-workspace -fr "images" ".maya_files/RENDERED_IMAGES/";
-workspace -fr "iprImages" ".maya_files/RENDERED_IMAGES/renderData/iprImages/";
-workspace -fr "lights" ".maya_files/RENDERED_IMAGES/renderData/shaders/";
-workspace -fr "mayaAscii" ".maya_files/OTHERS/";
-workspace -fr "mayaBinary" ".maya_files/OTHERS/";
-workspace -fr "mel" ".maya_files/OTHERS/mel/";
-workspace -fr "mentalray" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
-workspace -fr "mentalRay" ".maya_files/RENDERED_IMAGES/renderData/mentalRay/";
-workspace -fr "move" ".maya_files/OTHERS/data/";
-workspace -fr "movie" ".maya_files/OTHERS/data/";
-workspace -fr "OBJ" ".maya_files/OTHERS/data/";
-workspace -fr "OBJexport" ".maya_files/OTHERS/data/";
-workspace -fr "offlineEdit" ".maya_files/OHTERS/edits/";
-workspace -fr "particles" ".maya_files/OTHERS/particles/";
-workspace -fr "renderData" ".maya_files/LIGHTING/";
-workspace -fr "renderScenes" ".maya_files/LIGHTING/";
-workspace -fr "RIB" ".maya_files/OTHERS/data/";
-workspace -fr "RIBexport" ".maya_files/OTHERS/data/";
-workspace -fr "scene" ".maya_files/OTHERS/";
-workspace -fr "scripts" ".maya_files/OTHERS/mel/";
-workspace -fr "shaders" ".maya_files/RENDERED_IMAGES";
-workspace -fr "sound" ".maya_files/OTHERS/sound/";
-workspace -fr "sourceImages" ".maya_files/PAINTINGS/TEXTURES/";
-workspace -fr "templates" ".maya_files/OTHERS/assets/";
-workspace -fr "textures" ".maya_files/PAINTINGS/TEXTURES/";
-workspace -fr "translatorData" ".maya_files/OTHERS/";
-        """
+        content = conf.maya_workspace_file_content
         
         # check if there is a workspace.mel at the given path
         full_path = os.path.join(path, "workspace.mel")
         
-        if not os.path.exists(full_path):
+        #if not os.path.exists(full_path):
+        try:
+            os.makedirs(
+                os.path.dirname(full_path)
+            )
+        except OSError:
+            # dir exists
+            pass
+                
+        workspace_file = file(full_path, "w")
+        workspace_file.write(content)
+        workspace_file.close()
+        
+    
+    def create_workspace_folders(self, path):
+        """creates the workspace folders
+        :param path: the root of the workspace
+        """
+        
+        for key in pm.workspace.fileRules:
+            rule_path = pm.workspace.fileRules[key]
+            full_path = os.path.join(path, rule_path)
+            print full_path
             try:
                 os.makedirs(
-                    os.path.dirname(full_path)
+                    full_path
                 )
             except OSError:
                 # dir exists
                 pass
-                
-            workspace_file = file(full_path, "w")
-            workspace_file.write(content)
-            workspace_file.close()
-    
+        

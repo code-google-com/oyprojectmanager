@@ -386,7 +386,7 @@ class ProjectManager_Tester(unittest.TestCase):
         # check if there is no shot folder
         project_path = os.path.join(
             self.temp_projects_folder,
-            "TEST_PROJECT/Sequences/SEQUENCE/Shots/SH001"
+            "Test_Project/Shots/SH001"
         )
         
         self.assertFalse(
@@ -395,7 +395,7 @@ class ProjectManager_Tester(unittest.TestCase):
             )
         )
         
-        # hit create_stucture_pushButton
+        # hit create_structure_pushButton
         dialog = project_manager.MainDialog()
         
         QTest.mouseClick(

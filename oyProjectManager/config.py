@@ -185,7 +185,7 @@ class Config(object):
                 "name": "Animation",
                 "code": "Anim",
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -195,7 +195,7 @@ class Config(object):
                 "name": "Camera",
                 "code": "Cam",
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -205,9 +205,9 @@ class Config(object):
                 "name": "Composition",
                 "code": "Comp",
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}/v{{'%03d'|format(version.version_number)}}",
-                "extra_folders": "",
+                "extra_folders": "{{version.path}}/Elements",
                 "environments": ["Nuke", "Fusion"],
                 "type_for": "Shot"
             },
@@ -215,7 +215,7 @@ class Config(object):
 #                "name": "Edit",
 #                "code": "Edit",
 #                "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-#                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+#                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
 #                "output_path": "{{version._path}}/Output/{{version.take_name}}",
 #                "extra_folders": "",
 #                "environments": ["Nuke", "Fusion"],
@@ -225,7 +225,7 @@ class Config(object):
                 "name":"FX",
                 "code": "FX",
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": """{{version.path}}/anim
                         {{version.path}}/cache
@@ -237,7 +237,7 @@ class Config(object):
                 "name":"Model",
                 "code": "Model",
                 "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -247,7 +247,7 @@ class Config(object):
                 "name": "Other",
                 "code": "Other",
                 "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini", "Nuke", "Fusion", "Photoshop"],
@@ -257,7 +257,7 @@ class Config(object):
                 "name": "Previs",
                 "code": "Previs",
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -267,7 +267,7 @@ class Config(object):
                 "name": "Lighting",
                 "code": "Lighting",
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -277,7 +277,7 @@ class Config(object):
                 "name": "Rig",
                 "code": "Rig",
                 "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -287,7 +287,7 @@ class Config(object):
                 "name": "Roto",
                 "code": "Roto",
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Nuke", "Fusion"],
@@ -297,7 +297,7 @@ class Config(object):
                 "name": "Layout",
                 "code": "Layout",
                 "path":"{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -307,7 +307,7 @@ class Config(object):
                 "name": "Matte",
                 "code": "Matte",
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Photoshop"],
@@ -317,7 +317,7 @@ class Config(object):
                 "name": "Texture",
                 "code": "Texture",
                 "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Photoshop", "Nuke", "Fusion"],
@@ -327,7 +327,7 @@ class Config(object):
                 "name": "Illustration",
                 "code": "Illust",
                 "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Photoshop"],
@@ -337,7 +337,7 @@ class Config(object):
                 "name": "Look Development",
                 "code": "LookDev",
                 "path": "{{project.code}}/Assets/{{asset.type}}/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["Maya", "Houdini"],
@@ -347,13 +347,71 @@ class Config(object):
                 "name": "Match Move",
                 "code": "MM",
                 "path": "{{project.code}}/Sequences/{{sequence.code}}/Shots/{{version.base_name}}/{{type.code}}",
-                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}_{{version.created_by.initials}}{{version.extension}}",
+                "filename": "{{version.base_name}}_{{version.take_name}}_{{type.code}}_v{{'%03d'|format(version.version_number)}}{{version.extension}}",
                 "output_path": "{{version._path}}/Output/{{version.take_name}}",
                 "extra_folders": "",
                 "environments": ["3DEqualizer"],
                 "type_for": "Shot"
             }
-        ]
+        ],
+        
+        maya_workspace_file_content = """workspace -fr "3dPaintTextures" ".mayaFiles/sourceimages/3dPaintTextures/";
+workspace -fr "Adobe(R) Illustrator(R)" ".mayaFiles/data/";
+workspace -fr "aliasWire" ".mayaFiles/data/";
+workspace -fr "animImport" ".mayaFiles/data/";
+workspace -fr "animExport" ".mayaFiles/data/";
+workspace -fr "audio" ".mayaFiles/sound/";
+workspace -fr "autoSave" ".mayaFiles/autosave/";
+workspace -fr "clips" ".mayaFiles/clips/";
+workspace -fr "DAE_FBX" ".mayaFiles/data/";
+workspace -fr "DAE_FBX export" ".mayaFiles/data/";
+workspace -fr "depth" ".mayaFiles/renderData/depth/";
+workspace -fr "diskCache" ".mayaFiles/cache/";
+workspace -fr "DXF" ".mayaFiles/data/";
+workspace -fr "DXF export" ".mayaFiles/data/";
+workspace -fr "DXF_FBX" ".mayaFiles/data/";
+workspace -fr "DXF_FBX export" ".mayaFiles/data/";
+workspace -fr "eps" ".mayaFiles/data/";
+workspace -fr "EPS" ".mayaFiles/data/";
+workspace -fr "FBX" ".mayaFiles/data/";
+workspace -fr "FBX export" ".mayaFiles/data/";
+workspace -fr "fluidCache" ".mayaFiles/cache/fluid/";
+workspace -fr "furAttrMap" ".mayaFiles/renderData/fur/furAttrMap/";
+workspace -fr "furEqualMap" ".mayaFiles/renderData/fur/furEqualMap/";
+workspace -fr "furFiles" ".mayaFiles/renderData/fur/furFiles/";
+workspace -fr "furImages" ".mayaFiles/renderData/fur/furImages/";
+workspace -fr "furShadowMap" ".mayaFiles/renderData/fur/furShadowMap/";
+workspace -fr "IGES" ".mayaFiles/data/";
+workspace -fr "IGESexport" ".mayaFiles/data/";
+workspace -fr "illustrator" ".mayaFiles/data/";
+workspace -fr "image" ".mayaFiles/images/";
+workspace -fr "images" ".mayaFiles/images/";
+workspace -fr "iprImages" ".mayaFiles/renderData/iprImages/";
+workspace -fr "lights" ".mayaFiles/renderData/shaders/";
+workspace -fr "mayaAscii" ".mayaFiles/scenes/";
+workspace -fr "mayaBinary" ".mayaFiles/scenes/";
+workspace -fr "mel" ".mayaFiles/scripts/";
+workspace -fr "mentalray" ".mayaFiles/renderData/mentalray/";
+workspace -fr "mentalRay" ".mayaFiles/renderData/mentalray";
+workspace -fr "move" ".mayaFiles/data/";
+workspace -fr "movie" ".mayaFiles/movies/";
+workspace -fr "OBJ" ".mayaFiles/data/";
+workspace -fr "OBJexport" ".mayaFiles/data/";
+workspace -fr "offlineEdit" ".mayaFiles/scenes/edits/";
+workspace -fr "particles" ".mayaFiles/particles/";
+workspace -fr "renderData" ".mayaFiles/renderData/";
+workspace -fr "renderScenes" ".mayaFiles/scenes/";
+workspace -fr "RIB" ".mayaFiles/data/";
+workspace -fr "RIBexport" ".mayaFiles/data/";
+workspace -fr "scene" ".mayaFiles/scenes/";
+workspace -fr "scripts" ".mayaFiles/scripts/";
+workspace -fr "shaders" ".mayaFiles/renderData/shaders/";
+workspace -fr "sound" ".mayaFiles/sound/";
+workspace -fr "sourceImages" ".mayaFiles/sourceimages/";
+workspace -fr "templates" ".mayaFiles/assets/";
+workspace -fr "textures" ".mayaFiles/images/";
+workspace -fr "translatorData" ".mayaFiles/data/";
+"""
     )
     
     def __init__(self):

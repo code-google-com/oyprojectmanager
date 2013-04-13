@@ -201,14 +201,11 @@ class Sequence(Base):
                 and self.project.shot_number_prefix is not None:
                 if shot_number.startswith(self.project.shot_number_prefix):
                     # remove it
-                    shot_number = re.sub(
-                        r"^[" + self.project.shot_number_prefix + "]+",
-                        "",
-                        shot_number
-                    )
-            
-            # if the shot_number starts with zeros ('0000') remove them
-            shot_number = re.sub(r'^[0]+', '', shot_number)
+                    shot_number = \
+                        shot_number[len(self.project.shot_number_prefix):]
+                    
+                    # if the shot_number starts with zeros ('0000') remove them
+                    shot_number = re.sub(r'^[0]+', '', shot_number)
             
             # create a new shot instance
             new_shots.append(Shot(self, shot_number))

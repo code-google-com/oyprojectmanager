@@ -9,5 +9,7 @@ from oyProjectManager.models.entity import EnvironmentBase
 class Photoshop(EnvironmentBase):
     """the photoshop environment class
     """
+    name = "Photoshop"
+    
     pass
     

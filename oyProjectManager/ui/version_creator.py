@@ -15,7 +15,7 @@ from sqlalchemy.sql.expression import distinct
 
 import oyProjectManager
 from oyProjectManager import (config, db, utils, Asset, User, EnvironmentBase,
-                              Project, Repository, Sequence, Shot, Version,
+                              Project, Sequence, Shot, Version,
                               VersionType, VersionTypeEnvironments)
 from oyProjectManager.ui import create_asset_dialog, version_updater, ui_utils
 
@@ -44,7 +44,7 @@ elif qt_module == "PyQt4":
     from PyQt4 import QtGui, QtCore
     from oyProjectManager.ui import version_creator_UI_pyqt4 as version_creator_UI
 
-def UI(environment=None, app_in=None, executor=None):
+def UI(environment=None, app_in=None, executor=None, mode=0):
     """the UI to call the dialog by itself
     
     :param environment: The
@@ -57,6 +57,9 @@ def UI(environment=None, app_in=None, executor=None):
     
     :param executor: Instead of calling app.exec_ the UI will call this given
       function. It also passes the created app instance to this executor.
+    
+    :param mode: Runs the UI either in Read-Write (0) mode or in Read-Only (1)
+      mode.
     """
     global app
     global mainDialog
@@ -76,7 +79,7 @@ def UI(environment=None, app_in=None, executor=None):
     else:
         app = QtGui.QApplication.instance()
     
-    mainDialog = MainDialog(environment)
+    mainDialog = MainDialog(environment, mode=mode)
     mainDialog.show()
     #app.setStyle('Plastique')
 
@@ -95,10 +98,16 @@ def UI(environment=None, app_in=None, executor=None):
     return mainDialog
 
 class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
-    """The main asset version creation dialog for the system.
+    """The main version creation dialog for the system.
     
     This is the main interface that the users of the oyProjectManager will use
     to create a new Version.
+    
+    .. versionadded:: 0.2.5.2
+       
+       Now it is possible to run the version_creator UI in read-only mode where
+       the UI is only for choosing previous versions. There will only be one
+       button called "Choose" which returns the chosen Version instance.
     
     :param environment: It is an object which supplies **methods** like
       ``open``, ``save``, ``export``,  ``import`` or ``reference``. The most
@@ -124,22 +133,37 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     :param parent: The parent ``PySide.QtCore.QObject`` of this interface. It
       is mainly useful if this interface is going to be attached to a parent
       UI, like the Maya or Nuke.
+    
+    :param mode: Sets the UI in to Read-Write (mode=0) and Read-Only (mode=1)
+      mode. Where in Read-Write there are all the buttons you would normally
+      have (Export As, Save As, Open, Reference, Import), and in Read-Only mode
+      it has only one button called "Choose" which lets you choose one Version.
     """
     
-    def __init__(self, environment=None, parent=None):
+    def __init__(self, environment=None, parent=None, mode=0):
         logger.debug("initializing the interface")
         
         super(MainDialog, self).__init__(parent)
         self.setupUi(self)
         
-        # change the window title
-        self.setWindowTitle(
-            'Version Creator | ' + \
-            'oyProjectManager v' + oyProjectManager.__version__
-        )
+        self.mode = mode
+        self.chosen_version = None
         
-        self.config = config.Config()
-        self.repo = Repository()
+        window_title = 'Version Creator | ' + \
+            'oyProjectManager v' + oyProjectManager.__version__
+        
+        if environment:
+            window_title += " | " + environment.name
+        else:
+            window_title += " | No Environment"
+        
+        if self.mode:
+            window_title += " | Read-Only Mode"
+        else:
+            window_title += " | Normal Mode"
+        
+        # change the window title
+        self.setWindowTitle(window_title)
         
         # setup the database
         if db.session is None:
@@ -323,14 +347,30 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.open_pushButton_clicked
         )
         
-        # add double clicking to previous_versions_tableWidget too
+        # chose
         QtCore.QObject.connect(
-            self.previous_versions_tableWidget,
-            QtCore.SIGNAL("cellDoubleClicked(int,int)"),
-            self.open_pushButton_clicked
+            self.chose_pushButton,
+            QtCore.SIGNAL("cliched()"),
+            self.chose_pushButton_clicked
         )
-
-
+        
+        if self.mode:
+            # Read-Only mode, Choose the version
+            # add double clicking to previous_versions_tableWidget
+            QtCore.QObject.connect(
+                self.previous_versions_tableWidget,
+                QtCore.SIGNAL("cellDoubleClicked(int,int)"),
+                self.chose_pushButton_clicked
+            )
+        else:
+            # Read-Write mode, Open the version
+            # add double clicking to previous_versions_tableWidget
+            QtCore.QObject.connect(
+                self.previous_versions_tableWidget,
+                QtCore.SIGNAL("cellDoubleClicked(int,int)"),
+                self.open_pushButton_clicked
+            )
+        
         # reference
         QtCore.QObject.connect(
             self.reference_pushButton,
@@ -378,6 +418,11 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
     def _show_assets_tableWidget_context_menu(self, position):
         """the custom context menu for the assets_tableWidget
         """
+        
+        if self.mode:
+            # do not show in Read-Only mode
+            return
+        
         # convert the position to global screen position
         global_position = self.assets_tableWidget.mapToGlobal(position)
         
@@ -391,20 +436,22 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # something is chosen
             if selected_item.text() == "Rename Asset":
                 
+                asset = self.get_versionable() 
+                
                 # show a dialog
                 self.input_dialog = QtGui.QInputDialog(self)
-
                 new_asset_name, ok = self.input_dialog.getText(
                     self,
                     "Rename Asset",
-                    "New Asset Name"
+                    "New Asset Name",
+                    QtGui.QLineEdit.Normal,
+                    asset.name
                 )
-                
+
                 if ok:
                     # if it is not empty
                     if new_asset_name != "":
                         # get the asset from the list
-                        asset = self.get_versionable()
                         asset.name = new_asset_name
                         asset.code = new_asset_name
                         asset.save()
@@ -420,6 +467,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.previous_versions_tableWidget.mapToGlobal(position)
         
         item = self.previous_versions_tableWidget.itemAt(position)
+        if not item:
+            return
+        
         index = item.row()
         version = self.previous_versions_tableWidget.versions[index]
         
@@ -431,24 +481,28 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         #previous_versions_tableWidget_menu.addSeparator()
         
-        # add statuses
-        for status in conf.status_list_long_names:
-            action = QtGui.QAction(status, menu)
-            action.setCheckable(True)
-            # set it checked if the status of the version is the current status
-            if version.status == status:
-                action.setChecked(True)
+        if not self.mode:
+            # add statuses
+            for status in conf.status_list_long_names:
+                action = QtGui.QAction(status, menu)
+                action.setCheckable(True)
+                # set it checked if the status of the version is the current status
+                if version.status == status:
+                    action.setChecked(True)
+                
+                menu.addAction(action)
             
-            menu.addAction(action)
-        
-        # add separator
-        menu.addSeparator()
+            # add separator
+            menu.addSeparator()
         
         # add Browse Outputs
-        menu.addAction("Browse Outputs")
+        menu.addAction("Browse Output Path...")
         menu.addSeparator()
-        menu.addAction("Change Note...")
-        menu.addSeparator()
+         
+        if not self.mode:
+            menu.addAction("Change Note...")
+            menu.addSeparator()
+        
         menu.addAction("Copy Path")
         menu.addAction("Copy Output Path")
         
@@ -476,7 +530,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                     # refresh the tableWidget
                     self.update_previous_versions_tableWidget()
                     return
-            elif choice == 'Browse Outputs':
+            elif choice == 'Browse Output Path...':
                 path = os.path.expandvars(version.output_path)
                 try:
                     utils.open_browser_in_location(path)
@@ -607,6 +661,36 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             self.reference_pushButton.setVisible(False)
             self.import_pushButton.setVisible(False)
         
+        if self.mode:
+            # run in read-only mode
+            # hide buttons
+            self.create_asset_pushButton.setVisible(False)
+            self.add_type_toolButton.setVisible(False)
+            self.add_take_toolButton.setVisible(False)
+            self.note_label.setVisible(False)
+            self.note_textEdit.setVisible(False)
+            self.status_label.setVisible(False)
+            self.statuses_comboBox.setVisible(False)
+            self.publish_checkBox.setVisible(False)
+            self.update_paths_checkBox.setVisible(False)
+            self.export_as_pushButton.setVisible(False)
+            self.save_as_pushButton.setVisible(False)
+            self.open_pushButton.setVisible(False)
+            self.reference_pushButton.setVisible(False)
+            self.import_pushButton.setVisible(False)
+            self.upload_thumbnail_pushButton.setVisible(False)
+            self.user_label.setVisible(False)
+            self.users_comboBox.setVisible(False)
+            self.shot_info_update_pushButton.setVisible(False)
+            self.frame_range_label.setVisible(False)
+            self.handles_label.setVisible(False)
+            self.start_frame_spinBox.setVisible(False)
+            self.end_frame_spinBox.setVisible(False)
+            self.handle_at_end_spinBox.setVisible(False)
+            self.handle_at_start_spinBox.setVisible(False)
+        else:
+            self.chose_pushButton.setVisible(False)
+        
         # update note field
         self.note_textEdit.setText('')
        
@@ -727,6 +811,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         
         # clear the thumbnail area
         self.clear_thumbnail()
+        
+        # clear previous_versions_tableWidget
+        self.clear_previous_versions_tableWidget()
         
         # if assets is the current tab
         if index == 0:
@@ -969,6 +1056,9 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
                 .all()
             )
         
+        # clear previous versions tableWidget
+        self.clear_previous_versions_tableWidget()
+        
         # add the types to the version types list
         self.version_types_listWidget.clear()
         self.version_types_listWidget.addItems(types)
@@ -976,11 +1066,10 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         # select the first one
         item = self.version_types_listWidget.item(0)
         self.version_types_listWidget.setCurrentItem(item)
-#        setCurrentRow(0)
         
         # update thumbnail
         self.update_thumbnail()
-    
+   
     def shot_info_update_pushButton_clicked(self):
         """runs when the shot_info_update_pushButton is clicked
         """
@@ -998,6 +1087,8 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         shot.end_frame = end_frame
         shot.handle_at_start = handle_at_start
         shot.handle_at_end = handle_at_end
+
+        shot.save()
     
     def version_types_listWidget_changed(self, index):
         """runs when the asset version types comboBox has changed
@@ -1011,6 +1102,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             version_type_name = item.text()
 
         self.takes_listWidget.clear()
+        self.clear_previous_versions_tableWidget()
         
         if version_type_name != '':
             logger.debug("version_type_name: %s" % version_type_name)
@@ -1083,10 +1175,21 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             if index != -1:
                 self.statuses_comboBox.setCurrentIndex(index)
     
+    def clear_previous_versions_tableWidget(self):
+        """clears the previous_versions_tableWidget properly
+        """
+        # clear the data
+        self.previous_versions_tableWidget.clear()
+        self.previous_versions_tableWidget.versions = []
+        
+        # reset the labels
+        self.previous_versions_tableWidget.setHorizontalHeaderLabels(
+            self.previous_versions_tableWidget.labels
+        )
+    
     def update_previous_versions_tableWidget(self):
         """updates the previous_versions_tableWidget
         """
-        
         versionable = self.get_versionable()
         
         # version type name
@@ -1095,14 +1198,13 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         if item:
             version_type_name = item.text()
 
-        self.previous_versions_tableWidget.clear()
-        self.previous_versions_tableWidget.setHorizontalHeaderLabels(
-            self.previous_versions_tableWidget.labels
-        )
+        self.clear_previous_versions_tableWidget()
         
         if version_type_name != '':
             logger.debug("version_type_name: %s" % version_type_name)
         else:
+            # delete the versions cache
+            self.previous_versions_tableWidget.versions = []
             return
         
         # take name
@@ -1258,7 +1360,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             item = QtGui.QTableWidgetItem(vers.note)
             # align to left and vertical center
             item.setTextAlignment(0x0001 | 0x0080)
-
+            
             if is_published:
                 set_font(item)
             
@@ -1266,10 +1368,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # ------------------------------------
        
         # resize the first column
+        self.previous_versions_tableWidget.resizeRowsToContents()
         self.previous_versions_tableWidget.resizeColumnsToContents()
+        self.previous_versions_tableWidget.resizeRowsToContents()
    
     def create_asset_pushButton_clicked(self):
-        """
+        """displays an input dialog and creates a new asset if everything is ok
         """
         
         dialog = create_asset_dialog.create_asset_dialog(parent=self)
@@ -1296,7 +1400,15 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         try:
             new_asset = Asset(proj, asset_name, type=asset_type_name)
             new_asset.save()
+            
+            # recreate the project structure
+            proj.create()
+            
+            # update the assets by calling project_changed
+            self.project_changed()
+ 
         except (TypeError, ValueError, IntegrityError) as e:
+            error_message = str(e)
             if isinstance(e, IntegrityError):
                 # the transaction needs to be rollback
                 db.session.rollback()
@@ -1306,10 +1418,7 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             QtGui.QMessageBox.critical(self, "Error", error_message)
             
             return
-        
-        # update the assets by calling project_changed
-        self.project_changed()
-    
+   
     def get_versionable(self):
         """returns the versionable from the UI, it is an asset or a shot
         depending on to the current tab
@@ -1576,9 +1685,12 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         """
         
         index = self.previous_versions_tableWidget.currentRow()
-        version = self.previous_versions_tableWidget.versions[index]
         
-        return version
+        try:
+            version = self.previous_versions_tableWidget.versions[index]
+            return version
+        except IndexError:
+            return None
     
     def get_user(self):
         """returns the current User instance from the interface by looking at
@@ -1679,13 +1791,20 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
             # refresh the UI
             self.project_changed()
     
+    def chose_pushButton_clicked(self):
+        """runs when the chose_pushButton clicked
+        """
+        self.chosen_version = self.get_previous_version()
+        if self.chosen_version:
+            logger.debug(self.chosen_version)
+            self.close()
+    
     def open_pushButton_clicked(self):
         """runs when the open_pushButton clicked
         """
-        
         # get the new version
         old_version = self.get_previous_version()
-
+        
         logger.debug("opening version %s" % old_version)
         
         # call the environments open_ method

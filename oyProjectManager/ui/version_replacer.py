@@ -4,229 +4,132 @@
 # This module is part of oyProjectManager and is released under the BSD 2
 # License: http://www.opensource.org/licenses/BSD-2-Clause
 
-import os, sys
-from PyQt4 import QtGui, QtCore
-import assetReplacer_UI
-
+import os
+import sys
+import logging
 import oyProjectManager
-from oyProjectManager import utils
-from oyProjectManager.environments import environmentFactory
-from oyProjectManager.models.asset import Asset
-from oyProjectManager.models.project import Project
-from oyProjectManager.models.repository import Repository
-from oyProjectManager.models.sequence import Sequence
-from oyProjectManager.ui import singletonQApplication
 
+from oyProjectManager import (config, utils, Asset, Project, Repository,
+                              Sequence)
 
+logger = logging.getLogger('beaker.container')
+logger.setLevel(logging.WARNING)
+
+# create a logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+
+conf = config.Config()
+
+qt_module_key = "PREFERRED_QT_MODULE"
+qt_module = "PyQt4"
+
+if os.environ.has_key(qt_module_key):
+    qt_module = os.environ[qt_module_key]
+
+if qt_module == "PySide":
+    from PySide import QtGui, QtCore
+    from oyProjectManager.ui import version_replacer_UI_pyside as version_replacer_UI
+elif qt_module == "PyQt4":
+    import sip
+    sip.setapi('QString', 2)
+    sip.setapi('QVariant', 2)
+    from PyQt4 import QtGui, QtCore
+    from oyProjectManager.ui import version_replacer_UI_pyqt4 as version_replacer_UI
 
 #----------------------------------------------------------------------
-def UI( environmentName=None ):
+def UI(environment=None, app_in=None, executor=None):
     """the UI to call the dialog by itself
     """
-    
     global app
     global mainDialog
-    app = singletonQApplication.QApplication(sys.argv)
-    mainDialog = MainDialog( environmentName )
+    #app = singletonQApplication.QApplication(sys.argv)
+    
+    self_quit = False
+    if QtGui.QApplication.instance() is None:
+        if not app_in:
+            try:
+                app = QtGui.QApplication(sys.argv)
+            except AttributeError: # sys.argv gives argv.error
+                app = QtGui.QApplication([])
+        else:
+            app = app_in
+        self_quit = True
+    else:
+        app = QtGui.QApplication.instance()
+    
+    mainDialog = MainDialog(environment )
     mainDialog.show()
-    app.exec_()
-    app.connect(app, QtCore.SIGNAL("lastWindowClosed()"), app, QtCore.SLOT("quit()"))
+    
+    if executor is None:
+        app.exec_()
+        if self_quit:
+            app.connect(
+                app,
+                QtCore.SIGNAL("lastWindowClosed()"),
+                app,
+                QtCore.SLOT("quit()")
+            )
+    else:
+        executor.exec_(app, mainDialog)
+    
+    return mainDialog
 
-
-
-
-
-
-########################################################################
-class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
+class MainDialog(QtGui.QDialog, version_replacer_UI.Ui_Dialog):
     """the main dialog of the script
     """
     
-    
-    
-    #----------------------------------------------------------------------
-    def __init__(self, environmentName=None, parent=None):
+    def __init__(self, environment=None, parent=None):
         # call the supers __init__
         super(MainDialog, self).__init__(parent)
         self.setupUi(self)
         
         # change the window title
-        environmentTitle = ''
-        if environmentName != None:
-            enviornmentTitle = environmentName
+        window_title = 'Version Replacer | ' + \
+            'oyProjectManager v' + oyProjectManager.__version__
         
-        self._environmentFactory = environmentFactory.EnvironmentFactory()
+        self.environment = environment
         
-        self.setWindowTitle( environmentTitle + ' | ' +
-                             self.windowTitle() +  ' | ' +
-                             'oyProjectManager v' + oyProjectManager.__version__ )
+        if self.environment:
+            window_title += " | " + environment.name
+        else:
+            window_title += " | No Environment"
         
         # center to the window
         self._centerWindow()
         
-        # ------------------------------------------------------------
-        # SIGNALS
-        # ------------------------------------------------------------
         self._horizontalLabels = [ 'Original Asset', 'Update To' ]
         
-        self._numOfRefs = 0
-        self._refDatas = []
-        self._versionListBuffer = []
-
-        
-        self._project = None
-        self._sequence = None
-        self._asset = None
-        
-        self._assetsToReplaceList = []
-        
-        # create a repository object
-        self._repo = repository.Repository()
-        
-        # create the environment object
-        self._environment = self._environmentFactory.create( None, environmentName )
-        
-        #---------
-        # SIGNALS
-        #---------
-        # cancel button
-        QtCore.QObject.connect( self.cancel_pushButton,
-                                QtCore.SIGNAL("clicked()"),
-                                self.close )
-        
-        # project change ---> update sequence
-        QtCore.QObject.connect( self.project_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self._updateProjectObject )
-        
-        QtCore.QObject.connect( self.project_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.updateSequenceList )
-        
-        # sequence change ---> update _no_sub_name_field
-        QtCore.QObject.connect( self.sequence_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self._updateSequenceObject )
-        
-        QtCore.QObject.connect( self.sequence_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.updateForNoSubName )
-        
-        # sequence change ---> update asset type
-        QtCore.QObject.connect( self.sequence_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.updateAssetTypeList )
-        
-        # type change ---> fill baseName comboBox and update subName
-        QtCore.QObject.connect( self.assetType_comboBox1,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.updateBaseNameField )
-        
-        # baseName change ---> full update subName
-        QtCore.QObject.connect( self.baseName_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.updateSubNameField )
-        
-        # subName change ---> full update assetFile_comboBox
-        QtCore.QObject.connect( self.project_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.fullUpdateAssetFilesComboBox )
-        
-        QtCore.QObject.connect( self.sequence_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.fullUpdateAssetFilesComboBox )
-        
-        QtCore.QObject.connect( self.assetType_comboBox1,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.fullUpdateAssetFilesComboBox )
-        
-        QtCore.QObject.connect( self.baseName_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.fullUpdateAssetFilesComboBox )
-        
-        QtCore.QObject.connect( self.subName_comboBox,
-                                QtCore.SIGNAL("currentIndexChanged(int)"),
-                                self.fullUpdateAssetFilesComboBox )
-        
-        # replace button ---> do replace
-        QtCore.QObject.connect( self.replace_pushButton,
-                                QtCore.SIGNAL("clicked()"),
-                                self.replaceAssets )
-        
-        # remove replacement button --> remove replacement
-        QtCore.QObject.connect( self.removeReplacement_pushButton,
-                                QtCore.SIGNAL("clicked()"),
-                                self.removeReplacement )
-        
-        # assetList ---> double click update all fields
-        QtCore.QObject.connect( self.assetList_tableWidget,
-                                QtCore.SIGNAL("cellDoubleClicked(int,int)"),
-                                self.updateComboBoxesForAsset )
-        
-        self._fillUI()
-        self.update_project_list()
-        
-        if self._numOfRefs > 0:
-            # just act like the first asset has been double clicked
-            self.updateComboBoxesForAsset(0,0)
-        
-        
-        ## add a popup menu
-        #self._popupMenu = QtGui.QMenu( self )#.assetList_tableWidget )
-        #self._popupMenu.addSeparator()
-        
-        #QtCore.QObject.connect( self.assetList_tableWidget,
-                                #QtCore.SIGNAL("itemClicked(QTableWidgetItem*)"),
-                                #self._popupMenu.show )
-        ##self._popupMenu.show()
-    
-    
-    
-    #----------------------------------------------------------------------
+        self.numOfRefs = 0
+        self.refData = []
+        self.versionListBuffer = []
+   
     def _centerWindow(self):
         """centers the window to the screen
         """
-        
         screen = QtGui.QDesktopWidget().screenGeometry()
         size =  self.geometry()
         self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2)
     
-    
-    
-    ##----------------------------------------------------------------------
-    #def _setEnvironment(self, environmentName):
-        #"""sets the environment object from the environemnt name
-        #"""
-        #self._environment = self._environmentFactory.create( self._asset, environmentName )
-    
-    
-    
-    #----------------------------------------------------------------------
-    def updateReferencedAssetsFromEnvironment(self):
-        """gets the referenced assets from the environment
+    def update_references_from_environment(self):
+        """gets the references from the environment
         """
-        
         # get all the referenced assets from the environment
-        self._refDatas = self._environment.getReferencedAssets()
-        self._numOfRefs = len( self._refDatas )
+        self.refData = self.environment.get_referenced_versions()
+        self.numOfRefs = len(self.refData)
     
-    
-    
-    #----------------------------------------------------------------------
     def _fillUI(self):
         """fills the UI with values from environment
         """
-        
-        
-        self.updateReferencedAssetsFromEnvironment()
+        self.update_references_from_environment()
         
         self.assetList_tableWidget.clear()
-        self.assetList_tableWidget.setRowCount( self._numOfRefs )
+        self.assetList_tableWidget.setRowCount( self.numOfRefs )
         self.assetList_tableWidget.setHorizontalHeaderLabels( self._horizontalLabels )
         
         
         # fill the assetList tableWidget
-        for i, refData in enumerate(self._refDatas):
+        for i, refData in enumerate(self.refData):
             
             assetObj = refData[0]
             assert(isinstance(assetObj, Asset))
@@ -251,43 +154,35 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         self.subName_comboBox.clear()
         self.subName_comboBox.addItem( "MAIN" )
     
-    
-    
-    #----------------------------------------------------------------------
     def _updateProjectObject(self):
         """updates the project object if it is changed
-        it is introduced to take advantege of the cache system
+        it is introduced to take advantage of the cache system
         """
-        
         currentProjectName = self.getCurrentProjectName()
         
-        if self._project == None or self._project.name != currentProjectName or (currentProjectName != "" or currentProjectName != None ):
-            self._project = project.Project( currentProjectName )
+        if self._project is None or \
+           self._project.name != currentProjectName or \
+           (currentProjectName != "" or currentProjectName is not None):
+            self._project = Project( currentProjectName )
     
-    
-    
-    #----------------------------------------------------------------------
     def _updateSequenceObject(self):
         """updates the sequence object if it is not
         """
-        
         currentSequenceName = self.getCurrentSequenceName()
         
         #assert(isinstance(self._sequence,Sequence))
-        if self._sequence == None or self._sequence.name != currentSequenceName and (currentSequenceName != "" or currentSequenceName != None ) or \
+        if self._sequence is None or \
+           self._sequence.name != currentSequenceName and \
+           (currentSequenceName != "" or currentSequenceName is not None) or \
            self._sequence.projectName != self._project.name:
             self._updateProjectObject()
-            newSeq = project.Sequence( self._project, currentSequenceName )
+            newSeq = Sequence(self._project, currentSequenceName)
             if newSeq._exists:
                 self._sequence = newSeq
     
-    
-    
-    #----------------------------------------------------------------------
     def update_project_list(self):
         """updates projects list
         """
-        
         server_path = self._repo.server_path
         
         projectsList = self._repo.valid_projects
@@ -298,61 +193,44 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         self.server_comboBox.addItem( server_path )
         self.project_comboBox.addItems( projectsList )
     
-    
-    
-    #----------------------------------------------------------------------
     def updateSequenceList(self, *arg):
         """updates the sequence according to selected project
         """
         
         self._updateProjectObject()
-        currentProjet = self._project
+        currentProject = self._project
         
         # create a project and ask the child sequences
         self.sequence_comboBox.clear()
-        sequences = currentProjet.sequenceNames()
+        sequences = currentProject.sequenceNames()
         
         self.sequence_comboBox.addItems( sequences )
         
         self._updateSequenceObject() # it is not needed but do it for now
     
-    
-    
-    #----------------------------------------------------------------------
     def getCurrentProjectName(self):
         """returns the current project name
         """
         return unicode( self.project_comboBox.currentText() )
     
-    
-    
-    #----------------------------------------------------------------------
     def getCurrentSequenceName(self):
         """returns the current sequence name
         """
         return unicode( self.sequence_comboBox.currentText() )
     
-    
-    
-    #----------------------------------------------------------------------
     def updateForNoSubName(self):
         """this method will be removed in later version, it is written just to support
         old types of assets those have no subName field
         """
-        
         # if the current sequence has no support for subName fields disable them
         self._updateSequenceObject()
         currentSequence = self._sequence
         
         self.subName_comboBox.setEnabled(not currentSequence._noSubNameField)
     
-    
-    
-    #----------------------------------------------------------------------
     def updateAssetTypeList(self):
         """updates asset types
         """
-        
         # get the asset types of that sequence
         self._updateSequenceObject()
         currentSequence = self._sequence
@@ -361,7 +239,6 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         assetTypes = currentSequence.getAssetTypes( self._environment.name )
         
         assetTypeNames = [ assetType.name for assetType in assetTypes ]
-        
         
         # clear and update the comboBoxes
         # try to keep the same item in the list
@@ -373,14 +250,10 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         if lastSelectedItem != "":
             self.assetType_comboBox1.setCurrentIndex( self.assetType_comboBox1.findText( lastSelectedItem ) )
     
-    
-    
-    #----------------------------------------------------------------------
     def updateBaseNameField(self):
         """updates the baseName fields with current asset baseNames for selected
         type, if the type is not shot dependent
         """
-        
         # if the current selected type is not shot dependent
         # get all the assets of that type and get their baseNames
         
@@ -410,14 +283,10 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         # add the list
         self.baseName_comboBox.addItems( baseNamesList )
     
-    
-    
-    #----------------------------------------------------------------------
     def updateSubNameField(self):
         """updates the subName field with current asset subNames for selected
         baseName, if the type is not shot dependent
         """
-        
         # if the current selected type is not shot dependent
         # get all the assets of that type and get their baseNames
         self._updateSequenceObject()
@@ -472,36 +341,24 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         # add the list
         self.subName_comboBox.addItems( sorted(subNamesList) )
     
-    
-    
-    #----------------------------------------------------------------------
     def getCurrentAssetType(self):
         """returns the current assetType from the UI
         """
         return unicode( self.assetType_comboBox1.currentText() )
     
-    
-    #----------------------------------------------------------------------
     def getCurrentBaseName(self):
         """returns the current baseName from the UI
         """
         return unicode( self.baseName_comboBox.currentText() )
     
-    
-    
-    #----------------------------------------------------------------------
     def getCurrentSubName(self):
         """returns the current subName from the UI
         """
         return unicode( self.subName_comboBox.currentText() )
     
-    
-    
-    #----------------------------------------------------------------------
     def updateVersionListBuffer(self):
         """updates the version list buffer
         """
-        
         self._updateProjectObject()
         self._updateSequenceObject()
         
@@ -538,40 +395,27 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         currSGFIV = currentSequence.generateFakeInfoVariables
         allVersionsList = [ currSGFIV(assetFileName)['fileName'] for assetFileName in allAssetFileNamesFiltered ]
         
-        self._versionListBuffer = []
+        self.versionListBuffer = []
         
         if len(allVersionsList) > 0:
-            self._versionListBuffer = sorted( filter( self._environment.hasValidExtension, allVersionsList ) )
+            self.versionListBuffer = sorted( filter( self._environment.hasValidExtension, allVersionsList ) )
     
-    
-    
-    #----------------------------------------------------------------------
     def fullUpdateAssetFilesComboBox(self):
         """invokes a version list buffer update and a assets files comboBox update
         """
         self.updateVersionListBuffer()
         self.partialUpdateAssetFilesComboBox()
     
-    
-    
-    #----------------------------------------------------------------------
     def partialUpdateAssetFilesComboBox(self):
         """just updates if the number of maximum displayable entry is changed
         """
-        
         _buffer = []
-        
-        _buffer = self._versionListBuffer
-        
+        _buffer = self.versionListBuffer
         self.fillAssetFilesComboBox( _buffer )
     
-    
-    
-    #----------------------------------------------------------------------
     def fillAssetFilesComboBox(self, assetFileNames):
         """fills the assets table widget with given assets
         """
-        
         assetCount = len(assetFileNames)
         
         self.assetFile_comboBox.clear()
@@ -583,13 +427,9 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         
         self.assetFile_comboBox.addItems( assetFileNames )
     
-    
-    
-    #----------------------------------------------------------------------
     def addAssetToReplaceList(self):
         """adds the asset to the replace list
         """
-        
         # first get the selection index from the asset list table
         index = self.assetList_tableWidget.currentIndex().row()
         
@@ -605,9 +445,6 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         self._assetsToReplaceList[index][1] = True
         self._assetsToReplaceList[index][2] = self._asset
     
-    
-    
-    #----------------------------------------------------------------------
     def addItemToIndex(self, tableWidget, rowIndex, columnIndex, itemText):
         """adds new item to given index
         """
@@ -617,9 +454,6 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         
         return item
     
-    
-    
-    #----------------------------------------------------------------------
     def _createAssetObjectFromOpenFields(self):
         """retriewes the file name from the open asset fields
         """
@@ -627,13 +461,9 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         self._asset = Asset( self._project, self._sequence, assetFileName )
         self._environment.asset = self._asset
     
-    
-    
-    #----------------------------------------------------------------------
     def removeReplacement(self):
         """removes the selected replacement
         """
-        
         # first get the selection index from the asset list table
         index = self.assetList_tableWidget.currentIndex().row()
         
@@ -644,12 +474,9 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         self._assetsToReplaceList[index][1] = False
         self._assetsToReplaceList[index][2] = None
     
-    
-    #----------------------------------------------------------------------
     def replaceAssets(self):
         """does the replace action
         """
-        
         # iterate over the _assetsToReplaceList
         for repData in self._assetsToReplaceList:
             if repData[1] == True:
@@ -658,9 +485,6 @@ class MainDialog(QtGui.QDialog, assetReplacer_UI.Ui_Dialog):
         # close the interface
         self.close()
     
-    
-    
-    #----------------------------------------------------------------------
     def updateComboBoxesForAsset(self, cellRowId, cellColoumnId):
         """updates the comboboxes according to double clicked cell
         """

@@ -15,6 +15,10 @@ from oyProjectManager.models.repository import Repository
 from oyProjectManager.models.sequence import Sequence
 from oyProjectManager.models.shot import Shot
 
+import logging
+logger = logging.getLogger('oyProjectManager.models.sequence')
+logger.setLevel(logging.DEBUG)
+
 class SequenceTester(unittest.TestCase):
     """tests the Sequence class
     """
@@ -46,24 +50,24 @@ class SequenceTester(unittest.TestCase):
         
         self._name_test_values = [
             # (input, name, code)
-            ("test sequence", "test sequence", "TEST_SEQUENCE"),
-            ("123 test sequence", "test sequence", "TEST_SEQUENCE"),
-            ("£#$£#$test£#$£#$sequence", "testsequence", "TESTSEQUENCE"),
-            ("_123test sequence", "test sequence", "TEST_SEQUENCE"),
-            ("CamelCase", "CamelCase", "CAMEL_CASE"),
-            ("234CamelCase", "CamelCase", "CAMEL_CASE"),
-            ("camelCase", "camelCase", "CAMEL_CASE"),
-            ("CamelCase", "CamelCase", "CAMEL_CASE"),
-            ("minus-sign", "minus-sign", "MINUS_SIGN"),
-            ("123432!+!'^+Test_SEquence323^+'^%&+%&324", "Test_SEquence323324",
-             "TEST_SEQUENCE323324"),
-            ("    ---test 9s_sequence", "test 9s_sequence", "TEST_9S_SEQUENCE"),
-            ("    ---test 9s-sequence", "test 9s-sequence", "TEST_9S_SEQUENCE"),
+            ("test sequence", "test sequence", "test_sequence"),
+            ("123 test sequence", "123 test sequence", "123_test_sequence"),
+            ("£#$£#$test£#$£#$sequence", "testsequence", "testsequence"),
+            ("_123test sequence", "_123test sequence", "_123test_sequence"),
+            ("CamelCase", "CamelCase", "CamelCase"),
+            ("234CamelCase", "234CamelCase", "234CamelCase"),
+            ("camelCase", "camelCase", "camelCase"),
+            ("CamelCase", "CamelCase", "CamelCase"),
+            ("minus-sign", "minus-sign", "minus-sign"),
+            ("123432!+!'^+Test_SEquence323^+'^%&+%&324", "123432Test_SEquence323324",
+             "123432Test_SEquence323324"),
+            ("    ---test 9s_sequence", "test 9s_sequence", "test_9s_sequence"),
+            ("    ---test 9s-sequence", "test 9s-sequence", "test_9s-sequence"),
             (" multiple     spaces are    converted to under     scores",
              "multiple     spaces are    converted to under     scores",
-             "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
-            ("_Sequence_Setup_", "Sequence_Setup_", "SEQUENCE_SETUP_"),
-            ("_SEQUENCE_SETUP_", "SEQUENCE_SETUP_", "SEQUENCE_SETUP_"),
+             "multiple_spaces_are_converted_to_under_scores"),
+            ("_Sequence_Setup_", "_Sequence_Setup_", "_Sequence_Setup_"),
+            ("_SEQUENCE_SETUP_", "_SEQUENCE_SETUP_", "_SEQUENCE_SETUP_"),
             ("FUL_3D", "FUL_3D", "FUL_3D"),
         ]
 
@@ -172,7 +176,7 @@ class SequenceTester(unittest.TestCase):
         """
         self.kwargs.pop("code")
         self.kwargs["name"] = "Test Sequence"
-        expected_value = "TEST_SEQUENCE"
+        expected_value = "Test_Sequence"
         new_seq1 = Sequence(**self.kwargs)
         self.assertEqual(new_seq1.code, expected_value)
 
@@ -195,7 +199,7 @@ class SequenceTester(unittest.TestCase):
         """
         self.kwargs["code"] = None
         self.kwargs["name"] = "Test Sequence"
-        expected_value = "TEST_SEQUENCE"
+        expected_value = "Test_Sequence"
         new_seq1 = Sequence(**self.kwargs)
         self.assertEqual(new_seq1.code, expected_value)
     
@@ -405,7 +409,7 @@ class Sequence_DB_Tester(unittest.TestCase):
         
         expected_shot_numbers = [
             '1', '2', '3', '4', '5', '6', '7', '8', '10', '12', '13', '14',
-            '15'
+            '15', '304_SB_0403_0040'
         ]
         
         # assert there is no shots in the sequence
@@ -425,18 +429,19 @@ class Sequence_DB_Tester(unittest.TestCase):
         
         # add a couple of more
         #new_seq1.add_shots("5-8,10,12-15")
-        new_seq1.add_shots("5,6,7,8,10,12,13,14,15")
+        new_seq1.add_shots("5,6,7,8,10,12,13,14,15,304_sb_0403_0040")
         
-        self.assertTrue(len(new_seq1.shots)==13)
-        self.assertTrue(new_seq1.shots[4].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[5].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[6].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[7].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[8].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[9].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[10].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[11].number in expected_shot_numbers)
-        self.assertTrue(new_seq1.shots[12].number in expected_shot_numbers)
+        self.assertTrue(len(new_seq1.shots)==14)
+        self.assertIn(new_seq1.shots[4].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[5].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[6].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[7].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[8].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[9].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[10].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[11].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[12].number, expected_shot_numbers)
+        self.assertIn(new_seq1.shots[13].number, expected_shot_numbers)
     
     def test_add_alternative_shot_is_working_properly(self):
         """testing if the add_alternative_shot method is working properly

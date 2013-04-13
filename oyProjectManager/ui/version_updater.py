@@ -77,7 +77,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             'Type',
             'Take',
             'Current',
-            'Latest',
+            'Latest Published',
             'Do Update?'
         ]
         
@@ -185,7 +185,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             item = QtGui.QTableWidgetItem(version.base_name)
             # align to left and vertical center
             item.setTextAlignment(
-                QtCore.Qt.AlignLeft + QtCore.Qt.AlignVCenter
+                QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter
             )
             self.versions_tableWidget.setItem(i, 0, item)
             
@@ -194,7 +194,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             item = QtGui.QTableWidgetItem(version.type.name)
             # align to horizontal and vertical center
             item.setTextAlignment(
-                QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter
             )
             self.versions_tableWidget.setItem(i, 1, item)
             
@@ -203,7 +203,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             item = QtGui.QTableWidgetItem(version.take_name)
             # align to horizontal and vertical center
             item.setTextAlignment(
-                QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter
             )
             self.versions_tableWidget.setItem(i, 2, item)
             
@@ -213,7 +213,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             item = QtGui.QTableWidgetItem(current_version_number)
             # align to horizontal and vertical center
             item.setTextAlignment(
-                QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter
             )
             self.versions_tableWidget.setItem(i, 3, item)
             
@@ -225,7 +225,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
                 QtGui.QTableWidgetItem(latest_published_version_number)
             # align to horizontal and vertical center
             item.setTextAlignment(
-                QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter
             )
             self.versions_tableWidget.setItem(i, 4, item)
             # ------------------------------------
@@ -234,7 +234,7 @@ class MainDialog(QtGui.QDialog, version_updater_UI.Ui_Dialog):
             # do update ?
             item = QtGui.QTableWidgetItem('')
             item.setTextAlignment(
-                QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter
             )
             try:
                 # for PyQt

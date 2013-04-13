@@ -318,24 +318,24 @@ class ProjectTester(unittest.TestCase):
         
         self._name_test_values = [
             # (input, name, code)
-            ("test project", "test project", "TEST_PROJECT"),
-            ("123 test project", "test project", "TEST_PROJECT"),
-            ("£#$£#$test£#$£#$project", "testproject", "TESTPROJECT"),
-            ("_123test project", "test project", "TEST_PROJECT"),
-            ("CamelCase", "CamelCase", "CAMEL_CASE"),
-            ("234CamelCase", "CamelCase", "CAMEL_CASE"),
-            ("camelCase", "camelCase", "CAMEL_CASE"),
-            ("CamelCase", "CamelCase", "CAMEL_CASE"),
-            ("minus-sign", "minus-sign", "MINUS_SIGN"),
-            ("123432!+!'^+Test_PRoject323^+'^%&+%&324", "Test_PRoject323324",
-                "TEST_PROJECT323324"),
-            ("    ---test 9s_project", "test 9s_project", "TEST_9S_PROJECT"),
-            ("    ---test 9s-project", "test 9s-project", "TEST_9S_PROJECT"),
+            ("test project", "test project", "test_project"),
+            ("123 test project", "123 test project", "123_test_project"),
+            ("£#$£#$test£#$£#$project", "testproject", "testproject"),
+            ("_123test project", "_123test project", "_123test_project"),
+            ("CamelCase", "CamelCase", "CamelCase"),
+            ("234CamelCase", "234CamelCase", "234CamelCase"),
+            ("camelCase", "camelCase", "camelCase"),
+            ("CamelCase", "CamelCase", "CamelCase"),
+            ("minus-sign", "minus-sign", "minus-sign"),
+            ("123432!+!'^+Test_PRoject323^+'^%&+%&324", "123432Test_PRoject323324",
+             "123432Test_PRoject323324"),
+            ("    ---test 9s_project", "test 9s_project", "test_9s_project"),
+            ("    ---test 9s-project", "test 9s-project", "test_9s-project"),
             (" multiple     spaces are    converted to under     scores",
              "multiple     spaces are    converted to under     scores",
-             "MULTIPLE_SPACES_ARE_CONVERTED_TO_UNDER_SCORES"),
-            ("_Project_Setup_", "Project_Setup_", "PROJECT_SETUP_"),
-            ("_PROJECT_SETUP_", "PROJECT_SETUP_", "PROJECT_SETUP_"),
+             "multiple_spaces_are_converted_to_under_scores"),
+            ("_Project_Setup_", "_Project_Setup_", "_Project_Setup_"),
+            ("_PROJECT_SETUP_", "_PROJECT_SETUP_", "_PROJECT_SETUP_"),
             ("FUL_3D", "FUL_3D", "FUL_3D"),
         ]
 
@@ -416,7 +416,7 @@ class ProjectTester(unittest.TestCase):
         # this is again not a valid name for a project
         test_names = [
             "^^+'^+'%^+%",
-            "__",
+            "",
             ]
 
         proj = Project("TEST_PROJECT")
@@ -694,7 +694,7 @@ class ProjectTester(unittest.TestCase):
         """testing if a ValueError will be raised when the code argument
         becomes an empty string after formatting
         """
-        test_value = "12'^+'^+"
+        test_value = "'^+'^+"
         self.assertRaises(ValueError, Project, name="TEST_PROJ1",
                           code=test_value)
 

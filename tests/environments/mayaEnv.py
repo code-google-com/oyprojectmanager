@@ -832,3 +832,40 @@ class MayaTester(unittest.TestCase):
         
         self.fail("test is not implemented yet")
     
+    def test_save_as_creates_the_workspace_mel_file_in_the_given_path(self):
+        """testing if save_as creates the workspace.mel file in the Asset or
+        Shot root
+        """
+        # check if the workspace.mel file does not exist yet
+        workspace_mel_full_path = os.path.join(
+            os.path.dirname(self.version1.path),
+            'workspace.mel'
+        )
+        self.assertFalse(os.path.exists(workspace_mel_full_path))
+        self.mEnv.save_as(self.version1)
+        self.assertTrue(os.path.exists(workspace_mel_full_path))
+    
+    def test_save_as_creates_the_workspace_fileRule_folders(self):
+        """testing if save_as creates the fileRule folders
+        """
+        # first prove that the folders doesn't exist
+        for key in pm.workspace.fileRules.keys():
+            file_rule_partial_path = pm.workspace.fileRules[key]
+            file_rule_full_path = os.path.join(
+                os.path.dirname(self.version1.path),
+                file_rule_partial_path
+            )
+            self.assertFalse(os.path.exists(file_rule_full_path))
+        
+        self.mEnv.save_as(self.version1)
+        
+        # save_as and now expect the folders to be created
+        for key in pm.workspace.fileRules.keys():
+            file_rule_partial_path = pm.workspace.fileRules[key]
+            file_rule_full_path = os.path.join(
+                os.path.dirname(self.version1.path),
+                file_rule_partial_path
+            )
+            self.assertTrue(os.path.exists(file_rule_full_path))
+        
+ 

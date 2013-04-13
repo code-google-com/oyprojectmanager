@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/eoyilmaz/Documents/development/oyProjectManager/oyProjectManager/ui/version_creator.ui'
 #
-# Created: Fri Oct 19 16:38:03 2012
+# Created: Sun Oct 21 23:07:49 2012
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -379,6 +379,9 @@ class Ui_Dialog(object):
         self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
         spacerItem9 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem9)
+        self.chose_pushButton = QtGui.QPushButton(self.previous_versions_groupBox)
+        self.chose_pushButton.setObjectName(_fromUtf8("chose_pushButton"))
+        self.horizontalLayout_5.addWidget(self.chose_pushButton)
         self.open_pushButton = QtGui.QPushButton(self.previous_versions_groupBox)
         self.open_pushButton.setObjectName(_fromUtf8("open_pushButton"))
         self.horizontalLayout_5.addWidget(self.open_pushButton)
@@ -474,6 +477,7 @@ class Ui_Dialog(object):
         item.setText(QtGui.QApplication.translate("Dialog", "Date", None, QtGui.QApplication.UnicodeUTF8))
         item = self.previous_versions_tableWidget.horizontalHeaderItem(5)
         item.setText(QtGui.QApplication.translate("Dialog", "Note", None, QtGui.QApplication.UnicodeUTF8))
+        self.chose_pushButton.setText(QtGui.QApplication.translate("Dialog", "Choose", None, QtGui.QApplication.UnicodeUTF8))
         self.open_pushButton.setText(QtGui.QApplication.translate("Dialog", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.reference_pushButton.setText(QtGui.QApplication.translate("Dialog", "Reference", None, QtGui.QApplication.UnicodeUTF8))
         self.import_pushButton.setText(QtGui.QApplication.translate("Dialog", "Import", None, QtGui.QApplication.UnicodeUTF8))

@@ -49,16 +49,6 @@ class VersionStatusComparator(str, Comparator):
         obj.status = status
         return obj
     
-    #def __init__(self, status):
-    #    if isinstance(status, VersionStatusComparator):
-    #        self.status = status.status
-    #    elif isinstance(status, basestring):
-    #        status_list_long_names = conf.status_list_long_names
-    #        if status in status_list_long_names:
-    #            index = status_list_long_names.index(status)
-    #            status = conf.status_list[index]
-    #        self.status = status
-    
     def __eq__(self, other):
         if not isinstance(other, VersionStatusComparator):
             other = VersionStatusComparator(other)
@@ -66,10 +56,6 @@ class VersionStatusComparator(str, Comparator):
    
     def __clause_element__(self):
         return self.status
-    
-#    def __set__(self, instance, value):
-    #def __str__(self):
-    #    return self.status
 
 class Version(Base, IOMixin):
     """Holds versions of assets or shots.

@@ -127,6 +127,9 @@ class Client(Base):
         """
         if code is None:
             code = re.sub(r"[^A-Z]", "", self.name.title())
+            # make it real unique
+            import uuid
+            code = code + "_" + uuid.uuid4().get_hex()[:4]
         
         if not isinstance(code, (str, unicode)):
             raise TypeError('Client.code should be a string or unicode, not '

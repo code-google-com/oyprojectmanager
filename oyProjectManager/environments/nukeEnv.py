@@ -199,77 +199,79 @@ class Nuke(EnvironmentBase):
         """
         return int(self._root.knob('fps').getValue())
     
-    def get_main_write_node(self):
+    def get_main_write_nodes(self):
         """Returns the main write node in the scene or None.
         """
         # list all the write nodes in the current file
-        all_write_nodes = nuke.allNodes("Write")
-        
-        for write_node in all_write_nodes:
+	all_main_write_nodes = []
+        for write_node in nuke.allNodes("Write"):
             if write_node.name().startswith(self._main_output_node_name):
-                main_write_node = write_node
-                return main_write_node
+                all_main_write_nodes.append(write_node)
         
-        return None
+        return all_main_write_nodes
     
     def create_main_write_node(self, version):
         """creates the default write node if there is no one created before.
         """
         
         # list all the write nodes in the current file
-        main_write_node = self.get_main_write_node()
-        
-        if main_write_node is None:
+        main_write_nodes = self.get_main_write_nodes()
+
+        # check if there is a write node or not
+        if not len(main_write_nodes):
             # create one with correct output path
             main_write_node = nuke.nodes.Write()
             main_write_node.setName(self._main_output_node_name)
+            main_write_nodes.append(main_write_node)
         
-        # set the output path
-        output_file_name = ""
-        
-        if version.type.type_for == "Shot":
-            output_file_name = version.project.code + "_"
-            output_file_name += version.version_of.sequence.code + "_"
+	for main_write_node in main_write_nodes:
+            # set the output path
+            output_file_name = ""
+            
+            if version.type.type_for == "Shot":
+                output_file_name = version.project.code + "_"
+                #output_file_name += version.version_of.sequence.code + "_"
+            
+            # get the output format
+            output_format_enum = \
+                main_write_node.knob('file_type').value().strip()
+            if output_format_enum == '':
+                # set it to png by default
+                output_format_enum = 'png'
+                main_write_node.knob('file_type').setValue(output_format_enum)
+            elif output_format_enum == 'ffmpeg':
+                output_format_enum = 'mov'
 
-        
-        output_file_name += \
-            version.base_name + "_" + \
-            version.take_name + "_" + \
-            version.type.code + "_" + \
-            "Output_" + \
-            "v%03d" % version.version_number + "_" + \
-            version.created_by.initials + ".###.tga"
-        
-        # check if it is a stereo comp
-        # if it is enable separate view rendering
-        
-        output_file_full_path = os.path.join(
-            version.output_path,
-            output_file_name
-        ).replace("\\", "/")
+            output_file_name += \
+                version.base_name + "_" + \
+                version.take_name + "_" + \
+                version.type.code + "_" + \
+                "v%03d" % version.version_number
+            
+            if output_format_enum != 'mov':
+              output_file_name += ".####." + output_format_enum
+            else:
+              output_file_name += '.' + output_format_enum
+            
+            # check if it is a stereo comp
+            # if it is enable separate view rendering
+            
+            # set the output path
+            output_file_full_path = os.path.join(
+                version.output_path,
+                output_format_enum,
+                output_file_name
+            ).replace("\\", "/")
+            
+            # create the path
+            try:
+                os.makedirs(os.path.dirname(output_file_full_path))
+            except OSError:
+                # path already exists
+                pass
 
-        # set the output to project path relative
-        main_write_node["file"].setValue(output_file_full_path)
-        
-        # create the path
-        try:
-            os.makedirs(os.path.dirname(output_file_full_path))
-        except OSError:
-            # path already exists
-            pass
-        
-        # set the default output file type to tga
-        platform_system = platform.system()
-        
-        format_id = 12
-        if platform_system == "Darwin":
-            format_id = 12 
-            # check the nuke version for nuke 6.2 and below
-            if (nuke.NUKE_VERSION_MAJOR + nuke.NUKE_VERSION_MINOR/10.0) < 6.3:
-                format_id = 13
-        
-        main_write_node["file_type"].setValue(format_id)
-        main_write_node["channels"].setValue("rgb")
+            # set the output file path
+            main_write_node.knob("file").setValue(output_file_full_path)
     
     def replace_external_paths(self, mode=0):
         """replaces file paths with environment variable scripts

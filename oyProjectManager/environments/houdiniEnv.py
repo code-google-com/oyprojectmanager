@@ -93,6 +93,11 @@ class Houdini(EnvironmentBase):
         self.set_environment_variables(version)
         
         return True, []
+
+    def post_open(self, version):
+        """just skip it
+        """
+        return
     
     def import_(self, version):
         """the import action for houdini environment
