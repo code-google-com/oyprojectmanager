@@ -1087,6 +1087,8 @@ class MainDialog(QtGui.QDialog, version_creator_UI.Ui_Dialog):
         shot.end_frame = end_frame
         shot.handle_at_start = handle_at_start
         shot.handle_at_end = handle_at_end
+
+        shot.save()
     
     def version_types_listWidget_changed(self, index):
         """runs when the asset version types comboBox has changed
