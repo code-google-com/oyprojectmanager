@@ -526,7 +526,6 @@ workspace -fr "translatorData" ".mayaFiles/data/";
         """
         if not isinstance(user_id, int):
             raise RuntimeWarning("user_id for last_user_id should be an int")
-            return
         
         file_name = 'last_user_id'
         file_path = os.path.expanduser("~/.oypmrc/")

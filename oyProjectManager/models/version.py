@@ -453,8 +453,8 @@ class Version(Base, IOMixin):
         :class:`~oyProjectManager.models.version.Version`.\
         :attr:`~oyProjectManager.models.version.Version.filename` attributes.
         
-        So, it is an absolute path. The value of the ``full_path`` is not stored
-        in the database.
+        So, it is an absolute path. The value of the ``full_path`` is not
+        stored in the database.
         """
         return os.path.join(
             self.path,

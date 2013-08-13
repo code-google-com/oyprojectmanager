@@ -2225,7 +2225,7 @@ class VersionCreatorTester(unittest.TestCase):
         # is_published should be True
         self.assertTrue(vers_new.is_published==True)
     
-    def test_previous_version_tableWidget_shows_published_Versions_in_bold(self):
+    def test_previous_versions_tableWidget_shows_published_Versions_in_bold(self):
         """testing if the previous_version_tableWidget is showing published
         Versions in bold
         """
