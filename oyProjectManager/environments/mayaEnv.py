@@ -108,11 +108,11 @@ class Maya(EnvironmentBase):
         # create workspace folders
         self.create_workspace_folders(workspace_path)
         
-        # set scene fps
-        self.set_fps(project.fps)
-        
         # only if the file is a new version
         if version.version_number == 1:
+            # set scene fps
+            self.set_fps(project.fps)
+        
             # set render resolution
             self.set_resolution(project.width, project.height,
                 project.pixel_aspect)
