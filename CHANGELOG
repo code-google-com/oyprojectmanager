@@ -10,6 +10,9 @@ Version History
   * Minus (-) character is allowed in the code attribute.
   * Numbers are allowed at the beginning of both the name and code attributes.
   * CamelCase letters will be preserved in code attribute.
+  * Added support for Arnold Renderer in Maya.
+  * It is now possible to store the environment variables without saving the
+    file twice in Houdini.
 
 0.2.5.3
 -------
