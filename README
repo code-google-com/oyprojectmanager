@@ -1,0 +1,20 @@
+About
+=====
+
+The oyProjectManager is an Asset Manager for small to medium sized Animation or
+VFX studios and licensed under BSD 2 License.
+
+The system works with any animation and composition packages supporting Python
+(ex. Maya, Nuke, Houdini etc.).
+
+The system lets the user to freely create template files which are rendered
+to create the file placements and predefined directory structure.
+
+It also makes the whole asset creation and storing process somewhat a
+scriptable and manageable process.
+
+The system uses a central database to store related data. Depending on to the
+setup it can be an SQLite3 database or a proper database server.
+
+For more detail please see the documentation.
+
