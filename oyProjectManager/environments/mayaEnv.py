@@ -426,7 +426,7 @@ class Maya(EnvironmentBase):
             image_folder_from_ws
         ).replace("\\", "/")
         
-        render_file_full_path = render_output_folder + "/<Layer>/" + \
+        render_file_full_path = render_output_folder + "/<RenderLayer>/" + \
                                 version.project.code + "_"
         
         if version.type.type_for == "Shot":
@@ -434,7 +434,7 @@ class Maya(EnvironmentBase):
         
         render_file_full_path += version.base_name + "_" +\
                                  version.take_name + \
-                                 "_<Layer>_<RenderPass>_<Version>"
+                                 "_<RenderLayer>_<RenderPass>_<Version>"
         
         # convert the render_file_full_path to a relative path to the
         # imageFolderFromWS_full_path
