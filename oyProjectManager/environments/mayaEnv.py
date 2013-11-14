@@ -625,13 +625,16 @@ class Maya(EnvironmentBase):
                 external_nodes.append(file_texture)
         
         # check for mentalray textures
-        for mr_texture in pm.ls(type=pm.nt.MentalrayTexture):
-            path = mr_texture.attr('fileTextureName').get()
-            logger.debug("path of %s: %s" % (mr_texture, path))
-            if path is not None \
-               and os.path.isabs(path) \
-               and not is_in_repo(path):
-                external_nodes.append(mr_texture)
+        try:
+            for mr_texture in pm.ls(type=pm.nt.MentalrayTexture):
+                path = mr_texture.attr('fileTextureName').get()
+                logger.debug("path of %s: %s" % (mr_texture, path))
+                if path is not None \
+                   and os.path.isabs(path) \
+                   and not is_in_repo(path):
+                    external_nodes.append(mr_texture)
+        except AttributeError: # mental ray not loaded
+            pass
         
         # check for ImagePlanes
         for image_plane in pm.ls(type=pm.nt.ImagePlane):
@@ -642,12 +645,15 @@ class Maya(EnvironmentBase):
                 external_nodes.append(image_plane)
         
         # check for IBL nodes
-        for ibl in pm.ls(type=pm.nt.MentalrayIblShape):
-            path = ibl.attr('texture').get()
-            if path is not None \
-               and os.path.isabs(path) \
-               and not is_in_repo(path):
-                external_nodes.append(ibl)
+        try:
+            for ibl in pm.ls(type=pm.nt.MentalrayIblShape):
+                path = ibl.attr('texture').get()
+                if path is not None \
+                   and os.path.isabs(path) \
+                   and not is_in_repo(path):
+                    external_nodes.append(ibl)
+        except AttributeError: # mental ray not loaded
+            pass
         
         if external_nodes:
             pm.select(external_nodes)
