@@ -1,0 +1,680 @@
+Version History
+===============
+0.2.5.4
+-------
+* Now it is possible to name the Projects and Sequences more freely.
+  
+  * Lower case characters are allowed in the code attribute
+  * Underscore character is allowed at the beginning of the name and code
+    attributes.
+  * Minus (-) character is allowed in the code attribute.
+  * Numbers are allowed at the beginning of both the name and code attributes.
+  * CamelCase letters will be preserved in code attribute.
+  * Added support for Arnold Renderer in Maya.
+  * It is now possible to store the environment variables without saving the
+    file twice in Houdini.
+
+0.2.5.3
+-------
+
+* Fixed mayaEnv.Maya, it was trying to convert None to absolute path when
+  checking for external paths.
+
+* Added post_open() to houdiniEnv.Houdini.
+
+* In version_updater the column label "Latest" is changed to
+  "Latest Published" to make it clear.
+
+* Fixed mayaEnv.Maya.export_as(), the workspace.mel is now properly created
+  upon "export as".
+
+* Fixed mayaEnv.Maya.save_as(), switching from a different workspace now
+  will create the correct folder of the new workspace.
+
+0.2.5.2
+-------
+
+* mayaEnv.Maya now creates all the folders defined in the
+  pymel.core.workspace.fileRules dictionary.
+
+* Creating a new Asset in version_creator now trigger the recreation of the
+  project structure, this will allow any asset related folders to be created
+  automatically. Change ``project_structure`` config value as desired.
+
+* Added a new config value called ``maya_workspace_file_content`` to hold the
+  workspace.mel content.
+
+* version_creator UI now can work in read-only mode where it is only used for
+  choosing existing versions.
+
+0.2.5.1
+-------
+
+* Deletes are now cascaded. When a Project instance is deleted, all the related
+  Sequence, Assets are also deleted, which also deletes the Shots and all the
+  Version instances related to the deleted Assets and Shots. Also deleting a
+  Sequence will delete the related Shots and thus the related Versions, and
+  deleting an Asset will delete all the related Versions.
+
+* In version_creator UI the notes of previous versions can now be changed by
+  using the context menu on the previous_versions_tableWidget.
+
+* project_properties dialog now warns the user for empty code field
+
+* project_properties dialog now updates the code field when the name field is
+  changed.
+
+* mayaEnv now warns the user and rejects saving the file if there are external
+  references (file textures, mentalray textures, ibl nodes etc.), which are not
+  under $REPO.
+
+* In version_creator the take name is now formatted for newly created takes, so
+  every first letter of every word is now uppercase (title) and any fancy
+  characters including empty spaces are replaced with underscores. And the
+  newly added take name is selected in the list, and also the list is now
+  sorted after adding a new take name, and duplicate take names are now
+  prevented.
+
+* Updated the version_updater, it now correctly displays the take of the
+  versionable and also the 'Update' checkbox is now working correctly.
+
+* version_creator now lists only active users.
+
+0.2.5
+-----
+
+* Moved back all the database classes to their own modules and removed the
+  oyProjectManager.core.models module. All the classes are going to be imported
+  to ``oyProjectManager`` namespace, thus it will easy again to import them as
+  if they are in the same module::
+    
+    # instead of
+    from oyProjectManager.core.models import Project, Sequence, Shot, Asset
+    
+    # you can do import them like this.
+    from oyProjectManager import Project, Sequence, Shot, Asset
+
+* Tests are now using in-memory database, which is way faster then the the file
+  based version.
+
+* Added the FileLink class to hold links to files in the file system. The
+  Version class will use this class in later versions. But for now it is used
+  in IOMixin.
+
+* Added the first ever mixin called IOMixin. It adds two new attributes to the
+  mixed in class called ``inputs`` and ``outputs``. The inputs and outputs
+  attributes are holding list of FileLink instances.
+
+* Version class is now mixed in with IOMixin so it accepts FileLink instances
+  in its inputs and outputs attributes.
+
+* "Version Creator" UI is now able to run in environmentless mode in which it
+  will only generate a new version but only copy the path to the clipboard
+  instead of telling the environment to save the document to a specific path.
+
+* Added two new context menu to the previous_versions_tableWidget_context_menu
+  first one called "Copy Path" and the second "Copy Output Path", where in the
+  first menu users will be able to copy the specified versions full_path and in
+  the second menu the output_path of the version. The data is copied to the
+  clipboard.
+
+* Project class now has an attribute called ``assets`` which will return the
+  list of assets that this Project instance has.
+
+* Fixed Bug: In Sequence.add_shots() method where adding new shots for
+  Projects with empty shot_number_prefix causing the re module to fail to
+  compile the empty expression.
+
+* It is now allowed to have underscores ("_"s) in Shot.number attribute, and
+  spaces will be replaced by underscores.
+
+* In project_manager ui the inactive projects are now have an icon at the
+  beginning of their names.
+
+0.2.4.2
+-------
+* Renamed 'Scene Assembly' to 'Layout' in VersionTypes.
+
+* Added support for Eyeon Fusion.
+
+* Fixed Houdini environment.
+
+* ``version_creator`` UI now lists users in alphabetical order.
+
+* MayaEnv sets the frame range for Shot versions.
+
+* Fixed nukeEnv for Windows, now the output path is correctly set.
+
+* The output path of the Comp type is changed to have the version number
+  included in the output.
+
+* Fusion environment now outputs OpenEXR files instead of TGA.
+
+* Houdini environment now works correctly if the output ROP nodes "vm_picture"
+  parameter is locked
+
+* Maya environment now  sets the frame range only for the first version.
+
+* Maya environment is now using a 4 digit padding in output files.
+
+* The image format is now forced to be JPG in thumbnails.
+
+* version_creator.UI() now uses the given app instance if any to be able to
+  connect the host applications event loop.
+
+* Added oyProjectManager.ui.pyqt_houdini from Houdini help docs which helps
+  creating Qt interfaces which are attached to the Houdini event loop.
+
+0.2.4.1
+-------
+* Fixed titles of ``version_creator`` and ``status_manager`` UIs.
+
+* Added screenshots to the documentation.
+
+0.2.4
+-----
+* Added ``type`` attribute to the ``Asset`` class. The main intention is to
+  be able to distinguish 'Props', 'Environment' etc. types of assets from each
+  other.
+
+* Added ``status`` attribute to the ``Version`` class. This attribute will help
+  to track the status of the ``Asset`` or ``Shot`` version.
+
+* Added a new UI called ``status_manager`` for viewing the Assets and Shots
+  statuses.
+
+* Added a new column to the ``version_creator`` UI which shows the status of
+  the saved version.
+
+* Added a new class called ``Client`` to manage ``Project`` clients.
+
+* Added a new attribute ``client`` to the ``Project`` class to manage
+  ``Client``s.
+
+* Updated ``version_creator`` UI, it now shows the Shots in correct numerical
+  order.
+
+* Updated ``version_creator`` UI, it is now possible to change the Status or
+  Browse the outputs of a Version by right clicking on the Previous Versions
+  TableWidget.
+
+* ``Version.status`` is now comparable with long status names, so comparing
+  "WTS" with "Waiting To Start" will return True.
+
+* Added the ``query`` method as a class method to the Base class in the
+  declarativeBase which will let you do queries directly by using the class
+  itself::
+    
+    # instead of doing this
+    projs = db.query(Project).all()
+    
+    # you can do like this
+    projs = Project.query().all()
+    
+    # To query for an Asset
+    my_asset = Asset.query().filter(Asset.name=='test').first()
+
+* The thumbnail path is not stored in the DB anymore but it is always rendered
+  from the config file and the attribute is renamed to ``thumbnail_full_path``.
+
+* Added ``shot_editor`` UI which can be reached through ``project_manager``,
+  with it you can edit shot info and upload thumbnails for the shot.
+
+* Moved the thumbnail upload procedures to a new module called
+  ``oyProjectManager.ui.ui_utils``, and in the future releases all the
+  common UI related functionality will be placed in this module to increase
+  code reuse.
+
+* The given shot_number is now filtered in Sequence.add_shot(), so giving a
+  shot name of "SH001" will create a new shot with shot number is "1" instead
+  of "SH001" in which the latter case will result a shot name of "SHSH001", and
+  giving a shot number of "00010" will correctly create a shot with the number
+  is set to "10" instead of "00010".
+  
+* Added installation information to the documentation.
+
+* Updated documentation of ``oyProjectManager.config.Config`` and configuration
+  of oyProjectManager.
+
+0.2.3
+-----
+
+* Added two new fields to ``Shot`` class to hold the handle information.
+
+* Added a new method to ``NukeEnv`` to create slate information.
+
+* Replacing references in ``MayaEnv`` now uses the repository environment
+  variable and prevents reloading of the referenced versions upon saving.
+
+* Fixed ``Shot.duration`` attribute initialization.
+
+* Now in ``version_creator`` the shot frame range and handle information can be
+  updated.
+
+* Fixed tests of ``version_creator``, the popups were interrupting the test
+  while the environment to UI relation was tested. Now the dialog boxes only
+  appear if the system is not in debug mode.
+
+* Added thumbnail support and ``version_creator`` UI can load/upload the
+  defined thumbnails.
+
+* For a quick fix the template format has been changed in
+  ``Sequence.add_shots()``. Compressing shots by using a "-" is not supported
+  anymore. This will probably updated later on.
+
+* Changed the name formatting of ``Shot``, ``Asset`` and ``Version``\ . It is
+  now allowed to have numbers at the beginning of the string.
+
+* Fixed ``mayaEnv.Maya``, it was raising IntegrityErrors when there are more
+  than one references to the same ``Version``\ .
+
+* Fixed a bug in ``version_creator`` where setting the font color was not
+  working in PySide, it is now fixed by changing the code to a common way of
+  doing it.
+
+* ``version_creator`` ui now displays the file size of the previous versions,
+  and will not display the full path of the them anymore.
+
+* Added ``thumbnail_format`` to the config and ``version_creator`` now uses the
+  specified format.
+
+* Fixed ``nukeEnv.py`` now it is properly opening ``Version``\ s.
+  
+* There is now two new settings in the config for time and date formatting of
+  previous versions.
+
+* ``version_creator`` now displays the modification time of the previous
+  versions.
+
+* Added "Texture Paint" also to the Nuke. So it is now possible to save Nuke
+  scenes as Texture files.
+
+* Fixed nukeEnv, the output path is now correctly generated for Assets and
+  Shots.
+
+* Changed the default Nuke output to "png"
+
+0.2.2
+-----
+
+* Added ``Version.is_published`` attribute to track if a particular Version is
+  published.
+
+* ``version_creator`` UI now shows the published ``Version``\ s in green and
+  bold font.
+
+* ``User`` instances now have a ``save()`` method to easily save the data to
+the database.
+
+* Added ``Show Only Published Versions`` option to the ``version_creator`` UI.
+
+* ``version_creator`` UI now only shows a definite amount of previous Versions,
+  and it can be adjustable by the ``version_count_spinBox``.
+
+* Default database placement now uses the ``$OYPROJECTMANAGER_PATH`` instead of
+  ``REPO``. It is much better to store ``config.py`` and ``project_manager.db``
+  side by side.
+
+* Fixed a bug in ``Sequence`` where it was not able to create two Sequences
+  with the same name but for different ``Project``\ s.
+
+* Added the ability work both with PySide and PyQt4 by setting the environment
+  variable ``PREFERRED_QT_MODULE`` to ``PySide`` or ``PyQt4`` respectively
+  before launching the application (added especially for Nuke 6.3v5 and later
+  for their inclusion of PySide to their default install). If no environment
+  variable is found then the system will continue to work with PyQt4.
+
+* In Maya the resolution will only be set if the given ``Version`` instances
+  version number is 1 to prevent unwanted resolution changes.
+
+* ``mayaEnv.Maya`` now replaces external paths (images and references) with
+  absolute paths starting with ``$REPO`` (the env variable name can change
+  according to the studio config).
+
+* For Maya environment the support for ``mentalrayTexture``s has ended due to
+  the lack of a good environment variable support. Use regular maya ``file``
+  nodes for textures with ``mib_texture_filter_lookup`` nodes for the same
+  sharp result.
+
+* ``Version`` now has ``is_latest_published_version``.
+
+* Fixed a bug in the ``version_creator`` UI where the ``shots_listWidget`` was
+  not correctly cleared after switching the current project from a project with
+  sequences to a project without any sequences.
+
+* Fixed a bug in ``mayaEnv`` where it was not able to retrieve the
+  list of references correctly under Windows OS which is caused again by the
+  backslash issue.
+
+* Updated the ``version_updater`` UI, it now works properly with new
+  ``Version`` instances. But it is again not informing the user about
+  **deep updates** which will be added in near future releases.
+
+* Fixed the ``version_creator`` UI, for Shots, it was listing all the types
+  instead of types which are compatible with the current environment.
+
+* Fixed a bug in ``mayaEnv`` where it was not able to save the scene if
+  mentalray is set as the renderer but the mentalrayGlobals node is not
+  created yet.
+
+* Converted the ``version_type_comboBox`` and ``takes_comboBox`` to a
+  listWidget, which will be much suitable for viewing all the types and takes
+  at the first sight.
+
+* ``version_creator`` now only lists active ``Project``\ s.
+
+* Fixed ``maya_env`` references to Versions in the same workspace now updating
+  the reference paths correctly by replacing the server path with $REPO.
+
+* Fixed ``maya_env`` referencing a Version now properly initializes the
+  reference path with $REPO env variable.
+
+* Fixed a bug in ``version_creator`` UI where it was raising an IndexError
+  while restoring the ui with a Version whose Project is not active anymore.
+
+* ``version_creator`` now shows the Projects in sorted order.
+
+* Now the ``Shot.number`` attribute is now compatible with GradientFX's shot
+  format, accepts any upper case letters and the dash ("-") character. Also the
+  Shot.code is updated accordingly.
+
+* project_properties UI now shows and edits advanced properties like shot
+  number padding and prefix, revision number padding and prefix, version number
+  padding and prefix and the structure of the Project.
+
+* Updated the default project structure to also include shot folders. So
+  calling ``Project.create()`` will create also the Shot folders if there is
+  any ``Sequence`` and also ``Shots`` defined.
+
+* Dash ("-") character is now allowed in the version base name
+
+* Updated ``version_updater`` UI, now it warns the user for references with no
+  published versions.
+
+* The ``Project.structure`` in was incorrectly configured
+  as ``PickleType`` whereas it should be ``String``, it is now fixed.
+
+* Renamed the ``replace_file_paths`` with
+  ``nukeEnv.Nuke.replace_external_paths`` and moved it to the
+  ``EnvironmentBase`` to make it common in environments.
+
+0.2.1
+-----
+
+* Fixed a bug when a ``Project`` doesn't have any Sequence,
+  ``Project.create()`` will raise ``OSErrors`` about not being able to create
+  the resultant directory which is an empty string.
+
+* Because at time of this release it was hard to reach PySide on every
+  platform, the system has been moved back to PyQt4 for now. PySide will
+  definitely be used in the future, when all the main programs (Maya, Houdini
+  and Nuke) are supporting it (for now it is just Nuke which is delivered with
+  PySide).
+
+* Fixed ``config.Config`` it now saves the last_user_id
+  properly
+
+* Fixed ``version_creator`` UI, it now saves and retrieves the last user choice
+  properly.
+
+* Fixed ``version_creator`` UI, it now only displays Versions with type
+  available to the current environment if there is any environment passed to
+  it.
+
+* Now in MayaEnv and NukeEnv the output file also includes the
+  Project.code and if it is a Shot Version then it also includes the
+  Sequence.code in the output file names (ex. rendered images).
+
+0.2.0
+-----
+* Updated the license to BSD 2.
+
+* Updated the license text on module headers.
+
+0.2.0.b1
+--------
+* The ``fullpath`` and the ``path`` attributes of the Project will not be
+  stored in the database anymore. But instead they will be generated from the
+  Project.path and Project.code attributes.
+
+* The concept of paths are enhanced. Now all the paths stored in the database
+  is relative to the repository root. So the Version.path attribute of is an
+  relative path to the Repository.server_path attribute of Repository class.
+  And the templates in the VersionType should be designed in that way.
+
+* Fixed a bug where all the Versions for the same Shot or Asset with the same
+  ``take_name`` considered in the same version queue. Thus
+  Version.is_latest_version and Version.max_version were not working properly.
+
+* Removed the ``description`` field from the ``version_creator`` UI to make the
+  interface more compact and also this kind of information will be available in
+  the web ui.
+
+* Added EnvironmentBase.get_version_from_fullpath(),
+  EnvironmentBase.get_versions_from_path() and 
+  EnvironmentBase.trim_server_path(), methods.
+
+* Added Version.dependency_update_list(). Which returns a list of Version
+  instances which are referenced by this Version or are referenced by the
+  references of this Version and those have newer versions in the database,
+  resulting a deeper update information.
+
+* Fixed a little bug, it is now possible to create VersionableBase instances
+  (Asset and Shot instances particularly) with the same ``code`` value if their
+  ``project_id`` is not the same.
+
+* To be able to make the Asset.name unique, the column moved to the
+  ``VersionableBases`` table which also has the ``project_id`` column.
+
+* Moved the VersionableBase.description attribute, which was a common attribute
+  for the Asset and Shot classes.
+
+* The Version.version_number attribute is now depending on to the
+  Version.version_of attribute instead of the Version.base_name attribute, to
+  prevent the ``version_number`` from being started over from 1 again in case
+  of renames in VersionableBase instances attached to a particular Version
+  instance.
+
+* Updated the ``project_manager`` ui.
+
+* Sequence will not accept strings for the ``project`` argument anymore.
+
+* The Sequence.name and Sequence.code attributes of are now working as
+  expected.
+
+0.2.0a2
+-------
+
+* Because every project had its own SQLite3 database it was hard to manage the
+  same User in different projects, for that reason the system now uses a
+  central database whose placement (if SQLite3) is defined by the config.py.
+  Also, the system is able to use different databases than SQLite3. This latest
+  improvement added another level of flexibility to the system.
+
+* The ``assetManager.py`` is renamed to ``version_creator.py`` to reflect its
+  functionality more clearly. And the interface is redesigned from scratch and
+  programmed with TDD practices.
+
+* Because there is a bug in the ``Beaker`` package, reintroduced the
+  utils.cache module.
+
+* Added Version.extension attribute to the version.Version class.
+
+* Version class now has ``extension`` and ``output_path`` attributes.
+
+* Renamed the environments back to mayaEnv.py, houdiniEnv.py, nukeEnv.py and
+  photoshopEnv.py
+
+* Added ``Version.project` which is a shortcut to the
+  ``Version.version_of.project``
+
+* Added ``Version.absolute_path`` which returns the absolute path of the
+  version to the Project root.
+  
+* The ``Version.fullpath` attribute now returns an absolute path.
+
+* The duty of the ``Project.name`` attribute is now shifted to ``Project.code``
+  attribute, thus, the ``Project.name`` can now be freely changed, without
+  effecting the file management.
+
+* Updated the Sequence.add_shots(), Sequence.add_alternative_shot() and
+  Sequence.get_next_alternate_shot_number().
+
+* Added resolution presets to the config file.
+
+* Added ``Project.active`` attribute to track the status of the Project.
+
+0.2.0a1
+-------
+
+* The system now uses SQLAlchemy Declarative in its data models. And a new
+  settings file located in the Project root with the name ``.metadata.db`` is
+  governed to hold the related data for that Project. The system doesn't scan
+  the file system anymore but instead uses this ``.metadata.db`` SQLite3 file.
+  There are a lot of interface changes in the classes: 
+
+  * The Project.sequenceNames and Project.updateSequenceList methods are no
+    longer needed and they don't exist anymore.
+  
+  * There is no ``readSettings`` method in any of the classes anymore. All the
+    settings are read from the database (by retrieving an instance from the db)
+    as the instance is created.
+  
+  * All the XML parsing code is removed. So there is no backward compatibility.
+  
+  * It was very hard keep the compatibility with the previous versions. So,
+    the version 0.2.0 is not backward compatible. The system will look with
+    blinking eyes if you try to use it with an old Project.
+  
+  * The methods:
+    
+    * ``_parseSequenceDataNode``
+    * ``_parseStructureNode``
+    * ``_parseAssetTypesNode``
+    * ``_parseShotListNode``
+    * ``_parseShotDataNode``
+    * ``create``
+    * ``createShots``
+    * ``_sortShots``
+    * ``getShot``
+    * ``shotList``
+    * ``structure``
+    * ``createStructure``
+    * ``convertToShotString``
+    * ``convertToRevString``
+    * ``convertToVerString``
+    * ``convertToShotNumber``
+    * ``convertToRevNumber``
+    * ``convertToVerNumber``
+    * ``shotPadding``
+    * ``shotPrefix``
+    * ``getAssetTypes``
+    * ``getAssetTypeWithName``
+    * ``getAssetFolders``
+    * ``projectName``
+    * ``getAllAssets``
+    * ``getAllAssetsForType``
+    * ``getAllAssetFileNamesForType``
+    * ``getAssetBaseNamesForType``
+    * ``getAllAssetsForTypeAndBaseName``
+    * ``filterAssets``
+    * ``filterAssetNames``
+    * ``generateFakeInfoVariables``
+    * ``aFilter``
+    * ``undoChange``
+    * ``path``
+    * ``fullpath``
+    * ``projectName``
+    * ``timeUnit``
+    * ``isValid``
+    * ``addNewAssetType``
+    * ``exists``
+    * ``noSubNameField``
+    
+
+    of the Sequence are removed. They were preliminarily used for fake database
+    query like behaviour which is greatly handled by SQLAlchemy right now.
+
+* All the models are now placed under one module called
+  ``oyProjectManager.core.models``. Thus deleted the old
+  ``oyProjectManager.models.project``, ``oyProjectManager.models.asset``,
+  ``oyProjectManager.models.user`` modules and the ``oyProjectManager.models``
+  module itself.
+
+* ``utils.convertRangeToList`` is renamed to ``utils.uncompress_range``\ .
+
+* Introduced the new ``Version`` class which from now on will hold the
+  references to the individual files for every version created for an Asset or
+  Shot in the repository. So contrary to the previous implementation an Asset
+  is not the reference of the individual version files of itself any more.
+
+* Introduced the VersionableBase class Shot and Asset is derived from. Thus
+  allow them to hold references to Versions.
+
+* Repository now uses the ``REPO`` environment variable instead of
+  ``STALKER_REPOSITORY_PATH``.
+
+* All the project settings are now stored in the Project class.
+
+* The ``timeUnit`` concept is replaced with ``fps``. To define the timeUnit
+  (which is very much a specific naming convention for Maya only) set the
+  Project.fps.
+
+* It is now possible to set a project image format by setting the
+  Project.width, Project.height, Project.pixel_aspect attributes.
+
+* The Shot class now initializes with Shot.number attribute and the Shot.code
+  attribute Shot.number and the Project.shot_prefix and Project.shot_padding
+  attributes.
+
+* There is no ``Structure`` class anymore. The function is accomplished by the
+  Project class itself.
+
+* The system now uses the ``OYPROJECTMANAGER_PATH`` to search a file called
+  ``conf.py`` and uses this file to configure the system. See
+  :mod:`~oyProjectManager.config` documentation for more details.
+
+* Renamed the environment modules:
+  
+  * ``houdiniEnv.py`` --> ``houdini.py``
+  * ``mayaEnv.py`` --> ``maya.py``
+  * ``nukeEnv.py`` --> ``nuke.py``
+  * ``photoshopEnv.py`` --> ``photoshop.py``
+  
+  To ease the move of separate environment class concept, which will be
+  introduced in version 0.3.0
+
+* Updated the Repository class, now it is only doing repository related things.
+  The following methods are removed:
+  
+  * ``_init_repository_path_environment_variable`` (no environment variables to
+    init anymore)
+  * ``_parse_repository_settings`` (nothing to parse anymore)
+  * ``projects`` (use ``Repository.project_names`` instead)
+  * ``valid_projects`` (use ``Repository.project_names`` all the names are for
+    valid projects -projects with .metadata.db- only)
+  * ``users`` (it is Project's duty to return a list of users in the project,
+    and a full list of user names and corresponding user name initials can be
+    retrieved from ``oyProjectManager.config.Config.users``)
+  * ``user_names`` (can be retrieved from
+    ``oyProjectManager.config.Config.users``)
+  * ``user_initials`` (can be retrieved from
+    ``oyProjectManager.config.Config.users``)
+  * ``_parse_users`` (nothing to parse anymore)
+  * ``createProject`` (use::
+      
+      from oyProjectManager.core.models import Project
+      new_proj = Project("NEW_PROJECT")
+      new_proj.create()
+    
+    no need to introduce a new method)
+    
+  * ``defaultFiles`` (is handled by the environments, not by the repository)
+  * ``default_settings_file_full_path`` (no default settings file anymore)
+  * ``home_path`` (it is os.path.expanduser("~") no need to create new method)
+  * ``last_user`` (use config.Config.last_user_initial attribute instead)
+  * ``get_project_and_sequence_name_from_file_path`` (use
+    Repository.get_project_name() instead, it is not possible to get the
+    Sequence name for now)
+  * ``settings_dir_path`` (no settings dir)
+  * ``time_units`` (no time unit concept, use Project.fps instead)
