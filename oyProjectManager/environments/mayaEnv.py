@@ -464,7 +464,6 @@ class Maya(EnvironmentBase):
             # check the maya version and set it if maya version is equal or
             # greater than 2012
             import pymel
-
             try:
                 if pymel.versions.current() >= pymel.versions.v2012:
                     try:
@@ -1042,47 +1041,63 @@ class Maya(EnvironmentBase):
 
                     ref.replaceWith(new_ref_path)
 
-        # texture files
-        # replace with $REPO
-        for image_file in pm.ls(type="file"):
-            file_texture_path = image_file.getAttr("fileTextureName")
-            file_texture_path = file_texture_path.replace("\\", "/")
+        types_and_attrs = {
+            'aiImage': 'filename',
+            'aiStandIn': 'dso',
+            'file': 'fileTextureName',
+            'imagePlane': 'imageName',
+            'audio': 'filename',
+            'AlembicNode': 'abc_File',
+            'gpuCache': 'cacheFileName',
+        }
 
-            logger.info("replacing file texture: %s" % file_texture_path)
+        for node_type in types_and_attrs.keys():
+            attr_name = types_and_attrs[node_type]
+            for node in pm.ls(type=node_type):
+                path = node.getAttr(attr_name)
 
-            file_texture_path = os.path.normpath(
-                os.path.expandvars(
-                    file_texture_path
+                if path:
+                    path = path.replace("\\", "/")
+
+                logger.info("replacing file texture: %s" % path)
+
+                path = os.path.normpath(
+                    os.path.expandvars(
+                        path
+                    )
                 )
-            )
-            file_texture_path = file_texture_path.replace("\\", "/")
 
-            # convert to absolute
-            if not os.path.isabs(file_texture_path):
-                file_texture_path = os.path.join(
-                    workspace_path,
-                    file_texture_path
-                ).replace("\\", "/")
+                if path:
+                    path = path.replace("\\", "/")
 
-            new_path = ""
-            if mode:
                 # convert to absolute
-                new_path = file_texture_path.replace(
-                    server_path,
-                    "$" + conf.repository_env_key
-                )
-            else:
-                # convert to relative
-                new_path = utils.relpath(
-                    workspace_path,
-                    file_texture_path,
-                    "/", ".."
-                )
+                if not os.path.isabs(path):
+                    path = os.path.join(
+                        workspace_path,
+                        path
+                    ).replace("\\", "/")
+                
+                new_path = ""
 
-            logger.info("with: %s" % new_path)
+                if mode:
+                    # convert to absolute
+                    new_path = path.replace(
+                        server_path,
+                        "$%s" % conf.repository_env_key
+                    )
+                else:
+                    # convert to relative
+                    new_path = utils.relpath(
+                        workspace_path,
+                        path,
+                        "/", ".."
+                    )
 
-            image_file.setAttr("fileTextureName", new_path)
+                logger.info("with: %s" % new_path)
 
+                node.setAttr(attr_name, new_path)
+
+    
     def create_workspace_file(self, path):
         """creates the workspace.mel at the given path
         """
